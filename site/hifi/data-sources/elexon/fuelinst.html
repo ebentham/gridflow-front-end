@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>fuelinst · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th {
+      text-align: left; font-family: var(--sans); font-weight: 500;
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink-soft); padding: 10px 12px;
+      border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);
+    }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str { color: #e8b8a3; }
+    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="05 Dataset · fuelinst">
+
+  <div style="border-bottom:1px solid var(--rule);">
+    <div class="container" style="padding-top:40px; padding-bottom:40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../elexon.html">Elexon BMRS</a>
+        <span class="sep">/</span>
+        <span class="here">fuelinst</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr auto; gap:48px; align-items:end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center;">
+            <span class="eyebrow">Generation · elexon · silver</span>
+            <span class="chip live" style="font-size:11px;">live · ~5 min</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom:14px;">
+            <span class="fg-soft" style="font-size:28px; font-family:var(--mono); letter-spacing:-0.01em;">fuelinst</span><br/>
+            Generation by fuel type, <span class="italic fg-accent">instantaneous.</span>
+          </h1>
+          <p class="lede" style="max-width:660px;">A near-real-time snapshot of GB generation by fuel type, updated every few minutes. Use for live monitoring; use fuelhh for settled half-hourly analysis.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--rule); background:var(--paper-card); min-width:340px;">
+          <div style="padding:16px 18px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.fuelinst</div>
+          </div>
+          <div style="padding:16px 18px; border-bottom:1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small">/datasets/FUELINST</div>
+          </div>
+          <div style="padding:16px 18px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+            <div class="tiny mb-6">PARAM STYLE</div>
+            <div class="small">publishDateTimeFrom / To</div>
+          </div>
+          <div style="padding:16px 18px; border-bottom:1px solid var(--rule);">
+            <div class="tiny mb-6">EARLIEST DATA</div>
+            <div class="small">2014-04-01</div>
+          </div>
+          <div style="padding:16px 18px; border-right:1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">~8.6M rows / month</div>
+          </div>
+          <div style="padding:16px 18px;">
+            <div class="tiny mb-6">LAST FETCH</div>
+            <div class="small"><span class="dot live"></span> 1 min ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns:repeat(5,1fr);">
+      
+      <div>
+        <div class="stat-n">~5<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">min</span></div>
+        <div class="stat-l">Update frequency</div>
+      </div>
+      <div>
+        <div class="stat-n">16</div>
+        <div class="stat-l">Fuel types</div>
+      </div>
+      <div>
+        <div class="stat-n">8.6<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">M</span></div>
+        <div class="stat-l">Rows / month</div>
+      </div>
+      <div>
+        <div class="stat-n">Unsettled</div>
+        <div class="stat-l">Data status</div>
+      </div>
+      <div>
+        <div class="stat-n">1<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">min</span></div>
+        <div class="stat-l">Median lag</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:0; padding-bottom:0;">
+    <div class="page-layout">
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#live-chart">Live chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top:24px;">
+          <div class="sidebar-section-title">Elexon BMRS</div>
+          <a href="../elexon.html">← All datasets</a>
+          <a href="fuelhh.html" style="color:var(--ink-faint);">fuelhh</a>
+          <a href="fuelinst.html" class="active">fuelinst</a>
+          <a href="agpt.html" style="color:var(--ink-faint);">agpt</a>
+          <a href="agws.html" style="color:var(--ink-faint);">agws</a>
+          <a href="windfor.html" style="color:var(--ink-faint);">windfor</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top:48px; margin-bottom:48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width:680px; font-size:15px; line-height:1.65; margin-bottom:16px;"><code class="mono" style="font-size:13px;background:var(--paper-deep);padding:2px 6px;border:1px solid var(--rule);">fuelinst</code> is the instantaneous generation outturn by fuel type, published every ~5 minutes. Unlike <code class="mono" style="font-size:12px;background:var(--paper-deep);padding:2px 6px;border:1px solid var(--rule);">fuelhh</code>, these values are not settled — they are Elexon's best real-time estimate and can differ significantly from the final half-hourly figure.</p>
+          <p style="max-width:680px; font-size:15px; line-height:1.65; margin-bottom:16px;">It is sourced from <code class="mono" style="font-size:12px;background:var(--paper-deep);padding:2px 6px;border:1px solid var(--rule);">/datasets/FUELINST</code> using the <code class="mono" style="font-size:12px;background:var(--paper-deep);padding:2px 6px;border:1px solid var(--rule);">publishDateTimeFrom / To</code> pattern. The silver layer deduplicates on <code class="mono" style="font-size:12px;background:var(--paper-deep);padding:2px 6px;border:1px solid var(--rule);">(timestamp_utc, fuel_type)</code> and does not apply settlement-period alignment.</p>
+          <p style="max-width:680px; font-size:15px; line-height:1.65;">Use this dataset for dashboards and live monitoring. For any analytical work — trend analysis, regression inputs, market models — always use the settled <code class="mono" style="font-size:12px;background:var(--paper-deep);padding:2px 6px;border:1px solid var(--rule);">fuelhh</code>.</p>
+        </section>
+
+        <section id="live-chart" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Live chart</div>
+          <h2 class="display-3 mb-24">GB generation mix · last 24 h.</h2>
+          <div class="chart" style="padding:24px 28px;">
+            <div class="row between mb-16" style="align-items:baseline;">
+              <div>
+                <div class="eyebrow mb-4">fuelinst · silver layer</div>
+                <div class="small">Stacked area · MW · UTC</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div data-chart="stackedArea" data-opts='{"width":900,"height":280}'></div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width:560px;">Defined in <code class="mono">gridflow/schemas/elexon.py · FuelInstTransformer</code>. Partitioned by <code class="mono">settlement_date</code>.</p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width:22%;">Column</th>
+                <th style="width:14%;">Type</th>
+                <th style="width:8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Snapshot timestamp in UTC. Derived from publishDateTime or startTime.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fuel_type <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Elexon fuel type code (CCGT, WIND, NUCLEAR, etc.). Same codes as fuelhh.</td>
+              </tr>
+              <tr>
+                <td class="col-name">generation_mw</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Instantaneous generation estimate in MW. Unsettled — values differ from fuelhh.</td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Always "elexon".</td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">When Gridflow wrote this row to bronze.</td>
+              </tr></tbody>
+          </table>
+        </section>
+
+        <section id="sample" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x:auto; border:1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead><tr><th>timestamp_utc</th><th>fuel_type</th><th>generation_mw</th><th>data_provider</th></tr></thead>
+              <tbody><tr><td class="date">2024-06-15 00:05:00+00</td><td class="str">CCGT</td><td class="num">8510.0</td><td>elexon</td></tr><tr><td class="date">2024-06-15 00:05:00+00</td><td class="str">NUCLEAR</td><td class="num">5810.0</td><td>elexon</td></tr><tr><td class="date">2024-06-15 00:05:00+00</td><td class="str">WIND</td><td class="num">7200.0</td><td>elexon</td></tr><tr><td class="date">2024-06-15 00:10:00+00</td><td class="str">CCGT</td><td class="num">8490.0</td><td>elexon</td></tr><tr><td class="date">2024-06-15 00:10:00+00</td><td class="str">WIND</td><td class="num">7180.0</td><td>elexon</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px;">
+            <div class="card" style="padding:20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break:break-all; margin-bottom:12px;">data.elexon.co.uk/bmrs/api/v1
+/datasets/FUELINST</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Public · no key required</div>
+            </div>
+            <div class="card" style="padding:20px;">
+              <div class="tiny mb-8">PARAM STYLE</div>
+              <div class="mono small" style="margin-bottom:12px;">publishDateTimeFrom=ISO
+publishDateTimeTo=ISO</div>
+              <div class="tiny mb-8">WINDOW</div>
+              <div class="small">24-hour chunks · paginated</div>
+            </div>
+          </div>
+          <div data-tab-group="fuelinst">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('fuelinst','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('fuelinst','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('fuelinst','py',this)" style="cursor:pointer;">Python · parquet</button>
+            </div>
+            <div data-tab-panel="fuelinst-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding:18px 22px; overflow-x:auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/FUELINST<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">publishDateTimeFrom</span>=2026-05-01T00:00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">publishDateTimeTo</span>=2026-05-02T00:00:00Z</pre>
+          </div></div>
+            <div data-tab-panel="fuelinst-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding:18px 22px;"><span class="c">-- Latest generation snapshot per fuel type</span>
+<span class="k">SELECT</span> fuel_type, generation_mw
+<span class="k">FROM</span> silver.fuelinst
+<span class="k">WHERE</span> timestamp_utc = (<span class="k">SELECT</span> max(timestamp_utc) <span class="k">FROM</span> silver.fuelinst)
+<span class="k">ORDER BY</span> generation_mw <span class="k">DESC</span>;</pre>
+          </div></div>
+            <div data-tab-panel="fuelinst-py"  style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding:18px 22px;"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+df = pd.read_parquet(
+    <span class="s">"data/silver/elexon/fuelinst/"</span>,
+    filters=[(<span class="s">"settlement_date"</span>, <span class="s">">="</span>, <span class="s">"2026-05-01"</span>)],
+)
+<span class="c"># Get latest snapshot</span>
+latest = df[df.timestamp_utc == df.timestamp_utc.max()]</pre>
+          </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know.</h2>
+          <p class="small mb-24" style="max-width:560px;">Dataset-specific notes. Also see <a href="../elexon.html" class="link">Elexon-wide caveats</a>.</p>
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight:500; margin-bottom:6px;">Not settled — do not use for analysis</div>
+                <p class="small" style="margin:0;">Values reflect Elexon's real-time estimate before metering data is available. The settled equivalent is fuelhh. For any aggregation, trend, or model work, always prefer fuelhh.</p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight:500; margin-bottom:6px;">Timestamp is publish time, not period start</div>
+                <p class="small" style="margin:0;">Unlike fuelhh where timestamp_utc aligns to the settlement period boundary, fuelinst timestamps are when Elexon published the snapshot. They do not align to clean 30-minute boundaries.</p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom:1px solid var(--rule); padding-bottom:16px;">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight:500; margin-bottom:6px;">High volume — filter carefully</div>
+                <p class="small" style="margin:0;">At ~8.6M rows/month, fuelinst is 6x the volume of fuelhh. Always filter by date before loading into memory.</p>
+              </div>
+            </div></div>
+        </section>
+
+        <section id="related" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside fuelinst.</h2>
+          <div class="related-grid">
+            <a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule); padding:20px 22px; background:var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items:flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">fuelhh</span>
+                  <span class="chip live" style="font-size:10px;">live · 30 min</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin:0 0 8px;">The settled half-hourly equivalent. Always prefer this for analysis over fuelinst.</p>
+              <span class="tiny">elexon · generation · 30 min</span>
+            </a>
+            <a href="agpt.html" class="row-link card flush" style="border:1px solid var(--rule); padding:20px 22px; background:var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items:flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">agpt</span>
+                  <span class="chip " style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin:0 0 8px;">ENTSO-E PSR-type breakdown with onshore/offshore wind split. Settled D+1.</p>
+              <span class="tiny">elexon · generation · 30 min · D+1</span>
+            </a>
+            <a href="indo.html" class="row-link card flush" style="border:1px solid var(--rule); padding:20px 22px; background:var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items:flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">indo</span>
+                  <span class="chip live" style="font-size:10px;">live</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin:0 0 8px;">Initial demand outturn. Compare with fuelinst total to cross-check supply/demand balance.</p>
+              <span class="tiny">elexon · demand · 30 min</span>
+            </a>
+            <a href="system_prices.html" class="row-link card flush" style="border:1px solid var(--rule); padding:20px 22px; background:var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items:flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">system_prices</span>
+                  <span class="chip live" style="font-size:10px;">live</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin:0 0 8px;">System buy/sell prices per settlement period. Join on period to add price context.</p>
+              <span class="tiny">elexon · balancing · 30 min</span>
+            </a></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector('.sidebar a[href="#' + e.target.id + '"]');
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

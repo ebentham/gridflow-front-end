@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>pn · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str { color: #e8b8a3; }
+    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="15 Dataset · pn">
+  <div style="border-bottom:1px solid var(--rule);">
+    <div class="container" style="padding-top:40px;padding-bottom:40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+        <a href="../elexon.html">Elexon BMRS</a><span class="sep">/</span>
+        <span class="here">pn</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center;">
+            <span class="eyebrow">Prices &amp; Balancing · elexon · silver</span>
+            <span class="chip live" style="font-size:11px;">live · hourly</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom:14px;">
+            <span class="fg-soft" style="font-size:28px;font-family:var(--mono);letter-spacing:-0.01em;">pn</span><br/>
+            Physical notifications by BM unit, <span class="italic fg-accent">pre gate-closure.</span>
+          </h1>
+          <p class="lede" style="max-width:660px;">MW output levels declared by each BM unit for each settlement period, submitted up to gate closure. Deviations from PN incur imbalance charges — this is each unit's intent before the balancing mechanism acts.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-card);min-width:340px;">
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small">silver.pn</div></div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small">/datasets/PN</div></div>
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">PARAM STYLE</div><div class="small">settlementDate + settlementPeriod</div></div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">EARLIEST DATA</div><div class="small">2014-04-01</div></div>
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">~5.4M rows / month</div></div>
+          <div style="padding:16px 18px;"><div class="tiny mb-6">LAST FETCH</div><div class="small"><span class="dot live"></span> 10 min ago</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns:repeat(5,1fr);"><div><div class="stat-n">5.4<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">M</span></div><div class="stat-l">Rows / month</div></div><div><div class="stat-n">Unit-level</div><div class="stat-l">Granularity</div></div><div><div class="stat-n">Both</div><div class="stat-l">level_from & level_to</div></div><div><div class="stat-n">hourly</div><div class="stat-l">Update frequency</div></div><div><div class="stat-n">Gate</div><div class="stat-l">Submission deadline</div></div></div>
+  </div>
+  <div class="container" style="padding-top:0;padding-bottom:0;">
+    <div class="page-layout">
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        
+        <div class="sidebar-section" style="margin-top:24px;">
+          <div class="sidebar-section-title">Elexon BMRS</div>
+          <a href="../elexon.html">← All datasets</a>
+          <a href="system_prices.html" style="color:var(--ink-faint);">system_prices</a>
+          <a href="mid.html" style="color:var(--ink-faint);">mid</a>
+          <a href="boal.html" style="color:var(--ink-faint);">boal</a>
+          <a href="disbsad.html" style="color:var(--ink-faint);">disbsad</a>
+          <a href="netbsad.html" style="color:var(--ink-faint);">netbsad</a>
+          <a href="pn.html" class="active">pn</a>
+        </div>
+      </div>
+            <div class="card" style="padding:20px;"><div class="tiny mb-8">PARAM STYLE</div><div class="mono small" style="margin-bottom:12px;">settlementDate=YYYY-MM-DD
+settlementPeriod=N (both required)</div><div class="tiny mb-8">WINDOW</div><div class="small">24-hour chunks · paginated</div></div>
+          </div>
+          <div data-tab-group="pn">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('pn','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('pn','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('pn','py',this)" style="cursor:pointer;">Python · parquet</button>
+            </div>
+            <div data-tab-panel="pn-url" style="display:block;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/PN<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">settlementDate</span>=2026-05-01<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">settlementPeriod</span>=1</pre></div></div>
+            <div data-tab-panel="pn-sql" style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="c">-- PN vs BOAL: units with largest deviations in period 35</span>
+<span class="k">SELECT</span>
+  p.bm_unit_id,
+  p.level_to <span class="k">AS</span> pn_mw,
+  b.bid_offer_level_to <span class="k">AS</span> boal_mw,
+  round(b.bid_offer_level_to - p.level_to, 1) <span class="k">AS</span> deviation_mw
+<span class="k">FROM</span> silver.pn p
+<span class="k">JOIN</span> silver.boal b <span class="k">USING</span> (settlement_date, settlement_period, bm_unit_id)
+<span class="k">WHERE</span> p.settlement_date = <span class="s">'2026-05-01'</span>
+  <span class="k">AND</span> p.settlement_period = 35
+<span class="k">ORDER BY</span> abs(deviation_mw) <span class="k">DESC</span> <span class="k">LIMIT</span> 20;</pre></div></div>
+            <div data-tab-panel="pn-py"  style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+pn = pd.read_parquet(<span class="s">"data/silver/elexon/pn/"</span>,
+    filters=[(<span class="s">"settlement_date"</span>, <span class="s">">="</span>, <span class="s">"2026-05-01"</span>)])
+<span class="c"># total declared output by period</span>
+total_pn = pn.groupby([<span class="s">'settlement_date'</span>,<span class="s">'settlement_period'</span>])[<span class="s">'level_to'</span>].sum()</pre></div></div>
+          </div>
+        </section>
+        <section id="caveats" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know.</h2>
+          <p class="small mb-24" style="max-width:560px;">Dataset-specific notes. Also see <a href="../elexon.html" class="link">Elexon-wide caveats</a>.</p>
+          <div><div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight:500;margin-bottom:6px;">Both settlementDate AND settlementPeriod required</div><p class="small" style="margin:0;">The PN API endpoint returns 404 if you send only settlementDate. The connector iterates all 48 periods explicitly. Do not attempt to bulk-query by date range — there is no from/to parameter for this endpoint.</p></div></div><div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight:500;margin-bottom:6px;">Highest volume Elexon dataset</div><p class="small" style="margin:0;">At 5.4M rows/month, PN is 4x the size of BOAL. Always filter to specific dates or units before loading. Consider materialising aggregates rather than querying raw PN repeatedly.</p></div></div><div class="caveat-item" style="border-bottom:1px solid var(--rule);padding-bottom:16px;"><div class="caveat-num">03</div><div><div style="font-weight:500;margin-bottom:6px;">level_from and level_to may be identical</div><p class="small" style="margin:0;">Most units declare a flat output (level_from == level_to). A difference between them indicates a planned ramp within the settlement period.</p></div></div></div>
+        </section>
+        <section id="related" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside pn.</h2>
+          <div class="related-grid"><a href="boal.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">boal</span><span class="chip live" style="font-size:10px;">live</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Bid/offer acceptances. Compare boal instructions against pn declarations to compute net deviations.</p><span class="tiny">elexon · balancing · hourly</span></a><a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">fuelhh</span><span class="chip live" style="font-size:10px;">live · 30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Settled generation by fuel. Aggregate PN by fuel type (via bmunits_reference) and compare to fuelhh actuals.</p><span class="tiny">elexon · generation · 30 min</span></a><a href="system_prices.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">system_prices</span><span class="chip live" style="font-size:10px;">live · 30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">SBP/SSP. Units that deviate from PN are settled against these prices.</p><span class="tiny">elexon · balancing · 30 min</span></a><a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">bmunits_reference</span><span class="chip " style="font-size:10px;">weekly</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">BM unit reference. Join pn on bm_unit_id to get fuel_type, capacity, and company for each unit.</p><span class="tiny">elexon · reference · snapshot</span></a></div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function(){
+      const sections=document.querySelectorAll("section[id]");
+      const links=document.querySelectorAll(".sidebar a[href^='#']");
+      const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove("active"));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add("active");}});},{rootMargin:"-20% 0px -70% 0px"});
+      sections.forEach(s=>observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

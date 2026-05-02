@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Architecture · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/theme.css" />
+  <style>
+    /* ── Architecture-specific styles ───────────────────── */
+
+    /* Trace step cards */
+    .trace-step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 0;
+      border-top: 1px solid var(--rule);
+    }
+    .trace-step:last-child { border-bottom: 1px solid var(--rule); }
+
+    .trace-num {
+      padding: 28px 0 28px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .trace-num .n {
+      font-family: var(--serif);
+      font-size: 13px;
+      color: var(--ink-faint);
+      letter-spacing: 0.04em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+    .trace-num .connector-line {
+      flex: 1;
+      width: 1px;
+      background: var(--rule);
+      margin: 10px 0;
+    }
+
+    .trace-body {
+      padding: 28px 0 28px 32px;
+      border-left: 1px solid var(--rule);
+    }
+
+    .trace-label {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 6px;
+    }
+
+    .trace-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--ink-strong);
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .trace-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      max-width: 600px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .trace-guarantee {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      padding: 5px 12px;
+      border: 1px solid var(--accent-soft);
+      background: var(--accent-wash);
+      border-radius: 999px;
+      margin-top: 16px;
+    }
+    .trace-guarantee::before {
+      content: "✓";
+      font-size: 10px;
+    }
+
+    /* Design decision entries */
+    .decision {
+      padding: 36px 0;
+      border-top: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .decision:last-child { border-bottom: 1px solid var(--rule); }
+    .decision-title {
+      font-family: var(--serif);
+      font-size: 20px;
+      color: var(--ink-strong);
+      letter-spacing: -0.018em;
+      line-height: 1.2;
+    }
+    .decision-tag {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-top: 8px;
+    }
+    .decision-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--ink);
+      max-width: 600px;
+    }
+    .decision-body p { margin: 0 0 10px; }
+    .decision-body p:last-child { margin: 0; }
+
+    /* Stack grid */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--rule);
+      border-left: 1px solid var(--rule);
+    }
+    .stack-item {
+      padding: 24px 28px;
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .stack-name {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink-strong);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .stack-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.55;
+    }
+
+    /* Repo tree */
+    pre.repo-tree {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.85;
+      background: var(--ink-strong);
+      color: #d6d0c1;
+      border: 1px solid var(--ink-strong);
+      padding: 28px 32px;
+      overflow: auto;
+      margin: 0;
+      white-space: pre;
+      tab-size: 2;
+    }
+    pre.repo-tree .dir  { color: #8fbf9c; }
+    pre.repo-tree .ann  { color: #6b6358; font-style: italic; }
+    pre.repo-tree .dim  { color: #4a4540; }
+
+    /* Layer cards in medallion section */
+    .layer-card {
+      padding: 32px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .layer-card.gold-card {
+      background: var(--ink-strong);
+      border-color: var(--ink-strong);
+      color: var(--paper);
+    }
+    .layer-tag {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .layer-title {
+      font-family: var(--serif);
+      font-size: 28px;
+      letter-spacing: -0.022em;
+      line-height: 1.05;
+    }
+    .layer-desc {
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .layer-rule {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 8px 12px;
+      border-radius: 3px;
+      line-height: 1.6;
+    }
+    .layer-rule.bronze { background: #f5ede5; color: #7a3a20; border: 1px solid #e8cbb8; }
+    .layer-rule.silver { background: var(--paper-deep); color: var(--ink); border: 1px solid var(--rule); }
+    .layer-rule.gold   { background: #26221d; color: #c9a96e; border: 1px solid #3a342c; }
+    .layer-example {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 10px 14px;
+      border-radius: 3px;
+    }
+    .layer-example.bronze { background: #f5ede5; color: #7a3a20; border: 1px solid #e8cbb8; }
+    .layer-example.silver { background: var(--paper-deep); color: var(--ink-soft); border: 1px solid var(--rule); }
+    .layer-example.gold   { background: #26221d; color: #d6d0c1; border: 1px solid #3a342c; }
+
+    /* At-a-glance overline strip */
+    .arch-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--rule);
+    }
+    .arch-strip > div {
+      padding: 18px 20px;
+      border-right: 1px solid var(--rule);
+    }
+    .arch-strip > div:last-child { border-right: 0; }
+
+    /* Sticky section anchors */
+    .section-anchor {
+      display: block;
+      position: relative;
+      top: -80px;
+      visibility: hidden;
+    }
+
+    /* inline code in prose */
+    code {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--paper-deep);
+      border: 1px solid var(--rule);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--ink);
+    }
+  </style>
+</head>
+<body data-page="architecture" data-root="">
+
+  <!-- ════════════════ HEADER ════════════════ -->
+  <section class="block" style="padding: 56px 0 48px;" data-screen-label="01 Header">
+    <div class="container">
+      <div class="crumbs">
+        <a href="index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <span class="here">Architecture</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="eyebrow mb-16">Design document</div>
+          <h1 class="display-2" style="margin-bottom: 22px;">
+            How Gridflow<br/><span class="italic fg-accent">is built.</span>
+          </h1>
+          <p class="lede" style="max-width: 520px; margin-bottom: 0;">
+            A medallion data pipeline — raw API responses land in bronze, cleaned tables settle in silver, analyst-ready joins live in gold — all queryable from a single embedded DuckDB catalogue.
+          </p>
+        </div>
+        <div>
+          <!-- nav links within page -->
+          <div style="display:flex; flex-direction:column; gap: 0; border: 1px solid var(--rule); background: var(--paper-card);">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rule);">
+              <span class="eyebrow">On this page</span>
+            </div>
+            <a href="#medallion" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
+              <span>Bronze · Silver · Gold</span><span style="color:var(--ink-faint);">→</span>
+            </a>
+            <a href="#trace" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
+              <span>End-to-end trace</span><span style="color:var(--ink-faint);">→</span>
+            </a>
+            <a href="#decisions" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
+              <span>Design decisions</span><span style="color:var(--ink-faint);">→</span>
+            </a>
+            <a href="#stack" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
+              <span>Stack</span><span style="color:var(--ink-faint);">→</span>
+            </a>
+            <a href="#repo" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
+              <span>Repo map</span><span style="color:var(--ink-faint);">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ AT A GLANCE STRIP ════════════════ -->
+  <div class="container">
+    <div class="arch-strip">
+      <div>
+        <div class="stat-n">3</div>
+        <div class="stat-l">Pipeline layers</div>
+      </div>
+      <div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Async connectors</div>
+      </div>
+      <div>
+        <div class="stat-n">34</div>
+        <div class="stat-l">Silver transformers</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size:22px; padding-top:4px;">Polars · DuckDB · httpx</div>
+        <div class="stat-l">Core stack</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ MEDALLION ════════════════ -->
+  <span class="section-anchor" id="medallion"></span>
+  <section class="block" data-screen-label="02 Medallion">
+    <div class="container">
+      <div class="eyebrow mb-8">Layers</div>
+      <h2 class="display-3 mb-8">Bronze · Silver · Gold.</h2>
+      <p class="lede" style="max-width:680px; margin-bottom: 48px;">
+        Each layer has a strict contract. Nothing skips a layer. Nothing mutates a layer from outside.
+      </p>
+
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink);">
+
+        <!-- Bronze -->
+        <div class="layer-card" style="border-right: 1px solid var(--rule);">
+          <div>
+            <div class="layer-tag" style="color: #c45a3a;">Bronze</div>
+            <div class="layer-title" style="margin-top:6px;">Raw.<br/>Immutable.</div>
+          </div>
+          <p class="layer-desc" style="color:var(--ink-soft);">
+            Raw API responses, written exactly as received. JSON, XML, or CSV — whatever the vendor sends. Nothing is parsed or validated here. Every write appends; nothing is ever overwritten or deleted.
+          </p>
+          <div>
+            <div class="tiny mb-8">INVARIANTS</div>
+            <div class="layer-rule bronze">append-only · no transforms<br/>one file per API response<br/>SHA-256 content hash in filename</div>
+          </div>
+          <div>
+            <div class="tiny mb-8">EXAMPLE PATH</div>
+            <div class="layer-example bronze">bronze/elexon/system_prices/<br/>2026/04/29/<br/>raw_20260429T140000Z_a1b2c3d4.json<br/>raw_20260429T140000Z_a1b2c3d4.meta.json</div>
+          </div>
+        </div>
+
+        <!-- Silver -->
+        <div class="layer-card" style="border-right: 1px solid var(--rule);">
+          <div>
+            <div class="layer-tag" style="color: var(--accent);">Silver</div>
+            <div class="layer-title" style="margin-top:6px;">Typed.<br/>Deduplicated.</div>
+          </div>
+          <p class="layer-desc" style="color:var(--ink-soft);">
+            Bronze files are read, parsed, renamed to snake_case, cast to strict types, and deduplicated by primary key. One Parquet file per dataset per calendar date, written atomically via a temp-then-rename pattern.
+          </p>
+          <div>
+            <div class="tiny mb-8">INVARIANTS</div>
+            <div class="layer-rule silver">typed schema · no raw strings<br/>Hive-partitioned by year/month<br/>atomic write via os.replace()</div>
+          </div>
+          <div>
+            <div class="tiny mb-8">EXAMPLE PATH</div>
+            <div class="layer-example silver">silver/elexon/system_prices/<br/>year=2026/month=04/<br/>system_prices_20260429.parquet</div>
+          </div>
+        </div>
+
+        <!-- Gold -->
+        <div class="layer-card gold-card">
+          <div>
+            <div class="layer-tag" style="color: #c9a96e;">Gold</div>
+            <div class="layer-title" style="color: var(--paper);">Joined.<br/>Enriched.</div>
+          </div>
+          <p class="layer-desc" style="color: #a8a194;">
+            Cross-source joins and derived features. Temporal features (hour of day, settlement period flags), price spreads, weather-adjusted demand. DuckDB SQL views or Polars builders — whichever suits the join complexity.
+          </p>
+          <div>
+            <div class="tiny mb-8" style="color:#6b6358;">INVARIANTS</div>
+            <div class="layer-rule gold">reads only from silver<br/>no external API calls<br/>documented derivation for every column</div>
+          </div>
+          <div>
+            <div class="tiny mb-8" style="color:#6b6358;">EXAMPLE PATH</div>
+            <div class="layer-example gold">gold/system_marginal_price/<br/>year=2026/<br/>system_marginal_price_20260429.parquet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- flow arrow row -->
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+        <div style="padding: 16px 32px; display:flex; align-items:center; gap:16px; border-right:1px solid var(--rule);">
+          <span class="mono tiny" style="color:#c45a3a;">API → BronzeWriter.write()</span>
+          <span style="color:var(--rule); flex:1; text-align:right; font-size:18px;">→</span>
+        </div>
+        <div style="padding: 16px 32px; display:flex; align-items:center; gap:16px; border-right:1px solid var(--rule);">
+          <span class="mono tiny" style="color:var(--accent);">bronze → BaseSilverTransformer.run()</span>
+          <span style="color:var(--rule); flex:1; text-align:right; font-size:18px;">→</span>
+        </div>
+        <div style="padding: 16px 32px; display:flex; align-items:center; gap:16px;">
+          <span class="mono tiny" style="color:#c9a96e;">silver → BaseGoldBuilder.build()</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ END-TO-END TRACE ════════════════ -->
+  <span class="section-anchor" id="trace"></span>
+  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="03 Trace">
+    <div class="container">
+      <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start;">
+        <div style="position: sticky; top: 100px;">
+          <div class="eyebrow mb-8">End-to-end trace</div>
+          <h2 class="display-3 mb-24">One dataset,<br/>six steps.</h2>
+          <p class="small" style="max-width:300px; line-height:1.7;">
+            Following <code>system_prices</code> — Elexon's half-hourly system buy/sell price — from API call to SQL query. Every dataset in the pipeline follows this exact same path.
+          </p>
+          <div style="margin-top: 32px; padding: 16px 20px; background: var(--paper-card); border: 1px solid var(--rule);">
+            <div class="tiny mb-8">DATASET</div>
+            <div class="mono small" style="color:var(--ink-strong); margin-bottom:8px;">elexon · system_prices</div>
+            <div class="tiny mb-8">WHAT IT IS</div>
+            <p class="small" style="margin:0;">Half-hourly system buy (SBP) and sell (SSP) prices used to settle imbalance. The reference price for all balancing mechanism analysis.</p>
+          </div>
+        </div>
+
+        <div>
+          <!-- Step 01 -->
+          <div class="trace-step">
+            <div class="trace-num">
+              <span class="n">01</span>
+              <div class="connector-line"></div>
+            </div>
+            <div class="trace-body">
+              <div class="trace-label">CLI invocation</div>
+              <div class="trace-title">Command dispatched.</div>
+              <p class="trace-desc">The CLI resolves the date range, imports the connector module (which auto-registers it), and opens an async context with a rate-limited httpx client.</p>
+              <div class="code-wrap">
+<pre class="code dark" style="font-size:12px;">gridflow ingest elexon system_prices --last 24h
+
+<span class="c"># internally: resolves to start=2026-04-28T14:00Z, end=2026-04-29T14:00Z</span>
+<span class="c"># imports connectors/elexon/client.py → triggers register_connector()</span>
+<span class="c"># opens httpx.AsyncClient with Semaphore(rate_limit_per_second=2)</span></pre>
+              </div>
+              <div class="trace-guarantee">Each source is a registered module — no central wiring file</div>
+            </div>
+          </div>
+
+          <!-- Step 02 -->
+          <div class="trace-step">
+            <div class="trace-num">
+              <span class="n">02</span>
+              <div class="connector-line"></div>
+            </div>
+            <div class="trace-body">
+              <div class="trace-label">Connector · Bronze layer</div>
+              <div class="trace-title">API fetched asynchronously.</div>
+              <p class="trace-desc">The connector pages through the API, returning an immutable <code>RawResponse</code> per page — raw bytes plus full provenance metadata. Rate limiting is enforced by an asyncio semaphore before every request.</p>
+              <div class="code-wrap">
+<pre class="code dark" style="font-size:12px;"><span class="c"># connectors/base.py</span>
+<span class="k">@dataclass</span>(frozen=<span class="k">True</span>)
+<span class="k">class</span> RawResponse:
+    body:           bytes        <span class="c"># raw API payload, untouched</span>
+    content_type:   str          <span class="c"># application/json | text/xml | text/csv</span>
+    source:         str          <span class="c"># "elexon"</span>
+    dataset:        str          <span class="c"># "system_prices"</span>
+    fetched_at:     datetime     <span class="c"># UTC timestamp of fetch</span>
+    request_url:    str          <span class="c"># full URL including query params</span>
+    http_status:    int          <span class="c"># 200 / 429 / 5xx</span>
+    page:           int          <span class="c"># pagination cursor</span>
+    data_date:      date | None  <span class="c"># calendar date the data refers to</span></pre>
+              </div>
+              <div class="trace-guarantee">Frozen dataclass — immutable after creation</div>
+            </div>
+          </div>
+
+          <!-- Step 03 -->
+          <div class="trace-step">
+            <div class="trace-num">
+              <span class="n">03</span>
+              <div class="connector-line"></div>
+            </div>
+            <div class="trace-body">
+              <div class="trace-label">Bronze write</div>
+              <div class="trace-title">Raw bytes land on disk.</div>
+              <p class="trace-desc"><code>BronzeWriter.write()</code> computes a SHA-256 hash of the response body and uses the first 8 hex chars in the filename — so identical fetches are content-addressable and duplicates are trivially detectable. A <code>.meta.json</code> sidecar records the full request provenance alongside every file.</p>
+              <div class="code-wrap">
+<pre class="code dark" style="font-size:12px;"><span class="c"># bronze/writer.py — filename construction</span>
+body_hash = hashlib.sha256(response.body).hexdigest()[:<span class="s">8</span>]
+ts        = response.fetched_at.strftime(<span class="s">"%Y%m%dT%H%M%SZ"</span>)
+filename  = <span class="s">f"raw_{ts}_{body_hash}.json"</span>
+
+<span class="c"># directory partitioned by data date, not ingest date</span>
+dir_path = bronze / source / dataset / <span class="s">f"{year}/{month:02d}/{day:02d}"</span>
+
+<span class="c"># sidecar carries full provenance</span>
+meta = { <span class="s">"request_url"</span>: ..., <span class="s">"body_sha256"</span>: ...,
+         <span class="s">"body_size_bytes"</span>: ..., <span class="s">"http_status"</span>: ... }</pre>
+              </div>
+              <div class="trace-guarantee">Content-hashed filename — idempotent re-fetch is a no-op</div>
+            </div>
+          </div>
+
+          <!-- Step 04 -->
+          <div class="trace-step">
+            <div class="trace-num">
+              <span class="n">04</span>
+              <div class="connector-line"></div>
+            </div>
+            <div class="trace-body">
+              <div class="trace-label">Silver transform</div>
+              <div class="trace-title">Typed, deduped, settled.</div>
+              <p class="trace-desc">
+                The transformer reads all bronze files for the target date, renames camelCase API fields to snake_case, casts every column to a strict Polars type, derives a UTC timestamp from the settlement date + period, then resolves run-type precedence. Elexon revises half-hourly prices through seven run types (<code>II→SF→R1→R2→R3→RF→DF</code>); only the highest-precedence run per settlement period is kept. The output is written atomically via a temp file and <code>os.replace()</code>.
+              </p>
+              <div class="code-wrap">
+<pre class="code dark" style="font-size:12px;"><span class="c"># silver/elexon/system_prices.py</span>
+RUN_PRECEDENCE = {<span class="s">"II"</span>: 1, <span class="s">"SF"</span>: 2, <span class="s">"R1"</span>: 3,
+                  <span class="s">"R2"</span>: 4, <span class="s">"R3"</span>: 5, <span class="s">"RF"</span>: 6, <span class="s">"DF"</span>: 7}
+
+<span class="k">def</span> _resolve_runs(self, df: pl.DataFrame) -> pl.DataFrame:
+    <span class="c"># keep only the latest run type per settlement period</span>
+    <span class="k">return</span> (
+        df.with_columns(
+            pl.col(<span class="s">"run_type"</span>)
+              .replace_strict(RUN_PRECEDENCE, default=<span class="s">0</span>)
+              .alias(<span class="s">"_run_rank"</span>)
+        )
+        .sort(<span class="s">"_run_rank"</span>, descending=<span class="k">True</span>)
+        .group_by([<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>])
+        .first()
+        .drop(<span class="s">"_run_rank"</span>)
+    )
+
+<span class="c"># atomic write — never leaves a partial file on disk</span>
+df.write_parquet(tmp_path)
+os.replace(tmp_path, final_path)</pre>
+              </div>
+              <div class="trace-guarantee">Atomic write via os.replace() — no partial files on crash</div>
+            </div>
+          </div>
+
+          <!-- Step 05 -->
+          <div class="trace-step">
+            <div class="trace-num">
+              <span class="n">05</span>
+              <div class="connector-line"></div>
+            </div>
+            <div class="trace-body">
+              <div class="trace-label">Catalogue registration</div>
+              <div class="trace-title">DuckDB view auto-created.</div>
+              <p class="trace-desc">After silver writes, <code>init_catalogue()</code> (or <code>refresh_views()</code>) walks the silver and gold directories and creates a DuckDB view per dataset pointing at the Parquet glob. Hive partitioning is enabled so partition columns (<code>year</code>, <code>month</code>) are read as filter predicates — partition pruning is free.</p>
+              <div class="code-wrap">
+<pre class="code dark" style="font-size:12px;"><span class="c"># storage/duckdb.py — view registration</span>
+pattern  = <span class="s">"data/silver/elexon/system_prices/**/*.parquet"</span>
+
+con.execute(<span class="s">f"""
+    CREATE OR REPLACE VIEW silver_system_prices AS
+    SELECT * FROM read_parquet('{pattern}',
+                               hive_partitioning=true)
+"""</span>)
+<span class="c"># one view per dataset · all years queryable via SQL</span>
+<span class="c"># partition pruning on year=, month= predicates is automatic</span></pre>
+              </div>
+              <div class="trace-guarantee">All history queryable via one view — no manual union required</div>
+            </div>
+          </div>
+
+          <!-- Step 06 -->
+          <div class="trace-step">
+            <div class="trace-num">
+              <span class="n">06</span>
+            </div>
+            <div class="trace-body">
+              <div class="trace-label">Query</div>
+              <div class="trace-title">SQL or Python.</div>
+              <p class="trace-desc">Query via the DuckDB CLI, the <code>GridflowClient</code> Python SDK, or any Parquet-capable tool (pandas, DuckDB WASM, Tableau). The client is read-only and returns Polars DataFrames.</p>
+
+              <div data-tabs>
+                <div class="tabs">
+                  <button class="active">DuckDB · SQL</button>
+                  <button>Python · client</button>
+                </div>
+                <div class="tab-panel active code-wrap">
+<pre class="code dark" style="font-size:12px;"><span class="c">-- System price spread and imbalance · last 7 days</span>
+<span class="k">SELECT</span>
+    timestamp_utc,
+    system_sell_price,
+    system_buy_price,
+    system_sell_price - system_buy_price <span class="k">AS</span> spread,
+    net_imbalance_volume,
+    run_type
+<span class="k">FROM</span>  silver_system_prices
+<span class="k">WHERE</span> settlement_date >= current_date - <span class="k">INTERVAL</span> <span class="s">'7 days'</span>
+  <span class="k">AND</span>  run_type = <span class="s">'DF'</span>   <span class="c">-- final settlement only</span>
+<span class="k">ORDER BY</span> timestamp_utc;</pre>
+                </div>
+                <div class="tab-panel code-wrap">
+<pre class="code dark" style="font-size:12px;"><span class="k">from</span> gridflow <span class="k">import</span> GridflowClient
+
+<span class="k">with</span> GridflowClient() <span class="k">as</span> gf:
+    prices = gf.get_system_prices(
+        start=<span class="s">"2026-04-22"</span>,
+        end=<span class="s">"2026-04-29"</span>,
+    )
+    <span class="c"># returns a Polars DataFrame</span>
+    spread = prices.with_columns(
+        (pl.col(<span class="s">"system_sell_price"</span>) -
+         pl.col(<span class="s">"system_buy_price"</span>)).alias(<span class="s">"spread"</span>)
+    )
+    print(spread.head())</pre>
+                </div>
+              </div>
+              <div class="trace-guarantee">Single DuckDB file — no server, no config, works offline</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ DESIGN DECISIONS ════════════════ -->
+  <span class="section-anchor" id="decisions"></span>
+  <section class="block" data-screen-label="04 Decisions">
+    <div class="container">
+      <div class="eyebrow mb-8">Rationale</div>
+      <h2 class="display-3 mb-8">Design decisions.</h2>
+      <p class="lede" style="max-width:600px; margin-bottom: 48px;">
+        The choices that shaped the architecture — and the reasoning behind each one.
+      </p>
+
+      <div>
+        <!-- Decision 1 -->
+        <div class="decision">
+          <div>
+            <div class="decision-title">Why Polars over pandas</div>
+            <div class="decision-tag">Transforms · Silver layer</div>
+          </div>
+          <div class="decision-body">
+            <p>Polars enforces a strict schema at construction time: you cannot accidentally mix strings and integers in a column the way you can with a pandas object dtype. For a pipeline ingesting seven vendor APIs — each with their own naming conventions and type quirks — that strictness is load-bearing. A cast failure in Polars is a loud exception; in pandas it is often a silent <code>NaN</code>.</p>
+            <p>The lazy evaluation API also matters. Silver transforms on months of settlement data run entirely in Polars' query planner before any data moves; full scans happen only when <code>.collect()</code> is called. In practice this means a 30-day backfill that would take minutes in pandas runs in seconds.</p>
+          </div>
+        </div>
+
+        <!-- Decision 2 -->
+        <div class="decision">
+          <div>
+            <div class="decision-title">Why DuckDB as catalogue</div>
+            <div class="decision-tag">Storage · Query layer</div>
+          </div>
+          <div class="decision-body">
+            <p>DuckDB can query Parquet files directly via <code>read_parquet(glob, hive_partitioning=true)</code> — no ETL step to load data into a running database. The catalogue is a single <code>.duckdb</code> file that holds views, run history, and quality reports; it can be opened read-only from multiple processes simultaneously and checked into a backup without any export step.</p>
+            <p>The alternative — a Postgres or SQLite database with loaded tables — would require a separate load step after every silver write, and would duplicate storage. DuckDB treats the Parquet files as the source of truth and the <code>.duckdb</code> file as pure metadata. Delete the <code>.duckdb</code> file and <code>gridflow init</code> reconstructs it from the Parquet directory tree in seconds.</p>
+          </div>
+        </div>
+
+        <!-- Decision 3 -->
+        <div class="decision">
+          <div>
+            <div class="decision-title">Auto-registration pattern</div>
+            <div class="decision-tag">Extensibility · Connectors</div>
+          </div>
+          <div class="decision-body">
+            <p>Every connector and transformer calls <code>register_connector()</code> or <code>register_transformer()</code> at module level — so the act of importing the module registers it. The CLI imports all source modules at startup, which populates the registry. Adding a new data source means writing the connector and transformer files; no central wiring file needs editing.</p>
+            <p>This keeps the registry honest: if a connector is not imported, it simply does not exist in the pipeline. There are no configuration files listing available sources — the filesystem is the configuration.</p>
+          </div>
+        </div>
+
+        <!-- Decision 4 -->
+        <div class="decision">
+          <div>
+            <div class="decision-title">Idempotent backfills</div>
+            <div class="decision-tag">Reliability · Ops</div>
+          </div>
+          <div class="decision-body">
+            <p>Re-running any ingest or transform command for the same date range produces the same result and leaves the same files on disk. Bronze writes use content-hashed filenames: fetching the same API response twice writes two files with the same name, so the second is a no-op from the filesystem's perspective. Silver writes use <code>os.replace()</code> — an atomic overwrite — so a re-run of the transform replaces the previous Parquet file cleanly.</p>
+            <p>This means backfill is not a special code path. <code>gridflow transform elexon system_prices --start 2024-01-01 --end 2024-12-31</code> is safe to run multiple times; it always converges to the correct state.</p>
+          </div>
+        </div>
+
+        <!-- Decision 5 -->
+        <div class="decision">
+          <div>
+            <div class="decision-title">Settlement revision handling</div>
+            <div class="decision-tag">Domain logic · Elexon</div>
+          </div>
+          <div class="decision-body">
+            <p>Elexon publishes half-hourly settlement values through up to seven sequential run types: Initial Indicative (<code>II</code>), then Settlement Final (<code>SF</code>), then three reconciliation runs (<code>R1–R3</code>), then Final Reconciliation (<code>RF</code>), then Derived Final (<code>DF</code>). Each run revises the previous. A value marked <code>II</code> today may be materially different when <code>DF</code> publishes 14 days later.</p>
+            <p>Gridflow's silver transformer keeps only the highest-precedence run per settlement period in the clean layer, but the raw bronze layer retains all runs. Analysts who need the full revision history can read directly from bronze; the silver layer is opinionated toward final settlement for most use cases.</p>
+          </div>
+        </div>
+
+        <!-- Decision 6 -->
+        <div class="decision">
+          <div>
+            <div class="decision-title">Schema contracts via Pydantic</div>
+            <div class="decision-tag">Data quality · Validation</div>
+          </div>
+          <div class="decision-body">
+            <p>Every silver dataset has a corresponding Pydantic v2 model. Schema drift — an upstream API adding, removing, or renaming a field — becomes a <code>ValidationError</code> at parse time rather than a silent corruption that propagates downstream. The quality reporter records validation failures to DuckDB, so a field change in the Elexon API on a Tuesday shows up as a failed quality check, not a missing column in a Friday analysis.</p>
+            <p>The models also serve as the canonical documentation for what each dataset contains. The column names, types, and units in the Pydantic model are the authoritative schema; the dataset pages on this site are generated from them.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ STACK ════════════════ -->
+  <span class="section-anchor" id="stack"></span>
+  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="05 Stack">
+    <div class="container">
+      <div class="eyebrow mb-8">Dependencies</div>
+      <h2 class="display-3 mb-48">The stack.</h2>
+
+      <div class="stack-grid">
+        <div class="stack-item">
+          <div class="stack-name">httpx</div>
+          <div class="stack-desc">Async HTTP client for all seven vendor APIs. The <code>AsyncClient</code> context manager pairs with an asyncio <code>Semaphore</code> to enforce per-source rate limits across concurrent fetches.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">polars</div>
+          <div class="stack-desc">DataFrame library for all bronze-to-silver transforms. Strict typing, lazy evaluation, and Parquet I/O that is ~10× faster than pandas for the column-heavy settlement data this pipeline processes.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">duckdb</div>
+          <div class="stack-desc">Embedded analytical database. Serves as the catalogue layer — views point at Parquet files; run history and quality reports are stored as tables. No server process, no config.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">pydantic v2</div>
+          <div class="stack-desc">Schema validation for every silver dataset. API field mappings are defined as typed models; a schema drift upstream is a loud exception, not a silent null column.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">tenacity</div>
+          <div class="stack-desc">Retry policy with exponential backoff for all HTTP calls. Handles transient 429 rate-limit responses and vendor maintenance windows without manual intervention.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">typer</div>
+          <div class="stack-desc">CLI framework. Each pipeline operation (<code>ingest</code>, <code>transform</code>, <code>build</code>, <code>init</code>) is a typed command; <code>--last 24h</code> date parsing is handled by a shared utility.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">lxml</div>
+          <div class="stack-desc">XML parsing for ENTSO-E responses. The transparency platform API returns large TimeSeries XML documents; lxml handles namespace resolution and element iteration without loading the full document into memory.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">pytest + hypothesis</div>
+          <div class="stack-desc">Unit and property-based testing. Transformer tests run against fixture XML/JSON files that mirror real vendor responses, so API changes that break parsing are caught before they reach production data.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">uv</div>
+          <div class="stack-desc">Package and virtual-environment manager. Replaces pip + venv + pip-tools with a single lockfile. <code>uv sync</code> from a clean clone reproduces the exact environment in under 10 seconds.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ REPO MAP ════════════════ -->
+  <span class="section-anchor" id="repo"></span>
+  <section class="block" data-screen-label="06 Repo">
+    <div class="container">
+      <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap: 80px; align-items: start;">
+        <div>
+          <div class="eyebrow mb-8">Source layout</div>
+          <h2 class="display-3 mb-32">Repo map.</h2>
+          <pre class="repo-tree"><span class="dir">src/gridflow/</span>
+├── <span class="dir">connectors/</span>          <span class="ann">← Bronze layer: API clients</span>
+│   ├── base.py              <span class="ann">BaseConnector ABC + RawResponse</span>
+│   ├── registry.py          <span class="ann">source name → connector class</span>
+│   ├── <span class="dir">elexon/</span>            <span class="ann">Elexon BMRS (28 datasets)</span>
+│   ├── <span class="dir">entsoe/</span>            <span class="ann">ENTSO-E Transparency (14 datasets)</span>
+│   ├── <span class="dir">entsog/</span>            <span class="ann">ENTSO-G gas flows</span>
+│   ├── <span class="dir">gie/</span>               <span class="ann">GIE AGSI + ALSI storage</span>
+│   ├── <span class="dir">openmeteo/</span>         <span class="ann">Open-Meteo weather</span>
+│   └── <span class="dir">neso/</span>              <span class="ann">NESO carbon intensity</span>
+│
+├── <span class="dir">bronze/</span>
+│   └── writer.py            <span class="ann">SHA-256 hashed writes + .meta.json sidecars</span>
+│
+├── <span class="dir">silver/</span>              <span class="ann">← Transform layer</span>
+│   ├── base.py              <span class="ann">BaseSilverTransformer: read → transform → write</span>
+│   ├── registry.py          <span class="ann">(source, dataset) → transformer class</span>
+│   ├── <span class="dir">elexon/</span>            <span class="ann">28 transformers</span>
+│   ├── <span class="dir">entsoe/</span>            <span class="ann">14 transformers</span>
+│   └── <span class="dim">…/</span>                 <span class="ann">one transformer per dataset per source</span>
+│
+├── <span class="dir">gold/</span>                <span class="ann">← Feature builders + cross-source joins</span>
+│   ├── base.py              <span class="ann">BaseGoldBuilder ABC</span>
+│   ├── system_marginal_price.py
+│   ├── demand_features.py
+│   ├── merit_order.py
+│   └── <span class="dir">views/</span>             <span class="ann">SQL files for DuckDB cross-source views</span>
+│
+├── <span class="dir">schemas/</span>             <span class="ann">Pydantic v2 schema contracts</span>
+│   ├── common.py            <span class="ann">BaseSchema, TimestampMixin, SettlementPeriodMixin</span>
+│   └── <span class="dim">elexon.py entsoe.py entsog.py gie.py …</span>
+│
+├── <span class="dir">storage/</span>
+│   ├── duckdb.py            <span class="ann">catalogue init, view registration</span>
+│   ├── parquet.py           <span class="ann">atomic write via os.replace()</span>
+│   └── paths.py             <span class="ann">PathBuilder — centralised path logic</span>
+│
+├── <span class="dir">quality/</span>
+│   ├── checks.py            <span class="ann">5 check types: nulls, gaps, range, count, dupes</span>
+│   └── reporter.py          <span class="ann">writes results to DuckDB quality_reports table</span>
+│
+├── <span class="dir">serving/</span>
+│   └── client.py            <span class="ann">GridflowClient — read-only DuckDB query interface</span>
+│
+├── observability.py         <span class="ann">PipelineRunTracker, watermarks</span>
+└── cli.py                   <span class="ann">Typer CLI: ingest · transform · build · init · run</span></pre>
+        </div>
+
+        <div style="position: sticky; top: 100px; display: flex; flex-direction: column; gap: 24px;">
+          <div class="card" style="padding: 28px;">
+            <div class="eyebrow mb-16">Key abstractions</div>
+            <div style="display:flex; flex-direction:column; gap:0;">
+              <div style="padding: 14px 0; border-bottom: 1px solid var(--rule);">
+                <div class="mono small" style="color:var(--ink-strong); margin-bottom:4px;">BaseConnector</div>
+                <p class="small" style="margin:0;">Abstract base for all API clients. Defines <code>fetch(dataset, start, end)</code> returning <code>list[RawResponse]</code>. Manages the httpx client lifecycle and rate-limiting semaphore.</p>
+              </div>
+              <div style="padding: 14px 0; border-bottom: 1px solid var(--rule);">
+                <div class="mono small" style="color:var(--ink-strong); margin-bottom:4px;">BaseSilverTransformer</div>
+                <p class="small" style="margin:0;">Template method: <code>run(date)</code> calls <code>read_bronze()</code> → <code>transform()</code> → <code>_write_silver()</code>. Subclasses only implement the source-specific transform logic.</p>
+              </div>
+              <div style="padding: 14px 0; border-bottom: 1px solid var(--rule);">
+                <div class="mono small" style="color:var(--ink-strong); margin-bottom:4px;">BaseGoldBuilder</div>
+                <p class="small" style="margin:0;">Reads from silver Parquet, enriches with derived features, writes partitioned gold Parquet. Gold may also be a plain SQL file registered as a DuckDB cross-source view.</p>
+              </div>
+              <div style="padding: 14px 0;">
+                <div class="mono small" style="color:var(--ink-strong); margin-bottom:4px;">GridflowClient</div>
+                <p class="small" style="margin:0;">Read-only DuckDB connection. Returns Polars DataFrames. Wraps common queries (<code>get_system_prices</code>, <code>get_fuel_generation</code>, <code>get_gas_storage</code>) with typed signatures.</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="https://github.com" target="_blank" class="btn ghost" style="justify-content:center;">
+            Read the full source on GitHub →
+          </a>
+
+          <div style="padding: 20px; background: var(--paper-deep); border: 1px solid var(--rule);">
+            <div class="eyebrow mb-12">Data layout on disk</div>
+            <div class="mono" style="font-size:11px; line-height:1.9; color:var(--ink-soft);">
+              <span style="color:var(--ink);">data/</span><br/>
+              ├── <span style="color:#c45a3a;">bronze/</span>   raw API responses<br/>
+              ├── <span style="color:var(--accent);">silver/</span>   typed Parquet, partitioned<br/>
+              ├── <span style="color:#c9a96e;">gold/</span>     enriched feature sets<br/>
+              └── gridflow.duckdb
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/charts.js"></script>
+  <script src="assets/site.js"></script>
+
+  <script>
+    // Update nav to use new Architecture link + mark active
+    document.addEventListener('DOMContentLoaded', () => {
+      const navLinks = document.querySelector('.nav-links');
+      if (navLinks) {
+        navLinks.innerHTML = `
+          <a href="architecture.html" class="active">Architecture</a>
+          <a href="data-sources.html">Catalogue</a>
+          <a href="#" data-key="models">Models</a>
+          <a href="about.html">About</a>
+        `;
+      }
+      // Update footer Pipeline column links to point to architecture sections
+      document.querySelectorAll('.footer-grid a').forEach(a => {
+        if (a.textContent.trim() === 'Changelog') a.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>

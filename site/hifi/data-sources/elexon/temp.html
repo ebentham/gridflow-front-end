@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>temp · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str { color: #e8b8a3; }
+    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="25 Dataset · temp">
+  <div style="border-bottom:1px solid var(--rule);">
+    <div class="container" style="padding-top:40px;padding-bottom:40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+        <a href="../elexon.html">Elexon BMRS</a><span class="sep">/</span>
+        <span class="here">temp</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center;">
+            <span class="eyebrow">System &amp; Reference · elexon · silver</span>
+            <span class="chip " style="font-size:11px;">daily</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom:14px;">
+            <span class="fg-soft" style="font-size:28px;font-family:var(--mono);letter-spacing:-0.01em;">temp</span><br/>
+            Temperature reference, <span class="italic fg-accent">actual &amp; seasonal normal.</span>
+          </h1>
+          <p class="lede" style="max-width:660px;">Elexon's official temperature reference series — actual, normal (seasonal average), and high/low bounds — used in demand forecasting models and settlement calculations.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-card);min-width:340px;">
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small">silver.temp</div></div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small">/datasets/TEMP</div></div>
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">PARAM STYLE</div><div class="small">publishDateTimeFrom / To</div></div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">EARLIEST DATA</div><div class="small">2014-04-01</div></div>
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">~30 rows / month</div></div>
+          <div style="padding:16px 18px;"><div class="tiny mb-6">LAST FETCH</div><div class="small"><span class="dot live"></span> 1 day ago</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns:repeat(5,1fr);"><div><div class="stat-n">1</div><div class="stat-l">Row per day</div></div><div><div class="stat-n">30</div><div class="stat-l">Rows / month</div></div><div><div class="stat-n">4</div><div class="stat-l">Temperature columns</div></div><div><div class="stat-n">°C</div><div class="stat-l">Unit</div></div><div><div class="stat-n">D+1</div><div class="stat-l">Publish lag</div></div></div>
+  </div>
+  <div class="container" style="padding-top:0;padding-bottom:0;">
+    <div class="page-layout">
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        
+        <div class="sidebar-section" style="margin-top:24px;">
+          <div class="sidebar-section-title">Elexon BMRS</div>
+          <a href="../elexon.html">← All datasets</a>
+          <a href="freq.html" style="color:var(--ink-faint);">freq</a>
+          <a href="temp.html" class="active">temp</a>
+        </div>
+      </div>
+            <div class="card" style="padding:20px;"><div class="tiny mb-8">PARAM STYLE</div><div class="mono small" style="margin-bottom:12px;">publishDateTimeFrom=ISO
+publishDateTimeTo=ISO</div><div class="tiny mb-8">WINDOW</div><div class="small">24-hour chunks · paginated</div></div>
+          </div>
+          <div data-tab-group="temp">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('temp','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('temp','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('temp','py',this)" style="cursor:pointer;">Python · parquet</button>
+            </div>
+            <div data-tab-panel="temp-url" style="display:block;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/TEMP<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">publishDateTimeFrom</span>=2026-05-01T00:00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">publishDateTimeTo</span>=2026-05-02T00:00:00Z</pre></div></div>
+            <div data-tab-panel="temp-sql" style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="c">-- Temperature anomaly vs demand correlation</span>
+<span class="k">SELECT</span>
+  t.timestamp_utc::date <span class="k">AS</span> dt,
+  round(t.temperature - t.normal_temperature, 1) <span class="k">AS</span> temp_anomaly_c,
+  i.initial_demand_outturn_mw
+<span class="k">FROM</span> silver.temp t
+<span class="k">JOIN</span> silver.indod i <span class="k">ON</span> t.timestamp_utc::date = i.settlement_date
+<span class="k">WHERE</span> t.timestamp_utc >= <span class="s">'2026-01-01'</span>
+<span class="k">ORDER BY</span> t.timestamp_utc;</pre></div></div>
+            <div data-tab-panel="temp-py"  style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+temp = pd.read_parquet(<span class="s">"data/silver/elexon/temp/"</span>)
+indod = pd.read_parquet(<span class="s">"data/silver/elexon/indod/"</span>)
+temp[<span class="s">'date'</span>] = pd.to_datetime(temp.timestamp_utc).dt.date
+indod[<span class="s">'date'</span>] = pd.to_datetime(indod.settlement_date)
+merged = temp.merge(indod, on=<span class="s">'date'</span>)
+merged[<span class="s">'temp_anomaly'</span>] = merged.temperature - merged.normal_temperature</pre></div></div>
+          </div>
+        </section>
+        <section id="caveats" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know.</h2>
+          <p class="small mb-24" style="max-width:560px;">Dataset-specific notes. Also see <a href="../elexon.html" class="link">Elexon-wide caveats</a>.</p>
+          <div><div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight:500;margin-bottom:6px;">Single GB reference temperature — not regional</div><p class="small" style="margin:0;">The temp dataset provides one temperature value for all of GB, not regional breakdowns. For more granular spatial temperature data, use Open-Meteo weather data for individual locations.</p></div></div><div class="caveat-item" style="border-bottom:1px solid var(--rule);padding-bottom:16px;"><div class="caveat-num">02</div><div><div style="font-weight:500;margin-bottom:6px;">Very low volume</div><p class="small" style="margin:0;">At 30 rows/month, temp can be loaded entirely into memory for any analysis period. No filtering required.</p></div></div></div>
+        </section>
+        <section id="related" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside temp.</h2>
+          <div class="related-grid"><a href="indod.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">indod</span><span class="chip " style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Daily demand total. Combine with temp for degree-day demand modelling.</p><span class="tiny">elexon · demand · daily</span></a><a href="ndf.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">ndf</span><span class="chip live" style="font-size:10px;">live</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Day-ahead demand forecast. NESO's NDF model uses temperature as a key input.</p><span class="tiny">elexon · demand · daily</span></a><a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">fuelhh</span><span class="chip live" style="font-size:10px;">live · 30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Generation by fuel. Gas generation (CCGT) is particularly temperature-sensitive.</p><span class="tiny">elexon · generation · 30 min</span></a><a href="indo.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">indo</span><span class="chip live" style="font-size:10px;">live</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Half-hourly demand outturn. Use temp to weather-correct half-hourly demand comparisons.</p><span class="tiny">elexon · demand · 30 min</span></a></div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function(){const s=document.querySelectorAll("section[id]"),l=document.querySelectorAll(".sidebar a[href^='#']"),o=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting){l.forEach(l=>l.classList.remove("active"));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add("active");}});},{rootMargin:"-20% 0px -70% 0px"});s.forEach(s=>o.observe(s));})();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

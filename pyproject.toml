@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gridflow-front-end"
+version = "0.1.0"
+description = "Local dev server for the Gridflow static site"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+gridflow-serve = "gridflow_front_end.serve:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>uou2t14d · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str { color: #e8b8a3; }
+    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="23 Dataset · uou2t14d">
+  <div style="border-bottom:1px solid var(--rule);">
+    <div class="container" style="padding-top:40px;padding-bottom:40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+        <a href="../elexon.html">Elexon BMRS</a><span class="sep">/</span>
+        <span class="here">uou2t14d</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center;">
+            <span class="eyebrow">Demand &amp; Forecasts · elexon · silver</span>
+            <span class="chip live" style="font-size:11px;">live · daily</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom:14px;">
+            <span class="fg-soft" style="font-size:28px;font-family:var(--mono);letter-spacing:-0.01em;">uou2t14d</span><br/>
+            2–14 day generation availability by BM unit, <span class="italic fg-accent">unit-level.</span>
+          </h1>
+          <p class="lede" style="max-width:660px;">Available generation capacity at individual BM unit level for D+2 to D+14. Same data as FOU2T14D but with unit-level granularity — essential for outage and capacity analysis.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-card);min-width:340px;">
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small">silver.uou2t14d</div></div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small">/datasets/UOU2T14D</div></div>
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">PARAM STYLE</div><div class="small">publishDateTimeFrom / To (max 4h window)</div></div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">EARLIEST DATA</div><div class="small">2014-04-01</div></div>
+          <div style="padding:16px 18px;border-right:1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">~5.2M rows / month</div></div>
+          <div style="padding:16px 18px;"><div class="tiny mb-6">LAST FETCH</div><div class="small"><span class="dot live"></span> 0 s ago</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns:repeat(5,1fr);"><div><div class="stat-n">5.2<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">M</span></div><div class="stat-l">Rows / month</div></div><div><div class="stat-n">Unit-level</div><div class="stat-l">Granularity</div></div><div><div class="stat-n">4<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">h</span></div><div class="stat-l">Max API window</div></div><div><div class="stat-n">14<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">d</span></div><div class="stat-l">Horizon</div></div><div><div class="stat-n">0<span style="font-size:18px;color:var(--ink-soft);margin-left:2px;">s</span></div><div class="stat-l">Publish lag</div></div></div>
+  </div>
+  <div class="container" style="padding-top:0;padding-bottom:0;">
+    <div class="page-layout">
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        
+        <div class="sidebar-section" style="margin-top:24px;">
+          <div class="sidebar-section-title">Elexon BMRS</div>
+          <a href="../elexon.html">← All datasets</a>
+          <a href="indo.html" style="color:var(--ink-faint);">indo</a>
+          <a href="itsdo.html" style="color:var(--ink-faint);">itsdo</a>
+          <a href="indod.html" style="color:var(--ink-faint);">indod</a>
+          <a href="ndf.html" style="color:var(--ink-faint);">ndf</a>
+          <a href="ndfd.html" style="color:var(--ink-faint);">ndfd</a>
+          <a href="tsdf.html" style="color:var(--ink-faint);">tsdf</a>
+          <a href="fou2t14d.html" style="color:var(--ink-faint);">fou2t14d</a>
+          <a href="uou2t14d.html" class="active">uou2t14d</a>
+        </div>
+      </div>
+            <div class="card" style="padding:20px;"><div class="tiny mb-8">PARAM STYLE</div><div class="mono small" style="margin-bottom:12px;">publishDateTimeFrom=ISO
+publishDateTimeTo=ISO
+(max 4-hour window)</div><div class="tiny mb-8">WINDOW</div><div class="small">24-hour chunks · paginated</div></div>
+          </div>
+          <div data-tab-group="uou2t14d">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('uou2t14d','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('uou2t14d','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('uou2t14d','py',this)" style="cursor:pointer;">Python · parquet</button>
+            </div>
+            <div data-tab-panel="uou2t14d-url" style="display:block;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/UOU2T14D<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">publishDateTimeFrom</span>=2026-05-01T00:00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">publishDateTimeTo</span>=2026-05-01T04:00:00Z</pre></div></div>
+            <div data-tab-panel="uou2t14d-sql" style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="c">-- Units with zero availability on a future date (outages)</span>
+<span class="k">SELECT</span>
+  u.bm_unit_id, b.fuel_type, b.registered_capacity_mw
+<span class="k">FROM</span> silver.uou2t14d u
+<span class="k">JOIN</span> silver.bmunits_reference b <span class="k">USING</span> (bm_unit_id)
+<span class="k">WHERE</span> u.settlement_date = <span class="s">'2026-05-07'</span>
+  <span class="k">AND</span> u.settlement_period = 1
+  <span class="k">AND</span> u.output_usable_mw = 0
+<span class="k">ORDER BY</span> b.registered_capacity_mw <span class="k">DESC</span>;</pre></div></div>
+            <div data-tab-panel="uou2t14d-py"  style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+uou = pd.read_parquet(<span class="s">"data/silver/elexon/uou2t14d/"</span>,
+    filters=[(<span class="s">"settlement_date"</span>, <span class="s">">="</span>, <span class="s">"2026-05-07"</span>)])
+<span class="c"># aggregate to fuel type (join bmunits_reference first)</span>
+bm = pd.read_parquet(<span class="s">"data/silver/elexon/bmunits_reference.parquet"</span>)
+joined = uou.merge(bm[[<span class="s">'bm_unit_id'</span>,<span class="s">'fuel_type'</span>]], on=<span class="s">'bm_unit_id'</span>)
+avail = joined.groupby([<span class="s">'settlement_date'</span>,<span class="s">'fuel_type'</span>])[<span class="s">'output_usable_mw'</span>].sum()</pre></div></div>
+          </div>
+        </section>
+        <section id="caveats" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know.</h2>
+          <p class="small mb-24" style="max-width:560px;">Dataset-specific notes. Also see <a href="../elexon.html" class="link">Elexon-wide caveats</a>.</p>
+          <div><div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight:500;margin-bottom:6px;">4-hour maximum API window — connector chunks automatically</div><p class="small" style="margin:0;">Sending a 24-hour range to the UOU2T14D endpoint returns HTTP 400. The connector breaks each day into six 4-hour chunks. Do not query the API directly with >4h windows.</p></div></div><div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight:500;margin-bottom:6px;">Highest volume Elexon dataset</div><p class="small" style="margin:0;">At 5.2M rows/month, UOU2T14D is the largest dataset in the catalog. Always apply aggressive date and unit filters before loading. Consider materialising per-fuel aggregates using FOU2T14D where unit detail is not needed.</p></div></div><div class="caveat-item" style="border-bottom:1px solid var(--rule);padding-bottom:16px;"><div class="caveat-num">03</div><div><div style="font-weight:500;margin-bottom:6px;">Zero output_usable_mw means unavailable</div><p class="small" style="margin:0;">A zero value means the unit declared itself unavailable for that period. This is correct data, not a null or missing value. Filter zeros out when computing available capacity totals.</p></div></div></div>
+        </section>
+        <section id="related" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside uou2t14d.</h2>
+          <div class="related-grid"><a href="fou2t14d.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">fou2t14d</span><span class="chip live" style="font-size:10px;">live</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Fuel-type aggregate of the same data. Much smaller volume — use when unit detail is not needed.</p><span class="tiny">elexon · demand · daily</span></a><a href="remit.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">remit</span><span class="chip live" style="font-size:10px;">live</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">REMIT outage messages. UOU2T14D zeros should correspond to REMIT outage events — cross-reference for audit.</p><span class="tiny">elexon · reference · as-published</span></a><a href="ndfd.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">ndfd</span><span class="chip live" style="font-size:10px;">live</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">2–14 day demand forecast. Combine with UOU2T14D total capacity for unit-level margin analysis.</p><span class="tiny">elexon · demand · daily</span></a><a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;"><div class="row between mb-8" style="align-items:flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">fuelhh</span><span class="chip live" style="font-size:10px;">live · 30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px;">Settled generation actuals. Compare against UOU2T14D declared availability to measure utilisation.</p><span class="tiny">elexon · generation · 30 min</span></a></div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function(){const s=document.querySelectorAll("section[id]"),l=document.querySelectorAll(".sidebar a[href^='#']"),o=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting){l.forEach(l=>l.classList.remove("active"));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add("active");}});},{rootMargin:"-20% 0px -70% 0px"});s.forEach(s=>o.observe(s));})();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

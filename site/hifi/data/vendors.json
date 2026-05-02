@@ -1,0 +1,102 @@
+{
+  "vendors": [
+    {
+      "id": "elexon",
+      "name": "Elexon BMRS",
+      "region": "United Kingdom",
+      "domain": "Electricity",
+      "auth": "Public",
+      "datasets": 28,
+      "rateLimit": "2 req/s",
+      "baseUrl": "https://data.elexon.co.uk/bmrs/api/v1",
+      "tagline": "GB electricity balancing & settlement data — prices, generation, demand, balancing actions.",
+      "earliest": "2014-04",
+      "rowsPerDay": "1.6M",
+      "lastFetch": "00:01:42"
+    },
+    {
+      "id": "entsoe",
+      "name": "ENTSO-E",
+      "region": "European Union",
+      "domain": "Electricity",
+      "auth": "API key",
+      "datasets": 14,
+      "rateLimit": "6 req/s",
+      "baseUrl": "https://web-api.tp.entsoe.eu",
+      "tagline": "European transmission system operator transparency data — prices, load, cross-border flows.",
+      "earliest": "2015-01",
+      "rowsPerDay": "920k",
+      "lastFetch": "00:04:12"
+    },
+    {
+      "id": "entsog",
+      "name": "ENTSO-G",
+      "region": "European Union",
+      "domain": "Gas",
+      "auth": "Public",
+      "datasets": 1,
+      "rateLimit": "5 req/s",
+      "baseUrl": "https://transparency.entsog.eu/api/v1",
+      "tagline": "European gas transmission flows at interconnection points.",
+      "earliest": "2018-01",
+      "rowsPerDay": "84k",
+      "lastFetch": "00:09:01"
+    },
+    {
+      "id": "gie_agsi",
+      "name": "GIE AGSI",
+      "region": "European Union",
+      "domain": "Gas",
+      "auth": "API key",
+      "datasets": 1,
+      "rateLimit": "5 req/s",
+      "baseUrl": "https://agsi.gie.eu",
+      "tagline": "Underground gas storage levels by country and facility.",
+      "earliest": "2011-01",
+      "rowsPerDay": "12k",
+      "lastFetch": "00:03:24"
+    },
+    {
+      "id": "gie_alsi",
+      "name": "GIE ALSI",
+      "region": "European Union",
+      "domain": "LNG",
+      "auth": "API key",
+      "datasets": 1,
+      "rateLimit": "5 req/s",
+      "baseUrl": "https://alsi.gie.eu",
+      "tagline": "LNG terminal send-out and inventories.",
+      "earliest": "2012-01",
+      "rowsPerDay": "8k",
+      "lastFetch": "00:03:30"
+    },
+    {
+      "id": "open_meteo",
+      "name": "Open-Meteo",
+      "region": "Global",
+      "domain": "Weather",
+      "auth": "Public",
+      "datasets": 2,
+      "rateLimit": "5 req/s",
+      "baseUrl": "https://api.open-meteo.com/v1",
+      "tagline": "Weather data — temperature, wind, radiation — for forecast and historical use.",
+      "earliest": "1940-01",
+      "rowsPerDay": "210k",
+      "lastFetch": "00:07:08"
+    },
+    {
+      "id": "neso",
+      "name": "NESO",
+      "region": "United Kingdom",
+      "domain": "Carbon",
+      "auth": "Public",
+      "datasets": 1,
+      "rateLimit": "10 req/s",
+      "baseUrl": "https://api.carbonintensity.org.uk",
+      "tagline": "Real-time carbon intensity of the GB electricity grid.",
+      "earliest": "2018-01",
+      "rowsPerDay": "48",
+      "lastFetch": "00:00:54"
+    }
+  ]
+}

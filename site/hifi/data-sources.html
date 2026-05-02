@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Data sources · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/theme.css" />
+</head>
+<body data-page="sources" data-root="" data-screen-label="02 Data sources">
+
+  <!-- ════════════════ HEADER ════════════════ -->
+  <section class="block" style="padding: 48px 0 32px;">
+    <div class="container">
+      <div class="crumbs">
+        <a href="index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <span class="here">Data sources</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="eyebrow mb-16">Catalog · 7 vendors · 49 datasets</div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            Where the data <span class="italic fg-accent">comes from.</span>
+          </h1>
+          <p class="lede" style="max-width: 540px;">
+            Each vendor below sits behind a typed silver layer. Click through
+            for endpoints, schemas, sample rows and current freshness.
+          </p>
+        </div>
+        <div style="display:flex; flex-direction: column; gap: 12px; align-items: flex-end;">
+          <div class="row gap-8">
+            <span class="chip btn-like ink">All · 7</span>
+            <span class="chip btn-like">Electricity · 3</span>
+            <span class="chip btn-like">Gas · 2</span>
+            <span class="chip btn-like">LNG · 1</span>
+            <span class="chip btn-like">Weather · 1</span>
+            <span class="chip btn-like">Carbon · 1</span>
+          </div>
+          <div class="row gap-8">
+            <span class="chip btn-like">UK</span>
+            <span class="chip btn-like">EU</span>
+            <span class="chip btn-like">Global</span>
+            <span class="chip btn-like">Public</span>
+            <span class="chip btn-like">API key</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ ELECTRICITY ════════════════ -->
+  <section class="block tight" id="electricity" style="border-top: 1px solid var(--ink);">
+    <div class="container">
+      <div class="row between mb-24" style="align-items: baseline;">
+        <h2 class="display-3"><span class="fg-soft">01.</span> Electricity</h2>
+        <span class="small">3 vendors · 43 datasets · earliest 2014</span>
+      </div>
+
+      <!-- Elexon (featured, big) -->
+      <a href="data-sources/elexon.html" id="elexon" class="row-link card" style="display:block; padding: 32px; border:1px solid var(--ink); margin-bottom: 16px; background: var(--paper-card);">
+        <div style="display:grid; grid-template-columns: 80px 1fr 320px auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="mono" style="font-size: 36px; color: var(--ink-strong); letter-spacing: -0.04em; font-family: var(--serif); font-weight: 500;">EX</div>
+            <div class="tiny mt-8">UK</div>
+          </div>
+          <div>
+            <h3 style="font-size: 28px; margin-bottom: 8px; font-family: var(--serif);">Elexon BMRS</h3>
+            <p class="small" style="max-width: 420px; margin: 0 0 14px;">
+              GB electricity balancing & settlement — prices, generation by
+              fuel, demand, balancing actions, REMIT outages, BM unit
+              physical notifications.
+            </p>
+            <div class="tag-row">
+              <span class="chip live" style="font-size:11px;">live · ~5 min</span>
+              <span class="chip" style="font-size:11px;">28 datasets</span>
+              <span class="chip" style="font-size:11px;">Public</span>
+              <span class="chip" style="font-size:11px;">2 req/s</span>
+            </div>
+          </div>
+          <div>
+            <div class="tiny mb-8">VOLUME · LAST 7 DAYS</div>
+            <div data-chart="sparkline" data-opts='{"seed":3,"width":300,"height":56}'></div>
+          </div>
+          <span class="arrow" style="font-size: 22px;">→</span>
+        </div>
+      </a>
+
+      <!-- ENTSO-E -->
+      <a href="#" id="entsoe" class="row-link card flush" style="border:1px solid var(--rule); padding: 24px 28px; margin-bottom: 12px; display:block;">
+        <div style="display:grid; grid-template-columns: 80px 1fr 280px auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="mono" style="font-size: 28px; color: var(--ink-strong); font-family: var(--serif);">EN</div>
+            <div class="tiny mt-8">EU</div>
+          </div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 6px;">ENTSO-E Transparency</h3>
+            <p class="small" style="max-width: 420px; margin: 0 0 10px;">European transmission system operator data — day-ahead prices, load, cross-border flows, generation forecasts, capacity.</p>
+            <div class="tag-row">
+              <span class="chip live" style="font-size:11px;">live · ~15 min</span>
+              <span class="chip" style="font-size:11px;">14 datasets</span>
+              <span class="chip" style="font-size:11px;">API key</span>
+              <span class="chip" style="font-size:11px;">6 req/s</span>
+            </div>
+          </div>
+          <div data-chart="sparkline" data-opts='{"seed":7,"width":260,"height":48,"color":"#86627d","fill":"#e8dde8"}'></div>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <!-- NESO -->
+      <a href="#" id="carbon" class="row-link card flush" style="border:1px solid var(--rule); padding: 24px 28px; display:block;">
+        <div style="display:grid; grid-template-columns: 80px 1fr 280px auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="mono" style="font-size: 28px; color: var(--ink-strong); font-family: var(--serif);">NE</div>
+            <div class="tiny mt-8">UK</div>
+          </div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 6px;">NESO Carbon Intensity</h3>
+            <p class="small" style="max-width: 420px; margin: 0 0 10px;">Real-time and forecast carbon intensity of GB electricity — gCO₂/kWh, by region.</p>
+            <div class="tag-row">
+              <span class="chip live" style="font-size:11px;">live · 30 min</span>
+              <span class="chip" style="font-size:11px;">1 dataset</span>
+              <span class="chip" style="font-size:11px;">Public</span>
+              <span class="chip" style="font-size:11px;">10 req/s</span>
+            </div>
+          </div>
+          <div data-chart="sparkline" data-opts='{"seed":19,"width":260,"height":48}'></div>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ════════════════ GAS ════════════════ -->
+  <section class="block tight" id="gas" style="border-top: 1px solid var(--rule); margin-top: 32px;">
+    <div class="container">
+      <div class="row between mb-24" style="align-items: baseline;">
+        <h2 class="display-3"><span class="fg-soft">02.</span> Gas</h2>
+        <span class="small">2 vendors · 2 datasets · earliest 2011</span>
+      </div>
+
+      <a href="#" id="entsog" class="row-link card flush" style="border:1px solid var(--rule); padding: 24px 28px; margin-bottom: 12px; display:block;">
+        <div style="display:grid; grid-template-columns: 80px 1fr 280px auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="mono" style="font-size: 28px; color: var(--ink-strong); font-family: var(--serif);">EG</div>
+            <div class="tiny mt-8">EU</div>
+          </div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 6px;">ENTSO-G Transparency</h3>
+            <p class="small" style="max-width: 420px; margin: 0 0 10px;">European gas transmission flows at interconnection points — physical, allocated, nominated.</p>
+            <div class="tag-row">
+              <span class="chip live" style="font-size:11px;">live · daily</span>
+              <span class="chip" style="font-size:11px;">1 dataset</span>
+              <span class="chip" style="font-size:11px;">Public</span>
+              <span class="chip" style="font-size:11px;">5 req/s</span>
+            </div>
+          </div>
+          <div data-chart="sparkline" data-opts='{"seed":11,"width":260,"height":48,"color":"#c45a3a","fill":"#f6e2d5"}'></div>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="#" id="gie" class="row-link card flush" style="border:1px solid var(--rule); padding: 24px 28px; display:block;">
+        <div style="display:grid; grid-template-columns: 80px 1fr 280px auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="mono" style="font-size: 28px; color: var(--ink-strong); font-family: var(--serif);">GI</div>
+            <div class="tiny mt-8">EU</div>
+          </div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 6px;">GIE AGSI · ALSI</h3>
+            <p class="small" style="max-width: 420px; margin: 0 0 10px;">Underground gas storage levels and LNG terminal send-out — by country and facility.</p>
+            <div class="tag-row">
+              <span class="chip live" style="font-size:11px;">live · daily</span>
+              <span class="chip" style="font-size:11px;">2 datasets</span>
+              <span class="chip" style="font-size:11px;">API key</span>
+              <span class="chip" style="font-size:11px;">5 req/s</span>
+            </div>
+          </div>
+          <div data-chart="sparkline" data-opts='{"seed":13,"width":260,"height":48,"color":"#c9a96e","fill":"#efe5d1"}'></div>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ════════════════ WEATHER ════════════════ -->
+  <section class="block tight" id="weather" style="border-top: 1px solid var(--rule); margin-top: 32px;">
+    <div class="container">
+      <div class="row between mb-24" style="align-items: baseline;">
+        <h2 class="display-3"><span class="fg-soft">03.</span> Weather</h2>
+        <span class="small">1 vendor · 2 datasets · earliest 1940</span>
+      </div>
+
+      <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 24px 28px; display:block;">
+        <div style="display:grid; grid-template-columns: 80px 1fr 280px auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="mono" style="font-size: 28px; color: var(--ink-strong); font-family: var(--serif);">OM</div>
+            <div class="tiny mt-8">Global</div>
+          </div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 6px;">Open-Meteo</h3>
+            <p class="small" style="max-width: 420px; margin: 0 0 10px;">Weather — temperature, wind, solar radiation — for forecast and 80+ years of historical data on a 0.1° grid.</p>
+            <div class="tag-row">
+              <span class="chip live" style="font-size:11px;">live · hourly</span>
+              <span class="chip" style="font-size:11px;">2 datasets</span>
+              <span class="chip" style="font-size:11px;">Public</span>
+              <span class="chip" style="font-size:11px;">5 req/s</span>
+            </div>
+          </div>
+          <div data-chart="sparkline" data-opts='{"seed":17,"width":260,"height":48,"color":"#7a96a8","fill":"#dde6ec"}'></div>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ════════════════ AT-A-GLANCE TABLE ════════════════ -->
+  <section class="block" style="padding-top: 64px; padding-bottom: 80px;">
+    <div class="container">
+      <div class="row between mb-24" style="align-items: baseline;">
+        <div>
+          <div class="eyebrow mb-8">At a glance</div>
+          <h2 class="display-3">All sources, side by side.</h2>
+        </div>
+        <div class="row gap-8">
+          <span class="chip btn-like">Sort: alphabetical</span>
+          <span class="chip btn-like">Export CSV</span>
+        </div>
+      </div>
+
+      <table class="etable">
+        <thead>
+          <tr>
+            <th style="width:22%;">Vendor</th>
+            <th>Region</th>
+            <th>Domain</th>
+            <th>Datasets</th>
+            <th>Earliest</th>
+            <th>Auth</th>
+            <th>Rate</th>
+            <th style="text-align:right;">Last fetch</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="data-sources/elexon.html" class="link" style="font-weight:500;">Elexon BMRS</a></td>
+            <td>United Kingdom</td>
+            <td>Electricity</td>
+            <td>28</td>
+            <td class="mono">2014-04</td>
+            <td>Public</td>
+            <td class="mono">2 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:01:42</span></td>
+          </tr>
+          <tr>
+            <td><a href="#entsoe" class="link">ENTSO-E</a></td>
+            <td>European Union</td>
+            <td>Electricity</td>
+            <td>14</td>
+            <td class="mono">2015-01</td>
+            <td>API key</td>
+            <td class="mono">6 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:04:12</span></td>
+          </tr>
+          <tr>
+            <td><a href="#entsog" class="link">ENTSO-G</a></td>
+            <td>European Union</td>
+            <td>Gas</td>
+            <td>1</td>
+            <td class="mono">2018-01</td>
+            <td>Public</td>
+            <td class="mono">5 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:09:01</span></td>
+          </tr>
+          <tr>
+            <td><a href="#gie" class="link">GIE AGSI</a></td>
+            <td>European Union</td>
+            <td>Gas</td>
+            <td>1</td>
+            <td class="mono">2011-01</td>
+            <td>API key</td>
+            <td class="mono">5 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:03:24</span></td>
+          </tr>
+          <tr>
+            <td><a href="#gie" class="link">GIE ALSI</a></td>
+            <td>European Union</td>
+            <td>LNG</td>
+            <td>1</td>
+            <td class="mono">2012-01</td>
+            <td>API key</td>
+            <td class="mono">5 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:03:30</span></td>
+          </tr>
+          <tr>
+            <td><a href="#weather" class="link">Open-Meteo</a></td>
+            <td>Global</td>
+            <td>Weather</td>
+            <td>2</td>
+            <td class="mono">1940-01</td>
+            <td>Public</td>
+            <td class="mono">5 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:07:08</span></td>
+          </tr>
+          <tr>
+            <td><a href="#carbon" class="link">NESO</a></td>
+            <td>United Kingdom</td>
+            <td>Carbon</td>
+            <td>1</td>
+            <td class="mono">2018-01</td>
+            <td>Public</td>
+            <td class="mono">10 req/s</td>
+            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:00:54</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="row mt-32" style="justify-content:flex-end;">
+        <a href="#" class="link">Suggest a new source →</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/charts.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>
