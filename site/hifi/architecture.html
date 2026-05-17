@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Architecture · Gridflow</title>
-  <meta name="viewport" content="width=1280" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -281,6 +281,9 @@
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--rule);">
               <span class="eyebrow">On this page</span>
             </div>
+            <a href="#diagram" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
+              <span>System diagram</span><span style="color:var(--ink-faint);">→</span>
+            </a>
             <a href="#medallion" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
               <span>Bronze · Silver · Gold</span><span style="color:var(--ink-faint);">→</span>
             </a>
@@ -288,10 +291,7 @@
               <span>End-to-end trace</span><span style="color:var(--ink-faint);">→</span>
             </a>
             <a href="#decisions" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
-              <span>Design decisions</span><span style="color:var(--ink-faint);">→</span>
-            </a>
-            <a href="#stack" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
-              <span>Stack</span><span style="color:var(--ink-faint);">→</span>
+              <span>Engineering principles</span><span style="color:var(--ink-faint);">→</span>
             </a>
             <a href="#repo" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; color: var(--ink); font-size:13px; transition: background .12s;" onmouseover="this.style.background='var(--paper-deep)'" onmouseout="this.style.background=''">
               <span>Repo map</span><span style="color:var(--ink-faint);">→</span>
@@ -323,6 +323,381 @@
       </div>
     </div>
   </div>
+
+  <!-- ════════════════ SYSTEM DIAGRAM ════════════════ -->
+  <span class="section-anchor" id="diagram"></span>
+  <section class="block" data-screen-label="02 System diagram">
+    <div class="container">
+      <div class="eyebrow mb-8">System diagram</div>
+      <h2 class="display-3 mb-8">From vendor API to <span class="italic fg-accent">query.</span></h2>
+      <p class="lede" style="max-width: 640px; margin-bottom: 36px;">
+        One CLI, four stages, one catalogue. Every dataset travels left to right; every read travels back through DuckDB.
+      </p>
+
+      <div style="border: 1px solid var(--rule); background: var(--paper-card); padding: 20px;">
+        <svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="arch-title arch-desc" style="display:block; width:100%; height:auto;">
+          <title id="arch-title">gridflow — System Architecture</title>
+          <desc id="arch-desc">Left-to-right data flow across four vertical bands: six vendor APIs into a Bronze raw lake, transformed through Silver and Gold layers, consumed by CLI, models, Jupyter and MLflow. A cross-cutting band of registries and the orchestration CLI spans all layers.</desc>
+
+          <defs>
+            <style>
+              .arch text { font-family: 'Inter', system-ui, sans-serif; fill: var(--ink); }
+              .arch .mono { font-family: 'JetBrains Mono', ui-monospace, 'Menlo', monospace; }
+              .arch .serif { font-family: 'Fraunces', Georgia, serif; }
+              .arch .lbl  { font-size: 11px; letter-spacing: 0.14em; fill: var(--ink-soft); font-weight: 500; }
+              .arch .h1   { font-size: 28px; font-weight: 400; letter-spacing: -0.022em; fill: var(--ink-strong); font-family: 'Fraunces', Georgia, serif; }
+              .arch .h1em { fill: var(--ink-faint); font-weight: 400; }
+              .arch .sub  { font-size: 12.5px; fill: var(--ink-soft); }
+              .arch .box-t { font-size: 13.5px; font-weight: 500; fill: var(--ink-strong); }
+              .arch .box-d { font-size: 11.5px; fill: var(--ink-soft); }
+              .arch .box-m { font-size: 10.5px; fill: var(--ink-faint); }
+              .arch .big-t { font-size: 19px; font-weight: 400; letter-spacing: -0.015em; fill: var(--ink-strong); font-family: 'Fraunces', Georgia, serif; }
+              .arch .big-s { font-size: 11.5px; fill: var(--ink-soft); }
+              .arch .stage { font-size: 10px; letter-spacing: 0.16em; font-weight: 500; }
+
+              .arch .canvas    { fill: var(--paper-card); }
+              .arch .divider   { stroke: var(--rule); stroke-width: 1; }
+
+              .arch .arrow-stroke { stroke: var(--ink-faint); stroke-width: 1.2; fill: none; stroke-linecap: square; }
+              .arch .bus          { stroke: var(--ink-ghost); stroke-width: 1; fill: none; }
+              .arch .bus-dot      { fill: var(--ink-faint); }
+
+              .arch .src-rect    { fill: var(--paper-card); stroke: var(--rule); stroke-width: 1; }
+              .arch .src-stage   { fill: var(--accent); }
+              .arch .src-title   { fill: var(--ink-strong); }
+
+              .arch .br-rect       { fill: #f5ede5; stroke: #c45a3a; stroke-opacity: 0.45; stroke-width: 1.2; }
+              .arch .br-label-bg   { fill: #efdfcf; }
+              .arch .br-rule       { stroke: #e0c6b1; stroke-width: 0.8; }
+              .arch .br-inner-rect { fill: #fbf5ed; stroke: #e0c6b1; stroke-width: 0.8; }
+              .arch .br-accent     { fill: #c45a3a; }
+
+              .arch .sl-rect       { fill: var(--accent-wash); stroke: var(--accent); stroke-opacity: 0.45; stroke-width: 1.2; }
+              .arch .sl-label-bg   { fill: var(--accent-tint); }
+              .arch .sl-rule       { stroke: var(--accent-soft); stroke-width: 0.8; }
+              .arch .sl-chip       { fill: var(--paper-card); stroke: var(--accent-soft); stroke-width: 0.6; }
+              .arch .sl-accent     { fill: var(--accent-deep); }
+
+              .arch .gl-rect       { fill: var(--ink-strong); stroke: var(--ink-strong); stroke-width: 1.2; }
+              .arch .gl-label-bg   { fill: #26221d; }
+              .arch .gl-rule       { stroke: #3a342c; stroke-width: 0.8; }
+              .arch .gl-chip       { fill: #26221d; stroke: #3a342c; stroke-width: 0.6; }
+              .arch .gl-accent     { fill: #c9a96e; }
+              .arch .gl-title      { fill: var(--paper); }
+              .arch .gl-muted      { fill: #a8a194; }
+              .arch .gl-faint      { fill: #6b6358; }
+
+              .arch .cn-rect    { fill: var(--paper-card); stroke: var(--rule); stroke-width: 1; }
+              .arch .cn-stage   { fill: var(--ink-faint); }
+              .arch .cn-name    { fill: var(--ink-strong); }
+
+              .arch .xx-rect    { fill: var(--paper-deep); stroke: var(--rule); stroke-width: 1; }
+              .arch .xx-sep     { stroke: var(--rule); stroke-width: 1; }
+
+              .arch .band-src   { fill: rgba(59,107,75,0.025); }
+              .arch .band-br    { fill: rgba(196,90,58,0.045); }
+              .arch .band-sl    { fill: rgba(59,107,75,0.03); }
+              .arch .band-cn    { fill: rgba(236,230,219,0.55); }
+
+              .arch-marker-path { fill: var(--ink-faint); }
+              .arch-dot         { fill: var(--ink-ghost); opacity: 0.45; }
+            </style>
+            <marker id="arr-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path class="arch-marker-path" d="M0,0 L10,5 L0,10 z"/>
+            </marker>
+            <pattern id="arch-dotgrid" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle class="arch-dot" cx="1.5" cy="1.5" r="0.8"/>
+            </pattern>
+          </defs>
+
+          <g class="arch">
+            <rect width="1600" height="900" class="canvas"/>
+            <rect width="1600" height="900" fill="url(#arch-dotgrid)"/>
+
+            <rect x="40"   y="106" width="280" height="578" class="band-src"/>
+            <rect x="380"  y="106" width="320" height="578" class="band-br"/>
+            <rect x="760"  y="106" width="400" height="578" class="band-sl"/>
+            <rect x="1220" y="106" width="340" height="578" class="band-cn"/>
+
+            <line x1="40" y1="104" x2="1560" y2="104" class="divider"/>
+            <line x1="40" y1="686" x2="1560" y2="686" class="divider"/>
+
+            <text x="60" y="58" class="h1">gridflow<tspan class="h1em">  —  </tspan>System Architecture</text>
+            <text x="60" y="84" class="sub mono">Open-source Python pipeline for UK &amp; EU power and gas market data</text>
+
+            <g text-anchor="end">
+              <text x="1540" y="58" class="lbl mono">DATA FLOW</text>
+              <text x="1540" y="84" class="sub mono">left → right · sources to consumers</text>
+            </g>
+
+            <text x="180"  y="130" class="lbl mono" text-anchor="middle">01  ·  SOURCES</text>
+            <text x="540"  y="130" class="lbl mono" text-anchor="middle">02  ·  INGESTION</text>
+            <text x="960"  y="130" class="lbl mono" text-anchor="middle">03  ·  TRANSFORMATION</text>
+            <text x="1390" y="130" class="lbl mono" text-anchor="middle">04  ·  CONSUMERS</text>
+
+            <g>
+              <g transform="translate(60,152)">
+                <rect class="src-rect" width="240" height="79" rx="4"/>
+                <text x="14" y="20" class="stage mono src-stage">GB  ·  POWER</text>
+                <text x="14" y="42" class="box-t mono src-title">Elexon BMRS</text>
+                <text x="14" y="60" class="box-d">Balancing mechanism,</text>
+                <text x="14" y="74" class="box-d">system prices, generation</text>
+              </g>
+              <g transform="translate(60,239)">
+                <rect class="src-rect" width="240" height="79" rx="4"/>
+                <text x="14" y="20" class="stage mono src-stage">EU  ·  POWER</text>
+                <text x="14" y="42" class="box-t mono src-title">ENTSO-E Transparency</text>
+                <text x="14" y="60" class="box-d">Generation, load,</text>
+                <text x="14" y="74" class="box-d">cross-border flows, prices</text>
+              </g>
+              <g transform="translate(60,326)">
+                <rect class="src-rect" width="240" height="79" rx="4"/>
+                <text x="14" y="20" class="stage mono src-stage">EU  ·  GAS</text>
+                <text x="14" y="42" class="box-t mono src-title">ENTSO-G</text>
+                <text x="14" y="60" class="box-d">Pipeline flows,</text>
+                <text x="14" y="74" class="box-d">nominations</text>
+              </g>
+              <g transform="translate(60,413)">
+                <rect class="src-rect" width="240" height="79" rx="4"/>
+                <text x="14" y="20" class="stage mono src-stage">EU  ·  STORAGE</text>
+                <text x="14" y="42" class="box-t mono src-title">GIE AGSI+ / ALSI</text>
+                <text x="14" y="60" class="box-d">Underground gas and</text>
+                <text x="14" y="74" class="box-d">LNG terminal storage</text>
+              </g>
+              <g transform="translate(60,500)">
+                <rect class="src-rect" width="240" height="79" rx="4"/>
+                <text x="14" y="20" class="stage mono src-stage">WEATHER</text>
+                <text x="14" y="42" class="box-t mono src-title">Open-Meteo</text>
+                <text x="14" y="60" class="box-d">Temperature, wind,</text>
+                <text x="14" y="74" class="box-d">solar irradiance</text>
+              </g>
+              <g transform="translate(60,587)">
+                <rect class="src-rect" width="240" height="79" rx="4"/>
+                <text x="14" y="20" class="stage mono src-stage">GB  ·  GRID</text>
+                <text x="14" y="42" class="box-t mono src-title">NESO Carbon Intensity</text>
+                <text x="14" y="60" class="box-d">Half-hourly GB grid</text>
+                <text x="14" y="74" class="box-d">carbon intensity</text>
+              </g>
+            </g>
+
+            <path class="arrow-stroke" d="M300,191.5 L350,191.5"/>
+            <path class="arrow-stroke" d="M300,278.5 L350,278.5"/>
+            <path class="arrow-stroke" d="M300,365.5 L350,365.5"/>
+            <path class="arrow-stroke" d="M300,452.5 L350,452.5"/>
+            <path class="arrow-stroke" d="M300,539.5 L350,539.5"/>
+            <path class="arrow-stroke" d="M300,626.5 L350,626.5"/>
+            <line class="bus" x1="350" y1="191.5" x2="350" y2="626.5"/>
+            <circle class="bus-dot" cx="350" cy="410" r="2.6"/>
+            <path class="arrow-stroke" d="M350,410 L400,410" marker-end="url(#arr-head)"/>
+
+            <g transform="translate(400,152)">
+              <rect class="br-rect" width="280" height="516" rx="6"/>
+              <path class="br-label-bg" d="M6,0 L274,0 A6,6 0 0 1 280,6 L280,44 L0,44 L0,6 A6,6 0 0 1 6,0 z"/>
+              <line class="br-rule" x1="0" y1="44" x2="280" y2="44"/>
+              <text x="20" y="28" class="lbl mono br-accent">BRONZE  ·  RAW</text>
+              <text x="260" y="28" class="lbl mono br-accent" text-anchor="end">.parquet</text>
+              <text x="20" y="82"  class="big-t">Raw Parquet Lake</text>
+              <text x="20" y="103" class="big-s mono">async · hashed · append-only</text>
+              <line class="br-rule" x1="20" y1="125" x2="260" y2="125"/>
+              <g transform="translate(20,142)">
+                <rect class="br-inner-rect" width="240" height="74" rx="4"/>
+                <text x="14" y="22" class="box-t mono br-accent">httpx async connectors</text>
+                <text x="14" y="40" class="box-d">Rate-limited via asyncio.Semaphore;</text>
+                <text x="14" y="54" class="box-d">tenacity retry on 429 / 5xx.</text>
+                <text x="14" y="68" class="box-m mono" font-size="9.5">@register_connector(vendor, dataset)</text>
+              </g>
+              <g transform="translate(20,228)">
+                <rect class="br-inner-rect" width="240" height="58" rx="4"/>
+                <text x="14" y="22" class="box-t mono br-accent">Pydantic-validated payloads</text>
+                <text x="14" y="40" class="box-d">RawResponse · frozen dataclass.</text>
+                <text x="14" y="54" class="box-m mono" font-size="9">body · meta · status · fetched_at</text>
+              </g>
+              <g transform="translate(20,298)">
+                <rect class="br-inner-rect" width="240" height="74" rx="4"/>
+                <text x="14" y="22" class="box-t mono br-accent">Hive-partitioned layout</text>
+                <text x="14" y="40" class="box-d">Pinned by event-time, not</text>
+                <text x="14" y="54" class="box-d">ingest-time.</text>
+                <text x="14" y="68" class="box-m mono">vendor / dataset / as_of=…</text>
+              </g>
+              <g transform="translate(20,384)">
+                <rect class="br-inner-rect" width="240" height="74" rx="4"/>
+                <text x="14" y="22" class="box-t mono br-accent">Atomic writes</text>
+                <text x="14" y="40" class="box-d">No partial files on crash. SHA-256</text>
+                <text x="14" y="54" class="box-d">filename → idempotent re-fetch.</text>
+                <text x="14" y="68" class="box-m mono">os.replace(tmp, final)</text>
+              </g>
+              <text x="20" y="495" class="box-m mono" font-size="9">→ bronze/{vendor}/{dataset}/as_of=…</text>
+            </g>
+
+            <path class="arrow-stroke" d="M680,410 L730,410 L730,276 L780,276" marker-end="url(#arr-head)"/>
+
+            <g transform="translate(780,152)">
+              <rect class="sl-rect" width="360" height="248" rx="6"/>
+              <path class="sl-label-bg" d="M6,0 L354,0 A6,6 0 0 1 360,6 L360,44 L0,44 L0,6 A6,6 0 0 1 6,0 z"/>
+              <line class="sl-rule" x1="0" y1="44" x2="360" y2="44"/>
+              <text x="20" y="28" class="lbl mono sl-accent">SILVER  ·  CONFORMED SCHEMAS</text>
+              <text x="340" y="28" class="lbl mono sl-accent" text-anchor="end">polars + pydantic v2</text>
+              <text x="20" y="74" class="big-t">Type-safe transformations</text>
+              <text x="20" y="94" class="big-s mono">strict schemas · UTC · dedup by PK</text>
+              <line class="sl-rule" x1="20" y1="114" x2="340" y2="114"/>
+              <g transform="translate(20,126)">
+                <rect class="sl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono">→ Type-safe transformations</text>
+                <text x="308" y="16" class="box-m mono" text-anchor="end">strict</text>
+              </g>
+              <g transform="translate(20,156)">
+                <rect class="sl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono">→ UTC timestamps</text>
+                <text x="308" y="16" class="box-m mono" text-anchor="end">tz-aware</text>
+              </g>
+              <g transform="translate(20,186)">
+                <rect class="sl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono">→ Settlement periods</text>
+                <text x="308" y="16" class="box-m mono" text-anchor="end">int 1–50</text>
+              </g>
+              <g transform="translate(20,216)">
+                <rect class="sl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono">→ DuckDB-readable Parquet</text>
+                <text x="308" y="16" class="box-m mono" text-anchor="end">.parquet</text>
+              </g>
+            </g>
+
+            <path class="arrow-stroke" d="M960,400 L960,420" marker-end="url(#arr-head)"/>
+
+            <g transform="translate(780,420)">
+              <rect class="gl-rect" width="360" height="248" rx="6"/>
+              <path class="gl-label-bg" d="M6,0 L354,0 A6,6 0 0 1 360,6 L360,44 L0,44 L0,6 A6,6 0 0 1 6,0 z"/>
+              <line class="gl-rule" x1="0" y1="44" x2="360" y2="44"/>
+              <text x="20" y="28" class="lbl mono gl-accent">GOLD  ·  ANALYTICAL VIEWS</text>
+              <text x="340" y="28" class="lbl mono gl-accent" text-anchor="end">duckdb</text>
+              <text x="20" y="74" class="big-t gl-title">Feature-ready aggregates</text>
+              <text x="20" y="94" class="big-s mono gl-muted">cross-source joins · derived columns</text>
+              <line class="gl-rule" x1="20" y1="114" x2="340" y2="114"/>
+              <g transform="translate(20,126)">
+                <rect class="gl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono gl-muted">→ Point-in-time correctness</text>
+                <text x="308" y="16" class="box-m mono gl-faint" text-anchor="end">as_of @ SQL</text>
+              </g>
+              <g transform="translate(20,156)">
+                <rect class="gl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono gl-muted">→ Materialised views</text>
+                <text x="308" y="16" class="box-m mono gl-faint" text-anchor="end">CREATE VIEW</text>
+              </g>
+              <g transform="translate(20,186)">
+                <rect class="gl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono gl-muted">→ Feature-ready aggregates</text>
+                <text x="308" y="16" class="box-m mono gl-faint" text-anchor="end">ML-ready</text>
+              </g>
+              <g transform="translate(20,216)">
+                <rect class="gl-chip" width="320" height="24" rx="3"/>
+                <text x="12" y="16" class="box-d mono gl-muted">→ Partition pruning</text>
+                <text x="308" y="16" class="box-m mono gl-faint" text-anchor="end">hive=true</text>
+              </g>
+            </g>
+
+            <path class="arrow-stroke" d="M1140,544 L1190,544"/>
+            <line class="bus" x1="1190" y1="212" x2="1190" y2="608"/>
+            <circle class="bus-dot" cx="1190" cy="544" r="2.6"/>
+            <path class="arrow-stroke" d="M1190,212 L1240,212" marker-end="url(#arr-head)"/>
+            <path class="arrow-stroke" d="M1190,344 L1240,344" marker-end="url(#arr-head)"/>
+            <path class="arrow-stroke" d="M1190,476 L1240,476" marker-end="url(#arr-head)"/>
+            <path class="arrow-stroke" d="M1190,608 L1240,608" marker-end="url(#arr-head)"/>
+
+            <g transform="translate(1240,152)">
+              <rect class="cn-rect" width="300" height="120" rx="4"/>
+              <text x="14" y="22" class="stage mono cn-stage">CLI</text>
+              <text x="14" y="48" class="box-t mono cn-name">gridflow</text>
+              <text x="14" y="70" class="box-d">Typer-based commands —</text>
+              <text x="14" y="86" class="box-d">one entrypoint for ingest,</text>
+              <text x="14" y="102" class="box-d">transform, build, query.</text>
+            </g>
+            <g transform="translate(1240,284)">
+              <rect class="cn-rect" width="300" height="120" rx="4"/>
+              <text x="14" y="22" class="stage mono cn-stage">MODELS  ·  PYTHON</text>
+              <text x="14" y="48" class="box-t mono cn-name">gridflow_models</text>
+              <text x="14" y="70" class="box-d">LightGBM quantile regression,</text>
+              <text x="14" y="86" class="box-d">MAPIE conformal prediction,</text>
+              <text x="14" y="102" class="box-d">PuLP LP dispatch.</text>
+            </g>
+            <g transform="translate(1240,416)">
+              <rect class="cn-rect" width="300" height="120" rx="4"/>
+              <text x="14" y="22" class="stage mono cn-stage">NOTEBOOKS</text>
+              <text x="14" y="48" class="box-t mono cn-name">Jupyter</text>
+              <text x="14" y="70" class="box-d">Ad-hoc research and EDA.</text>
+              <text x="14" y="86" class="box-d">Reads silver + gold via</text>
+              <text x="14" y="102" class="box-d">the GridflowClient SDK.</text>
+            </g>
+            <g transform="translate(1240,548)">
+              <rect class="cn-rect" width="300" height="120" rx="4"/>
+              <text x="14" y="22" class="stage mono cn-stage">EXPERIMENTS</text>
+              <text x="14" y="48" class="box-t mono cn-name">MLflow tracking</text>
+              <text x="14" y="70" class="box-d">Local file-mode tracking —</text>
+              <text x="14" y="86" class="box-d">run history, metrics,</text>
+              <text x="14" y="102" class="box-d">artefact registry.</text>
+            </g>
+
+            <g transform="translate(60,706)">
+              <rect class="xx-rect" width="1480" height="76" rx="6"/>
+              <text x="18" y="22" class="lbl mono">CROSS-CUTTING  ·  SPANS ALL LAYERS</text>
+              <line class="xx-sep" x1="370" y1="10" x2="370" y2="66"/>
+              <line class="xx-sep" x1="740" y1="10" x2="740" y2="66"/>
+              <line class="xx-sep" x1="1110" y1="10" x2="1110" y2="66"/>
+              <g transform="translate(18,38)">
+                <text class="box-t mono" y="14">PathBuilder</text>
+              </g>
+              <g transform="translate(388,38)">
+                <text class="box-t mono" y="14">Connector Registry</text>
+              </g>
+              <g transform="translate(758,38)">
+                <text class="box-t mono" y="14">Transformer Registry</text>
+              </g>
+              <g transform="translate(1128,38)">
+                <text class="box-t mono" y="14">Orchestration CLI</text>
+              </g>
+            </g>
+
+            <g transform="translate(60,812)">
+              <text class="lbl mono">LEGEND</text>
+            </g>
+            <g transform="translate(60,830)">
+              <g>
+                <rect class="src-rect" width="14" height="14" rx="2"/>
+                <text x="22" y="11" class="box-d mono">Sources</text>
+              </g>
+              <g transform="translate(112,0)">
+                <rect class="br-rect" width="14" height="14" rx="2"/>
+                <text x="22" y="11" class="box-d mono">Bronze</text>
+              </g>
+              <g transform="translate(218,0)">
+                <rect class="sl-rect" width="14" height="14" rx="2"/>
+                <text x="22" y="11" class="box-d mono">Silver</text>
+              </g>
+              <g transform="translate(320,0)">
+                <rect class="gl-rect" width="14" height="14" rx="2"/>
+                <text x="22" y="11" class="box-d mono">Gold</text>
+              </g>
+              <g transform="translate(416,0)">
+                <rect class="cn-rect" width="14" height="14" rx="2"/>
+                <text x="22" y="11" class="box-d mono">Consumers</text>
+              </g>
+              <g transform="translate(548,0)">
+                <rect class="xx-rect" width="14" height="14" rx="2"/>
+                <text x="22" y="11" class="box-d mono">Cross-cutting</text>
+              </g>
+            </g>
+
+            <g transform="translate(1280,830)">
+              <line class="arrow-stroke" x1="0" y1="7" x2="42" y2="7" marker-end="url(#arr-head)"/>
+              <text x="54" y="11" class="box-d mono">data flow</text>
+              <line class="bus" x1="156" y1="7" x2="198" y2="7"/>
+              <circle class="bus-dot" cx="177" cy="7" r="2.6"/>
+              <text x="210" y="11" class="box-d mono">fan-in / fan-out</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
 
   <!-- ════════════════ MEDALLION ════════════════ -->
   <span class="section-anchor" id="medallion"></span>
@@ -625,135 +1000,75 @@ con.execute(<span class="s">f"""
     </div>
   </section>
 
-  <!-- ════════════════ DESIGN DECISIONS ════════════════ -->
+  <!-- ════════════════ PRINCIPLES ════════════════ -->
   <span class="section-anchor" id="decisions"></span>
-  <section class="block" data-screen-label="04 Decisions">
+  <section class="block" data-screen-label="04 Principles">
     <div class="container">
-      <div class="eyebrow mb-8">Rationale</div>
-      <h2 class="display-3 mb-8">Design decisions.</h2>
+      <div class="eyebrow mb-8">Principles</div>
+      <h2 class="display-3 mb-8">How we <span class="italic fg-accent">build.</span></h2>
       <p class="lede" style="max-width:600px; margin-bottom: 48px;">
-        The choices that shaped the architecture — and the reasoning behind each one.
+        The data-engineering principles every connector, transformer, and builder in the pipeline answers to.
       </p>
 
       <div>
-        <!-- Decision 1 -->
         <div class="decision">
           <div>
-            <div class="decision-title">Why Polars over pandas</div>
-            <div class="decision-tag">Transforms · Silver layer</div>
+            <div class="decision-title">Idempotency</div>
+            <div class="decision-tag">Same input · same output</div>
           </div>
           <div class="decision-body">
-            <p>Polars enforces a strict schema at construction time: you cannot accidentally mix strings and integers in a column the way you can with a pandas object dtype. For a pipeline ingesting seven vendor APIs — each with their own naming conventions and type quirks — that strictness is load-bearing. A cast failure in Polars is a loud exception; in pandas it is often a silent <code>NaN</code>.</p>
-            <p>The lazy evaluation API also matters. Silver transforms on months of settlement data run entirely in Polars' query planner before any data moves; full scans happen only when <code>.collect()</code> is called. In practice this means a 30-day backfill that would take minutes in pandas runs in seconds.</p>
+            <p>Every command — ingest, transform, build — can be run any number of times for the same date range and converges to the same state on disk. Bronze writes are content-hashed; silver and gold writes are atomic <code>os.replace()</code>. Backfill is not a special code path.</p>
           </div>
         </div>
 
-        <!-- Decision 2 -->
         <div class="decision">
           <div>
-            <div class="decision-title">Why DuckDB as catalogue</div>
-            <div class="decision-tag">Storage · Query layer</div>
+            <div class="decision-title">Immutability</div>
+            <div class="decision-tag">Bronze is forever</div>
           </div>
           <div class="decision-body">
-            <p>DuckDB can query Parquet files directly via <code>read_parquet(glob, hive_partitioning=true)</code> — no ETL step to load data into a running database. The catalogue is a single <code>.duckdb</code> file that holds views, run history, and quality reports; it can be opened read-only from multiple processes simultaneously and checked into a backup without any export step.</p>
-            <p>The alternative — a Postgres or SQLite database with loaded tables — would require a separate load step after every silver write, and would duplicate storage. DuckDB treats the Parquet files as the source of truth and the <code>.duckdb</code> file as pure metadata. Delete the <code>.duckdb</code> file and <code>gridflow init</code> reconstructs it from the Parquet directory tree in seconds.</p>
+            <p>Raw API responses are written once and never edited. Reprocessing always replays from bronze, so a bug in a transformer is fixable retroactively without re-hitting vendor APIs. Each layer reads only from the layer beneath it.</p>
           </div>
         </div>
 
-        <!-- Decision 3 -->
         <div class="decision">
           <div>
-            <div class="decision-title">Auto-registration pattern</div>
-            <div class="decision-tag">Extensibility · Connectors</div>
+            <div class="decision-title">Schema as contract</div>
+            <div class="decision-tag">Drift fails loudly</div>
           </div>
           <div class="decision-body">
-            <p>Every connector and transformer calls <code>register_connector()</code> or <code>register_transformer()</code> at module level — so the act of importing the module registers it. The CLI imports all source modules at startup, which populates the registry. Adding a new data source means writing the connector and transformer files; no central wiring file needs editing.</p>
-            <p>This keeps the registry honest: if a connector is not imported, it simply does not exist in the pipeline. There are no configuration files listing available sources — the filesystem is the configuration.</p>
+            <p>Every silver dataset has a Pydantic v2 model. Upstream field changes raise <code>ValidationError</code> at parse time — never a silent <code>NaN</code> column. The model is also the authoritative documentation for the dataset.</p>
           </div>
         </div>
 
-        <!-- Decision 4 -->
         <div class="decision">
           <div>
-            <div class="decision-title">Idempotent backfills</div>
-            <div class="decision-tag">Reliability · Ops</div>
+            <div class="decision-title">Provenance, always</div>
+            <div class="decision-tag">Trace any number back</div>
           </div>
           <div class="decision-body">
-            <p>Re-running any ingest or transform command for the same date range produces the same result and leaves the same files on disk. Bronze writes use content-hashed filenames: fetching the same API response twice writes two files with the same name, so the second is a no-op from the filesystem's perspective. Silver writes use <code>os.replace()</code> — an atomic overwrite — so a re-run of the transform replaces the previous Parquet file cleanly.</p>
-            <p>This means backfill is not a special code path. <code>gridflow transform elexon system_prices --start 2024-01-01 --end 2024-12-31</code> is safe to run multiple times; it always converges to the correct state.</p>
+            <p>Every bronze file ships with a <code>.meta.json</code> sidecar: request URL, fetch timestamp, body hash, HTTP status. Every gold value is one SQL query away from the raw bytes that produced it.</p>
           </div>
         </div>
 
-        <!-- Decision 5 -->
         <div class="decision">
           <div>
-            <div class="decision-title">Settlement revision handling</div>
-            <div class="decision-tag">Domain logic · Elexon</div>
+            <div class="decision-title">Partition by event time</div>
+            <div class="decision-tag">Not by ingest time</div>
           </div>
           <div class="decision-body">
-            <p>Elexon publishes half-hourly settlement values through up to seven sequential run types: Initial Indicative (<code>II</code>), then Settlement Final (<code>SF</code>), then three reconciliation runs (<code>R1–R3</code>), then Final Reconciliation (<code>RF</code>), then Derived Final (<code>DF</code>). Each run revises the previous. A value marked <code>II</code> today may be materially different when <code>DF</code> publishes 14 days later.</p>
-            <p>Gridflow's silver transformer keeps only the highest-precedence run per settlement period in the clean layer, but the raw bronze layer retains all runs. Analysts who need the full revision history can read directly from bronze; the silver layer is opinionated toward final settlement for most use cases.</p>
+            <p>Files are partitioned by the calendar date the data refers to, not the date we fetched it. Late-arriving revisions land in the right partition automatically; backfills don't fragment the layout.</p>
           </div>
         </div>
 
-        <!-- Decision 6 -->
         <div class="decision">
           <div>
-            <div class="decision-title">Schema contracts via Pydantic</div>
-            <div class="decision-tag">Data quality · Validation</div>
+            <div class="decision-title">Boring stack, sharp edges</div>
+            <div class="decision-tag">Pick once · keep it</div>
           </div>
           <div class="decision-body">
-            <p>Every silver dataset has a corresponding Pydantic v2 model. Schema drift — an upstream API adding, removing, or renaming a field — becomes a <code>ValidationError</code> at parse time rather than a silent corruption that propagates downstream. The quality reporter records validation failures to DuckDB, so a field change in the Elexon API on a Tuesday shows up as a failed quality check, not a missing column in a Friday analysis.</p>
-            <p>The models also serve as the canonical documentation for what each dataset contains. The column names, types, and units in the Pydantic model are the authoritative schema; the dataset pages on this site are generated from them.</p>
+            <p>Polars, DuckDB, httpx, Pydantic, Typer. Every dependency earns its place; nothing rotates for novelty. The pipeline runs locally on a laptop and identically in CI — same lockfile, same files, same results.</p>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════ STACK ════════════════ -->
-  <span class="section-anchor" id="stack"></span>
-  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="05 Stack">
-    <div class="container">
-      <div class="eyebrow mb-8">Dependencies</div>
-      <h2 class="display-3 mb-48">The stack.</h2>
-
-      <div class="stack-grid">
-        <div class="stack-item">
-          <div class="stack-name">httpx</div>
-          <div class="stack-desc">Async HTTP client for all seven vendor APIs. The <code>AsyncClient</code> context manager pairs with an asyncio <code>Semaphore</code> to enforce per-source rate limits across concurrent fetches.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">polars</div>
-          <div class="stack-desc">DataFrame library for all bronze-to-silver transforms. Strict typing, lazy evaluation, and Parquet I/O that is ~10× faster than pandas for the column-heavy settlement data this pipeline processes.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">duckdb</div>
-          <div class="stack-desc">Embedded analytical database. Serves as the catalogue layer — views point at Parquet files; run history and quality reports are stored as tables. No server process, no config.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">pydantic v2</div>
-          <div class="stack-desc">Schema validation for every silver dataset. API field mappings are defined as typed models; a schema drift upstream is a loud exception, not a silent null column.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">tenacity</div>
-          <div class="stack-desc">Retry policy with exponential backoff for all HTTP calls. Handles transient 429 rate-limit responses and vendor maintenance windows without manual intervention.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">typer</div>
-          <div class="stack-desc">CLI framework. Each pipeline operation (<code>ingest</code>, <code>transform</code>, <code>build</code>, <code>init</code>) is a typed command; <code>--last 24h</code> date parsing is handled by a shared utility.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">lxml</div>
-          <div class="stack-desc">XML parsing for ENTSO-E responses. The transparency platform API returns large TimeSeries XML documents; lxml handles namespace resolution and element iteration without loading the full document into memory.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">pytest + hypothesis</div>
-          <div class="stack-desc">Unit and property-based testing. Transformer tests run against fixture XML/JSON files that mirror real vendor responses, so API changes that break parsing are caught before they reach production data.</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-name">uv</div>
-          <div class="stack-desc">Package and virtual-environment manager. Replaces pip + venv + pip-tools with a single lockfile. <code>uv sync</code> from a clean clone reproduces the exact environment in under 10 seconds.</div>
         </div>
       </div>
     </div>
@@ -859,24 +1174,5 @@ con.execute(<span class="s">f"""
 
   <script src="assets/charts.js"></script>
   <script src="assets/site.js"></script>
-
-  <script>
-    // Update nav to use new Architecture link + mark active
-    document.addEventListener('DOMContentLoaded', () => {
-      const navLinks = document.querySelector('.nav-links');
-      if (navLinks) {
-        navLinks.innerHTML = `
-          <a href="architecture.html" class="active">Architecture</a>
-          <a href="data-sources.html">Catalogue</a>
-          <a href="#" data-key="models">Models</a>
-          <a href="about.html">About</a>
-        `;
-      }
-      // Update footer Pipeline column links to point to architecture sections
-      document.querySelectorAll('.footer-grid a').forEach(a => {
-        if (a.textContent.trim() === 'Changelog') a.style.display = 'none';
-      });
-    });
-  </script>
 </body>
 </html>
