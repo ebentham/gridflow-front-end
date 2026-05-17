@@ -1,9 +1,10 @@
 /* Shared site chrome: nav + footer, injected per page.
-   Each page sets <body data-page="home|sources|vendor|dataset"> and we mark active link. */
+   Each page sets <body data-page="home|architecture|sources|vendor|dataset|model|about">
+   and we mark the active link. data-root is the path back to /hifi root. */
 
 (function () {
   const page = document.body.dataset.page || "";
-  const root = document.body.dataset.root || ""; // path back to /hifi
+  const root = document.body.dataset.root || ""; // e.g. "" on root, "../" on /data-sources/, "../../" on /data-sources/elexon/
 
   const navHTML = `
     <nav class="nav">
@@ -12,18 +13,20 @@
           <span class="mark"></span>
           <span>Gridflow</span>
         </a>
-        <div class="nav-links">
-          <a href="${root}index.html"           data-key="home">Overview</a>
-          <a href="${root}data-sources.html"    data-key="sources">Data sources</a>
-          <a href="${root}#pipelines"           data-key="pipelines">Pipelines</a>
-          <a href="${root}#schemas"             data-key="schemas">Schemas</a>
-          <a href="${root}#changelog"           data-key="changelog">Changelog</a>
+        <div class="nav-links" id="nav-links">
+          <a href="${root}architecture.html"          data-key="architecture">Architecture</a>
+          <a href="${root}data-sources.html"          data-key="sources">Catalogue</a>
+          <a href="${root}models/demand-forecast.html" data-key="model">Models</a>
+          <a href="${root}index.html#about"           data-key="about">About</a>
         </div>
-        <div class="nav-search">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
-          <span>Search datasets, fields, codes…</span>
-          <kbd>⌘K</kbd>
-        </div>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5">
+            <line x1="0" y1="1" x2="16" y2="1"></line>
+            <line x1="0" y1="7" x2="16" y2="7"></line>
+            <line x1="0" y1="13" x2="16" y2="13"></line>
+          </svg>
+          <span style="font-size:12px;font-weight:500;">Menu</span>
+        </button>
       </div>
     </nav>
   `;
@@ -38,35 +41,35 @@
               <span>Gridflow</span>
             </a>
             <p class="small" style="max-width:340px">
-              A personal data warehouse for European energy markets.
-              Bronze · silver · gold layers built on open data.
+              A personal research platform for European power markets.
+              Built around a bronze–silver–gold data warehouse and a
+              probabilistic modelling stack.
             </p>
             <p class="tiny mt-16">v0.4.2 · build 2026.04.30</p>
           </div>
           <div>
-            <h4>Catalog</h4>
-            <a href="${root}data-sources.html">All sources</a>
+            <h4>Project</h4>
+            <a href="${root}architecture.html">Architecture</a>
+            <a href="${root}data-sources.html">Catalogue</a>
+            <a href="${root}models/demand-forecast.html">Models</a>
+            <a href="${root}index.html#about">About</a>
+          </div>
+          <div>
+            <h4>Catalogue</h4>
             <a href="${root}data-sources.html#electricity">Electricity</a>
             <a href="${root}data-sources.html#gas">Gas</a>
             <a href="${root}data-sources.html#weather">Weather</a>
+            <a href="${root}data-sources.html#carbon">Carbon</a>
           </div>
           <div>
-            <h4>Pipeline</h4>
-            <a href="#">Run history</a>
-            <a href="#">Schemas</a>
-            <a href="#">Quality</a>
-            <a href="#">Backfills</a>
-          </div>
-          <div>
-            <h4>Reference</h4>
-            <a href="#">SQL cookbook</a>
-            <a href="#">Python client</a>
-            <a href="#">Glossary</a>
-            <a href="#">Changelog</a>
+            <h4>Code</h4>
+            <a href="https://github.com/EBentham/gridflow" target="_blank" rel="noopener">gridflow ↗</a>
+            <a href="https://github.com/EBentham/gridflow-models" target="_blank" rel="noopener">gridflow-models ↗</a>
+            <a href="https://github.com/EBentham/gridflow-front-end" target="_blank" rel="noopener">gridflow-front-end ↗</a>
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© 2026 Gridflow · Personal project</span>
+          <span>© 2026 E. Bentham · Personal project · Apache-2.0</span>
           <span class="mono tiny">last sync 2026-04-30 14:02 UTC · 7 sources · 49 datasets</span>
         </div>
       </div>
@@ -79,12 +82,37 @@
 
   // mark active
   if (page) {
-    const map = { home: "home", sources: "sources", vendor: "sources", dataset: "sources" };
+    const map = {
+      home: null, // home doesn't highlight any nav item (logo only)
+      architecture: "architecture",
+      sources: "sources",
+      vendor: "sources",
+      dataset: "sources",
+      model: "model",
+      about: "about",
+    };
     const key = map[page];
     if (key) {
       const link = document.querySelector(`.nav-links a[data-key="${key}"]`);
       if (link) link.classList.add("active");
     }
+  }
+
+  // mobile menu toggle
+  const toggle = document.getElementById("nav-toggle");
+  const links = document.getElementById("nav-links");
+  if (toggle && links) {
+    toggle.addEventListener("click", () => {
+      const open = links.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    // close menu when an in-page anchor is clicked
+    links.addEventListener("click", (e) => {
+      if (e.target.tagName === "A") {
+        links.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
   }
 
   // copy buttons
