@@ -103,4 +103,76 @@ These are explicit boundaries — included with reasoning to prevent re-adding:
 
 ## Traceability
 
-(Filled by roadmap creation — maps each REQ-ID to its phase.)
+Every REQ-ID maps to exactly one phase in `ROADMAP.md`. 50/50 coverage; no orphans.
+
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| HYG-01 | Phase 0 — Commit in-flight refactor | Pending |
+| HYG-02 | Phase 0 — Commit in-flight refactor | Pending |
+| MOB-01 | Phase 1 — Trivial bug fixes | Pending |
+| HON-04 | Phase 1 — Trivial bug fixes | Pending |
+| A11Y-06 | Phase 1 — Trivial bug fixes | Pending |
+| REF-01 | Phase 2 — Shared CSS/JS extraction | Pending |
+| REF-02 | Phase 2 — Shared CSS/JS extraction | Pending |
+| REF-03 | Phase 2 — Shared CSS/JS extraction | Pending |
+| A11Y-05 | Phase 2 — Shared CSS/JS extraction | Pending |
+| BUILD-01 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-02 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-03 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-04 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-05 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-06 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-07 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-08 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-01 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-02 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-03 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-04 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-01 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-02 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-03 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-04 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-05 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-06 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-07 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-08 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VEND-01 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-02 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-03 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-04 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-05 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| PAGE-03 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| HON-01 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| HON-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| HON-03 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| MOB-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| MOB-03 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-01 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-03 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-04 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| PAGE-01 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| PAGE-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| PAGE-04 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| CI-01 | Phase 6 — CI validation | Pending |
+| CI-02 | Phase 6 — CI validation | Pending |
+| CI-03 | Phase 6 — CI validation | Pending |
+
+**Coverage check:** 50 REQ-IDs mapped to 7 phases. Each REQ-ID appears exactly once. Each phase has at least 2 REQ-IDs. No orphans.
+
+**Category distribution across phases:**
+
+| Category | Phase 0 | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 | Phase 6 | Total |
+|----------|---------|---------|---------|---------|---------|---------|---------|-------|
+| HYG | 2 | – | – | – | – | – | – | 2 |
+| PAGE | – | – | – | – | 1 | 3 | – | 4 |
+| BUILD | – | – | – | 8 | – | – | – | 8 |
+| VAULT | – | – | – | 4 | – | – | – | 4 |
+| ELX | – | – | – | 8 | – | – | – | 8 |
+| VEND | – | – | – | – | 5 | – | – | 5 |
+| HON | – | 1 | – | – | – | 3 | – | 4 |
+| A11Y | – | 1 | 1 | – | – | 4 | – | 6 |
+| MOB | – | 1 | – | – | – | 2 | – | 3 |
+| REF | – | – | 3 | – | – | – | – | 3 |
+| CI | – | – | – | – | – | – | 3 | 3 |
+| **Total** | **2** | **3** | **4** | **20** | **6** | **12** | **3** | **50** |
