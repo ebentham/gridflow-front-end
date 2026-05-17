@@ -5,13 +5,14 @@
 **Project:** gridflow-front-end
 **Milestone:** v1 cleanup — credibility-recovery pass
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** Roadmap created; awaiting Phase 0 plan.
+**Current Focus:** Phase 0 context captured; awaiting plan.
 
 ## Current Position
 
 **Phase:** 0 — Commit in-flight refactor
+**Context:** `.planning/phases/00-commit-in-flight-refactor/00-CONTEXT.md`
 **Plan:** (none yet — next step: `/gsd-plan-phase 0`)
-**Status:** Roadmap approved; planning not yet started.
+**Status:** Context gathered; planning not yet started.
 **Progress:** Milestone 0/7 phases complete.
 
 ```
@@ -66,9 +67,19 @@
 
 ## Session Continuity
 
-**Last action:** Roadmap created and committed to disk.
-**Next action:** User reviews roadmap; on approval, run `/gsd-plan-phase 0`.
-**Resume from:** Phase 0 planning. Phase 0 inputs: PROJECT.md, REQUIREMENTS.md (HYG-01, HYG-02), codebase/CONCERNS.md § In-Flight Refactor.
+**Last action:** Phase 0 context gathered (4 gray areas discussed: chunk-4 scope · untracked files · landing strategy · renormalization). Wrote `00-CONTEXT.md` + `00-DISCUSSION-LOG.md`.
+**Next action:** Run `/gsd-plan-phase 0` to decompose Phase 0 into executable plans.
+**Resume from:** Phase 0 planning. Phase 0 inputs: `00-CONTEXT.md` (decisions D-01 through D-05), PROJECT.md, REQUIREMENTS.md (HYG-01, HYG-02), research/PITFALLS.md § Pitfall 0, codebase/CONCERNS.md § In-Flight Refactor.
+
+### Phase 0 — Locked Decisions (from `00-CONTEXT.md`)
+
+| # | Decision | Notes |
+|---|----------|-------|
+| D-01 | 4 cleanup chunks: typography sweep · pillar-status removal · fuelhh honesty edits · remaining tweaks | Ordering 1→2→3→4 per PITFALLS Pitfall 0 |
+| D-02 | Chunk 4 lumps cross-phase work (elexon.html honesty pivot + index.html hero/WIP-bar + viewport fixes on fuelhh/elexon) | Working tree truly clean post-Phase-0; Phase 1 / Phase 5 plan-phase reads CONTEXT to adjust their denominators |
+| D-03 | 2 additional `chore:` commits beyond the 4 chunks: (5) `.gitattributes` + `.gitignore` bundled, (6) renormalize line endings | Total = 6 commits in Phase 0; ROADMAP §0 Success Criterion 1 ("4 commits") read generously OR updated by planner |
+| D-04 | Stack 6 cleanup commits on `docs/codebase-map`; one PR (13 commits) → main; merge commit (not squash, not rebase) | Pages catches up on merge |
+| D-05 | `.gitignore` adds `.claude/` and `.codex-assessment-shots/`; `.gitattributes` carries `text eol=lf` for `.html`, `.css`, `.js`, `.json`, `.py`, `.md` (planner finalizes extension list) | Post-Phase-0 `git status` shows zero modified AND zero untracked |
 
 ---
-*State initialised 2026-05-17 after roadmap creation.*
+*State initialised 2026-05-17 after roadmap creation. Updated 2026-05-17 after Phase 0 context gathering.*
