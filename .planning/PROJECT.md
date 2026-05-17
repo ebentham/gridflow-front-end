@@ -33,9 +33,11 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 - [ ] Architecture page (`site/hifi/architecture.html`) — polish pass on writing and diagrams; structure stays
 - [ ] Data-sources landing (`site/hifi/data-sources.html`) — polish, kill dead `href="#"` links, fix mobile-viewport
 
-**Elexon dataset depth:**
-- [ ] Bring all 22 existing Elexon dataset pages to fuelhh-level fidelity (Overview, Schema, Sample, Caveats, Related)
-- [ ] Reconcile the dataset-count discrepancy (22 pages on disk · 25 manifest IDs in `data/elexon.json` · 28 claimed in catalog UI) into one source-of-truth
+**Elexon dataset depth (33 datasets — matches gridflow connector + vault reality):**
+- [ ] Fix 22 existing Elexon dataset pages to fuelhh-level fidelity (6 complete pages to regenerate from template, 16 broken stubs to complete)
+- [ ] Build 3 manifest-only datasets that have no page today: `remit`, `bmunits_reference`, `soso`
+- [ ] Build 8 vault-only datasets that have no page or manifest entry today: `atl`, `imbalngc`, `inddem`, `indgen`, `lolpdrm`, `market_depth`, `melngc`, `tsdfd`
+- [ ] Reconcile the dataset count: 33 everywhere (`data/elexon.json`, catalog UI, footer, index stat strip)
 
 **Cross-vendor proof:**
 - [ ] Replace dead `<a href="#">` vendor placeholders with clean "coming soon" landing pages for ENTSO-E, ENTSO-G, GIE, Open-Meteo, NESO (no dataset pages yet)
@@ -57,8 +59,10 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 - [ ] Extract the duplicated per-dataset `<style>` block (~30 lines × 22 files) into `theme.css`
 - [ ] Consolidate the two scroll-spy script variants and the per-page `setTab` declarations into shared assets
 
-**Cross-repo sync:**
-- [ ] Sync the Obsidian Vault dataset pages (in the `gridflow` repo at `quant-vault/30-vendors/elexon/datasets/`) so they match the new on-site content. Reference: `anthropic-skills:gridflow-dataset-spec` skill.
+**Vault integration (vault → site direction):**
+- [ ] Wire the build script to read per-dataset content from the Obsidian Vault (`C:\Users\Bobbo\OneDrive\Desktop\Learning\AI\quant-vault\30-vendors\<vendor>\datasets\*.md`) so the vault becomes the canonical content layer rendered into site HTML at build time
+- [ ] Audit + refine vault content where stale or thin (Codex has done initial mapping; verify against gridflow schemas before rendering each page). Reference: `anthropic-skills:gridflow-dataset-spec` skill for vault page conventions.
+- [ ] Decide how the cross-repo content gets to CI: vendor-copy at build-time, configurable path, or symlinked checkout
 
 ### Out of Scope
 
@@ -68,7 +72,7 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 - **Real Elexon API wiring / live data ingestion** — Illustrative snapshots only in v1; a "live wiring" milestone is plausible but not committed
 - **ENTSO-E dataset coverage beyond 1 dataset** — One dataset is the cross-vendor template proof; full coverage is a later milestone per vendor
 - **New visual identity / design system rebuild** — Current cream/forest/Fraunces serves the purpose; revisit only if evidence demands it
-- **Static-site-generator / template engine adoption** — An implementation choice deferred to the planning phase; the requirement is "all 22 dataset pages reach fuelhh fidelity without becoming unmaintainable", the means is open
+- **Adopting a Node/Go SSG (11ty, Astro, Hugo)** — Rejected after research: introduces a non-Python toolchain to a Python-first portfolio for negligible benefit at ~50-page scale. v1 uses a small Python + Jinja2 build script (the "middle path") instead
 - **Live performance metrics, uptime badges, dashboard-y elements** — Explicitly anti-goal; would imply the site is a product
 - **Other vendors at dataset depth (ENTSO-G, GIE, Open-Meteo, NESO datasets)** — Deferred; v1 caps at Elexon + 1 ENTSO-E dataset
 - **Real-time data fetches from the browser** — Deferred; everything ships static
@@ -82,7 +86,7 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 **Tech context (from `.planning/codebase/`):**
 - Static site, **no framework, no build step**. HTML files are the source. Shared chrome injected at runtime by `site/hifi/assets/site.js` from a body `data-page` / `data-root` / `data-screen-label` attribute contract.
 - Python 3.11+ dev server (`gridflow-serve`, stdlib only); deploy is GitHub Pages directly off `site/hifi/`.
-- 22 Elexon dataset pages exist on disk; 6 are structurally complete (`fuelhh`, `fuelinst`, `agpt`, `agws`, `nonbm`, `windfor`), 16 are broken stubs missing the `#overview`, `#schema`, `#sample`, `#api` sections.
+- **Dataset reality:** 33 active Elexon endpoints in `gridflow/src/gridflow/connectors/elexon/endpoints.py` and 33 vault dataset specs. On the site: 22 pages exist on disk (6 complete: `fuelhh`, `fuelinst`, `agpt`, `agws`, `nonbm`, `windfor`; 16 broken stubs missing `#overview`/`#schema`/`#sample`/`#api` sections), 11 datasets have no site page yet (`atl`, `bmunits_reference`, `imbalngc`, `inddem`, `indgen`, `lolpdrm`, `market_depth`, `melngc`, `remit`, `soso`, `tsdfd`). v1 closes the gap.
 - Massive duplication: ~30-line `<style>` block repeated in all 22 Elexon dataset HTML files; two scroll-spy script variants scattered across pages; per-page global `setTab()` redeclared 22 times.
 - 26 modified files in-flight on this branch (uncommitted) doing a partial typography refactor and the start of the 'live → snapshot' honesty pivot — needs to be finished and committed.
 
@@ -90,10 +94,11 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 - Recruiters typically skim a portfolio site for 30–90 seconds before deciding whether to click through to the GitHub repos. The site has to land its credibility signal fast and reward deeper reading without requiring it.
 - The author's own daily use is as a working reference — depth and navigation matter even when polish doesn't.
 
-**Source-of-truth hierarchy:**
-1. Vendor docs (Elexon BMRS docs, ENTSO-E Transparency Platform docs, etc.) — absolute truth
-2. On-site documentation (`site/hifi/data-sources/<vendor>/<dataset>.html`) — authored truth; must align with vendor docs and must not drift
-3. Obsidian Vault dataset pages (in the `gridflow` repo, `quant-vault/30-vendors/`) — working state, potentially stale; synced from on-site content
+**Source-of-truth hierarchy (revised after vault audit 2026-05-17):**
+1. **gridflow code** — `gridflow/src/gridflow/schemas/*.py` (Pydantic schemas), `silver/**/*.py` (silver transforms), `connectors/**/*.py` (endpoint definitions). The canonical truth for what each dataset is, returns, and how it lands. 33 active Elexon endpoints.
+2. **Live API responses** — verified via `scripts/verify_curl_and_silver_schema.py` in the vault repo (last verified 2026-05-08, 33 endpoints all returned HTTP 200). Validates the gridflow schemas against reality.
+3. **Obsidian Vault** (`C:\Users\Bobbo\OneDrive\Desktop\Learning\AI\quant-vault\30-vendors\<vendor>\datasets\*.md`) — authored documentation layer, derived from #1 and #2 per the vault's own amendment plan. Has 33 Elexon datasets matching gridflow connector reality.
+4. **On-site rendered pages** (`site/hifi/data-sources/<vendor>/<dataset>.html`) — published view, generated from vault content via the Python + Jinja2 build script at build/CI time. Deploy artifact stays pure-static HTML (Pages serves it directly).
 
 ## Constraints
 
@@ -114,12 +119,13 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 | Recruiter-first audience: full-stack data scientist in energy trading (code + ML + domain) | User explicitly prioritised recruiter over self-reference | — Pending |
 | Core value = domain depth over polish, gateway, or personal reference | User chose depth from explicit options | — Pending |
 | Kill all 'live' framing — site is a documentation site, charts/numbers are illustrative | User chose "Kill all 'live'" + "Illustrative / shape only" | — Pending |
-| Fix all 22 Elexon stubs to fuelhh fidelity *in this milestone* (vs deferring) | User chose "Fix fully in v1" over lighter "Hide from nav" / "Mark WIP" options | — Pending |
-| Stub other vendor hubs + 1 ENTSO-E dataset in v1 (proves cross-vendor template) | User picked both as additional v1 items | — Pending |
-| Sync Obsidian Vault in v1 (spans the `gridflow` repo) | User picked it as an additional v1 item | — Pending |
+| **v1 Elexon dataset scope = 33 (gridflow + vault reality), not 22 or 25** | User picked "Match reality (33)" after vault audit revealed gridflow connector has 33 endpoints and vault has 33 specs; 22-pages / 25-manifest / 28-claimed were all stale | — Pending |
+| **Vault → site direction**: build script reads vault `.md` files, generates site HTML | User picked "Vault → site"; vault is the authored content layer (Codex has done initial mapping), site is the published view rendered from it | — Pending |
+| **Templating mechanism: Python + Jinja2 build script (Option B), CI build** | User picked "Option B + CI build" — generated HTML is gitignored, deploy.yml runs `gridflow-build` before `upload-pages-artifact`; PRs stay small | — Pending |
+| **ENTSO-E cross-vendor proof: Generation by PSR type** | User picked the template-stretching choice (different schema vocabulary, quarter-hour settlement in some markets) over the familiar shape of day-ahead prices | — Pending |
+| Stub other vendor hubs (ENTSO-G, GIE, Open-Meteo, NESO) + ENTSO-E hub in v1 | User picked both as additional v1 items | — Pending |
 | Defer more model case studies, real-data wiring, full ENTSO-E coverage, new visual identity | User did not pick "More model studies"; "actual data" snapshots ruled out; aesthetic kept | — Pending |
-| Source-of-truth hierarchy: vendor docs > on-site > Obsidian Vault | User stated this in kickoff | — Pending |
-| SSG / template-engine adoption left to planning phase (not predetermined) | Requirement is fuelhh fidelity across 22 + 1 pages without becoming unmaintainable; means is open | — Pending |
+| Source-of-truth hierarchy (revised): gridflow code > live API > vault > on-site | Vault's own amendment-plan declares it derivative; gridflow code is canonical | — Pending |
 
 ## Evolution
 
