@@ -52,7 +52,6 @@ html {
   text-rendering: optimizeLegibility;
 }
 body {
-  min-width: 1280px;            /* desktop-only as agreed */
   min-height: 100vh;
 }
 
@@ -510,3 +509,222 @@ section.block:not(:last-of-type) { border-bottom: 1px solid var(--rule); }
 .mb-16 { margin-bottom: 16px; }
 .mb-24 { margin-bottom: 24px; }
 .mb-32 { margin-bottom: 32px; }
+.mb-48 { margin-bottom: 48px; }
+
+/* ──────────────────────────────────────────────────────────────
+   Mobile nav toggle (hidden on desktop)
+   ────────────────────────────────────────────────────────────── */
+.nav-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+}
+.nav-toggle:hover { border-color: var(--ink); }
+.nav-toggle svg { display: block; }
+
+/* ──────────────────────────────────────────────────────────────
+   Models / case-study helpers
+   ────────────────────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+.kpi-row > div {
+  padding: 20px 24px;
+  border-right: 1px solid var(--rule);
+}
+.kpi-row > div:last-child { border-right: 0; }
+.kpi-v {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink-strong);
+}
+.kpi-l {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 10px;
+}
+.kpi-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+.callout {
+  border-left: 2px solid var(--accent);
+  background: var(--accent-wash);
+  padding: 16px 20px;
+  font-size: 13px;
+  color: var(--ink);
+  margin: 24px 0;
+}
+.callout strong { color: var(--ink-strong); }
+
+dl.meta {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 10px 24px;
+  margin: 0;
+  font-size: 13px;
+}
+dl.meta dt {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding-top: 2px;
+}
+dl.meta dd {
+  margin: 0;
+  color: var(--ink);
+}
+dl.meta dd code, dl.meta dd .mono {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Responsive — graceful below 1280px
+   The system was designed desktop-first. These overrides lift
+   density, stack grids, and keep typography readable on tablet
+   and mobile without redesigning the visual identity.
+   ────────────────────────────────────────────────────────────── */
+
+/* tablet — single-pane grids collapse */
+@media (max-width: 1100px) {
+  :root {
+    --site-pad: 40px;
+  }
+  .display-1 { font-size: 56px; }
+  .display-2 { font-size: 44px; }
+  .display-3 { font-size: 32px; }
+  h1 { font-size: 48px; }
+
+  /* 2- and 3-column page grids → stack */
+  .stack-md {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .kpi-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .kpi-row > div:nth-child(2) { border-right: 0; }
+  .kpi-row > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+}
+
+/* phone */
+@media (max-width: 720px) {
+  :root {
+    --site-pad: 20px;
+    --gutter: 16px;
+  }
+  html { font-size: 15px; }
+  .display-1 { font-size: 40px; line-height: 1.02; }
+  .display-2 { font-size: 32px; }
+  .display-3 { font-size: 26px; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 26px; }
+  h3 { font-size: 20px; }
+  .lede { font-size: 17px; }
+
+  section.block { padding: 40px 0; }
+  section.block.tight { padding: 28px 0; }
+
+  /* hide secondary chrome that doesn't fit */
+  .nav-search { display: none; }
+  .nav-links { display: none; }
+  .nav-toggle { display: inline-flex; }
+  .nav-inner { padding: 14px var(--site-pad); }
+
+  /* mobile menu drawer */
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    padding: 20px var(--site-pad) 24px;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .nav-links.open a { font-size: 16px; }
+  .nav-links.open a.active::after { display: none; }
+
+  /* any grid that hasn't been hinted: still let it stack */
+  [class*="grid-2"], [class*="grid-3"], [class*="grid-4"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* stack any 2/3-column inline grid by force */
+  .stack-sm {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .footer-inner { padding: 36px var(--site-pad) 24px; }
+  .footer-bottom { flex-direction: column; gap: 8px; align-items: flex-start; }
+
+  /* tighten section padding */
+  .card { padding: 20px; }
+
+  /* tables become scrollable horizontally rather than break layout */
+  .etable-wrap { overflow-x: auto; }
+  .etable { min-width: 640px; }
+
+  /* kpi row → 2x2 stays 2x2; on very narrow → stack */
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+
+  /* code blocks tighten */
+  pre.code, code.code { font-size: 11px; padding: 14px; }
+
+  /* chart frames shrink */
+  .chart { padding: 16px; }
+
+  /* hero row of buttons stacks naturally — they're already flex */
+  .row.gap-16 { flex-wrap: wrap; }
+
+  /* dl.meta → single column */
+  dl.meta { grid-template-columns: 1fr; gap: 4px 0; }
+  dl.meta dt { padding-top: 12px; }
+  dl.meta dt:first-child { padding-top: 0; }
+}
+
+@media (max-width: 480px) {
+  .kpi-row { grid-template-columns: 1fr; }
+  .kpi-row > div { border-right: 0; border-bottom: 1px solid var(--rule); }
+  .kpi-row > div:last-child { border-bottom: 0; }
+  .display-1 { font-size: 34px; }
+  .display-2 { font-size: 28px; }
+}
+
+/* respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

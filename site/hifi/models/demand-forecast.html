@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Day-ahead demand forecast · Models · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Probabilistic day-ahead demand forecast for the GB transmission system — LightGBM quantile regression, six-fold expanding-window validation, full reliability diagnostics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    /* page-local helpers */
+    .pagehead {
+      padding: 48px 0 32px;
+    }
+    .modelmeta {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin: 32px 0 0;
+    }
+    .modelmeta > div {
+      padding: 14px 18px;
+      border-right: 1px solid var(--rule);
+    }
+    .modelmeta > div:last-child { border-right: 0; }
+    .modelmeta .k {
+      font-family: var(--sans);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    .modelmeta .v {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink-strong);
+    }
+
+    /* per-fold table tightening */
+    .folds-table td.mono, .folds-table th.num {
+      font-family: var(--mono);
+      text-align: right;
+    }
+    .folds-table .winner {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* fan chart frame */
+    .fan-frame {
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      padding: 24px 24px 16px;
+    }
+    .fan-frame .fan-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .fan-legend {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .fan-legend > span {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .fan-legend i {
+      width: 14px; height: 4px; display: inline-block;
+    }
+
+    /* coverage table — compact two-column comparison */
+    .cov-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .cov-table th, .cov-table td {
+      padding: 12px 16px;
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .cov-table th:first-child, .cov-table td:first-child {
+      text-align: left;
+      font-family: var(--sans);
+    }
+    .cov-table thead th {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      font-weight: 500;
+    }
+    .cov-table tbody td {
+      border-bottom: 1px solid var(--rule);
+      color: var(--ink);
+    }
+    .cov-table .ok { color: var(--accent); }
+    .cov-table .miss { color: #c45a3a; }
+
+    /* walk-forward fold bars */
+    .wf-diagram {
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      padding: 24px;
+    }
+    .wf-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px;
+      gap: 16px;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 12px;
+    }
+    .wf-row .lbl {
+      font-family: var(--mono);
+      color: var(--ink-soft);
+      font-size: 11px;
+    }
+    .wf-row .track {
+      position: relative;
+      height: 12px;
+      background: var(--paper);
+      border: 1px solid var(--rule-soft);
+    }
+    .wf-row .seg {
+      position: absolute;
+      top: 0; bottom: 0;
+    }
+    .wf-row .seg.train { background: var(--accent-soft); }
+    .wf-row .seg.test  { background: var(--accent); }
+    .wf-row .metric {
+      font-family: var(--mono);
+      color: var(--ink-strong);
+      font-size: 12px;
+      text-align: right;
+    }
+    .wf-axis {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px;
+      gap: 16px;
+      padding-top: 12px;
+      margin-top: 8px;
+      border-top: 1px solid var(--rule);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+    }
+    .wf-axis .ticks {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* residual bars (hour of day) */
+    .hod-bars {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 2px;
+      align-items: end;
+      height: 140px;
+      padding: 4px 0;
+    }
+    .hod-bars .bar {
+      background: var(--accent);
+      opacity: 0.85;
+      min-height: 1px;
+    }
+    .hod-axis {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 2px;
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+      text-align: center;
+    }
+
+    /* feature pipeline list — readable */
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .feature-list li {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+    }
+    .feature-list li:last-child { border-bottom: 0; }
+    .feature-list .name {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-strong);
+    }
+    .feature-list .desc { color: var(--ink-soft); line-height: 1.55; }
+
+    @media (max-width: 720px) {
+      .modelmeta {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .modelmeta > div:nth-child(3) { border-right: 0; }
+      .feature-list li {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .wf-row { grid-template-columns: 48px 1fr 80px; gap: 10px; }
+      .wf-axis { grid-template-columns: 48px 1fr 80px; gap: 10px; }
+      .fan-frame { padding: 16px; }
+      .hod-bars { height: 100px; }
+    }
+  </style>
+</head>
+<body data-page="model" data-root="../" data-screen-label="Demand forecast">
+
+  <!-- ════════════════ HEADER ════════════════ -->
+  <section class="pagehead">
+    <div class="container">
+      <div class="crumbs">
+        <a href="../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../index.html#models">Models</a>
+        <span class="sep">/</span>
+        <span class="here">Day-ahead demand</span>
+      </div>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: end;">
+        <div>
+          <div class="eyebrow mb-16">Model · 01 · Probabilistic forecaster</div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            Day-ahead demand · <span class="italic fg-accent">GB.</span>
+          </h1>
+          <p class="lede" style="max-width: 580px;">
+            A probabilistic forecast of national half-hourly demand
+            on the GB transmission system. Seven quantiles between
+            p05 and p95; LightGBM per quantile; six-fold
+            expanding-window validation against Elexon
+            <code class="mono">indo</code>.
+          </p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap: 12px; align-items: flex-end;">
+          <div class="tag-row" style="justify-content:flex-end;">
+            <span class="chip live" style="font-size:11px;">Walk-forward complete</span>
+            <span class="chip" style="font-size:11px;">Local-only</span>
+          </div>
+          <span class="mono tiny">Model ID · <code>day_ahead.lgbm_demand.v1</code></span>
+          <a href="https://github.com/EBentham/gridflow-models" target="_blank" rel="noopener" class="link" style="font-size:12px;">Source on GitHub ↗</a>
+        </div>
+      </div>
+
+      <div class="modelmeta">
+        <div><div class="k">Family</div><div class="v">day_ahead</div></div>
+        <div><div class="k">Market</div><div class="v">GB</div></div>
+        <div><div class="k">Product</div><div class="v">half_hourly</div></div>
+        <div><div class="k">Units</div><div class="v">MW</div></div>
+        <div><div class="k">Horizon</div><div class="v">24h</div></div>
+        <div><div class="k">Currency</div><div class="v">—</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ KPI STRIP ════════════════ -->
+  <section class="block tight" data-screen-label="kpis">
+    <div class="container">
+      <div class="eyebrow mb-16">Headline metrics · last fold (2025-10 → 2026-03)</div>
+      <div class="kpi-row">
+        <div>
+          <div class="kpi-v">587</div>
+          <div class="kpi-l">p50 MAE · MW</div>
+          <div class="kpi-sub">~1.8% of mean demand</div>
+        </div>
+        <div>
+          <div class="kpi-v">89.2<span style="font-size:18px; color:var(--ink-soft);">%</span></div>
+          <div class="kpi-l">p10–p90 coverage</div>
+          <div class="kpi-sub">target 80% · tolerance ±5%</div>
+        </div>
+        <div>
+          <div class="kpi-v">348</div>
+          <div class="kpi-l">Pinball p50 · MW</div>
+          <div class="kpi-sub">gate threshold 1500</div>
+        </div>
+        <div>
+          <div class="kpi-v">0.3<span style="font-size:18px; color:var(--ink-soft);">%</span></div>
+          <div class="kpi-l">Crossing rate</div>
+          <div class="kpi-sub">pre-sort · ADR-014</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ FAN CHART ════════════════ -->
+  <section class="block tight" data-screen-label="fan">
+    <div class="container">
+      <div class="fan-frame">
+        <div class="fan-head">
+          <div>
+            <div class="eyebrow" style="font-size:10px;">Forecast vs. realised · last 7 days · MW</div>
+            <h3 style="font-family:var(--serif); font-size:22px; margin-top:6px;">2026-04-23 → 2026-04-30</h3>
+          </div>
+          <div class="fan-legend">
+            <span><i style="background:var(--accent-soft); opacity:0.45;"></i>p05–p95</span>
+            <span><i style="background:var(--accent-soft);"></i>p25–p75</span>
+            <span><i style="background:var(--accent); height:2px;"></i>p50 forecast</span>
+            <span><i style="background:var(--ink); height:2px;"></i>Realised</span>
+          </div>
+        </div>
+
+        <!-- inline SVG fan chart -->
+        <svg viewBox="0 0 980 340" width="100%" font-family="Inter, sans-serif" font-size="11">
+          <!-- y gridlines -->
+          <g stroke="#d8d1c2" stroke-width="1">
+            <line x1="56" x2="970" y1="30"  y2="30"  stroke-dasharray="2 4"/>
+            <line x1="56" x2="970" y1="90"  y2="90"  stroke-dasharray="2 4"/>
+            <line x1="56" x2="970" y1="150" y2="150" stroke-dasharray="2 4"/>
+            <line x1="56" x2="970" y1="210" y2="210" stroke-dasharray="2 4"/>
+            <line x1="56" x2="970" y1="270" y2="270" stroke-dasharray="2 4"/>
+            <line x1="56" x2="970" y1="306" y2="306"/>
+          </g>
+          <!-- y labels -->
+          <g fill="#6b6358" text-anchor="end">
+            <text x="48" y="34">45 GW</text>
+            <text x="48" y="94">40</text>
+            <text x="48" y="154">35</text>
+            <text x="48" y="214">30</text>
+            <text x="48" y="274">25</text>
+          </g>
+
+          <!-- p05–p95 band -->
+          <path d="
+            M 56,148 C 90,168 130,196 170,210 C 210,222 250,224 290,210 C 330,196 370,168 410,150 C 450,134 490,130 530,142 C 570,154 610,180 650,202 C 690,222 730,232 770,224 C 810,216 850,196 890,176 C 930,158 950,150 970,144
+            L 970,194 C 950,202 930,210 890,228 C 850,250 810,272 770,278 C 730,284 690,272 650,250 C 610,228 570,200 530,188 C 490,176 450,180 410,196 C 370,212 330,240 290,256 C 250,268 210,266 170,254 C 130,240 90,210 56,196 Z
+          " fill="#a9c4b3" fill-opacity="0.4"/>
+
+          <!-- p25–p75 band -->
+          <path d="
+            M 56,168 C 90,184 130,204 170,216 C 210,226 250,228 290,216 C 330,204 370,184 410,168 C 450,154 490,150 530,160 C 570,170 610,190 650,208 C 690,224 730,232 770,226 C 810,220 850,206 890,190 C 930,176 950,170 970,166
+            L 970,188 C 950,194 930,200 890,214 C 850,232 810,250 770,254 C 730,258 690,250 650,234 C 610,218 570,200 530,190 C 490,180 450,184 410,196 C 370,210 330,228 290,240 C 250,250 210,250 170,242 C 130,232 90,212 56,200 Z
+          " fill="#a9c4b3" fill-opacity="0.65"/>
+
+          <!-- p50 line (forecast) -->
+          <path d="
+            M 56,178 C 90,194 130,212 170,222 C 210,230 250,232 290,222 C 330,212 370,194 410,180 C 450,168 490,166 530,176 C 570,186 610,202 650,218 C 690,232 730,236 770,232 C 810,228 850,216 890,202 C 930,188 950,180 970,176
+          " fill="none" stroke="#3b6b4b" stroke-width="2"/>
+
+          <!-- realised line (overlaid) -->
+          <path d="
+            M 56,184 L 84,196 L 112,208 L 140,222 L 170,224 L 200,222 L 228,218 L 256,212 L 290,222 L 320,216 L 348,206 L 376,196 L 410,184 L 438,170 L 466,168 L 494,176 L 530,182 L 560,194 L 588,206 L 616,216 L 650,222 L 680,232 L 708,236 L 736,232 L 770,228 L 800,222 L 828,212 L 856,202 L 890,196 L 918,190 L 946,184 L 970,180
+          " fill="none" stroke="#1a1714" stroke-width="1.4"/>
+
+          <!-- x axis: 7 daily ticks -->
+          <g fill="#6b6358" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10">
+            <text x="65"  y="324">23 Apr</text>
+            <text x="195" y="324">24 Apr</text>
+            <text x="325" y="324">25 Apr</text>
+            <text x="455" y="324">26 Apr</text>
+            <text x="585" y="324">27 Apr</text>
+            <text x="715" y="324">28 Apr</text>
+            <text x="845" y="324">29 Apr</text>
+            <text x="965" y="324">30 Apr</text>
+          </g>
+          <!-- as-of marker -->
+          <line x1="770" x2="770" y1="30" y2="306" stroke="#1a1714" stroke-width="0.8" stroke-dasharray="3 3"/>
+          <text x="774" y="38" fill="#1a1714" font-family="JetBrains Mono, monospace" font-size="10">as-of</text>
+        </svg>
+
+        <div class="tiny mt-16" style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <span>Vertical dashes mark the prediction as-of cut. Realised line continues past it.</span>
+          <span>n = 336 half-hourly intervals · target <code class="mono" style="color:var(--ink-strong);">national_demand_mw</code> · source <code class="mono" style="color:var(--ink-strong);">silver.indo</code></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ THE QUESTION ════════════════ -->
+  <section class="block" data-screen-label="problem">
+    <div class="container">
+      <div class="stack-md" style="display:grid; grid-template-columns: 1fr 1.6fr; gap: 64px; align-items: start;">
+        <div>
+          <div class="eyebrow mb-8">The question</div>
+          <h2 class="display-3">What will GB demand <span class="italic fg-accent">be tomorrow?</span></h2>
+        </div>
+        <div style="font-size:15px; line-height:1.7; color:var(--ink);">
+          <p>
+            Given hourly history of national demand and a calendar of
+            UK working days, school terms and bank holidays, produce a
+            calibrated distribution over each of the next 48
+            half-hourly settlement periods. <em class="italic">Calibrated</em>
+            means the empirical coverage of the predicted p10–p90 band
+            should land near 80%; the p50 should match realised
+            median absolute error competitive with naïve seasonal
+            persistence; and quantile crossings should be rare.
+          </p>
+          <p style="margin-top: 14px;">
+            The model is intentionally small and feature-light — a
+            baseline against which to measure later additions
+            (weather features, REMIT outages, market-driven
+            behavioural shifts). It is also the input
+            distribution for the residual-demand sampler that feeds
+            the fundamentals SMP forecaster, so its calibration matters
+            beyond its standalone accuracy.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ INPUTS / FEATURES ════════════════ -->
+  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="features">
+    <div class="container">
+      <div class="eyebrow mb-8">Inputs</div>
+      <h2 class="display-3 mb-32">Target · features · lookback.</h2>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: start;">
+
+        <div>
+          <h3 style="font-family:var(--serif); font-size:22px; margin-bottom: 16px;">Target</h3>
+          <dl class="meta">
+            <dt>Source</dt>
+            <dd><a href="../data-sources/elexon.html" class="link"><code>elexon</code></a></dd>
+            <dt>Dataset</dt>
+            <dd><code class="mono">indo</code> — initial national demand outturn</dd>
+            <dt>Column</dt>
+            <dd><code class="mono">national_demand_mw</code></dd>
+            <dt>Granularity</dt>
+            <dd>30-min settlement period</dd>
+            <dt>Coverage</dt>
+            <dd><code class="mono">2014-04 → present</code></dd>
+            <dt>Horizon</dt>
+            <dd><code class="mono">24h</code> ahead of as-of</dd>
+          </dl>
+
+          <div class="callout mt-32">
+            <strong>Why <code>indo</code> not <code>itsdo</code>?</strong>
+            <span style="display:block; margin-top:6px; line-height:1.6; color:var(--ink-soft);">
+              <code class="mono">indo</code> publishes ~3 min after the
+              half-hour and revises rarely; <code class="mono">itsdo</code>
+              is the day-ahead forecast and would leak into training
+              if used as a target.
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-family:var(--serif); font-size:22px; margin-bottom: 16px;">Feature pipeline</h3>
+          <p class="small mb-24" style="max-width:540px;">
+            All features defined in
+            <code class="mono">gridflow_models.estimators.day_ahead.features.demand_pipeline</code>.
+            Required lookback: 168h (7 days). Stateless transformers — refit on every fold.
+          </p>
+
+          <ul class="feature-list">
+            <li>
+              <span class="name">CalendarFeature</span>
+              <span class="desc">hour, settlement period, day of week, month, weekend flag, UK bank-holiday flag, sin/cos cyclical encodings on hour and DoW.</span>
+            </li>
+            <li>
+              <span class="name">LagFeature · 24h</span>
+              <span class="desc">National demand at the same settlement period yesterday. Captures intra-day shape persistence.</span>
+            </li>
+            <li>
+              <span class="name">LagFeature · 48h</span>
+              <span class="desc">Same period two days ago. Slight redundancy with 24h lag — kept for the Sun→Mon and Fri→Sat transitions where the 24h lag breaks weekly seasonality.</span>
+            </li>
+            <li>
+              <span class="name">LagFeature · 168h</span>
+              <span class="desc">Same period last week. The dominant weekly-seasonality feature.</span>
+            </li>
+            <li>
+              <span class="name">RollingMean · 24h</span>
+              <span class="desc">Recent-level signal; smooths over period-level noise. <code class="mono">min_periods=12</code>.</span>
+            </li>
+            <li>
+              <span class="name">RollingMean · 168h</span>
+              <span class="desc">Weekly mean — slow trend signal across regime shifts (e.g. mild winter, school holidays). <code class="mono">min_periods=48</code>.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ ESTIMATOR ════════════════ -->
+  <section class="block" data-screen-label="estimator">
+    <div class="container">
+      <div class="eyebrow mb-8">Estimator</div>
+      <h2 class="display-3 mb-32">One LightGBM <span class="italic fg-accent">per quantile.</span></h2>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: start;">
+
+        <div>
+          <p style="font-size:15px; line-height:1.7; color:var(--ink);">
+            Independent <code class="mono">LGBMRegressor(objective='quantile', alpha=q)</code>
+            for each of seven target quantiles. No
+            joint-distribution constraint at training time —
+            the dominant pattern in the energy-forecasting literature
+            (Marcjasz 2022, Lago 2021). Quantile crossings, which
+            independent estimators occasionally produce at low row
+            counts, are repaired post-hoc by row-sorting the
+            prediction matrix. The
+            <code class="mono">MonotonicityGate</code> reports the
+            pre-sort crossing rate; in the latest fold it sat at 0.3%.
+          </p>
+          <p style="font-size:15px; line-height:1.7; color:var(--ink); margin-top: 14px;">
+            The estimator is pure: it sees a
+            <code class="mono">TrainingSet</code> with
+            <code class="mono">available_at</code> and
+            <code class="mono">target_available_at</code> already
+            enforced — no leakage paths in or out — and returns a
+            tidy <code class="mono">Forecast</code> object with explicit
+            <code class="mono">delivery_times</code>, quantile keys,
+            market, product, currency, and units. The orchestrator
+            owns the lifecycle.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="font-family:var(--serif); font-size:18px; margin-bottom: 16px;">Hyperparameters</h3>
+          <dl class="meta">
+            <dt>Quantiles</dt>
+            <dd><code class="mono">0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95</code></dd>
+            <dt>num_leaves</dt>
+            <dd><code class="mono">63</code></dd>
+            <dt>learning_rate</dt>
+            <dd><code class="mono">0.05</code></dd>
+            <dt>n_estimators</dt>
+            <dd><code class="mono">300</code></dd>
+            <dt>min_data_in_leaf</dt>
+            <dd><code class="mono">50</code></dd>
+            <dt>n_jobs</dt>
+            <dd><code class="mono">-1</code> (all cores)</dd>
+          </dl>
+
+          <div class="callout">
+            <strong>ADR-014 · one LGBM per quantile.</strong>
+            <span style="display:block; margin-top:6px; line-height:1.6; color:var(--ink-soft);">
+              Considered: a single multi-output model with monotonicity
+              constraints. Rejected: training time triples, gains in
+              calibration are marginal, and the row-sort post-process
+              is functionally equivalent for our crossing rates.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code excerpt: training the model -->
+      <div class="code-wrap mt-48">
+<pre class="code dark"><span class="c"># Fit and forecast one fold — orchestrator-driven</span>
+<span class="k">from</span> gridflow_models <span class="k">import</span> TrainingOrchestrator, ValidationConfig
+<span class="k">from</span> gridflow_models.estimators.day_ahead <span class="k">import</span> LGBMQuantileEstimator, demand_pipeline
+
+orchestrator = TrainingOrchestrator(
+    estimator=LGBMQuantileEstimator(num_leaves=<span class="s">63</span>, learning_rate=<span class="s">0.05</span>, n_estimators=<span class="s">300</span>),
+    pipeline=demand_pipeline(),
+    validation=ValidationConfig(splitter=<span class="s">"expanding_window"</span>, n_folds=<span class="s">6</span>),
+    target=<span class="s">"national_demand_mw"</span>,
+)
+
+result = orchestrator.fit(start=<span class="s">"2019-01-01"</span>, end=<span class="s">"2026-04-01"</span>)
+forecast = orchestrator.predict_quantiles(as_of=<span class="s">"2026-04-29T23:00Z"</span>, horizon=<span class="s">"24h"</span>)
+<span class="c"># forecast.quantiles → {'q_0.05': [...], 'q_0.5': [...], 'q_0.95': [...]}</span>
+<span class="c"># forecast.delivery_times → tz-aware UTC timestamps, settlement-period aligned</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ VALIDATION ════════════════ -->
+  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="validation">
+    <div class="container">
+      <div class="eyebrow mb-8">Validation</div>
+      <h2 class="display-3 mb-32">Six-fold expanding <span class="italic fg-accent">window.</span></h2>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: start;">
+
+        <div class="wf-diagram">
+          <div class="eyebrow mb-16" style="font-size:10px;">Train · test split per fold</div>
+
+          <div class="wf-row">
+            <span class="lbl">Fold 1</span>
+            <div class="track">
+              <div class="seg train" style="left:0; width:42%;"></div>
+              <div class="seg test"  style="left:42%; width:8%;"></div>
+            </div>
+            <span class="metric">612 MW</span>
+          </div>
+          <div class="wf-row">
+            <span class="lbl">Fold 2</span>
+            <div class="track">
+              <div class="seg train" style="left:0; width:50%;"></div>
+              <div class="seg test"  style="left:50%; width:8%;"></div>
+            </div>
+            <span class="metric">595 MW</span>
+          </div>
+          <div class="wf-row">
+            <span class="lbl">Fold 3</span>
+            <div class="track">
+              <div class="seg train" style="left:0; width:58%;"></div>
+              <div class="seg test"  style="left:58%; width:8%;"></div>
+            </div>
+            <span class="metric">620 MW</span>
+          </div>
+          <div class="wf-row">
+            <span class="lbl">Fold 4</span>
+            <div class="track">
+              <div class="seg train" style="left:0; width:66%;"></div>
+              <div class="seg test"  style="left:66%; width:8%;"></div>
+            </div>
+            <span class="metric">576 MW</span>
+          </div>
+          <div class="wf-row">
+            <span class="lbl">Fold 5</span>
+            <div class="track">
+              <div class="seg train" style="left:0; width:74%;"></div>
+              <div class="seg test"  style="left:74%; width:8%;"></div>
+            </div>
+            <span class="metric">601 MW</span>
+          </div>
+          <div class="wf-row">
+            <span class="lbl">Fold 6</span>
+            <div class="track">
+              <div class="seg train" style="left:0; width:82%;"></div>
+              <div class="seg test"  style="left:82%; width:8%;"></div>
+            </div>
+            <span class="metric winner">587 MW</span>
+          </div>
+
+          <div class="wf-axis">
+            <span></span>
+            <div class="ticks">
+              <span>2019</span><span>2020</span><span>2021</span><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span>
+            </div>
+            <span style="text-align:right;">p50 MAE</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-family:var(--serif); font-size:20px; margin-bottom: 14px;">Why expanding-window?</h3>
+          <p style="font-size:14px; line-height:1.7; color:var(--ink-soft);">
+            Demand-driving regimes shift slowly. The 2020 COVID
+            shock and the 2022 energy-price episode both move the
+            level; expanding-window keeps prior regimes in the training
+            set instead of dropping them in a sliding window — which
+            matters because the 168h lag has weeks of long memory.
+          </p>
+          <p style="font-size:14px; line-height:1.7; color:var(--ink-soft); margin-top: 12px;">
+            <strong style="color:var(--ink);">Embargo: 0d.</strong>
+            The 24h horizon and immediate-availability target make a
+            cross-fold leakage gap unnecessary. The
+            <code class="mono">TrainingSet</code> constructor handles
+            the strict <code class="mono">target_available_at</code>
+            check inside each fold.
+          </p>
+
+          <h3 style="font-family:var(--serif); font-size:20px; margin-top: 32px; margin-bottom: 14px;">Gates</h3>
+          <dl class="meta">
+            <dt>Pinball p50</dt>
+            <dd><code class="mono">≤ 1500</code> · <span style="color:var(--accent);">passes at 348</span></dd>
+            <dt>Coverage</dt>
+            <dd><code class="mono">90% ± 5%</code> · <span style="color:var(--accent);">89.2% on last fold</span></dd>
+            <dt>Monotonicity</dt>
+            <dd>Reported · 0.3% pre-sort · <span style="color:var(--accent);">post-sort 0.0%</span></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ RELIABILITY ════════════════ -->
+  <section class="block" data-screen-label="reliability">
+    <div class="container">
+      <div class="eyebrow mb-8">Reliability</div>
+      <h2 class="display-3 mb-32">Empirical coverage vs. <span class="italic fg-accent">nominal.</span></h2>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;">
+        <div>
+          <table class="cov-table">
+            <thead>
+              <tr>
+                <th>Nominal</th>
+                <th>Empirical</th>
+                <th>Δ</th>
+                <th>Gate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>p05 → p95 · 90%</td><td>89.2%</td><td class="ok">−0.8</td><td class="ok">✓</td></tr>
+              <tr><td>p10 → p90 · 80%</td><td>79.4%</td><td class="ok">−0.6</td><td class="ok">✓</td></tr>
+              <tr><td>p25 → p75 · 50%</td><td>52.1%</td><td class="ok">+2.1</td><td class="ok">✓</td></tr>
+              <tr><td>p05 (lower tail)</td><td>4.4%</td><td class="ok">−0.6</td><td class="ok">✓</td></tr>
+              <tr><td>p95 (upper tail)</td><td>6.4%</td><td class="miss">+1.4</td><td class="ok">✓</td></tr>
+            </tbody>
+          </table>
+          <p class="tiny mt-16" style="font-style:italic;">Mild over-prediction in the upper tail — driven mostly by evening-peak hours in Q4. See residual breakdown below.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:var(--serif); font-size:20px; margin-bottom: 14px;">Reading the table</h3>
+          <p style="font-size:14px; line-height:1.7; color:var(--ink-soft);">
+            A well-calibrated 90% interval should contain the realised
+            value 90% of the time. 89.2% is comfortably inside the ±5pp
+            tolerance — the model neither over-confidently narrows
+            the band nor pads it.
+          </p>
+          <p style="font-size:14px; line-height:1.7; color:var(--ink-soft); margin-top: 12px;">
+            The 50% interval is slightly wide (52.1% vs 50%) — preferable
+            to the alternative of underestimating uncertainty. Per
+            ADR-019, no post-hoc rescaling is applied; instead, the
+            calibration is fed forward to MAPIE conformalisation in
+            the downstream stack model.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ RESIDUALS BY HOUR ════════════════ -->
+  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="hod">
+    <div class="container">
+      <div class="eyebrow mb-8">Residual breakdown</div>
+      <h2 class="display-3 mb-32">Where the model <span class="italic fg-accent">misses.</span></h2>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: start;">
+
+        <div class="fan-frame">
+          <div class="fan-head" style="margin-bottom:18px;">
+            <div>
+              <div class="eyebrow" style="font-size:10px;">|Realised − p50| · MW · by hour-of-day</div>
+              <div class="mono tiny mt-8" style="color:var(--ink-soft);">Mean absolute error across 4382 test points</div>
+            </div>
+          </div>
+
+          <div class="hod-bars">
+            <div class="bar" style="height:42%"></div>
+            <div class="bar" style="height:38%"></div>
+            <div class="bar" style="height:34%"></div>
+            <div class="bar" style="height:32%"></div>
+            <div class="bar" style="height:34%"></div>
+            <div class="bar" style="height:46%"></div>
+            <div class="bar" style="height:62%"></div>
+            <div class="bar" style="height:78%"></div>
+            <div class="bar" style="height:84%"></div>
+            <div class="bar" style="height:72%"></div>
+            <div class="bar" style="height:62%"></div>
+            <div class="bar" style="height:54%"></div>
+            <div class="bar" style="height:52%"></div>
+            <div class="bar" style="height:54%"></div>
+            <div class="bar" style="height:58%"></div>
+            <div class="bar" style="height:64%"></div>
+            <div class="bar" style="height:78%"></div>
+            <div class="bar" style="height:96%"></div>
+            <div class="bar" style="height:88%" ></div>
+            <div class="bar" style="height:72%"></div>
+            <div class="bar" style="height:62%"></div>
+            <div class="bar" style="height:54%"></div>
+            <div class="bar" style="height:48%"></div>
+            <div class="bar" style="height:44%"></div>
+          </div>
+          <div class="hod-axis">
+            <span>00</span><span></span><span></span><span></span><span></span><span></span>
+            <span>06</span><span></span><span></span><span></span><span></span><span></span>
+            <span>12</span><span></span><span></span><span></span><span></span><span></span>
+            <span>18</span><span></span><span></span><span></span><span></span><span>23</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-family:var(--serif); font-size:20px; margin-bottom: 14px;">Two peaks, two regimes</h3>
+          <p style="font-size:14px; line-height:1.7; color:var(--ink-soft);">
+            Errors cluster around the morning ramp (07:00–09:00)
+            and the evening peak (17:00–19:00). Both are
+            <em class="italic">structurally hard</em> — small shifts in
+            wake-up and dinner timing translate to large MW
+            differences against a 30 GW baseline. The 168h lag captures
+            most of it; what's left is weather-driven.
+          </p>
+          <p style="font-size:14px; line-height:1.7; color:var(--ink-soft); margin-top: 12px;">
+            Off-peak nights (00:00–05:00) are nearly trivial — flat
+            demand, small dispersion, and the lag features carry
+            virtually all the signal.
+          </p>
+
+          <div class="callout">
+            <strong>Next iteration.</strong>
+            <span style="display:block; margin-top:6px; line-height:1.6; color:var(--ink-soft);">
+              Adding Open-Meteo 2m-temperature and a 24h
+              temperature-anomaly feature should compress the evening
+              tail. Tracked as F5-F.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ FETCHING THE INPUTS ════════════════ -->
+  <section class="block" data-screen-label="query">
+    <div class="container">
+      <div class="eyebrow mb-8">Reproduce it</div>
+      <h2 class="display-3 mb-32">Fetch the same data, <span class="italic fg-accent">locally.</span></h2>
+
+      <p class="lede" style="max-width: 640px; margin-bottom: 28px;">
+        Every input to the model comes from a single silver-layer
+        table. The training query is short enough to fit on screen.
+      </p>
+
+      <div class="code-wrap">
+<pre class="code dark"><span class="c">-- 7y of half-hourly national demand, ready for the feature pipeline</span>
+<span class="k">SELECT</span>
+  settlement_dt                            <span class="k">AS</span> event_time,
+  national_demand_mw,
+  ingested_at                              <span class="k">AS</span> available_at
+<span class="k">FROM</span> silver.indo
+<span class="k">WHERE</span> settlement_dt &gt;= <span class="s">'2019-01-01'</span>
+  <span class="k">AND</span> run_type = <span class="s">'OUTTURN'</span>            <span class="c">-- exclude forecast revisions</span>
+<span class="k">ORDER BY</span> 1;</pre>
+      </div>
+
+      <p class="small mt-24" style="color:var(--ink-soft); max-width: 640px;">
+        Pass the resulting frame to <code class="mono">TrainingSet(...)</code>
+        and the orchestrator handles fold construction, target
+        availability checks, feature fitting per fold, and
+        gate evaluation. Roughly 90 seconds end-to-end on a 2024 laptop;
+        4–8s per fold dominated by LightGBM training.
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════════ CAVEATS ════════════════ -->
+  <section class="block" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);" data-screen-label="caveats">
+    <div class="container">
+      <div class="eyebrow mb-8">Caveats</div>
+      <h2 class="display-3 mb-32">What this model <span class="italic fg-accent">isn't.</span></h2>
+
+      <div class="stack-md" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 32px; border-top: 1px solid var(--ink);">
+
+        <div style="padding-top:24px; border-right:1px solid var(--rule); padding-right: 24px;">
+          <h3 style="font-family:var(--serif); font-size:20px; margin-bottom: 10px;">No weather features.</h3>
+          <p style="font-size:14px; line-height:1.65; color:var(--ink-soft);">
+            Today's model is calendar + lag only. Open-Meteo grid
+            features are next on the list (temperature, wind chill,
+            cloud cover). Until then, residuals on hot/cold tails
+            will be wider than they need to be.
+          </p>
+        </div>
+
+        <div style="padding-top:24px; border-right:1px solid var(--rule); padding-right: 24px;">
+          <h3 style="font-family:var(--serif); font-size:20px; margin-bottom: 10px;">National only.</h3>
+          <p style="font-size:14px; line-height:1.65; color:var(--ink-soft);">
+            <code class="mono">indo</code> is a national sum. Zonal
+            demand (B-zones) is not modelled. For nodal price work
+            the model is a baseline at best — and not the right
+            primitive at worst.
+          </p>
+        </div>
+
+        <div style="padding-top:24px;">
+          <h3 style="font-family:var(--serif); font-size:20px; margin-bottom: 10px;">Quantiles are independent.</h3>
+          <p style="font-size:14px; line-height:1.65; color:var(--ink-soft);">
+            We don't model the joint distribution across delivery
+            times. For 48-period dispatch problems this matters; the
+            downstream <code class="mono">ResidualDemandSampler</code>
+            currently assumes marginal independence (ADR-039). A
+            copula layer is deferred.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ WHAT'S NEXT ════════════════ -->
+  <section class="block" data-screen-label="next">
+    <div class="container">
+      <div class="stack-md row between mb-32" style="align-items: baseline;">
+        <div>
+          <div class="eyebrow mb-8">What's next</div>
+          <h2 class="display-3">On the bench.</h2>
+        </div>
+        <a href="../index.html#models" class="link">All models →</a>
+      </div>
+
+      <div class="stack-sm" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink);">
+
+        <div style="padding: 28px; border-right: 1px solid var(--rule);">
+          <div class="eyebrow mb-16" style="color:var(--accent);">Live wiring</div>
+          <h3 style="font-family:var(--serif); font-size:22px; margin-bottom:10px;">Daily predict job</h3>
+          <p class="small" style="line-height:1.65; color:var(--ink-soft);">
+            Predictions and realised values stored in a small DuckDB
+            ledger, rendered to this page nightly. The fan chart
+            becomes a rolling backtest in public, not a snapshot.
+          </p>
+        </div>
+
+        <div style="padding: 28px; border-right: 1px solid var(--rule);">
+          <div class="eyebrow mb-16" style="color:var(--accent);">Features</div>
+          <h3 style="font-family:var(--serif); font-size:22px; margin-bottom:10px;">Weather + holidays.</h3>
+          <p class="small" style="line-height:1.65; color:var(--ink-soft);">
+            2m temperature, wind chill, cloud cover from Open-Meteo
+            on a 0.1° GB grid. Plus richer holiday vocabulary —
+            school terms, bridging days, post-bank-holiday rebound.
+          </p>
+        </div>
+
+        <div style="padding: 28px;">
+          <div class="eyebrow mb-16" style="color:var(--accent);">Downstream</div>
+          <h3 style="font-family:var(--serif); font-size:22px; margin-bottom:10px;">Stack model handoff.</h3>
+          <p class="small" style="line-height:1.65; color:var(--ink-soft);">
+            The calibrated quantiles feed the residual-demand sampler
+            which drives the merit-order clearing. The fundamentals
+            SMP forecaster sits one layer up.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script src="../assets/charts.js"></script>
+  <script src="../assets/site.js"></script>
+</body>
+</html>
