@@ -16,37 +16,45 @@
       "name": "Prices & Balancing",
       "blurb": "System prices, market index, balancing actions, physical notifications.",
       "datasets": [
-        { "id": "system_prices", "title": "System buy / sell prices",  "freq": "30 min", "lag": "~5 min", "rows": "44k / mo" },
-        { "id": "mid",           "title": "Market index data",         "freq": "hourly", "lag": "~10 min","rows": "22k / mo" },
-        { "id": "boal",          "title": "Bid-offer acceptance",      "freq": "hourly", "lag": "~10 min","rows": "1.1M / mo" },
-        { "id": "disbsad",       "title": "Disaggregated balancing",   "freq": "daily",  "lag": "1 day",  "rows": "180k / mo" },
-        { "id": "netbsad",       "title": "Net balancing services",    "freq": "daily",  "lag": "1 day",  "rows": "44k / mo" },
-        { "id": "pn",            "title": "Physical notifications",    "freq": "hourly", "lag": "~10 min","rows": "5.4M / mo" }
+        { "id": "system_prices", "title": "System buy / sell prices",            "freq": "30 min", "lag": "~5 min",  "rows": "44k / mo" },
+        { "id": "mid",           "title": "Market index data",                   "freq": "hourly", "lag": "~10 min", "rows": "22k / mo" },
+        { "id": "boal",          "title": "Bid-offer acceptance",                "freq": "hourly", "lag": "~10 min", "rows": "1.1M / mo" },
+        { "id": "disbsad",       "title": "Disaggregated balancing",             "freq": "daily",  "lag": "1 day",   "rows": "180k / mo" },
+        { "id": "netbsad",       "title": "Net balancing services",              "freq": "daily",  "lag": "1 day",   "rows": "44k / mo" },
+        { "id": "pn",            "title": "Physical notifications",              "freq": "hourly", "lag": "~10 min", "rows": "5.4M / mo" },
+        { "id": "market_depth",  "title": "Settlement market depth",             "freq": "30 min", "lag": "1 day",   "rows": "44k / mo" }
       ]
     },
     {
       "name": "Demand & Forecasts",
-      "blurb": "Outturn demand and forecasts at multiple horizons.",
+      "blurb": "Outturn demand, day-ahead indicateds, and multi-horizon forecasts.",
       "datasets": [
-        { "id": "indo",     "title": "Initial demand outturn",            "freq": "30 min", "lag": "~5 min", "rows": "44k / mo" },
-        { "id": "itsdo",    "title": "Initial transmission demand",        "freq": "30 min", "lag": "~5 min", "rows": "44k / mo" },
-        { "id": "indod",    "title": "Initial demand outturn — daily",    "freq": "daily",  "lag": "1 day",  "rows": "30 / mo" },
-        { "id": "ndf",      "title": "National demand forecast (day-ahead)", "freq": "daily","lag": "0",      "rows": "1.4k / mo" },
-        { "id": "ndfd",     "title": "National demand forecast 2–14d",     "freq": "daily",  "lag": "0",      "rows": "20k / mo" },
-        { "id": "tsdf",     "title": "Transmission demand forecast",        "freq": "daily", "lag": "0",      "rows": "44k / mo" },
-        { "id": "fou2t14d", "title": "2–14 day generation availability",    "freq": "daily", "lag": "0",      "rows": "440k / mo" },
-        { "id": "uou2t14d", "title": "2–14 day availability by BM unit",    "freq": "daily", "lag": "0",      "rows": "5.2M / mo" }
+        { "id": "indo",     "title": "Initial demand outturn",                  "freq": "30 min", "lag": "~5 min", "rows": "44k / mo" },
+        { "id": "itsdo",    "title": "Initial transmission demand",             "freq": "30 min", "lag": "~5 min", "rows": "44k / mo" },
+        { "id": "indod",    "title": "Initial demand outturn — daily",          "freq": "daily",  "lag": "1 day",  "rows": "30 / mo" },
+        { "id": "ndf",      "title": "National demand forecast (day-ahead)",    "freq": "daily",  "lag": "0",      "rows": "1.4k / mo" },
+        { "id": "ndfd",     "title": "National demand forecast 2–14d",          "freq": "daily",  "lag": "0",      "rows": "20k / mo" },
+        { "id": "tsdf",     "title": "Transmission demand forecast",            "freq": "daily",  "lag": "0",      "rows": "44k / mo" },
+        { "id": "tsdfd",    "title": "2–14d transmission demand forecast",      "freq": "daily",  "lag": "0",      "rows": "14k / mo" },
+        { "id": "fou2t14d", "title": "2–14 day generation availability",        "freq": "daily",  "lag": "0",      "rows": "440k / mo" },
+        { "id": "uou2t14d", "title": "2–14 day availability by BM unit",        "freq": "daily",  "lag": "0",      "rows": "5.2M / mo" },
+        { "id": "atl",      "title": "Actual total load per bidding zone",      "freq": "30 min", "lag": "1 day",  "rows": "44k / mo" },
+        { "id": "inddem",   "title": "Indicated demand (day & day-ahead)",      "freq": "30 min", "lag": "0",      "rows": "44k / mo" },
+        { "id": "indgen",   "title": "Indicated generation (day & day-ahead)",  "freq": "30 min", "lag": "0",      "rows": "44k / mo" },
+        { "id": "imbalngc", "title": "Indicated imbalance (day & day-ahead)",   "freq": "30 min", "lag": "0",      "rows": "44k / mo" },
+        { "id": "melngc",   "title": "Indicated margin (day & day-ahead)",      "freq": "30 min", "lag": "0",      "rows": "44k / mo" }
       ]
     },
     {
       "name": "System & Reference",
-      "blurb": "Frequency, REMIT outages, BM unit reference data.",
+      "blurb": "Frequency, reliability, REMIT outages, BM unit reference data.",
       "datasets": [
-        { "id": "freq",              "title": "System frequency (1 s)",     "freq": "hourly",     "lag": "~1 min",  "rows": "2.6M / mo" },
-        { "id": "temp",              "title": "Temperature reference",      "freq": "daily",      "lag": "1 day",   "rows": "30 / mo" },
-        { "id": "remit",             "title": "REMIT outage messages",      "freq": "as published","lag": "—",      "rows": "varies" },
-        { "id": "bmunits_reference", "title": "BMU reference list",         "freq": "weekly",     "lag": "0",       "rows": "1 snapshot" },
-        { "id": "soso",              "title": "SO-SO trades",               "freq": "daily",      "lag": "1 day",   "rows": "8k / mo" }
+        { "id": "freq",              "title": "System frequency (1 s)",              "freq": "hourly",      "lag": "~1 min", "rows": "2.6M / mo" },
+        { "id": "temp",              "title": "Temperature reference",                "freq": "daily",       "lag": "1 day",  "rows": "30 / mo" },
+        { "id": "remit",             "title": "REMIT outage messages",                "freq": "as published","lag": "—",      "rows": "varies" },
+        { "id": "bmunits_reference", "title": "BMU reference list",                   "freq": "weekly",      "lag": "0",      "rows": "1 snapshot" },
+        { "id": "soso",              "title": "SO-SO trades",                         "freq": "daily",       "lag": "1 day",  "rows": "8k / mo" },
+        { "id": "lolpdrm",           "title": "Loss-of-load probability & margin",    "freq": "30 min",      "lag": "0",      "rows": "44k / mo" }
       ]
     }
   ]
