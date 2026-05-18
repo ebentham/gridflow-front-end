@@ -1,0 +1,67 @@
+{# Coming-soon vendor stub: site/hifi/data-sources/<vendor>.html — depth-1 path.
+   Visually distinct from real vendor hubs: no sidebar, no chart container,
+   single-screen layout, "Planned · F<n>" stage chip. (Pitfall 9.) #}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ vendor_label }} · Coming soon · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css" />
+</head>
+<body data-page="vendor" data-root="../" data-screen-label="Vendor · {{ vendor_label }} · planned">
+
+  <section class="block" style="padding: 64px 0 80px;">
+    <div class="container">
+      <div class="crumbs mb-32">
+        <a href="../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <span class="here">{{ vendor_label }}</span>
+      </div>
+
+      <div class="row gap-8 mb-16" style="align-items:center;">
+        <span class="eyebrow">Vendor · {{ region }} · {{ domain }}</span>
+        <span class="chip accent" style="font-size: 11px;">Planned · {{ stage_chip }}</span>
+      </div>
+
+      <h1 class="display-2" style="margin-bottom: 18px; max-width: 720px;">
+        {{ vendor_label }} <span class="italic">— planned.</span>
+      </h1>
+
+      <p class="lede" style="max-width: 620px;">
+        {{ vendor_label }} is in scope for a later milestone of this site. The
+        gridflow ETL pipeline {% if connector_state == "shipping" %}already ingests from it; the documentation
+        layer here is{% else %}has not yet wired this vendor in; the connector and the documentation layer are both{% endif %}
+        scheduled under <strong>{{ stage_chip }}</strong> in the planning roadmap.
+      </p>
+
+      <div class="row gap-16 mt-32 mb-48">
+        {% if vendor_docs_url %}<a href="{{ vendor_docs_url }}" target="_blank" rel="noopener" class="btn ghost">Vendor docs ↗</a>{% endif %}
+        <a href="data-sources/elexon.html" class="btn primary">See the Elexon template →</a>
+      </div>
+
+      <div style="border-top: 1px solid var(--rule); padding-top: 32px; max-width: 720px;">
+        <div class="eyebrow mb-16">What will land here</div>
+        <ul style="font-size:14px; line-height:1.8; color:var(--ink-soft); padding-left: 20px; margin: 0;">
+          {% for item in planned_items %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <p class="tiny mt-48" style="max-width:720px; color:var(--ink-faint);">
+        The Elexon hub at <a href="data-sources/elexon.html" class="link">/data-sources/elexon.html</a>
+        is the template — when this vendor lands at full fidelity, its page will look like that one,
+        not like this stub.
+      </p>
+    </div>
+  </section>
+
+  <script src="../assets/site.js"></script>
+</body>
+</html>
