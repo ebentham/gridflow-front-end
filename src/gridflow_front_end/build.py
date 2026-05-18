@@ -526,6 +526,36 @@ def resolve_vault_path(cli_arg: str | None) -> Path:
     return DEFAULT_VAULT
 
 
+def audit_vault_content(docs: list[DatasetDoc]) -> tuple[list[str], list[str]]:
+    """Per-dataset content audit (VAULT-03).
+
+    Returns (warnings, errors). Errors fail the build; warnings are surfaced
+    on stderr but don't block. Critical-vs-soft thresholds:
+      ERROR (build-blocking): no overview, no api endpoint base URL, no slug
+      WARN  (surfaced):       schema rows empty, sample empty, caveats empty,
+                              pydantic class not declared
+    """
+    warnings: list[str] = []
+    errors: list[str] = []
+    for d in docs:
+        if not d.overview_paragraphs:
+            errors.append(f"{d.slug}: vault file has no Overview content")
+        if not d.base_url and not d.api_path:
+            errors.append(f"{d.slug}: vault file declares no API endpoint")
+        if not d.schema_rows:
+            warnings.append(f"{d.slug}: silver schema rows empty (table will render placeholder)")
+        if not (d.sample_rows or d.sample_raw):
+            warnings.append(f"{d.slug}: silver sample empty (section will render placeholder)")
+        if not d.caveats:
+            warnings.append(f"{d.slug}: no caveats captured in vault")
+        if not d.pydantic_schema_wired:
+            warnings.append(
+                f"{d.slug}: no Pydantic class declared in gridflow.schemas.elexon "
+                f"(drift surface — flagged in schema description)"
+            )
+    return warnings, errors
+
+
 def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int]:
     """Render all elexon dataset pages + the vendor hub. Returns (n_pages, n_hubs)."""
     env = make_env()
@@ -553,18 +583,34 @@ def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int]:
         )
     # Datasets present in the vault but not in the manifest are tolerated (out-of-scope datasets).
 
-    n_pages = 0
+    # Parse all in-scope vault files first so we can audit before any HTML is written.
+    docs: list[tuple[Path, DatasetDoc]] = []
     for path in vault_files:
         slug = path.stem
         if slug not in manifest_slugs:
             print(f"  skip (not in manifest): {slug}")
             continue
-        doc = parse_vault_file(path)
+        docs.append((path, parse_vault_file(path)))
+
+    # VAULT-03: audit content before render. Errors block; warnings surface.
+    warnings, errors = audit_vault_content([d for _, d in docs])
+    if warnings:
+        print(f"[gridflow-build] {len(warnings)} content warning(s):", file=sys.stderr)
+        for w in warnings:
+            print(f"  WARN: {w}", file=sys.stderr)
+    if errors:
+        print(f"[gridflow-build] {len(errors)} content error(s) — failing build:", file=sys.stderr)
+        for e in errors:
+            print(f"  ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    n_pages = 0
+    for path, doc in docs:
         html = render_dataset(env, doc, manifest)
-        out_path = out_dataset_dir / f"{slug}.html"
+        out_path = out_dataset_dir / f"{doc.slug}.html"
         out_path.write_text(html, encoding="utf-8")
         n_pages += 1
-        print(f"  wrote: data-sources/elexon/{slug}.html")
+        print(f"  wrote: data-sources/elexon/{doc.slug}.html")
 
     hub_html = render_vendor_hub(env, manifest, "elexon", "Elexon BMRS")
     hub_path = out_root / "data-sources" / "elexon.html"
