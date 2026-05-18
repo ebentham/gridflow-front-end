@@ -27,7 +27,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 **Depends on**: Nothing (gating prerequisite — blocks all other phases per all four research streams)
 **Requirements**: HYG-01, HYG-02
 **Success Criteria** (what must be TRUE):
-  1. `git status` shows zero modified files; `git log --oneline` since `351c580` shows 4 commits titled per the four logical chunks (typography sweep · pillar-status removal · fuelhh honesty edits · remaining tweaks)
+  1. `git status` shows zero modified files and zero untracked files; `git log --oneline` since `351c580` shows 6 commits in the documented order — 4 cleanup chunks (typography sweep · pillar-status removal · fuelhh honesty edits · remaining tweaks) plus 2 repo-hygiene chunks (`.gitattributes` + `.gitignore` bundled · renormalize line endings) per `00-CONTEXT.md` D-03
   2. `.gitattributes` exists at repo root with `text eol=lf` rules covering `*.html`, `*.css`, `*.js`, `*.json`, `*.py`, and a Windows-edited commit produces no LF/CRLF warnings on `git diff`
   3. GitHub Pages-deployed site matches the current `main` HEAD (working tree and deployed view are no longer diverged)
 **Plans**: 1 plan
