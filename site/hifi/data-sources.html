@@ -22,7 +22,7 @@
 
       <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap: 64px; align-items: end;">
         <div>
-          <div class="eyebrow mb-16">Catalog · 7 vendors · 49 datasets</div>
+          <div class="eyebrow mb-16">Catalog · 7 vendors · 34 datasets documented · 5 planned</div>
           <h1 class="display-2" style="margin-bottom: 18px;">
             Where the data <span class="italic">comes from.</span>
           </h1>
@@ -75,7 +75,7 @@
               physical notifications.
             </p>
             <div class="tag-row">
-              <span class="chip live" style="font-size:11px;">live · ~5 min</span>
+              <span class="chip" style="font-size:11px;">~5 min</span>
               <span class="chip" style="font-size:11px;">33 datasets</span>
               <span class="chip" style="font-size:11px;">Public</span>
               <span class="chip" style="font-size:11px;">2 req/s</span>
@@ -100,7 +100,7 @@
             <h3 style="font-size: 22px; margin-bottom: 6px;">ENTSO-E Transparency</h3>
             <p class="small" style="max-width: 420px; margin: 0 0 10px;">European transmission system operator data — day-ahead prices, load, cross-border flows, generation forecasts, capacity.</p>
             <div class="tag-row">
-              <span class="chip live" style="font-size:11px;">live · ~15 min</span>
+              <span class="chip" style="font-size:11px;">~15 min</span>
               <span class="chip" style="font-size:11px;">14 datasets</span>
               <span class="chip" style="font-size:11px;">API key</span>
               <span class="chip" style="font-size:11px;">6 req/s</span>
@@ -122,7 +122,7 @@
             <h3 style="font-size: 22px; margin-bottom: 6px;">NESO Carbon Intensity</h3>
             <p class="small" style="max-width: 420px; margin: 0 0 10px;">Real-time and forecast carbon intensity of GB electricity — gCO₂/kWh, by region.</p>
             <div class="tag-row">
-              <span class="chip live" style="font-size:11px;">live · 30 min</span>
+              <span class="chip" style="font-size:11px;">30 min</span>
               <span class="chip" style="font-size:11px;">1 dataset</span>
               <span class="chip" style="font-size:11px;">Public</span>
               <span class="chip" style="font-size:11px;">10 req/s</span>
@@ -153,7 +153,7 @@
             <h3 style="font-size: 22px; margin-bottom: 6px;">ENTSO-G Transparency</h3>
             <p class="small" style="max-width: 420px; margin: 0 0 10px;">European gas transmission flows at interconnection points — physical, allocated, nominated.</p>
             <div class="tag-row">
-              <span class="chip live" style="font-size:11px;">live · daily</span>
+              <span class="chip" style="font-size:11px;">daily</span>
               <span class="chip" style="font-size:11px;">1 dataset</span>
               <span class="chip" style="font-size:11px;">Public</span>
               <span class="chip" style="font-size:11px;">5 req/s</span>
@@ -174,7 +174,7 @@
             <h3 style="font-size: 22px; margin-bottom: 6px;">GIE AGSI · ALSI</h3>
             <p class="small" style="max-width: 420px; margin: 0 0 10px;">Underground gas storage levels and LNG terminal send-out — by country and facility.</p>
             <div class="tag-row">
-              <span class="chip live" style="font-size:11px;">live · daily</span>
+              <span class="chip" style="font-size:11px;">daily</span>
               <span class="chip" style="font-size:11px;">2 datasets</span>
               <span class="chip" style="font-size:11px;">API key</span>
               <span class="chip" style="font-size:11px;">5 req/s</span>
@@ -205,7 +205,7 @@
             <h3 style="font-size: 22px; margin-bottom: 6px;">Open-Meteo</h3>
             <p class="small" style="max-width: 420px; margin: 0 0 10px;">Weather — temperature, wind, solar radiation — for forecast and 80+ years of historical data on a 0.1° grid.</p>
             <div class="tag-row">
-              <span class="chip live" style="font-size:11px;">live · hourly</span>
+              <span class="chip" style="font-size:11px;">hourly</span>
               <span class="chip" style="font-size:11px;">2 datasets</span>
               <span class="chip" style="font-size:11px;">Public</span>
               <span class="chip" style="font-size:11px;">5 req/s</span>
@@ -242,7 +242,6 @@
             <th>Earliest</th>
             <th>Auth</th>
             <th>Rate</th>
-            <th style="text-align:right;">Last fetch</th>
           </tr>
         </thead>
         <tbody>
@@ -254,7 +253,6 @@
             <td class="mono">2014-04</td>
             <td>Public</td>
             <td class="mono">2 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:01:42</span></td>
           </tr>
           <tr>
             <td><a href="#entsoe" class="link">ENTSO-E</a></td>
@@ -264,7 +262,6 @@
             <td class="mono">2015-01</td>
             <td>API key</td>
             <td class="mono">6 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:04:12</span></td>
           </tr>
           <tr>
             <td><a href="#entsog" class="link">ENTSO-G</a></td>
@@ -274,7 +271,6 @@
             <td class="mono">2018-01</td>
             <td>Public</td>
             <td class="mono">5 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:09:01</span></td>
           </tr>
           <tr>
             <td><a href="#gie" class="link">GIE AGSI</a></td>
@@ -284,7 +280,6 @@
             <td class="mono">2011-01</td>
             <td>API key</td>
             <td class="mono">5 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:03:24</span></td>
           </tr>
           <tr>
             <td><a href="#gie" class="link">GIE ALSI</a></td>
@@ -294,7 +289,6 @@
             <td class="mono">2012-01</td>
             <td>API key</td>
             <td class="mono">5 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:03:30</span></td>
           </tr>
           <tr>
             <td><a href="#weather" class="link">Open-Meteo</a></td>
@@ -304,7 +298,6 @@
             <td class="mono">1940-01</td>
             <td>Public</td>
             <td class="mono">5 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:07:08</span></td>
           </tr>
           <tr>
             <td><a href="#carbon" class="link">NESO</a></td>
@@ -314,7 +307,6 @@
             <td class="mono">2018-01</td>
             <td>Public</td>
             <td class="mono">10 req/s</td>
-            <td style="text-align:right;"><span class="dot live"></span> <span class="mono small">00:00:54</span></td>
           </tr>
         </tbody>
       </table>

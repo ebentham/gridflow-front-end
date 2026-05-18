@@ -319,14 +319,11 @@
           </div>
         </div>
 
-        <!-- live GB grid card -->
+        <!-- GB grid snapshot card -->
         <div class="card" style="padding: 0;">
           <div style="padding: 16px 20px; border-bottom: 1px solid var(--rule); display:flex; align-items:center; justify-content:space-between;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span class="dot live"></span>
-              <span class="eyebrow" style="font-size:10px;">GB grid · snapshot</span>
-            </div>
-            <span class="mono tiny">2026-04-30 14:02 UTC</span>
+            <span class="eyebrow" style="font-size:10px;">GB grid · illustrative snapshot</span>
+            <span class="mono tiny">shape only · seeded SVG</span>
           </div>
           <div style="padding: 20px; display:grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items:center;">
             <div data-chart="donut" data-opts='{"data":[{"value":34,"color":"#c45a3a"},{"value":28,"color":"#3b6b4b"},{"value":15,"color":"#86627d"},{"value":12,"color":"#7a96a8"},{"value":11,"color":"#c9a96e"}],"center":"34.6","centerSub":"GW DEMAND","width":160,"height":160}'></div>
@@ -367,11 +364,15 @@
     <div class="scope-strip">
       <div>
         <div class="stat-n">7</div>
-        <div class="stat-l">Vendors</div>
+        <div class="stat-l">Vendors mapped</div>
       </div>
       <div>
-        <div class="stat-n">49</div>
-        <div class="stat-l">Datasets</div>
+        <div class="stat-n">33</div>
+        <div class="stat-l">Elexon datasets</div>
+      </div>
+      <div>
+        <div class="stat-n">34</div>
+        <div class="stat-l">Total documented</div>
       </div>
       <div>
         <div class="stat-n">12<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">y</span></div>
@@ -380,10 +381,6 @@
       <div>
         <div class="stat-n">3</div>
         <div class="stat-l">Pipeline layers</div>
-      </div>
-      <div>
-        <div class="stat-n">0</div>
-        <div class="stat-l">Cloud deps</div>
       </div>
     </div>
   </div>
@@ -431,7 +428,7 @@
           <span class="pillar-arrow">→</span>
           <div class="pillar-num">02 · CATALOGUE</div>
           <div class="pillar-title">Vendors.</div>
-          <p class="pillar-desc">Seven vendors, 49 datasets, 12 years of history. Each dataset documented with schema, queries, and caveats.</p>
+          <p class="pillar-desc">Seven vendors mapped, 34 datasets documented (33 Elexon + 1 ENTSO-E), 12 years of history. Each dataset carries schema, queries, and caveats. Five more vendors are stubbed with planned-feature labels rather than dead links.</p>
           <div class="pillar-visual" style="align-items:center;">
             <div class="vendor-chips">
               <span class="vendor-chip">EX · Elexon</span>
@@ -558,7 +555,7 @@
               <p class="small" style="margin:0;">GB electricity · prices, generation, demand, balancing</p>
               <div class="tag-row mt-8">
                 <span class="chip" style="font-size:11px;">33 datasets</span>
-                <span class="chip live" style="font-size:11px;">live · 5m</span>
+                <span class="chip" style="font-size:11px;">5m</span>
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":3,"width":80,"height":36}'></div>
@@ -574,7 +571,7 @@
               <p class="small" style="margin:0;">European electricity transparency platform</p>
               <div class="tag-row mt-8">
                 <span class="chip" style="font-size:11px;">14 datasets</span>
-                <span class="chip live" style="font-size:11px;">live · 15m</span>
+                <span class="chip" style="font-size:11px;">15m</span>
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":7,"width":80,"height":36,"color":"#86627d","fill":"#e8dde8"}'></div>
@@ -591,7 +588,7 @@
               <p class="small" style="margin:0;">European gas transmission flows at IPs</p>
               <div class="tag-row mt-8">
                 <span class="chip" style="font-size:11px;">1 dataset</span>
-                <span class="chip live" style="font-size:11px;">live · daily</span>
+                <span class="chip" style="font-size:11px;">daily</span>
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":11,"width":80,"height":36,"color":"#c45a3a","fill":"#f6e2d5"}'></div>
@@ -607,7 +604,7 @@
               <p class="small" style="margin:0;">EU gas storage levels and LNG terminal send-out</p>
               <div class="tag-row mt-8">
                 <span class="chip" style="font-size:11px;">2 datasets</span>
-                <span class="chip live" style="font-size:11px;">live · daily</span>
+                <span class="chip" style="font-size:11px;">daily</span>
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":13,"width":80,"height":36,"color":"#c9a96e","fill":"#efe5d1"}'></div>
@@ -624,7 +621,7 @@
               <p class="small" style="margin:0;">Weather — temperature, wind, radiation</p>
               <div class="tag-row mt-8">
                 <span class="chip" style="font-size:11px;">2 datasets</span>
-                <span class="chip live" style="font-size:11px;">live · hourly</span>
+                <span class="chip" style="font-size:11px;">hourly</span>
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":17,"width":80,"height":36,"color":"#7a96a8","fill":"#dde6ec"}'></div>
@@ -640,7 +637,7 @@
               <p class="small" style="margin:0;">Real-time GB grid carbon intensity</p>
               <div class="tag-row mt-8">
                 <span class="chip" style="font-size:11px;">1 dataset</span>
-                <span class="chip live" style="font-size:11px;">live · 30m</span>
+                <span class="chip" style="font-size:11px;">30m</span>
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":19,"width":80,"height":36}'></div>
@@ -678,7 +675,7 @@
             <p class="desc">LightGBM quantile regression on national demand. Calendar + lag-feature pipeline; one model per quantile; six-fold expanding window. <strong style="color:var(--ink);">Currently the worked example</strong> — see the case study.</p>
           </div>
           <span class="mono small" style="color:var(--ink-soft);">7 quantiles · p05–p95</span>
-          <span class="stage ship"><span class="dot live"></span> Shipping</span>
+          <span class="stage ship">Shipped · case study</span>
           <span class="arrow">→</span>
         </a>
 

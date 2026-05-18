@@ -45,7 +45,7 @@
               Built around a bronze–silver–gold data warehouse and a
               probabilistic modelling stack.
             </p>
-            <p class="tiny mt-16">v0.4.2 · build 2026.04.30</p>
+            <p class="tiny mt-16">Documentation site · cream paper · last updated 2026-05-18</p>
           </div>
           <div>
             <h4>Project</h4>
@@ -70,7 +70,7 @@
         </div>
         <div class="footer-bottom">
           <span>© 2026 E. Bentham · Personal project · MIT</span>
-          <span class="mono tiny">last sync 2026-04-30 14:02 UTC · 7 sources · 49 datasets</span>
+          <span class="mono tiny">Static documentation · 7 vendors · 34 datasets</span>
         </div>
       </div>
     </footer>
