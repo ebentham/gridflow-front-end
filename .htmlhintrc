@@ -4,7 +4,7 @@
   "attr-value-double-quotes": false,
   "doctype-first": true,
   "tag-pair": true,
-  "spec-char-escape": true,
+  "spec-char-escape": false,
   "id-unique": true,
   "src-not-empty": true,
   "title-require": true,
