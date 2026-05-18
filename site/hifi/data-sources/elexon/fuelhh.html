@@ -164,8 +164,8 @@
             <div class="small">~1.4M rows / month</div>
           </div>
           <div style="padding: 16px 18px;">
-            <div class="tiny mb-6">LAST FETCH</div>
-            <div class="small"><span class="dot live"></span> 42 s ago</div>
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small">settlement_date, period, fuel_type</div>
           </div>
         </div>
       </div>
@@ -192,8 +192,8 @@
         <div class="stat-l">History (from 2014)</div>
       </div>
       <div>
-        <div class="stat-n">42<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">s</span></div>
-        <div class="stat-l">Median lag</div>
+        <div class="stat-n">30<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">min</span></div>
+        <div class="stat-l">Resolution</div>
       </div>
     </div>
   </div>
@@ -207,7 +207,7 @@
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
-          <a href="#live-chart">Live chart</a>
+          <a href="#live-chart">Snapshot chart</a>
           <a href="#schema">Schema</a>
           <a href="#sample">Sample data</a>
           <a href="#fuel-types">Fuel types</a>
@@ -257,15 +257,15 @@
           </p>
         </section>
 
-        <!-- ── Live chart ── -->
+        <!-- ── Sample chart ── -->
         <section id="live-chart" style="margin-bottom: 56px;">
-          <div class="eyebrow mb-8">Live chart</div>
-          <h2 class="display-3 mb-24">GB generation mix · last 24 h.</h2>
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">GB generation mix · 24-hour <span class="italic">snapshot.</span></h2>
           <div class="chart" style="padding: 24px 28px;">
             <div class="row between mb-16" style="align-items: baseline;">
               <div>
                 <div class="eyebrow mb-4">fuelhh · silver layer · all fuel types</div>
-                <div class="small">Stacked area · MW · UTC</div>
+                <div class="small">Stacked area · MW · UTC · 29 Apr 2026</div>
               </div>
               <div class="row gap-8">
                 <span class="chip ink btn-like">24h</span>
@@ -274,6 +274,7 @@
               </div>
             </div>
             <div data-chart="stackedArea" data-opts='{"width":900,"height":280}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
           </div>
         </section>
 
