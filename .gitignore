@@ -7,3 +7,8 @@ build/
 .idea/
 .claude/
 .codex-assessment-shots/
+
+# Generated dataset pages (rendered by gridflow-build from vault/elexon/*.md).
+# The source of truth is vault/<vendor>/<slug>.md + site/hifi/data/<vendor>.json.
+site/hifi/data-sources/elexon/*.html
+site/hifi/data-sources/elexon.html
