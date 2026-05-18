@@ -132,9 +132,10 @@
     wrap.appendChild(btn);
   });
 
-  // tabs
+  // tabs — selector covers both index.html's stripped .tabs row and the
+  // dataset-page chip-strip variant wrapped in .tab-buttons
   document.querySelectorAll("[data-tabs]").forEach((group) => {
-    const buttons = group.querySelectorAll(".tabs button");
+    const buttons = group.querySelectorAll(".tabs button, .tab-buttons button");
     const panels = group.querySelectorAll(".tab-panel");
     buttons.forEach((b, i) => {
       b.addEventListener("click", () => {
@@ -145,4 +146,22 @@
       });
     });
   });
+
+  // scroll-spy — highlight the active in-page anchor in any sticky sidebar.
+  // Gated by selector presence so it generalises to future pages (vendor
+  // hubs etc.) without needing data-page checks.
+  if (document.querySelector('.sidebar a[href^="#"]')) {
+    const sections = document.querySelectorAll("section[id]");
+    const anchors = document.querySelectorAll('.sidebar a[href^="#"]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          anchors.forEach((l) => l.classList.remove("active"));
+          const match = document.querySelector('.sidebar a[href="#' + e.target.id + '"]');
+          if (match) match.classList.add("active");
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    sections.forEach((s) => observer.observe(s));
+  }
 })();
