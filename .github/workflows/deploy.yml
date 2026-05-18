@@ -35,8 +35,24 @@ jobs:
       - name: Render dataset pages
         run: gridflow-build
 
-      - name: Verify build idempotence
+      - name: Verify build idempotence (CI-03)
         run: gridflow-build --check
+
+      - name: Install htmlhint (CI-01)
+        run: npm install -g htmlhint
+      - name: Run htmlhint
+        run: htmlhint --config .htmlhintrc 'site/hifi/**/*.html'
+
+      - name: Validate internal links (CI-02)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --offline
+            --include-fragments
+            './site/hifi/**/*.html'
+          fail: true
+          format: detailed
 
       - uses: actions/configure-pages@v5
 
