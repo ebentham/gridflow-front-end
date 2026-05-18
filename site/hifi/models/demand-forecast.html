@@ -230,15 +230,16 @@
   </style>
 </head>
 <body data-page="model" data-root="../" data-screen-label="Demand forecast">
+<main>
 
   <!-- ════════════════ HEADER ════════════════ -->
   <section class="pagehead">
     <div class="container">
       <div class="crumbs">
         <a href="../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../index.html#models">Models</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <span class="here">Day-ahead demand</span>
       </div>
 
@@ -932,6 +933,7 @@ forecast = orchestrator.predict_quantiles(as_of=<span class="s">"2026-04-29T23:0
     </div>
   </section>
 
+  </main>
   <script src="../assets/charts.js"></script>
   <script src="../assets/site.js"></script>
 </body>

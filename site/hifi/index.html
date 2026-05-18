@@ -298,6 +298,7 @@
   </style>
 </head>
 <body data-page="home" data-root="" data-screen-label="01 Home">
+<main>
 
   <!-- ════════════════ HERO ════════════════ -->
   <section class="block" style="padding-top: 64px; padding-bottom: 56px; border-bottom: 0;" data-screen-label="hero">
@@ -559,7 +560,7 @@
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":3,"width":80,"height":36}'></div>
-            <span class="arrow">→</span>
+            <span class="arrow" aria-hidden="true">→</span>
           </div>
         </a>
 
@@ -575,7 +576,7 @@
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":7,"width":80,"height":36,"color":"#86627d","fill":"#e8dde8"}'></div>
-            <span class="arrow">→</span>
+            <span class="arrow" aria-hidden="true">→</span>
           </div>
         </a>
 
@@ -592,7 +593,7 @@
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":11,"width":80,"height":36,"color":"#c45a3a","fill":"#f6e2d5"}'></div>
-            <span class="arrow">→</span>
+            <span class="arrow" aria-hidden="true">→</span>
           </div>
         </a>
 
@@ -608,7 +609,7 @@
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":13,"width":80,"height":36,"color":"#c9a96e","fill":"#efe5d1"}'></div>
-            <span class="arrow">→</span>
+            <span class="arrow" aria-hidden="true">→</span>
           </div>
         </a>
 
@@ -625,7 +626,7 @@
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":17,"width":80,"height":36,"color":"#7a96a8","fill":"#dde6ec"}'></div>
-            <span class="arrow">→</span>
+            <span class="arrow" aria-hidden="true">→</span>
           </div>
         </a>
 
@@ -641,7 +642,7 @@
               </div>
             </div>
             <div data-chart="sparkline" data-opts='{"seed":19,"width":80,"height":36}'></div>
-            <span class="arrow">→</span>
+            <span class="arrow" aria-hidden="true">→</span>
           </div>
         </a>
       </div>
@@ -676,7 +677,7 @@
           </div>
           <span class="mono small" style="color:var(--ink-soft);">7 quantiles · p05–p95</span>
           <span class="stage ship">Shipped · case study</span>
-          <span class="arrow">→</span>
+          <span class="arrow" aria-hidden="true">→</span>
         </a>
 
         <!-- Model 2 — Wind -->
@@ -688,7 +689,7 @@
           </div>
           <span class="mono small" style="color:var(--ink-soft);">7 quantiles · p05–p95</span>
           <span class="stage">Planned · F6</span>
-          <span class="arrow" style="opacity:0.3;">→</span>
+          <span class="arrow" aria-hidden="true" style="opacity:0.3;">→</span>
         </div>
 
         <!-- Model 3 — Solar -->
@@ -700,7 +701,7 @@
           </div>
           <span class="mono small" style="color:var(--ink-soft);">7 quantiles · p05–p95</span>
           <span class="stage">Planned · F7</span>
-          <span class="arrow" style="opacity:0.3;">→</span>
+          <span class="arrow" aria-hidden="true" style="opacity:0.3;">→</span>
         </div>
 
         <!-- Model 4 — Stack -->
@@ -712,7 +713,7 @@
           </div>
           <span class="mono small" style="color:var(--ink-soft);">Point estimate</span>
           <span class="stage">Planned · F8</span>
-          <span class="arrow" style="opacity:0.3;">→</span>
+          <span class="arrow" aria-hidden="true" style="opacity:0.3;">→</span>
         </div>
 
         <!-- Model 5 — Fundamentals SMP -->
@@ -724,7 +725,7 @@
           </div>
           <span class="mono small" style="color:var(--ink-soft);">Joint quantiles</span>
           <span class="stage">Planned · F9</span>
-          <span class="arrow" style="opacity:0.3;">→</span>
+          <span class="arrow" aria-hidden="true" style="opacity:0.3;">→</span>
         </div>
 
       </div>
@@ -874,6 +875,7 @@ df = df[df.timestamp_utc >= pd.Timestamp.now() - pd.Timedelta(<span class="s">"3
     </div>
   </section>
 
+  </main>
   <script src="assets/charts.js"></script>
   <script src="assets/site.js"></script>
 </body>
