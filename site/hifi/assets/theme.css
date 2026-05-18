@@ -795,6 +795,95 @@ body[data-page="dataset"] .related-grid {
   h3 { font-size: 20px; }
   .lede { font-size: 17px; }
 
+  /* dataset page layout: collapse sidebar above main */
+  body[data-page="dataset"] .page-layout {
+    grid-template-columns: 1fr;
+  }
+  body[data-page="dataset"] .sidebar {
+    position: static;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    min-height: 0;
+    padding: 16px 0;
+  }
+  body[data-page="dataset"] .sidebar-section {
+    margin-bottom: 12px;
+  }
+  body[data-page="dataset"] .sidebar a {
+    padding: 4px 0;
+    display: inline-block;
+    margin-right: 14px;
+  }
+  body[data-page="dataset"] .sidebar a.active { border-left: 0; }
+  body[data-page="dataset"] .main-content { padding: 24px 0 48px; }
+
+  /* dataset hero 1fr auto → stacks */
+  body[data-page="dataset"] [style*="grid-template-columns:1fr auto"],
+  body[data-page="dataset"] [style*="grid-template-columns: 1fr auto"] {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  /* metric card min-width: 340px → drop on phone */
+  body[data-page="dataset"] [style*="min-width:340px"] {
+    min-width: 0 !important;
+  }
+  /* dataset stats strip 4-col → 2x2 */
+  body[data-page="dataset"] .stats-strip {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  body[data-page="dataset"] .stats-strip > div:nth-child(2n) { border-right: 0; }
+  body[data-page="dataset"] .stats-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+  /* schema/data tables: horizontal scroll */
+  body[data-page="dataset"] .schema-table,
+  body[data-page="dataset"] .data-table {
+    min-width: 560px;
+  }
+  body[data-page="dataset"] #schema,
+  body[data-page="dataset"] #sample {
+    overflow-x: auto;
+  }
+  /* api card grid → stack */
+  body[data-page="dataset"] #api [style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* related-grid: 2-col → 1-col */
+  body[data-page="dataset"] .related-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* vendor hub: 1.4fr 1fr → stack */
+  body[data-page="vendor"] [style*="grid-template-columns: 1.4fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  /* vendor hub stats strip: 4-col → 2x2 */
+  body[data-page="vendor"] .stats-strip {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  body[data-page="vendor"] .stats-strip > div:nth-child(2n) { border-right: 0; }
+  body[data-page="vendor"] .stats-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+  /* vendor catalog cards: 2-col → 1-col */
+  body[data-page="vendor"] #datasets [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* data-sources hub: hero 1.5fr 1fr → stack */
+  body[data-page="sources"] [style*="grid-template-columns: 1.5fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  /* data-sources cards: 4-col grid → stack labels above content */
+  body[data-page="sources"] [style*="grid-template-columns: 80px 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  body[data-page="sources"] .etable {
+    min-width: 720px;
+  }
+  body[data-page="sources"] section.block.tight > .container > table {
+    overflow-x: auto;
+  }
+
   section.block { padding: 40px 0; }
   section.block.tight { padding: 28px 0; }
 
@@ -869,6 +958,25 @@ body[data-page="dataset"] .related-grid {
   .kpi-row > div:last-child { border-bottom: 0; }
   .display-1 { font-size: 34px; }
   .display-2 { font-size: 28px; }
+
+  /* dataset/vendor stats strip: 2x2 → stack on very narrow */
+  body[data-page="dataset"] .stats-strip,
+  body[data-page="vendor"] .stats-strip {
+    grid-template-columns: 1fr !important;
+  }
+  body[data-page="dataset"] .stats-strip > div,
+  body[data-page="vendor"] .stats-strip > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  body[data-page="dataset"] .stats-strip > div:last-child,
+  body[data-page="vendor"] .stats-strip > div:last-child {
+    border-bottom: 0;
+  }
+  /* hero 6-cell metadata grid → 1-col on phone */
+  body[data-page="dataset"] [style*="grid-template-columns: 1fr 1fr"][style*="border:1px solid var(--rule)"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* respect reduced motion */

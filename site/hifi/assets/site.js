@@ -7,10 +7,10 @@
   const root = document.body.dataset.root || ""; // e.g. "" on root, "../" on /data-sources/, "../../" on /data-sources/elexon/
 
   const navHTML = `
-    <nav class="nav">
+    <nav class="nav" aria-label="Primary navigation">
       <div class="nav-inner">
         <a href="${root}index.html" class="nav-logo">
-          <span class="mark"></span>
+          <span class="mark" aria-hidden="true"></span>
           <span>Gridflow</span>
         </a>
         <div class="nav-links" id="nav-links">
@@ -20,7 +20,7 @@
           <a href="${root}index.html#about"           data-key="about">About</a>
         </div>
         <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
-          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5">
+          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <line x1="0" y1="1" x2="16" y2="1"></line>
             <line x1="0" y1="7" x2="16" y2="7"></line>
             <line x1="0" y1="13" x2="16" y2="13"></line>
@@ -45,7 +45,7 @@
               Built around a bronze–silver–gold data warehouse and a
               probabilistic modelling stack.
             </p>
-            <p class="tiny mt-16">v0.4.2 · build 2026.04.30</p>
+            <p class="tiny mt-16">Documentation site · cream paper · last updated 2026-05-18</p>
           </div>
           <div>
             <h4>Project</h4>
@@ -70,7 +70,7 @@
         </div>
         <div class="footer-bottom">
           <span>© 2026 E. Bentham · Personal project · MIT</span>
-          <span class="mono tiny">last sync 2026-04-30 14:02 UTC · 7 sources · 49 datasets</span>
+          <span class="mono tiny">Static documentation · 7 vendors · 34 datasets</span>
         </div>
       </div>
     </footer>
@@ -94,7 +94,10 @@
     const key = map[page];
     if (key) {
       const link = document.querySelector(`.nav-links a[data-key="${key}"]`);
-      if (link) link.classList.add("active");
+      if (link) {
+        link.classList.add("active");
+        link.setAttribute("aria-current", "page");
+      }
     }
   }
 
@@ -156,9 +159,15 @@
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
-          anchors.forEach((l) => l.classList.remove("active"));
+          anchors.forEach((l) => {
+            l.classList.remove("active");
+            l.removeAttribute("aria-current");
+          });
           const match = document.querySelector('.sidebar a[href="#' + e.target.id + '"]');
-          if (match) match.classList.add("active");
+          if (match) {
+            match.classList.add("active");
+            match.setAttribute("aria-current", "location");
+          }
         }
       });
     }, { rootMargin: "-20% 0px -70% 0px" });

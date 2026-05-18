@@ -230,15 +230,16 @@
   </style>
 </head>
 <body data-page="model" data-root="../" data-screen-label="Demand forecast">
+<main>
 
   <!-- ════════════════ HEADER ════════════════ -->
   <section class="pagehead">
     <div class="container">
       <div class="crumbs">
         <a href="../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../index.html#models">Models</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <span class="here">Day-ahead demand</span>
       </div>
 
@@ -259,7 +260,7 @@
 
         <div style="display:flex; flex-direction:column; gap: 12px; align-items: flex-end;">
           <div class="tag-row" style="justify-content:flex-end;">
-            <span class="chip live" style="font-size:11px;">Walk-forward complete</span>
+            <span class="chip accent" style="font-size:11px;">Walk-forward complete</span>
             <span class="chip" style="font-size:11px;">Local-only</span>
           </div>
           <span class="mono tiny">Model ID · <code>day_ahead.lgbm_demand.v1</code></span>
@@ -932,6 +933,7 @@ forecast = orchestrator.predict_quantiles(as_of=<span class="s">"2026-04-29T23:0
     </div>
   </section>
 
+  </main>
   <script src="../assets/charts.js"></script>
   <script src="../assets/site.js"></script>
 </body>
