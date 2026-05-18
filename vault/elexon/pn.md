@@ -1,0 +1,171 @@
+---
+source: elexon
+dataset_key: pn
+vendor: Elexon BMRS
+last_verified: 2026-05-08
+layer_coverage: bronze, silver
+---
+
+# Elexon - Physical Notifications (`PN`)
+
+## Overview
+
+Physical Notifications — each BM unit's declared MW level intent for each settlement period. PN is the unit-level baseline against which BOAL acceptances are deviations and is the foundation of any BM-unit dispatch model. PN is fetched per (settlementDate, settlementPeriod) tuple.
+
+→ Link to relevant domain concept notes if they exist, e.g.:
+  [Imbalance pricing](../../../20-domain/markets/imbalance-price.md)
+  [Settlement period](../../../20-domain/concepts/settlement-period.md)
+
+---
+
+## API endpoint
+
+| Property         | Value |
+|------------------|-------|
+| Base URL         | `https://data.elexon.co.uk/bmrs/api/v1` |
+| Path             | `/datasets/PN` |
+| Method           | GET |
+| Auth             | None required for tested endpoints (2026-05-08). Some endpoints accept an `apikey` header (env: `ELEXON_API_KEY`); registration at https://www.elexonportal.co.uk/. |
+| Rate limit       | Vendor-published: not stated. Project default 2 req/sec (asyncio.Semaphore); verified safe 2026-05-08. |
+| Pagination       | Connector handles via `page=N` query param; stops when `page >= total_pages`. Reference endpoints (`/reference/bmunits/all`) are not paginated. |
+| Historical depth | Several years. |
+| Publication lag  | ~hour before delivery (gate closure). |
+| Response format  | JSON |
+
+### Query parameters
+
+| Parameter | Type | Required | Description | Example |
+|-----------|------|----------|-------------|---------|
+| `settlementDate` | string | Yes | The settlement date to query. This must be in the format yyyy-MM-dd. | `2026-05-06` |
+| `settlementPeriod` | integer | Yes | The settlement period to query. This should be an integer from 1-50 inclusive. | `24` |
+| `bmUnit` | array | No | The BM units to query. Add each unit separately. If no BM unit is selected all BM units will be displayed. | `T_DRAXX-1` |
+| `format` | string | No | Response data format. Use json/xml to include metadata. | `json` |
+
+### Working curl example
+
+```bash
+# Replace <ELEXON_API_KEY> with your env var if you choose to send one (Elexon endpoints
+# tested 2026-05-08 do NOT require a key; set anyway for vendor courtesy).
+curl --ssl-no-revoke -fsS \
+  -H "Accept: application/json" \
+  "https://data.elexon.co.uk/bmrs/api/v1/datasets/PN?settlementDate=2026-05-06&settlementPeriod=24&format=json" \
+  -o "/tmp/elexon-pn.json"
+```
+
+---
+
+## Bronze layer
+
+**Path pattern**: `data/bronze/elexon/pn/<year>/<month>/<day>/raw_<uuid>.json`
+**Format**: Raw JSON, as-received. Immutable — never modified after write.
+**Granularity**: One file per API call (paginated requests append additional files for the same date partition).
+
+### Bronze sample
+
+Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets/PN?settlementDate=2026-05-06&settlementPeriod=24&format=json:
+
+```json
+{
+  "data": [
+    {
+      "dataset": "PN",
+      "settlementDate": "2026-05-06",
+      "settlementPeriod": 24,
+      "timeFrom": "2026-05-06T10:59:00Z",
+      "timeTo": "2026-05-06T11:00:00Z",
+      "levelFrom": -9,
+      "levelTo": 0,
+      "nationalGridBmUnit": "FFSE02",
+      "bmUnit": "2__FFSEN007"
+    },
+    {
+      "dataset": "PN",
+      "settlementDate": "2026-05-06",
+      "settlementPeriod": 24,
+      "timeFrom": "2026-05-06T10:59:00Z",
+      "timeTo": "2026-05-06T11:00:00Z",
+      "levelFrom": 11,
+      "levelTo": 0,
+      "nationalGridBmUnit": "BROFB-1",
+      "bmUnit": "E_BROFB-1"
+    }
+  ]
+}
+```
+
+---
+
+## Silver layer
+
+**Path pattern**: `data/silver/elexon/pn/year=YYYY/month=MM/pn_YYYYMMDD.parquet`
+**Transformer class**: `gridflow.silver.elexon.pn.PNTransformer`
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonPN`
+**Dedup key**: `(settlement_date, settlement_period, bm_unit_id)`
+**Point-in-time field**: `ingested_at` (no native PIT field)
+
+### Silver schema
+
+| Field | Python type | Nullable | Source field | Notes |
+|-------|-------------|----------|--------------|-------|
+| `settlement_date` | `date` | No | `settlementDate` | Settlement date (BST/GMT calendar). |
+| `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
+| `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
+| `bm_unit_id` | `str` | No | `bmUnit` | BM Unit identifier — preserve raw casing. |
+| `level_from` | `float` | Yes | `levelFrom` | MW level at start of period. |
+| `level_to` | `float` | Yes | `levelTo` | MW level at end of period. |
+| `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
+| `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
+
+### Silver sample
+
+```python
+[
+    {
+        "settlement_date": "2026-05-06",
+        "settlement_period": 24,
+        "timestamp_utc": "2026-05-06T11:30:00+00:00",
+        "bm_unit_id": "2__FFSEN007",
+        "level_from": -9,
+        "level_to": 0,
+        "data_provider": "elexon",
+        "ingested_at": "2026-05-08T12:00:00Z"
+    },
+]
+```
+
+---
+
+## Gold layer
+
+None implemented.
+
+---
+
+## Known issues and gotchas
+
+- **Per-period fetch**: connector iterates periods 1..50 for each settlement date.
+- **High row count** — ~2500 rows per period (one per active BM Unit).
+- **Stop-on-empty optimisation** — connector breaks early when a period returns empty data (DST short days).
+
+---
+
+## Implementation delta
+
+- **Required params**: docs require both `settlementDate` and `settlementPeriod`; code's `SETTLEMENT_DATE_PERIOD` style iterates periods 1..50 (correct for DST handling).
+
+---
+
+## Modelling notes
+
+TODO
+
+---
+
+## Links
+
+- [Official API docs (Swagger UI)](https://bmrs.elexon.co.uk/api-documentation)
+- [Connector source](../../../../../../Python/gridflow/src/gridflow/connectors/elexon/endpoints.py)
+- [Silver transformer](../../../../../../Python/gridflow/src/gridflow/silver/elexon/pn.py)
+- [Pydantic schema](../../../../../../Python/gridflow/src/gridflow/schemas/elexon.py)
+- [Gold view/builder](none)
+- [Domain: GB Balancing Mechanism](../../../20-domain/markets/gb-balancing-mechanism.md)

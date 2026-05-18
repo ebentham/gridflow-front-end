@@ -23,6 +23,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[build]"
+
+      - name: Render dataset pages
+        run: gridflow-build
+
+      - name: Verify build idempotence
+        run: gridflow-build --check
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

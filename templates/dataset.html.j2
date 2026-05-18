@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+{% include "_partials/head.html.j2" %}
+<body data-page="dataset" data-root="../../" data-screen-label="Dataset · {{ doc.slug }}">
+
+  {# ═══════════ HERO ═══════════ #}
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../{{ doc.vendor_id }}.html">{{ doc.vendor_label }}</a>
+        <span class="sep">/</span>
+        <span class="here">{{ doc.slug }}</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr auto; gap: 48px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center;">
+            <span class="eyebrow">{{ manifest.group }} · {{ doc.vendor_id }} · silver</span>
+            {% if manifest.freq %}<span class="chip" style="font-size:11px;">{{ manifest.freq }}{% if manifest.lag and manifest.lag != "0" %} · {{ manifest.lag }} lag{% endif %}</span>{% endif %}
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">{{ doc.slug }}</span><br/>
+            {{ doc.title_line }}
+          </h1>
+          {% if doc.overview_paragraphs %}
+            <p class="lede" style="max-width: 660px;">{{ doc.overview_paragraphs[0] | md_inline | safe }}</p>
+          {% endif %}
+          {% if doc.last_verified %}
+            <p class="tiny mt-16" style="max-width:660px;">
+              Verified against vendor docs: {{ doc.last_verified }} ·
+              <a href="{{ doc.vendor_doc_url }}" class="link" target="_blank" rel="noopener">Elexon BMRS · {{ doc.api_code }}</a>
+            </p>
+          {% endif %}
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">{{ doc.silver_path or 'silver.' ~ doc.slug }}</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small">{{ doc.api_path or '/datasets/' ~ doc.api_code }}</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">{{ manifest.freq or '—' }}</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">{{ manifest.lag or '—' }}</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">{{ manifest.rows or '—' }}</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="small mono">{{ doc.dedup_key or '—' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ═══════════ STATS STRIP ═══════════ #}
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns:repeat(4,1fr);">
+      <div>
+        <div class="stat-n">{{ manifest.freq or '—' }}</div>
+        <div class="stat-l">Frequency</div>
+      </div>
+      <div>
+        <div class="stat-n">{{ manifest.lag or '—' }}</div>
+        <div class="stat-l">Publication lag</div>
+      </div>
+      <div>
+        <div class="stat-n">{{ manifest.rows or '—' }}</div>
+        <div class="stat-l">Volume</div>
+      </div>
+      <div>
+        <div class="stat-n">{{ doc.schema_rows | length }}</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  {# ═══════════ PAGE LAYOUT ═══════════ #}
+  <div class="container" style="padding-top:0; padding-bottom:0;">
+    <div class="page-layout">
+      <nav class="sidebar" aria-label="On this page">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top:24px;">
+          <div class="sidebar-section-title">{{ doc.vendor_label }}</div>
+          <a href="../{{ doc.vendor_id }}.html">← All datasets</a>
+          {% for sib in siblings %}
+            {% if sib.id == doc.slug %}
+              <a href="{{ sib.id }}.html" class="active">{{ sib.id }}</a>
+            {% else %}
+              <a href="{{ sib.id }}.html" class="muted">{{ sib.id }}</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </nav>
+
+      <main class="main-content">
+
+        {# ─── overview ─── #}
+        <section id="overview" style="padding-top:48px; margin-bottom:48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          {% for p in doc.overview_paragraphs %}
+            <p style="max-width:680px; font-size:15px; line-height:1.65; margin-bottom:16px;">{{ p | md_inline | safe }}</p>
+          {% endfor %}
+        </section>
+
+        {# ─── snapshot chart (illustrative) ─── #}
+        <section id="snapshot-chart" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Illustrative snapshot</div>
+          <h2 class="display-3 mb-24">Shape of the silver layer.</h2>
+          <div class="chart" style="padding:24px 28px;">
+            <div class="row between mb-16" style="align-items:baseline;">
+              <div>
+                <div class="eyebrow mb-4">{{ doc.slug }} · silver layer</div>
+                <div class="small">Deterministic seeded snapshot — shape only, not real values.</div>
+              </div>
+              <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+            </div>
+            <div data-chart="stackedArea" data-opts='{"width":900,"height":280,"seed":{{ (doc.slug | sum(start=0, attribute=None)) if false else 42 }}}'></div>
+          </div>
+        </section>
+
+        {# ─── schema ─── #}
+        <section id="schema" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width:560px;">
+            {% if doc.pydantic_schema_wired %}
+              Defined in <code class="mono">{{ doc.pydantic_schema }}</code>.
+            {% else %}
+              Schema enforced by transformer; no dedicated Pydantic class declared in
+              <code class="mono">gridflow.schemas.elexon</code> yet — drift-surface flagged.
+            {% endif %}
+            {% if doc.dedup_key %}Dedup key: <code class="mono">{{ doc.dedup_key }}</code>.{% endif %}
+            {% if doc.point_in_time_field %}Point-in-time field: <code class="mono">{{ doc.point_in_time_field }}</code>.{% endif %}
+          </p>
+          {% if doc.schema_rows %}
+            <table class="schema-table">
+              <thead>
+                <tr>
+                  <th style="width:24%;">Column</th>
+                  <th style="width:14%;">Type</th>
+                  <th style="width:8%; text-align:center;">Nullable</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in doc.schema_rows %}
+                  <tr>
+                    <td class="col-name">{{ row.name }}{% if row.pk %} <span class="pk-badge">PK</span>{% endif %}</td>
+                    <td class="col-type">{{ row.type }}</td>
+                    <td style="text-align:center;" class="nullable">{% if row.nullable %}null{% else %}—{% endif %}</td>
+                    <td class="col-note">{{ row.note | md_inline | safe }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="small" style="color:var(--ink-soft);">Schema rows not yet captured in vault content for this dataset.</p>
+          {% endif %}
+        </section>
+
+        {# ─── sample ─── #}
+        <section id="sample" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          {% if doc.sample_rows and doc.sample_columns %}
+            <div style="overflow-x:auto; border:1px solid var(--ink-strong);">
+              <table class="data-table">
+                <thead><tr>{% for c in doc.sample_columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+                <tbody>
+                  {% for row in doc.sample_rows %}
+                    <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% elif doc.sample_raw %}
+            <div class="code-wrap">
+              <pre class="code dark" style="padding:18px 22px; overflow-x:auto;">{{ doc.sample_raw }}</pre>
+            </div>
+          {% else %}
+            <p class="small" style="color:var(--ink-soft);">Sample not yet captured in vault content for this dataset.</p>
+          {% endif %}
+        </section>
+
+        {# ─── api ─── #}
+        <section id="api" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px;">
+            <div class="card" style="padding:20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break:break-all; margin-bottom:12px;">{{ doc.base_url or 'https://data.elexon.co.uk/bmrs/api/v1' }}<br/>{{ doc.api_path or '/datasets/' ~ doc.api_code }}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">{{ doc.auth_note | md_inline | safe if doc.auth_note else 'Public · no key required' }}</div>
+            </div>
+            <div class="card" style="padding:20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break:break-all; margin-bottom:12px;">{{ doc.bronze_path or 'data/bronze/elexon/' ~ doc.slug ~ '/<year>/<month>/<day>/' }}</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">{{ doc.transformer_class or '—' }}</div>
+            </div>
+          </div>
+          <div data-tabs>
+            <div class="tab-buttons row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like active">Example URL</button>
+              <button class="chip btn-like">DuckDB · SQL</button>
+              <button class="chip btn-like">Python · parquet</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-wrap">
+<pre class="code dark" style="padding:18px 22px; overflow-x:auto;">{{ doc.base_url or 'https://data.elexon.co.uk/bmrs/api/v1' }}{{ doc.api_path or '/datasets/' ~ doc.api_code }}?publishDateTimeFrom=2026-05-01T00:00:00Z&amp;publishDateTimeTo=2026-05-02T00:00:00Z</pre>
+              </div>
+            </div>
+            <div class="tab-panel">
+              <div class="code-wrap">
+<pre class="code dark" style="padding:18px 22px;">-- Read the silver-layer parquet via DuckDB
+SELECT *
+FROM read_parquet('{{ doc.silver_dir }}/**/*.parquet')
+WHERE {{ doc.first_pk_column }} &gt;= current_date - INTERVAL 30 DAY
+LIMIT 100;</pre>
+              </div>
+            </div>
+            <div class="tab-panel">
+              <div class="code-wrap">
+<pre class="code dark" style="padding:18px 22px;">import polars as pl
+
+df = pl.read_parquet(
+    "{{ doc.silver_dir }}/**/*.parquet",
+)
+print(df.head())</pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {# ─── caveats ─── #}
+        <section id="caveats" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know.</h2>
+          <p class="small mb-24" style="max-width:560px;">
+            Dataset-specific notes from the vault. Also see <a href="../{{ doc.vendor_id }}.html" class="link">{{ doc.vendor_label }} caveats</a>.
+          </p>
+          {% if doc.caveats %}
+            <div>
+              {% for caveat in doc.caveats %}
+                <div class="caveat-item"{% if loop.last %} style="border-bottom:1px solid var(--rule); padding-bottom:16px;"{% endif %}>
+                  <div class="caveat-num">{{ '%02d' | format(loop.index) }}</div>
+                  <div>
+                    <div style="font-weight:500; margin-bottom:6px;">{{ caveat.title | md_inline | safe }}</div>
+                    {% if caveat.text %}<p class="small" style="margin:0;">{{ caveat.text | md_inline | safe }}</p>{% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="small" style="color:var(--ink-soft);">No vault-captured caveats for this dataset yet.</p>
+          {% endif %}
+        </section>
+
+        {# ─── related ─── #}
+        <section id="related" style="margin-bottom:56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">In the same {{ manifest.group | lower }} group.</h2>
+          <div class="related-grid">
+            {% set related = siblings | rejectattr('id', 'equalto', doc.slug) | list %}
+            {% for sib in related[:4] %}
+              <a href="{{ sib.id }}.html" class="row-link card flush" style="border:1px solid var(--rule); padding:20px 22px; background:var(--paper-card); display:block;">
+                <div class="row between mb-8" style="align-items:flex-start;">
+                  <div class="row gap-8">
+                    <span class="mono small" style="color:var(--ink-strong);">{{ sib.id }}</span>
+                    <span class="chip" style="font-size:10px;">{{ sib.freq }}</span>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <p class="small" style="margin:0 0 8px;">{{ sib.title }}</p>
+                <span class="tiny">{{ doc.vendor_id }} · {{ manifest.group | lower }} · {{ sib.freq }}</span>
+              </a>
+            {% endfor %}
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+</body>
+</html>
