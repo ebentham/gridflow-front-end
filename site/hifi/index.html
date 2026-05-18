@@ -306,13 +306,10 @@
         <div>
           <div class="eyebrow mb-24">A personal research platform for European power markets</div>
           <h1 class="display-1" style="margin-bottom: 28px;">
-            European energy<br/>
-            markets, <span class="italic fg-accent">tidied.</span>
+            A pipeline and catalogue<br/>
+            for UK &amp; European<br/>
+            <span class="italic">energy data.</span>
           </h1>
-          <p class="lede" style="max-width: 520px; margin-bottom: 12px;">
-            A pipeline, a catalogue, and a probabilistic modelling stack
-            for UK &amp; European energy data.
-          </p>
           <p style="max-width: 520px; margin-bottom: 32px; font-size: 15px; color: var(--ink-soft); line-height: 1.6;">
             Gridflow ingests, normalises, and serves time-series data from seven public and authenticated vendors — electricity, gas, weather, and carbon — into a single queryable warehouse. Models for demand, wind, solar, and clearing prices sit one layer above.
           </p>
@@ -427,7 +424,6 @@
               </div>
             </div>
           </div>
-          <span class="pillar-status live"><span class="dot live"></span>Shipping</span>
         </a>
 
         <!-- Pillar 2 — Catalogue -->
@@ -446,7 +442,6 @@
               <span class="vendor-chip">NE · NESO</span>
             </div>
           </div>
-          <span class="pillar-status"><span class="dot live"></span><span style="color:var(--accent);">Elexon complete</span> · 6 vendors in progress</span>
         </a>
 
         <!-- Pillar 3 — Models -->
@@ -475,7 +470,6 @@
               <text x="265" y="14" font-family="JetBrains Mono, monospace" font-size="9" fill="var(--accent)">p10–p90</text>
             </svg>
           </div>
-          <span class="pillar-status"><span class="dot live"></span><span style="color:var(--accent);">Demand</span> shipping · 4 more planned</span>
         </a>
       </div>
     </div>
@@ -487,7 +481,7 @@
       <div class="stack-md" style="display:grid; grid-template-columns: 0.9fr 1.1fr; gap: 64px; align-items: start;">
         <div>
           <div class="eyebrow mb-8">Architecture</div>
-          <h2 class="display-3 mb-24">Bronze · silver · <span class="italic fg-accent">gold.</span></h2>
+          <h2 class="display-3 mb-24">Bronze · silver · <span class="italic">gold.</span></h2>
           <p class="lede" style="margin-bottom: 24px; max-width: 440px;">
             Raw API responses land in <em class="italic">bronze</em>.
             Cleaned, typed, deduped tables live in <em class="italic">silver</em>.
@@ -549,7 +543,7 @@
       <div class="stack-sm row between mb-32" style="align-items:flex-end;">
         <div>
           <div class="eyebrow mb-8">Catalogue</div>
-          <h2 class="display-3">Seven feeds, one <span class="italic fg-accent">warehouse.</span></h2>
+          <h2 class="display-3">Seven feeds, one <span class="italic">warehouse.</span></h2>
         </div>
         <a href="data-sources.html" class="link">Full catalogue →</a>
       </div>
@@ -663,7 +657,7 @@
       <div class="stack-sm row between mb-8" style="align-items: baseline;">
         <div>
           <div class="eyebrow mb-8">Models</div>
-          <h2 class="display-3">Pipeline → <span class="italic fg-accent">signal.</span></h2>
+          <h2 class="display-3">Pipeline → <span class="italic">signal.</span></h2>
         </div>
         <span class="chip" style="font-size:11px;">1 shipping · 4 planned</span>
       </div>
@@ -748,7 +742,7 @@
   <section class="block" style="padding-bottom: 32px;" data-screen-label="query">
     <div class="container">
       <div class="eyebrow mb-8">Query it</div>
-      <h2 class="display-3 mb-32">SQL or Python — <span class="italic fg-accent">pick one.</span></h2>
+      <h2 class="display-3 mb-32">SQL or Python — <span class="italic">pick one.</span></h2>
 
       <div data-tabs style="border:1px solid var(--rule); background: var(--paper-card);">
         <div class="stack-sm" style="display:grid; grid-template-columns: 200px 1fr;">
@@ -879,17 +873,6 @@ df = df[df.timestamp_utc >= pd.Timestamp.now() - pd.Timedelta(<span class="s">"3
             </li>
           </ul>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════ WIP / CURRENTLY WORKING ON ════════════════ -->
-  <section style="padding: 32px 0 64px;" data-screen-label="wip">
-    <div class="container">
-      <div class="wip-bar">
-        <div class="wip-dot"></div>
-        <span class="mono tiny" style="color:var(--ink-soft);">Currently:</span>
-        <span class="mono tiny">ENTSO-E balancing datasets (Phase G3) · power stack model · cleaning the demand pipeline for live use</span>
       </div>
     </div>
   </section>

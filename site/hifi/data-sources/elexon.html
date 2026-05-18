@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Elexon BMRS · Gridflow</title>
-  <meta name="viewport" content="width=1280" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
             <span class="chip live" style="font-size: 11px;">live</span>
           </div>
           <h1 class="display-2" style="margin-bottom: 18px;">
-            Elexon <span class="italic fg-accent">BMRS.</span>
+            Elexon <span class="italic">BMRS.</span>
           </h1>
           <p class="lede" style="max-width: 560px;">
             The British electricity Balancing Mechanism Reporting Service.
@@ -66,8 +66,8 @@
               <div class="small">2014-04-01</div>
             </div>
             <div style="padding: 18px 20px;">
-              <div class="tiny mb-8">LAST FETCH</div>
-              <div class="small"><span class="dot live"></span> 1 min 42 s ago</div>
+              <div class="tiny mb-8">TIMEZONE</div>
+              <div class="small">UTC · settlement period · SP 1–50</div>
             </div>
           </div>
         </div>
@@ -87,12 +87,12 @@
         <div class="stat-l">Rows / day</div>
       </div>
       <div>
-        <div class="stat-n">99.7<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">%</span></div>
-        <div class="stat-l">Fetch success · 30d</div>
+        <div class="stat-n">4</div>
+        <div class="stat-l">Categories</div>
       </div>
       <div>
-        <div class="stat-n">42<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">s</span></div>
-        <div class="stat-l">Median freshness</div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Settlement runs · II → DF</div>
       </div>
       <div>
         <div class="stat-n">11<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">y</span></div>
@@ -108,8 +108,8 @@
         <div class="chart" style="padding: 24px 28px;">
           <div class="row between mb-16" style="align-items: baseline;">
             <div>
-              <div class="eyebrow mb-8">Live · fuelhh</div>
-              <h3 style="font-family: var(--serif); font-size: 22px;">GB generation by fuel · last 24 hours</h3>
+              <div class="eyebrow mb-8">Snapshot · fuelhh</div>
+              <h3 style="font-family: var(--serif); font-size: 22px;">GB generation by fuel · 24-hour snapshot</h3>
             </div>
             <div class="row gap-8">
               <span class="chip btn-like">24h</span>
@@ -118,33 +118,35 @@
             </div>
           </div>
           <div data-chart="stackedArea" data-opts='{"width":880,"height":280}'></div>
+          <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · 29 Apr 2026 · live wiring planned</div>
         </div>
 
         <div class="card" style="padding: 0; display: flex; flex-direction: column;">
           <div style="padding: 18px 20px; border-bottom: 1px solid var(--rule);">
-            <div class="eyebrow">Right now</div>
+            <div class="eyebrow">Sample window</div>
+            <div class="tiny mt-4">29 Apr 2026 · 48 settlement periods</div>
           </div>
-          <div style="padding: 20px; display:flex; flex-direction:column; gap: 16px; flex:1;">
+          <div style="padding: 20px; display:flex; flex-direction:column; gap: 18px; flex:1;">
             <div>
-              <div class="tiny mb-8">DEMAND</div>
-              <div class="display-3" style="font-size: 32px;">34.6 <span style="font-size: 14px; font-family: var(--sans); color: var(--ink-soft); font-weight: 400;">GW</span></div>
-              <div data-chart="sparkline" data-opts='{"seed":4,"width":280,"height":34}' class="mt-8"></div>
+              <div class="tiny mb-8">DEMAND RANGE</div>
+              <div class="display-3" style="font-size: 28px;">22.1 <span style="font-size: 13px; color: var(--ink-soft); font-family: var(--sans); font-weight: 400;">→</span> 38.4 <span style="font-size: 13px; color: var(--ink-soft); font-family: var(--sans); font-weight: 400;">GW</span></div>
+              <div class="small mt-8" style="color: var(--ink-soft);">Trough SP 8 · peak SP 36</div>
             </div>
             <hr class="rule" />
             <div>
-              <div class="tiny mb-8">SYSTEM PRICE</div>
-              <div class="display-3" style="font-size: 32px;">£82.40 <span style="font-size: 14px; font-family: var(--sans); color: var(--ink-soft); font-weight: 400;">/MWh</span></div>
-              <div data-chart="priceLadder" data-opts='{"seed":3,"width":280,"height":50}' class="mt-8"></div>
+              <div class="tiny mb-8">WIND SHARE</div>
+              <div class="display-3" style="font-size: 28px;">8 <span style="font-size: 13px; color: var(--ink-soft); font-family: var(--sans); font-weight: 400;">→</span> 47<span style="font-size: 16px; color: var(--ink-soft); font-family: var(--sans); font-weight: 400;">%</span></div>
+              <div class="small mt-8" style="color: var(--ink-soft);">26.6% mean · gas-displacing</div>
             </div>
             <hr class="rule" />
             <div>
-              <div class="tiny mb-8">CARBON · NESO</div>
-              <div class="display-3" style="font-size: 32px;">142 <span style="font-size: 14px; font-family: var(--sans); color: var(--ink-soft); font-weight: 400;">g CO₂/kWh</span></div>
-              <div class="small mt-8" style="color: var(--accent);">↓ 8% vs yesterday</div>
+              <div class="tiny mb-8">FUEL TYPES OBSERVED</div>
+              <div class="display-3" style="font-size: 28px;">12 <span style="font-size: 13px; color: var(--ink-soft); font-family: var(--sans); font-weight: 400;">of 16</span></div>
+              <div class="small mt-8" style="color: var(--ink-soft);">Gas, wind, nuclear, imports, biomass…</div>
             </div>
           </div>
           <div style="padding: 14px 20px; border-top: 1px solid var(--rule); display:flex; justify-content: space-between; align-items: center;">
-            <span class="tiny">SP 28 · 14:02 UTC</span>
+            <span class="tiny mono">silver.fuelhh</span>
             <a href="elexon/fuelhh.html" class="link accent" style="font-size: 12px;">Open dataset →</a>
           </div>
         </div>
@@ -681,50 +683,6 @@
               <span><span class="mono">8k / mo</span></span>
             </div>
           </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════ HEALTH ════════════════ -->
-  <section class="block" data-screen-label="health">
-    <div class="container">
-      <div class="row between mb-32" style="align-items: end;">
-        <div>
-          <div class="eyebrow mb-8">Pipeline health</div>
-          <h2 class="display-3">Last 30 days, hour by hour.</h2>
-        </div>
-        <div class="row gap-16 small">
-          <span class="row gap-8 center"><i class="dot live"></i> success</span>
-          <span class="row gap-8 center"><i class="dot warn"></i> failure / retry</span>
-          <span class="row gap-8 center"><i class="dot idle"></i> partial</span>
-        </div>
-      </div>
-
-      <div class="card" style="padding: 22px 26px;">
-        <div data-chart="heatmap" data-opts='{"width":1100,"height":220,"rows":24,"cols":30,"seed":29}'></div>
-      </div>
-
-      <div class="row mt-24" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
-        <div class="card">
-          <div class="tiny mb-8">SUCCESS RATE · 30D</div>
-          <div class="display-3" style="font-size: 32px; color: var(--accent);">99.7%</div>
-          <div class="small mt-8">21 retries · 4 failures</div>
-        </div>
-        <div class="card">
-          <div class="tiny mb-8">MEDIAN FRESHNESS</div>
-          <div class="display-3" style="font-size: 32px;">42 <span style="font-size:14px; color:var(--ink-soft); font-family: var(--sans); font-weight: 400;">s</span></div>
-          <div class="small mt-8">Target ≤ 5 min</div>
-        </div>
-        <div class="card">
-          <div class="tiny mb-8">P95 FRESHNESS</div>
-          <div class="display-3" style="font-size: 32px;">3:18</div>
-          <div class="small mt-8">Slowest: <span class="mono">disbsad</span></div>
-        </div>
-        <div class="card">
-          <div class="tiny mb-8">SCHEMA DRIFT</div>
-          <div class="display-3" style="font-size: 32px;">0</div>
-          <div class="small mt-8">Last drift: 2026-04-14</div>
         </div>
       </div>
     </div>
