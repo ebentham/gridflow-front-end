@@ -8,37 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/theme.css" />
-  
-  <style>
-    .schema-table { width: 100%; border-collapse: collapse; }
-    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
-    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
-    .schema-table tr:hover td { background: var(--paper-card); }
-    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
-    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
-    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
-    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
-    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
-    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
-    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
-    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
-    .data-table tbody tr:nth-child(even) td { background: #221e19; }
-    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
-    .data-table .num { text-align: right; color: #8fbf9c; }
-    .data-table .date { color: #c9a96e; }
-    .data-table .str { color: #e8b8a3; }
-    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
-    .sidebar { position: sticky; top: 64px; padding: 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
-    .sidebar-section { margin-bottom: 6px; }
-    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
-    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
-    .sidebar a:hover { color: var(--ink); }
-    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
-    .main-content { padding: 40px 64px 80px 64px; }
-    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
-    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
-    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  </style>
 </head>
 <body data-page="dataset" data-root="../../" data-screen-label="17 Dataset · itsdo">
   <div style="border-bottom:1px solid var(--rule);">
@@ -91,27 +60,27 @@
         <div class="sidebar-section" style="margin-top:24px;">
           <div class="sidebar-section-title">Elexon BMRS</div>
           <a href="../elexon.html">← All datasets</a>
-          <a href="indo.html" style="color:var(--ink-faint);">indo</a>
+          <a href="indo.html" class="muted">indo</a>
           <a href="itsdo.html" class="active">itsdo</a>
-          <a href="indod.html" style="color:var(--ink-faint);">indod</a>
-          <a href="ndf.html" style="color:var(--ink-faint);">ndf</a>
-          <a href="ndfd.html" style="color:var(--ink-faint);">ndfd</a>
-          <a href="tsdf.html" style="color:var(--ink-faint);">tsdf</a>
-          <a href="fou2t14d.html" style="color:var(--ink-faint);">fou2t14d</a>
-          <a href="uou2t14d.html" style="color:var(--ink-faint);">uou2t14d</a>
+          <a href="indod.html" class="muted">indod</a>
+          <a href="ndf.html" class="muted">ndf</a>
+          <a href="ndfd.html" class="muted">ndfd</a>
+          <a href="tsdf.html" class="muted">tsdf</a>
+          <a href="fou2t14d.html" class="muted">fou2t14d</a>
+          <a href="uou2t14d.html" class="muted">uou2t14d</a>
         </div>
       </div>
             <div class="card" style="padding:20px;"><div class="tiny mb-8">PARAM STYLE</div><div class="mono small" style="margin-bottom:12px;">publishDateTimeFrom=ISO
 publishDateTimeTo=ISO</div><div class="tiny mb-8">WINDOW</div><div class="small">24-hour chunks · paginated</div></div>
           </div>
-          <div data-tab-group="itsdo">
-            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
-              <button class="chip btn-like ink" onclick="setTab('itsdo','url',this)" style="cursor:pointer;">Example URL</button>
-              <button class="chip btn-like" onclick="setTab('itsdo','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
-              <button class="chip btn-like" onclick="setTab('itsdo','py',this)" style="cursor:pointer;">Python · parquet</button>
+          <div data-tabs>
+            <div class="tab-buttons row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like active">Example URL</button>
+              <button class="chip btn-like">DuckDB · SQL</button>
+              <button class="chip btn-like">Python · parquet</button>
             </div>
-            <div data-tab-panel="itsdo-url" style="display:block;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/ITSDO<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">publishDateTimeFrom</span>=2026-05-01T00:00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">publishDateTimeTo</span>=2026-05-02T00:00:00Z</pre></div></div>
-            <div data-tab-panel="itsdo-sql" style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="c">-- Implied embedded generation: ITSDO - INDO</span>
+            <div class="tab-panel active"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/ITSDO<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">publishDateTimeFrom</span>=2026-05-01T00:00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">publishDateTimeTo</span>=2026-05-02T00:00:00Z</pre></div></div>
+            <div class="tab-panel"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="c">-- Implied embedded generation: ITSDO - INDO</span>
 <span class="k">SELECT</span>
   it.settlement_date, it.settlement_period,
   it.initial_transmission_system_demand_outturn_mw <span class="k">AS</span> itsdo_mw,
@@ -120,7 +89,7 @@ publishDateTimeTo=ISO</div><div class="tiny mb-8">WINDOW</div><div class="small"
 <span class="k">FROM</span> silver.itsdo it
 <span class="k">JOIN</span> silver.indo i <span class="k">USING</span> (settlement_date, settlement_period)
 <span class="k">WHERE</span> it.settlement_date = <span class="s">'2026-05-01'</span>;</pre></div></div>
-            <div data-tab-panel="itsdo-py"  style="display:none;"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="k">import</span> pandas <span class="k">as</span> pd
+            <div class="tab-panel"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;"><span class="k">import</span> pandas <span class="k">as</span> pd
 
 itsdo = pd.read_parquet(<span class="s">"data/silver/elexon/itsdo/"</span>)
 indo  = pd.read_parquet(<span class="s">"data/silver/elexon/indo/"</span>)
@@ -145,20 +114,5 @@ merged[<span class="s">'embedded_est_mw'</span>] = (merged.initial_transmission_
   </div>
   <script src="../../assets/charts.js"></script>
   <script src="../../assets/site.js"></script>
-  <script>
-    (function(){const s=document.querySelectorAll("section[id]"),l=document.querySelectorAll(".sidebar a[href^='#']"),o=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting){l.forEach(l=>l.classList.remove("active"));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add("active");}});},{rootMargin:"-20% 0px -70% 0px"});s.forEach(s=>o.observe(s));})();
-  </script>
-
-  <script>
-    function setTab(group, tab, btn) {
-      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
-      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
-      if (panel) panel.style.display = 'block';
-      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
-        b.classList.remove('ink');
-      });
-      if (btn) btn.classList.add('ink');
-    }
-  </script>
 </body>
 </html>
