@@ -35,8 +35,28 @@ jobs:
       - name: Render dataset pages
         run: gridflow-build
 
-      - name: Verify build idempotence
+      - name: Verify build idempotence (CI-03)
         run: gridflow-build --check
+
+      - name: Validate HTML structure (CI-01)
+        uses: mfinelli/setup-htmlhint@v4
+        with:
+          htmlhint-version: 1.6.3
+      - name: Run htmlhint
+        run: htmlhint --config .htmlhintrc 'site/hifi/**/*.html'
+
+      - name: Validate internal links (CI-02)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Only check internal links — external are flaky in CI and not the bug class CI-02 protects.
+          args: >
+            --no-progress
+            --offline
+            --include-fragments
+            --base ./site/hifi
+            ./site/hifi
+          fail: true
+          format: detailed
 
       - uses: actions/configure-pages@v5
 
