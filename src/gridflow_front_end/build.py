@@ -52,6 +52,143 @@ DEFAULT_VAULT = REPO_ROOT / "vault"
 
 
 # ──────────────────────────────────────────────────────────────────────
+# Vendor configuration — drives both real hubs and coming-soon stubs.
+# ──────────────────────────────────────────────────────────────────────
+
+
+REAL_VENDORS: dict[str, dict] = {
+    "elexon": {
+        "label": "Elexon BMRS",
+        "vendor_doc_base": "https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/",
+        "vendor_meta": {
+            "region": "United Kingdom",
+            "domain": "Electricity",
+            "heading_prefix": "Elexon",
+            "heading_italic": "BMRS.",
+            "lede": (
+                "The British electricity Balancing Mechanism Reporting Service. Settlement "
+                "prices, generation by fuel, demand outturn, balancing actions, and BM unit "
+                "metadata — documented as a static reference site over the gridflow ETL "
+                "pipeline."
+            ),
+            "vendor_docs_url": "https://bmrs.elexon.co.uk/",
+            "base_url": "data.elexon.co.uk/bmrs/api/v1",
+            "auth": "Public · no key required",
+            "rate_limit": "2 req/s · project default",
+            "format": "JSON · ISO-8601 · UTC",
+            "earliest": "2014-04-01",
+            "timezone": "UTC · SP 1–50",
+            "stat_three_value": "7",
+            "stat_three_label": "Settlement runs · II → DF",
+            "stat_four_value": "11y",
+            "stat_four_label": "History",
+        },
+    },
+    "entsoe": {
+        "label": "ENTSO-E Transparency",
+        "vendor_doc_base": "https://transparency.entsoe.eu/",
+        "vendor_meta": {
+            "region": "European Union",
+            "domain": "Electricity",
+            "heading_prefix": "ENTSO-E",
+            "heading_italic": "Transparency.",
+            "lede": (
+                "The pan-European transmission system operators' Transparency Platform. "
+                "Day-ahead prices, actual generation per production type, cross-border flows, "
+                "forecasts, and outages across EU bidding zones — cross-vendor proof for the "
+                "documentation template."
+            ),
+            "vendor_docs_url": "https://transparency.entsoe.eu/",
+            "base_url": "web-api.tp.entsoe.eu",
+            "auth": "API key · query param securityToken",
+            "rate_limit": "~1 req/s · polite default",
+            "format": "XML · GL_MarketDocument",
+            "earliest": "2014-12-05",
+            "timezone": "UTC · PT15M / PT30M / PT60M",
+            "stat_three_value": "B25",
+            "stat_three_label": "PSR types · production codes",
+            "stat_four_value": "EU",
+            "stat_four_label": "Bidding zones",
+        },
+    },
+}
+
+
+COMING_SOON_VENDORS: list[dict] = [
+    {
+        "vendor_id": "entsog",
+        "vendor_label": "ENTSO-G",
+        "region": "European Union",
+        "domain": "Gas",
+        "stage_chip": "F6",
+        "connector_state": "shipping",
+        "vendor_docs_url": "https://transparency.entsog.eu/",
+        "planned_items": [
+            "Physical flows at interconnection points (entry/exit nominations + reallocations)",
+            "Imbalance, balancing, and capacity products documented at the vault → site contract level",
+            "Cross-link to ENTSO-E for power/gas joint analytics (gas-burn vs CCGT generation)",
+        ],
+    },
+    {
+        "vendor_id": "gie_agsi",
+        "vendor_label": "GIE AGSI",
+        "region": "European Union",
+        "domain": "Gas storage",
+        "stage_chip": "F7",
+        "connector_state": "shipping",
+        "vendor_docs_url": "https://agsi.gie.eu/",
+        "planned_items": [
+            "Underground gas storage levels by country and facility",
+            "Net injection / withdrawal cadence and full/empty thresholds",
+            "Cross-link to ENTSO-G for storage flows vs interconnection point dynamics",
+        ],
+    },
+    {
+        "vendor_id": "gie_alsi",
+        "vendor_label": "GIE ALSI",
+        "region": "European Union",
+        "domain": "LNG",
+        "stage_chip": "F8",
+        "connector_state": "shipping",
+        "vendor_docs_url": "https://alsi.gie.eu/",
+        "planned_items": [
+            "LNG terminal send-out and tank inventories",
+            "Cargoes per terminal, with country and facility granularity",
+            "Cross-link to ENTSO-G physical flows and AGSI storage for the full gas-supply picture",
+        ],
+    },
+    {
+        "vendor_id": "openmeteo",
+        "vendor_label": "Open-Meteo",
+        "region": "Global",
+        "domain": "Weather",
+        "stage_chip": "F9",
+        "connector_state": "shipping",
+        "vendor_docs_url": "https://open-meteo.com/",
+        "planned_items": [
+            "Temperature, wind, and solar irradiance — forecast and historical",
+            "ERA5 reanalysis depth from 1940 for long-horizon backtests",
+            "Joinable to power demand/generation by zone (Open-Meteo + Elexon = wind/solar nowcast)",
+        ],
+    },
+    {
+        "vendor_id": "neso",
+        "vendor_label": "NESO Carbon Intensity",
+        "region": "United Kingdom",
+        "domain": "Carbon",
+        "stage_chip": "F10",
+        "connector_state": "shipping",
+        "vendor_docs_url": "https://carbonintensity.org.uk/",
+        "planned_items": [
+            "GB grid carbon-intensity actuals plus 48-hour forecasts",
+            "Regional carbon intensity breakdown by DNO/GSP",
+            "Cross-link to Elexon fuelhh as the per-fuel input to the carbon-intensity model",
+        ],
+    },
+]
+
+
+# ──────────────────────────────────────────────────────────────────────
 # Data classes
 # ──────────────────────────────────────────────────────────────────────
 
@@ -99,8 +236,13 @@ class DatasetDoc:
 
     @property
     def vendor_doc_url(self) -> str:
-        """Link to the canonical Elexon BMRS endpoint reference."""
-        return f"https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/{self.api_code}"
+        """Link to the canonical vendor endpoint reference, derived from vendor config."""
+        base = REAL_VENDORS.get(self.vendor_id, {}).get("vendor_doc_base", "")
+        if self.vendor_id == "elexon":
+            return f"{base}{self.api_code}"
+        if self.vendor_id == "entsoe":
+            return base  # ENTSO-E TP doesn't have per-dataset URLs
+        return base
 
     @property
     def silver_dir(self) -> str:
@@ -502,13 +644,28 @@ def render_dataset(env: Environment, doc: DatasetDoc, manifest: dict) -> str:
     )
 
 
-def render_vendor_hub(env: Environment, manifest: dict, vendor_id: str, vendor_label: str) -> str:
+def render_vendor_hub(env: Environment, manifest: dict, vendor_id: str, vendor_label: str, vendor_meta: dict) -> str:
     template = env.get_template("vendor-hub.html.j2")
     return template.render(
         vendor_id=vendor_id,
         vendor_label=vendor_label,
+        vendor_meta=vendor_meta,
         manifest=manifest,
         manifest_total=manifest_total_count(manifest),
+    )
+
+
+def render_coming_soon_stub(env: Environment, vendor_cfg: dict) -> str:
+    template = env.get_template("vendor-coming-soon.html.j2")
+    return template.render(
+        vendor_id=vendor_cfg["vendor_id"],
+        vendor_label=vendor_cfg["vendor_label"],
+        region=vendor_cfg["region"],
+        domain=vendor_cfg["domain"],
+        stage_chip=vendor_cfg["stage_chip"],
+        connector_state=vendor_cfg["connector_state"],
+        vendor_docs_url=vendor_cfg.get("vendor_docs_url"),
+        planned_items=vendor_cfg["planned_items"],
     )
 
 
@@ -556,67 +713,95 @@ def audit_vault_content(docs: list[DatasetDoc]) -> tuple[list[str], list[str]]:
     return warnings, errors
 
 
-def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int]:
-    """Render all elexon dataset pages + the vendor hub. Returns (n_pages, n_hubs)."""
-    env = make_env()
-    elexon_dir = vault_path / "elexon"
-    if not elexon_dir.is_dir():
+def build_vendor(env: Environment, vendor_id: str, vault_path: Path, out_root: Path) -> int:
+    """Render one vendor's dataset pages + hub. Returns dataset-page count."""
+    vendor_cfg = REAL_VENDORS[vendor_id]
+    vendor_label = vendor_cfg["label"]
+    vendor_dir = vault_path / vendor_id
+    if not vendor_dir.is_dir():
         sys.exit(
-            f"[gridflow-build] ERROR: vault directory not found: {elexon_dir}\n"
+            f"[gridflow-build] ERROR: vault directory not found: {vendor_dir}\n"
             f"  Set --vault-path or $GRIDFLOW_VAULT_PATH, or vendor vault content into "
             f"{DEFAULT_VAULT.relative_to(REPO_ROOT)}/."
         )
-    out_root = output_dir or SITE_DIR
-    out_dataset_dir = out_root / "data-sources" / "elexon"
+    out_dataset_dir = out_root / "data-sources" / vendor_id
     out_dataset_dir.mkdir(parents=True, exist_ok=True)
-    manifest = load_manifest("elexon")
+    manifest = load_manifest(vendor_id)
     manifest_slugs = {d["id"] for g in manifest["groups"] for d in g["datasets"]}
 
-    vault_files = sorted(elexon_dir.glob("*.md"))
+    vault_files = sorted(vendor_dir.glob("*.md"))
     vault_slugs = {p.stem for p in vault_files}
 
     missing_in_vault = manifest_slugs - vault_slugs
-    missing_in_manifest = vault_slugs - manifest_slugs
     if missing_in_vault:
         sys.exit(
             f"[gridflow-build] ERROR: manifest declares datasets without vault files: {sorted(missing_in_vault)}"
         )
-    # Datasets present in the vault but not in the manifest are tolerated (out-of-scope datasets).
 
-    # Parse all in-scope vault files first so we can audit before any HTML is written.
     docs: list[tuple[Path, DatasetDoc]] = []
     for path in vault_files:
         slug = path.stem
         if slug not in manifest_slugs:
-            print(f"  skip (not in manifest): {slug}")
+            print(f"  skip (not in manifest): {vendor_id}/{slug}")
             continue
-        docs.append((path, parse_vault_file(path)))
+        docs.append((path, parse_vault_file(path, vendor_id=vendor_id, vendor_label=vendor_label)))
 
-    # VAULT-03: audit content before render. Errors block; warnings surface.
+    # VAULT-03 audit
     warnings, errors = audit_vault_content([d for _, d in docs])
     if warnings:
-        print(f"[gridflow-build] {len(warnings)} content warning(s):", file=sys.stderr)
+        print(f"[gridflow-build] {vendor_id}: {len(warnings)} content warning(s):", file=sys.stderr)
         for w in warnings:
             print(f"  WARN: {w}", file=sys.stderr)
     if errors:
-        print(f"[gridflow-build] {len(errors)} content error(s) — failing build:", file=sys.stderr)
+        print(f"[gridflow-build] {vendor_id}: {len(errors)} content error(s) - failing build:", file=sys.stderr)
         for e in errors:
             print(f"  ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 
     n_pages = 0
-    for path, doc in docs:
+    for _path, doc in docs:
         html = render_dataset(env, doc, manifest)
         out_path = out_dataset_dir / f"{doc.slug}.html"
         out_path.write_text(html, encoding="utf-8")
         n_pages += 1
-        print(f"  wrote: data-sources/elexon/{doc.slug}.html")
+        print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html")
 
-    hub_html = render_vendor_hub(env, manifest, "elexon", "Elexon BMRS")
-    hub_path = out_root / "data-sources" / "elexon.html"
+    hub_html = render_vendor_hub(env, manifest, vendor_id, vendor_label, vendor_cfg["vendor_meta"])
+    hub_path = out_root / "data-sources" / f"{vendor_id}.html"
     hub_path.write_text(hub_html, encoding="utf-8")
-    print(f"  wrote: data-sources/elexon.html")
-    return n_pages, 1
+    print(f"  wrote: data-sources/{vendor_id}.html")
+    return n_pages
+
+
+def build_coming_soon_stubs(env: Environment, out_root: Path) -> int:
+    """Render coming-soon vendor stubs for the 5 deferred vendors."""
+    n = 0
+    for cfg in COMING_SOON_VENDORS:
+        html = render_coming_soon_stub(env, cfg)
+        out_path = out_root / "data-sources" / f"{cfg['vendor_id']}.html"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(html, encoding="utf-8")
+        n += 1
+        print(f"  wrote: data-sources/{cfg['vendor_id']}.html (stub)")
+    return n
+
+
+def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int, int]:
+    """Render all vendor pages. Returns (n_dataset_pages, n_real_hubs, n_stubs)."""
+    env = make_env()
+    out_root = output_dir or SITE_DIR
+
+    n_pages = 0
+    n_hubs = 0
+    for vendor_id in REAL_VENDORS:
+        if not (vault_path / vendor_id).is_dir():
+            print(f"  skip vendor (no vault dir): {vendor_id}")
+            continue
+        n_pages += build_vendor(env, vendor_id, vault_path, out_root)
+        n_hubs += 1
+
+    n_stubs = build_coming_soon_stubs(env, out_root)
+    return n_pages, n_hubs, n_stubs
 
 
 def _snapshot_outputs(temp_dir: Path) -> None:
@@ -667,14 +852,14 @@ def main(argv: list[str] | None = None) -> int:
     vault_path = resolve_vault_path(args.vault_path)
     print(f"[gridflow-build] vault: {vault_path}")
 
-    n_pages, n_hubs = build(vault_path)
-    print(f"[gridflow-build] wrote {n_pages} dataset pages + {n_hubs} vendor hub")
+    n_pages, n_hubs, n_stubs = build(vault_path)
+    print(f"[gridflow-build] wrote {n_pages} dataset pages + {n_hubs} vendor hub(s) + {n_stubs} coming-soon stub(s)")
 
     if args.check:
         with tempfile.TemporaryDirectory(prefix="gridflow-build-check-") as tmp:
             tmp_path = Path(tmp)
             _snapshot_outputs(tmp_path)
-            n_pages2, _ = build(vault_path)
+            _, _, _ = build(vault_path)
             differing = _diff_outputs(tmp_path)
             if differing:
                 print(
@@ -683,7 +868,7 @@ def main(argv: list[str] | None = None) -> int:
                 for p in differing:
                     print(f"    {p}")
                 return 1
-            print(f"[gridflow-build] OK: idempotent across {n_pages} pages.")
+            print(f"[gridflow-build] OK: idempotent across {n_pages} pages + {n_hubs + n_stubs} hubs/stubs.")
 
     return 0
 

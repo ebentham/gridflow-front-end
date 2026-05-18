@@ -1,0 +1,11 @@
+{
+  "groups": [
+    {
+      "name": "Generation",
+      "blurb": "Realised generation by production type and bidding zone.",
+      "datasets": [
+        { "id": "actual_generation", "title": "Actual generation per production type (A75/A16)", "freq": "15-60 min", "lag": "T+1 h to T+24 h", "rows": "~1.0M / mo" }
+      ]
+    }
+  ]
+}
