@@ -5,18 +5,18 @@
 **Project:** gridflow-front-end
 **Milestone:** v1 cleanup — credibility-recovery pass
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** Phase 0 planned; ready to execute.
+**Current Focus:** Phase 0 complete; Phase 1 + Phase 2 unblocked (parallel).
 
 ## Current Position
 
-**Phase:** 0 — Commit in-flight refactor
-**Context:** `.planning/phases/00-commit-in-flight-refactor/00-CONTEXT.md`
-**Plan:** `.planning/phases/00-commit-in-flight-refactor/00-PLAN.md` (1 plan, 11 tasks across Wave 1; Task 9 is a human-gated PR-merge checkpoint per CLAUDE.md "never commit to main")
-**Status:** Ready to execute — next step: `/gsd-execute-phase 0`
-**Progress:** Milestone 0/7 phases complete.
+**Phase:** 1 (next) — Trivial bug fixes (parallelisable with Phase 2)
+**Context:** (Phase 1 context not yet gathered)
+**Plan:** (Phase 1 plan not yet generated)
+**Status:** Phase 0 complete; ready to start Phase 1 (or Phase 2) — next step: `/gsd-discuss-phase 1` or `/gsd-plan-phase 1`
+**Progress:** Milestone 1/7 phases complete.
 
 ```
-[░░░░░░░░░░░░░░░░░░░░] 0% — 0/7 phases · 0/50 REQ-IDs delivered
+[██▊░░░░░░░░░░░░░░░░░] 14% — 1/7 phases · 2/50 REQ-IDs delivered (HYG-01, HYG-02)
 ```
 
 ## Performance Metrics
@@ -55,7 +55,7 @@
 
 ### Todos / Blockers
 
-- [ ] **Phase 0 first** — Cannot start any other work until the 26-file in-flight refactor is committed in 4 logical chunks + `.gitattributes` lands. Any structural cleanup commit on top of the current working tree entangles with three concurrent refactors and breaks bisect.
+- [x] **Phase 0 first** — Cannot start any other work until the 26-file in-flight refactor is committed in 4 logical chunks + `.gitattributes` lands. Any structural cleanup commit on top of the current working tree entangles with three concurrent refactors and breaks bisect. *(unblocked 2026-05-18 — PR #3 merged, all 27 files landed across 6 cleanup commits + 2 hygiene commits)*
 
 ### Known Risks (from research/PITFALLS.md)
 
@@ -67,9 +67,9 @@
 
 ## Session Continuity
 
-**Last action:** Phase 0 planned. Single consolidated `00-PLAN.md` (1443 lines) with 11 sequential tasks: Task 0 records the plan as a `docs(00):` commit, Tasks 1-4 are the 4 cleanup chunks, Tasks 5-6 are repo-hygiene (`.gitattributes` + renormalize), Task 7 reconciles ROADMAP §0 SC#1 wording, Task 8 opens the PR, Task 9 is the human-gated PR merge (`checkpoint:human-action`), Task 10 verifies GitHub Pages catches up. Plan passed gsd-plan-checker on the second iteration (2 BLOCKERs found and fixed in iteration 1: stale baseline counts + stale commit math).
-**Next action:** Run `/gsd-execute-phase 0` to execute the 11-task plan. After Task 8 the executor pauses for the human merge gate.
-**Resume from:** Phase 0 execution. Phase 0 inputs: `00-PLAN.md` (11 tasks), `00-CONTEXT.md` (decisions D-01 through D-05), PROJECT.md, REQUIREMENTS.md (HYG-01, HYG-02), research/PITFALLS.md § Pitfall 0, codebase/CONCERNS.md § In-Flight Refactor.
+**Last action:** Phase 0 executed end-to-end on 2026-05-18 via `/gsd-execute-phase 0`. PR #3 merged into main with merge-commit strategy. 6 cleanup commits + 1 ROADMAP reconciliation + 1 planner-record + 1 pre-Task-0 research-brief reconciliation landed. GitHub Pages deploy succeeded; live site verified serving new hero, snapshot-framed fuelhh page, and HEALTH-removed elexon hub. SUMMARY in `.planning/phases/00-commit-in-flight-refactor/00-01-SUMMARY.md`.
+**Next action:** Start Phase 1 (Trivial bug fixes — viewport / LICENSE / `rel="noopener"`) OR Phase 2 (Shared CSS/JS extraction). Both depend on Phase 0 and are parallelisable. Suggested next: `/gsd-discuss-phase 1` or `/gsd-plan-phase 1`.
+**Resume from:** Phase 1 discuss / plan. Phase 1 inputs: PROJECT.md, REQUIREMENTS.md (MOB-01, HON-04, A11Y-06), research/PITFALLS.md § Pitfall 10, ROADMAP.md § Phase 1.
 
 ### Phase 0 — Locked Decisions (from `00-CONTEXT.md`)
 
@@ -82,4 +82,4 @@
 | D-05 | `.gitignore` adds `.claude/` and `.codex-assessment-shots/`; `.gitattributes` carries `text eol=lf` for `.html`, `.css`, `.js`, `.json`, `.py`, `.md` (planner finalizes extension list) | Post-Phase-0 `git status` shows zero modified AND zero untracked |
 
 ---
-*State initialised 2026-05-17 after roadmap creation. Updated 2026-05-17 after Phase 0 context gathering.*
+*State initialised 2026-05-17 after roadmap creation. Updated 2026-05-17 after Phase 0 context gathering. Updated 2026-05-18 after Phase 0 execution complete (PR #3 merged).*

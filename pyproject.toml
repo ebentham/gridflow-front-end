@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "gridflow-front-end"
 version = "0.1.0"
 description = "Local dev server for the Gridflow static site"
+license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = []
 

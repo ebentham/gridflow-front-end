@@ -69,7 +69,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© 2026 E. Bentham · Personal project · Apache-2.0</span>
+          <span>© 2026 E. Bentham · Personal project · MIT</span>
           <span class="mono tiny">last sync 2026-04-30 14:02 UTC · 7 sources · 49 datasets</span>
         </div>
       </div>
