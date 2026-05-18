@@ -13,12 +13,12 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 ## Phases
 
 - [x] **Phase 0: Commit in-flight refactor** — Land the 26 modified files as 4 logical commits + `.gitattributes`; clean working tree is the gating prerequisite for everything else *(completed 2026-05-18)*
-- [ ] **Phase 1: Trivial bug fixes** — Mobile viewport tag find-and-replace, `LICENSE` file + aligned strings, `rel="noopener"` on the two missing links (parallelisable with Phase 2)
-- [ ] **Phase 2: Shared CSS/JS extraction** — Move the duplicated dataset-page `<style>` block + scroll-spy IIFE + `setTab()` declarations into `theme.css` + `site.js`; fix the sidebar hover bug (parallelisable with Phase 1)
-- [ ] **Phase 3: Build mechanism + Elexon dataset depth** — Author the Python+Jinja2 `gridflow-build` CLI, the dataset/vendor-hub templates, vault-content reader; regenerate the 6 complete pages to byte-equivalent state, then ship all 33 Elexon datasets at `fuelhh` fidelity from vault content
-- [ ] **Phase 4: Cross-vendor proof + dead-link real fix** — ENTSO-E hub + "Generation by PSR type" dataset via the same templates; 5 visually-distinct coming-soon vendor stubs; every `<a href="#">` on `data-sources.html` resolves to a real page
-- [ ] **Phase 5: Honesty sweep + a11y + mobile CSS + main-page polish** — Atomic kill of all 6 "live"-framing surfaces; mobile CSS in `theme.css`; `<main>` + `aria-current` + `aria-label` + `aria-hidden` minimums; editorial polish pass on index, architecture, data-sources hub
-- [ ] **Phase 6: CI validation** — `htmlhint` + `lychee` + build-idempotence check in `.github/workflows/deploy.yml` before `upload-pages-artifact`
+- [x] **Phase 1: Trivial bug fixes** — Mobile viewport tag find-and-replace, `LICENSE` file + aligned strings, `rel="noopener"` on the two missing links (parallelisable with Phase 2) *(completed 2026-05-18)*
+- [x] **Phase 2: Shared CSS/JS extraction** — Move the duplicated dataset-page `<style>` block + scroll-spy IIFE + `setTab()` declarations into `theme.css` + `site.js`; fix the sidebar hover bug *(completed 2026-05-18, PR #5)*
+- [x] **Phase 3: Build mechanism + Elexon dataset depth** — Author the Python+Jinja2 `gridflow-build` CLI, the dataset/vendor-hub templates, vault-content reader; ship all 33 Elexon datasets at `fuelhh` fidelity from vault content *(completed 2026-05-18, PR #6)*
+- [x] **Phase 4: Cross-vendor proof + dead-link real fix** — ENTSO-E hub + `actual_generation` (A75/A16) dataset via the same templates; 5 visually-distinct coming-soon vendor stubs; every `<a href="#">` on `data-sources.html` resolves to a real page *(completed 2026-05-18, PR #7)*
+- [x] **Phase 5: Honesty sweep + a11y + mobile CSS + main-page polish** — Atomic kill of all 6 "live"-framing surfaces; mobile CSS in `theme.css`; `<main>` + `aria-current` + `aria-label` + `aria-hidden` minimums; editorial polish pass on index, architecture, data-sources hub *(completed 2026-05-18, PR #8)*
+- [x] **Phase 6: CI validation** — `htmlhint` + `lychee` + build-idempotence check in `.github/workflows/deploy.yml` before `upload-pages-artifact` *(completed 2026-05-18, PR #9 + #10 + #11 fix-ups)*
 
 ## Phase Details
 
@@ -126,14 +126,16 @@ Phase 0 (commit in-flight refactor) — GATING
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 0. Commit in-flight refactor | 1/1 | Complete | 2026-05-18 |
-| 1. Trivial bug fixes | 0/? | Not started | - |
-| 2. Shared CSS/JS extraction | 0/? | Not started | - |
-| 3. Build mechanism + Elexon dataset depth | 0/? | Not started | - |
-| 4. Cross-vendor proof + dead-link real fix | 0/? | Not started | - |
-| 5. Honesty + a11y + mobile + main-page polish | 0/? | Not started | - |
-| 6. CI validation | 0/? | Not started | - |
+| 1. Trivial bug fixes | inline | Complete | 2026-05-18 (PR #4) |
+| 2. Shared CSS/JS extraction | inline | Complete | 2026-05-18 (PR #5) |
+| 3. Build mechanism + Elexon dataset depth | inline | Complete | 2026-05-18 (PR #6) |
+| 4. Cross-vendor proof + dead-link real fix | inline | Complete | 2026-05-18 (PR #7) |
+| 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
+| 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
 
-(Plan counts populated by `/gsd-plan-phase` per phase.)
+v1 milestone complete · 50/50 REQ-IDs delivered. See [`MILESTONE-COMPLETE.md`](./MILESTONE-COMPLETE.md) for the full success-criteria audit and the list of v2 candidates.
+
+Phases 1–6 were planned inline during autonomous execution per `AUTONOMOUS-V1-BRIEF.md`'s authorization to skip `/gsd-plan-phase` for non-Phase-0 work.
 
 ---
 *Roadmap created 2026-05-17. Coverage: 50/50 REQ-IDs mapped. Source: PROJECT.md + REQUIREMENTS.md + research/SUMMARY.md + research/ARCHITECTURE.md + research/PITFALLS.md + codebase/CONCERNS.md.*
