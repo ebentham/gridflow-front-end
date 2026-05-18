@@ -12,7 +12,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 
 ## Phases
 
-- [ ] **Phase 0: Commit in-flight refactor** — Land the 26 modified files as 4 logical commits + `.gitattributes`; clean working tree is the gating prerequisite for everything else
+- [x] **Phase 0: Commit in-flight refactor** — Land the 26 modified files as 4 logical commits + `.gitattributes`; clean working tree is the gating prerequisite for everything else *(completed 2026-05-18)*
 - [ ] **Phase 1: Trivial bug fixes** — Mobile viewport tag find-and-replace, `LICENSE` file + aligned strings, `rel="noopener"` on the two missing links (parallelisable with Phase 2)
 - [ ] **Phase 2: Shared CSS/JS extraction** — Move the duplicated dataset-page `<style>` block + scroll-spy IIFE + `setTab()` declarations into `theme.css` + `site.js`; fix the sidebar hover bug (parallelisable with Phase 1)
 - [ ] **Phase 3: Build mechanism + Elexon dataset depth** — Author the Python+Jinja2 `gridflow-build` CLI, the dataset/vendor-hub templates, vault-content reader; regenerate the 6 complete pages to byte-equivalent state, then ship all 33 Elexon datasets at `fuelhh` fidelity from vault content
@@ -31,7 +31,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
   2. `.gitattributes` exists at repo root with `text eol=lf` rules covering `*.html`, `*.css`, `*.js`, `*.json`, `*.py`, and a Windows-edited commit produces no LF/CRLF warnings on `git diff`
   3. GitHub Pages-deployed site matches the current `main` HEAD (working tree and deployed view are no longer diverged)
 **Plans**: 1 plan
-- [ ] 00-01-PLAN.md — Planner-record commit + 4 cleanup chunks + 2 hygiene + ROADMAP SC#1 reconciliation + PR/merge/Pages-verify (11 sequential tasks, Wave 1)
+- [x] 00-01-PLAN.md — Planner-record commit + 4 cleanup chunks + 2 hygiene + ROADMAP SC#1 reconciliation + PR/merge/Pages-verify (11 sequential tasks, Wave 1) *(completed 2026-05-18, PR #3 merged)*
 
 ### Phase 1: Trivial bug fixes
 **Goal**: Ship the no-architectural-dependency one-line fixes that block mobile usability and license credibility, in parallel with Phase 2. These are cosmetic-class to a recruiter spot-check yet high-leverage (mobile viewport is the single highest-leverage fix in the milestone per Pitfall 10).
@@ -125,7 +125,7 @@ Phase 0 (commit in-flight refactor) — GATING
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 0. Commit in-flight refactor | 0/1 | Plan ready | - |
+| 0. Commit in-flight refactor | 1/1 | Complete | 2026-05-18 |
 | 1. Trivial bug fixes | 0/? | Not started | - |
 | 2. Shared CSS/JS extraction | 0/? | Not started | - |
 | 3. Build mechanism + Elexon dataset depth | 0/? | Not started | - |
