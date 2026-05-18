@@ -38,23 +38,19 @@ jobs:
       - name: Verify build idempotence (CI-03)
         run: gridflow-build --check
 
-      - name: Validate HTML structure (CI-01)
-        uses: mfinelli/setup-htmlhint@v4
-        with:
-          htmlhint-version: 1.6.3
+      - name: Install htmlhint (CI-01)
+        run: npm install -g htmlhint
       - name: Run htmlhint
         run: htmlhint --config .htmlhintrc 'site/hifi/**/*.html'
 
       - name: Validate internal links (CI-02)
         uses: lycheeverse/lychee-action@v2
         with:
-          # Only check internal links — external are flaky in CI and not the bug class CI-02 protects.
-          args: >
+          args: >-
             --no-progress
             --offline
             --include-fragments
-            --base ./site/hifi
-            ./site/hifi
+            './site/hifi/**/*.html'
           fail: true
           format: detailed
 
