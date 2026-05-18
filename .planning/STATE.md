@@ -5,14 +5,14 @@
 **Project:** gridflow-front-end
 **Milestone:** v1 cleanup — credibility-recovery pass
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** Phase 0 context captured; awaiting plan.
+**Current Focus:** Phase 0 planned; ready to execute.
 
 ## Current Position
 
 **Phase:** 0 — Commit in-flight refactor
 **Context:** `.planning/phases/00-commit-in-flight-refactor/00-CONTEXT.md`
-**Plan:** (none yet — next step: `/gsd-plan-phase 0`)
-**Status:** Context gathered; planning not yet started.
+**Plan:** `.planning/phases/00-commit-in-flight-refactor/00-PLAN.md` (1 plan, 11 tasks across Wave 1; Task 9 is a human-gated PR-merge checkpoint per CLAUDE.md "never commit to main")
+**Status:** Ready to execute — next step: `/gsd-execute-phase 0`
 **Progress:** Milestone 0/7 phases complete.
 
 ```
@@ -67,9 +67,9 @@
 
 ## Session Continuity
 
-**Last action:** Phase 0 context gathered (4 gray areas discussed: chunk-4 scope · untracked files · landing strategy · renormalization). Wrote `00-CONTEXT.md` + `00-DISCUSSION-LOG.md`.
-**Next action:** Run `/gsd-plan-phase 0` to decompose Phase 0 into executable plans.
-**Resume from:** Phase 0 planning. Phase 0 inputs: `00-CONTEXT.md` (decisions D-01 through D-05), PROJECT.md, REQUIREMENTS.md (HYG-01, HYG-02), research/PITFALLS.md § Pitfall 0, codebase/CONCERNS.md § In-Flight Refactor.
+**Last action:** Phase 0 planned. Single consolidated `00-PLAN.md` (1443 lines) with 11 sequential tasks: Task 0 records the plan as a `docs(00):` commit, Tasks 1-4 are the 4 cleanup chunks, Tasks 5-6 are repo-hygiene (`.gitattributes` + renormalize), Task 7 reconciles ROADMAP §0 SC#1 wording, Task 8 opens the PR, Task 9 is the human-gated PR merge (`checkpoint:human-action`), Task 10 verifies GitHub Pages catches up. Plan passed gsd-plan-checker on the second iteration (2 BLOCKERs found and fixed in iteration 1: stale baseline counts + stale commit math).
+**Next action:** Run `/gsd-execute-phase 0` to execute the 11-task plan. After Task 8 the executor pauses for the human merge gate.
+**Resume from:** Phase 0 execution. Phase 0 inputs: `00-PLAN.md` (11 tasks), `00-CONTEXT.md` (decisions D-01 through D-05), PROJECT.md, REQUIREMENTS.md (HYG-01, HYG-02), research/PITFALLS.md § Pitfall 0, codebase/CONCERNS.md § In-Flight Refactor.
 
 ### Phase 0 — Locked Decisions (from `00-CONTEXT.md`)
 

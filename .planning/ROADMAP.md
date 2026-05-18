@@ -30,7 +30,8 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
   1. `git status` shows zero modified files; `git log --oneline` since `351c580` shows 4 commits titled per the four logical chunks (typography sweep · pillar-status removal · fuelhh honesty edits · remaining tweaks)
   2. `.gitattributes` exists at repo root with `text eol=lf` rules covering `*.html`, `*.css`, `*.js`, `*.json`, `*.py`, and a Windows-edited commit produces no LF/CRLF warnings on `git diff`
   3. GitHub Pages-deployed site matches the current `main` HEAD (working tree and deployed view are no longer diverged)
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 00-01-PLAN.md — Planner-record commit + 4 cleanup chunks + 2 hygiene + ROADMAP SC#1 reconciliation + PR/merge/Pages-verify (11 sequential tasks, Wave 1)
 
 ### Phase 1: Trivial bug fixes
 **Goal**: Ship the no-architectural-dependency one-line fixes that block mobile usability and license credibility, in parallel with Phase 2. These are cosmetic-class to a recruiter spot-check yet high-leverage (mobile viewport is the single highest-leverage fix in the milestone per Pitfall 10).
@@ -124,7 +125,7 @@ Phase 0 (commit in-flight refactor) — GATING
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 0. Commit in-flight refactor | 0/? | Not started | - |
+| 0. Commit in-flight refactor | 0/1 | Plan ready | - |
 | 1. Trivial bug fixes | 0/? | Not started | - |
 | 2. Shared CSS/JS extraction | 0/? | Not started | - |
 | 3. Build mechanism + Elexon dataset depth | 0/? | Not started | - |
