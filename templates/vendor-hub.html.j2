@@ -1,4 +1,5 @@
-{# Vendor hub: site/hifi/data-sources/<vendor>.html — depth-1 path. #}
+{# Vendor hub: site/hifi/data-sources/<vendor>.html — depth-1 path.
+   Driven entirely by the vendor metadata block + the manifest groups. #}
 <!doctype html>
 <html lang="en">
 <head>
@@ -26,21 +27,18 @@
       <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
         <div>
           <div class="row gap-8 mb-16" style="align-items:center;">
-            <span class="eyebrow">Vendor · United Kingdom · Electricity</span>
+            <span class="eyebrow">Vendor · {{ vendor_meta.region }} · {{ vendor_meta.domain }}</span>
             <span class="chip" style="font-size: 11px;">Illustrative snapshot</span>
           </div>
           <h1 class="display-2" style="margin-bottom: 18px;">
-            Elexon <span class="italic">BMRS.</span>
+            {{ vendor_meta.heading_prefix }} <span class="italic">{{ vendor_meta.heading_italic }}</span>
           </h1>
-          <p class="lede" style="max-width: 560px;">
-            The British electricity Balancing Mechanism Reporting Service. Settlement
-            prices, generation by fuel, demand outturn, balancing actions, and BM unit
-            metadata — documented as a static reference site over the gridflow ETL
-            pipeline.
-          </p>
+          <p class="lede" style="max-width: 560px;">{{ vendor_meta.lede }}</p>
           <div class="row gap-16 mt-32">
-            <a href="#datasets" class="btn primary">Browse {{ manifest_total }} datasets ↓</a>
-            <a href="https://bmrs.elexon.co.uk/" target="_blank" rel="noopener" class="btn ghost">Vendor docs ↗</a>
+            <a href="#datasets" class="btn primary">Browse {{ manifest_total }} dataset{{ '' if manifest_total == 1 else 's' }} ↓</a>
+            {% if vendor_meta.vendor_docs_url %}
+              <a href="{{ vendor_meta.vendor_docs_url }}" target="_blank" rel="noopener" class="btn ghost">Vendor docs ↗</a>
+            {% endif %}
           </div>
         </div>
 
@@ -48,27 +46,27 @@
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card);">
             <div style="padding: 18px 20px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
               <div class="tiny mb-8">BASE URL</div>
-              <div class="mono small" style="word-break: break-all;">data.elexon.co.uk/bmrs/api/v1</div>
+              <div class="mono small" style="word-break: break-all;">{{ vendor_meta.base_url }}</div>
             </div>
             <div style="padding: 18px 20px; border-bottom: 1px solid var(--rule);">
               <div class="tiny mb-8">AUTH</div>
-              <div class="small">Public · no key required</div>
+              <div class="small">{{ vendor_meta.auth }}</div>
             </div>
             <div style="padding: 18px 20px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
               <div class="tiny mb-8">RATE LIMIT</div>
-              <div class="small">2 req/s · project default</div>
+              <div class="small">{{ vendor_meta.rate_limit }}</div>
             </div>
             <div style="padding: 18px 20px; border-bottom: 1px solid var(--rule);">
               <div class="tiny mb-8">FORMAT</div>
-              <div class="small">JSON · ISO-8601 · UTC</div>
+              <div class="small">{{ vendor_meta.format }}</div>
             </div>
             <div style="padding: 18px 20px; border-right: 1px solid var(--rule);">
               <div class="tiny mb-8">EARLIEST</div>
-              <div class="small">2014-04-01</div>
+              <div class="small">{{ vendor_meta.earliest }}</div>
             </div>
             <div style="padding: 18px 20px;">
               <div class="tiny mb-8">TIMEZONE</div>
-              <div class="small">UTC · SP 1–50</div>
+              <div class="small">{{ vendor_meta.timezone }}</div>
             </div>
           </div>
         </div>
@@ -81,19 +79,19 @@
     <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
       <div>
         <div class="stat-n">{{ manifest_total }}</div>
-        <div class="stat-l">Datasets</div>
+        <div class="stat-l">Dataset{{ '' if manifest_total == 1 else 's' }}</div>
       </div>
       <div>
         <div class="stat-n">{{ manifest.groups | length }}</div>
-        <div class="stat-l">Categories</div>
+        <div class="stat-l">Categor{{ 'y' if manifest.groups | length == 1 else 'ies' }}</div>
       </div>
       <div>
-        <div class="stat-n">7</div>
-        <div class="stat-l">Settlement runs · II → DF</div>
+        <div class="stat-n">{{ vendor_meta.stat_three_value }}</div>
+        <div class="stat-l">{{ vendor_meta.stat_three_label }}</div>
       </div>
       <div>
-        <div class="stat-n">11<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">y</span></div>
-        <div class="stat-l">History</div>
+        <div class="stat-n">{{ vendor_meta.stat_four_value }}</div>
+        <div class="stat-l">{{ vendor_meta.stat_four_label }}</div>
       </div>
     </div>
   </div>
@@ -103,7 +101,7 @@
     <div class="container">
       <div class="row between mb-32" style="align-items: end;">
         <div>
-          <div class="eyebrow mb-8">{{ manifest_total }} datasets · {{ manifest.groups | length }} categories</div>
+          <div class="eyebrow mb-8">{{ manifest_total }} dataset{{ '' if manifest_total == 1 else 's' }} · {{ manifest.groups | length }} categor{{ 'y' if manifest.groups | length == 1 else 'ies' }}</div>
           <h2 class="display-3">The catalog.</h2>
         </div>
       </div>
@@ -149,8 +147,8 @@
         Pages are regenerated from the
         <a href="https://github.com/EBentham/gridflow" target="_blank" rel="noopener" class="link">gridflow</a>
         ETL pipeline's vault content via <code class="mono">gridflow-build</code>. Schemas align with
-        <code class="mono">gridflow.schemas.elexon</code>; values shown in charts are illustrative
-        deterministic snapshots, not live Elexon responses.
+        <code class="mono">gridflow.schemas.{{ vendor_id }}</code>; values shown in charts are illustrative
+        deterministic snapshots, not live {{ vendor_label }} responses.
       </p>
     </div>
   </section>

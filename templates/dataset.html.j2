@@ -32,7 +32,7 @@
           {% if doc.last_verified %}
             <p class="tiny mt-16" style="max-width:660px;">
               Verified against vendor docs: {{ doc.last_verified }} ·
-              <a href="{{ doc.vendor_doc_url }}" class="link" target="_blank" rel="noopener">Elexon BMRS · {{ doc.api_code }}</a>
+              <a href="{{ doc.vendor_doc_url }}" class="link" target="_blank" rel="noopener">{{ doc.vendor_label }} · {{ doc.api_code }}</a>
             </p>
           {% endif %}
         </div>
