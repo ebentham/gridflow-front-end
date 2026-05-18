@@ -3,59 +3,55 @@
 ## Project Reference
 
 **Project:** gridflow-front-end
-**Milestone:** v1 cleanup — credibility-recovery pass
+**Milestone:** v2 full-vendor-coverage
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** v1 milestone complete; no active phase.
+**Current Focus:** Defining v2 requirements and roadmap.
 
 ## Current Position
 
-**Phase:** — (v1 milestone complete)
-**Status:** v1 milestone complete · 7/7 phases · 50/50 REQ-IDs
-**Deployed:** https://ebentham.github.io/gridflow-front-end/
-**Progress:** Milestone 7/7 phases complete.
+**Phase:** Not started (defining requirements)
+**Plan:** —
+**Status:** Defining requirements
+**Last activity:** 2026-05-18 — Milestone v2 started (`/gsd-new-milestone v2-full-vendor-coverage`)
 
 ```
-[████████████████████] 100% — 7/7 phases · 50/50 REQ-IDs delivered
+[░░░░░░░░░░░░░░░░░░░░] 0% — v2 requirements in progress
 ```
-
-See [`MILESTONE-COMPLETE.md`](MILESTONE-COMPLETE.md) for the full success-criteria verification, key decisions catalogue, and v2 candidate list.
-
-## Performance Metrics
-
-| Metric | Value | Notes |
-|--------|-------|-------|
-| REQ-IDs total | 50 | HYG·2 PAGE·4 BUILD·8 VAULT·4 ELX·8 VEND·5 HON·4 A11Y·6 MOB·3 REF·3 CI·3 |
-| REQ-IDs delivered | 50 | |
-| Phases total | 7 | 0–6, standard granularity |
-| Phases complete | 7 | All shipped to GitHub Pages |
-| PRs merged | 11 | #3 (P0), #4 (P1), #5 (P2), #6 (P3), #7 (P4), #8 (P5), #9 + #10 + #11 (P6 + 2 CI fix-ups) |
-| Deploy status | Green | Final CI run: htmlhint + lychee + gridflow-build --check all passing |
 
 ## Accumulated Context
 
-### Decisions Locked (from PROJECT.md § Key Decisions)
+### Decisions Locked (validated in v1, carried into v2)
 
 | # | Decision | Locked in |
 |---|----------|-----------|
-| 1 | Templating mechanism: Python + Jinja2 + `gridflow-build` CLI (Option B), CI build, generated HTML gitignored | PROJECT.md |
-| 2 | Elexon dataset scope: 33 (matches `gridflow` connector + vault reality) | PROJECT.md, REQUIREMENTS.md |
-| 3 | Source-of-truth direction: vault → site (build reads vault `.md`, renders to site HTML) | PROJECT.md |
-| 4 | ENTSO-E cross-vendor proof: Generation by PSR type (`actual_generation`, A75/A16) | PROJECT.md |
-| 5 | Editorial aesthetic kept: cream-forest + Fraunces | PROJECT.md |
-| 6 | Kill "live" framing site-wide | PROJECT.md |
-| 7 | Recruiter-first audience: full-stack DS in energy trading | PROJECT.md |
-| 8 | Core value: domain depth | PROJECT.md |
+| 1 | Templating mechanism: Python + Jinja2 + `gridflow-build` CLI (Option B), CI build, generated HTML gitignored | PROJECT.md (v1) |
+| 2 | Source-of-truth direction: vault → site (build reads vault `.md`, renders to site HTML) | PROJECT.md (v1) |
+| 3 | Vault vendored in-repo at `vault/<vendor>/` (CI cannot clone upstream `quant-vault`) | PROJECT.md (v1) |
+| 4 | Editorial aesthetic kept: cream-forest + Fraunces | PROJECT.md (v1) |
+| 5 | Kill "live" framing site-wide; templates born honest | PROJECT.md (v1) |
+| 6 | Recruiter-first audience: full-stack DS in energy trading | PROJECT.md (v1) |
+| 7 | Core value: domain depth | PROJECT.md (v1) |
+| 8 | Pydantic class drift policy: render-with-flag (closing the gap is a v3 candidate) | PROJECT.md (v1) |
 
-### Decisions Made During v1 Autonomous Execution
+### Decisions Pending (v2)
 
-See `MILESTONE-COMPLETE.md § Key decisions` for the full catalogue of 8 decisions made during the autonomous run.
+| # | Decision | Source |
+|---|----------|--------|
+| 1 | Phase shape: bug fix + ENTSO-E + batch the rest (3 phases) | This milestone (user selection) |
+| 2 | Assume vault content complete; no upfront audit phase — let `gridflow-build --check` surface gaps | This milestone (user selection) |
+| 3 | Strict scope discipline — no Pydantic drift fix, related blurbs, or fuel-pill restoration in v2 | This milestone (user selection) |
+
+### Open Todos / Carry-overs from v1
+
+- Drift-detection research package at `.planning/research/post-v1/drift-detection/` is post-v2 — ignore for now
+- v3 candidates catalogued in `PROJECT.md § Out of Scope` and `MILESTONE-COMPLETE.md § Deferred to v2`
 
 ## Session Continuity
 
-**Last action:** v1 milestone complete · 7/7 phases shipped · all 50 REQ-IDs delivered. Final deploy green on PR #11 (CI fix-up).
-**Next action:** None — autonomous milestone execution complete. User can review `MILESTONE-COMPLETE.md` and the deployed site at https://ebentham.github.io/gridflow-front-end/.
-**Resume from:** Use `gsd-new-milestone` to scope a v2 milestone if the user wants to continue beyond v1. v2 candidates are catalogued in `MILESTONE-COMPLETE.md § Deferred to v2`.
+**Last action:** v2 milestone scoped (3 phases, phase numbering 7–9). PROJECT.md updated with v1 validated items + v2 active items. STATE.md reset. Working on requirements next.
+**Next action:** Define v2 requirements (REQ-IDs continuing from v1's last numbering), then spawn roadmapper.
+**Resume from:** Continue this `/gsd-new-milestone` flow — next step is requirements then roadmap. After roadmap approval, use `/gsd-discuss-phase 7` or `/gsd-plan-phase 7` to start Phase 7 (bug fix).
 
 ---
 
-*State updated 2026-05-18 after v1 milestone completion (autonomous execution per `.planning/AUTONOMOUS-V1-BRIEF.md`).*
+*State reset 2026-05-18 for v2 milestone start.*
