@@ -96,7 +96,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 **Transformer class**: `gridflow.silver.elexon.demand_forecast.DemandForecastTransformer`
 **Pydantic schema**: `gridflow.schemas.elexon.ElexonDemandForecast`
 **Dedup key**: _inline in transformer (see `silver/elexon/demand_forecast.py`)_
-**Point-in-time field**: `issue_time`
+**Point-in-time field**: `published_at`
 
 ### Silver schema
 
@@ -106,9 +106,9 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `forecast_type` | `str` | No | _derived_ | `day_ahead` (NDF) or `2_14_day` (NDFD). |
-| `national_demand_mw` | `float` | Yes | `nationalDemand` or `demand` | MW. |
+| `national_demand_mw` | `float` | No | `nationalDemand` or `demand` | MW. |
 | `transmission_demand_mw` | `float` | Yes | `transmissionSystemDemand` | MW. |
-| `issue_time` | `datetime[UTC]` | Yes | _TODO_ | Forecast issue time. |
+| `published_at` | `datetime` | Yes | `publishTime` | Publication time of the forecast (Canonical: ElexonDemandForecast.published_at). |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 

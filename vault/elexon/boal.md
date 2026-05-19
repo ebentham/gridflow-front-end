@@ -131,6 +131,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `bm_unit_id` | `str` | No | `bmUnit` | BM Unit identifier — preserve raw casing. |
 | `acceptance_number` | `int` | Yes | `acceptanceNumber` | Acceptance instruction number. |
 | `acceptance_time` | `datetime[UTC]` | Yes | `acceptanceTime` | Time the acceptance was issued. |
+| `bid_offer_acceptance_number` | `int` | Yes | `acceptanceNumber` | Bid offer acceptance number (Canonical: ElexonBOAL.bid_offer_acceptance_number). |
 | `deem_flag` | `bool` | No | `deemedBoFlag` | Deemed-bid/offer flag. |
 | `so_flag` | `bool` | No | `soFlag` | System Operator flag. |
 | `stor_flag` | `bool` | No | `storProviderFlag` or `storFlag` | STOR flag. |

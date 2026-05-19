@@ -142,8 +142,8 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/balancin
 | `system_sell_price` | `float` | No | `systemSellPrice` | GBP/MWh; ge=-500 le=10000. |
 | `system_buy_price` | `float` | No | `systemBuyPrice` | GBP/MWh. |
 | `net_imbalance_volume` | `float` | No | `netImbalanceVolume` | MWh. |
-| `run_type` | `str \| None` | Yes | `settlementRunType` (when present) | II / SF / R1 / R2 / R3 / RF / DF — BSC settlement run precedence. `/balancing/settlement/system-prices/{date}` does not expose this field, so live silver from that endpoint has `run_type = None`. Older fixtures and any future endpoint that surfaces `settlementRunType` will populate it. |
-| `price_derivation_code` | `str \| None` | Yes | `priceDerivationCode` | How the SBP/SSP was derived for the period. Observed values: `N` (normal), `P` (provisional). No regex constraint — vendor-managed value list. |
+| `run_type` | `str` | Yes | `settlementRunType` (when present) | II / SF / R1 / R2 / R3 / RF / DF — BSC settlement run precedence. `/balancing/settlement/system-prices/{date}` does not expose this field, so live silver from that endpoint has `run_type = None`. Older fixtures and any future endpoint that surfaces `settlementRunType` will populate it. Nullable (Optional[str] in canonical). |
+| `price_derivation_code` | `str` | Yes | `priceDerivationCode` | How the SBP/SSP was derived for the period. Observed values: `N` (normal), `P` (provisional). No regex constraint — vendor-managed value list. Nullable (Optional[str] in canonical). |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 
