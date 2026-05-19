@@ -10,12 +10,12 @@
 ## Current Position
 
 **Phase:** 7 — Reconciliation (CONTEXT.md captured 2026-05-19; 4 plans created + verified same day)
-**Plan:** 1/4 complete — 07-01 verifier wrap DONE; next: 07-02 run Verification + triage
-**Status:** Executing Phase 7 (`/gsd-execute-phase 7` — 07-01 complete)
-**Last activity:** 2026-05-19 — 07-01-verifier-wrap executed: renamed `verify_curl_and_silver_schema.py` → `gridflow_drift_check.py`, fixed two Windows portability blockers, exposed `gridflow-drift-check` console script via gridflow-front-end `pyproject.toml`. RECON-01 satisfied.
+**Plan:** 2/4 complete — 07-01 verifier wrap DONE; 07-02 verification + triage DONE; next: 07-03 fix-open-bucket-and-revendor
+**Status:** Executing Phase 7 (`/gsd-execute-phase 7` — 07-02 complete)
+**Last activity:** 2026-05-19 — 07-02-run-verification-and-triage executed: `gridflow-drift-check` ran across all 6 vendors, regenerated JSON + markdown reports, emitted 145 finding files (52 open / 58 wontfix-v3 / 35 needs-info). RECON-02 satisfied. All 5 DRIFT-SURFACES load-bearing acceptance gates ticked.
 
 ```
-[███░░░░░░░░░░░░░░░░░] 15% — Phase 7 plan 1/4 complete
+[██████░░░░░░░░░░░░░░] 30% — Phase 7 plan 2/4 complete
 ```
 
 ## Accumulated Context
@@ -51,6 +51,11 @@
 | 12 | [drift] extras = PyYAML only; pydantic comes transitively via gridflow sys.path insert (adding pydantic as wheel dep would conflict) | 07-01 execution 2026-05-19 |
 | 13 | `_discover_curl()` runs at module level on import (fail-loud on misconfigured env, T-07-01-04 accepted); shutil.which('curl') > shutil.which('curl.exe') > RuntimeError | 07-01 execution 2026-05-19 |
 | 14 | `gridflow-drift-check --help` not implemented; full verifier runs immediately — 07-02 must invoke without --help | 07-01 execution 2026-05-19 |
+| 15 | ENTSO-E failed_auth count increased 33→35 — `current_balancing_state` (was HTTP=0) and `outages_generation` (was HTTP=503) now both return HTTP=401; both triaged needs-info/defer-entitlement; 35 >= 33 threshold met | 07-02 execution 2026-05-19 |
+| 16 | windfor (elexon) is a new finding not in baseline — triaged open, same pattern as ndf/ndfd | 07-02 execution 2026-05-19 |
+| 17 | neso regional_scotland transient DNS failure filed as open for re-verify in 07-03 | 07-02 execution 2026-05-19 |
+| 18 | entsoe finding count: 35 defer-entitlement + 2 wontfix-v3 + 36 open silver = 73 total (exceeds plan's minimum of 51); 36 open = 24 nullable mismatches + 10 no_silver_schema_table + 1 no_silver_section + 1 extra field | 07-02 execution 2026-05-19 |
+| 19 | gridflow package installed into front-end venv (Rule 3 deviation) to resolve typer transitive dependency not declared in [drift] extras | 07-02 execution 2026-05-19 |
 
 ### Decisions Overridden (v2)
 
@@ -74,10 +79,10 @@
 
 ## Session Continuity
 
-**Last action:** 07-01-verifier-wrap executed 2026-05-19. Two commits: `739c2ed` (refactor, quant-vault) + `87f0234` (feat, gridflow-front-end). RECON-01 satisfied. Summary at `.planning/phases/07-reconciliation/07-01-SUMMARY.md`.
-**Next action:** Execute 07-02 (run Verification across all 6 Vendors + triage). Wave 1 continues. `gridflow-drift-check` is installed; run without `--help` (no argparse in verifier).
-**Resume from:** `.planning/phases/07-reconciliation/07-02-run-verification-and-triage-PLAN.md` (Wave 1 continuation). All 4 plans + CONTEXT + DISCUSSION-LOG live under `.planning/phases/07-reconciliation/`.
+**Last action:** 07-02-run-verification-and-triage executed 2026-05-19. Six commits: `6517f3e` (verifier run) + `b7042c3` (elexon findings) + `38c5ed3` (entsoe findings) + `e0a4a91` (entsog findings) + `b2fd06a` (gie/neso/openmeteo findings) + `bfe8904` (verification report update). RECON-02 satisfied. Summary at `.planning/phases/07-reconciliation/07-02-SUMMARY.md`.
+**Next action:** Execute 07-03 (fix open bucket — 52 findings with status:open — and re-vendor into gridflow-front-end/vault/<vendor>/). Wave 2 begins.
+**Resume from:** `.planning/phases/07-reconciliation/07-03-fix-open-bucket-and-revendor-PLAN.md`. Read `.planning/reconciliation/*/` finding files where `status: open` (52 total) to locate the Vault edits needed.
 
 ---
 
-*State updated 2026-05-19 — 07-01-verifier-wrap executed. RECON-01 satisfied. 07-02-run-verification-and-triage is next.*
+*State updated 2026-05-19 — 07-02-run-verification-and-triage executed. RECON-02 satisfied. 07-03-fix-open-bucket-and-revendor is next.*
