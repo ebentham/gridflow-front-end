@@ -16,7 +16,7 @@
 
 ## v2 Phases (Active)
 
-- [ ] **Phase 7: Reconciliation** — Wrap the existing verifier as `gridflow-drift-check`; run Verification across all 6 Vendors; triage every Drift finding into `open` / `wontfix-v3` / `needs-info`+`defer-entitlement`; land Vault edits for the fixable bucket; commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002 *(gating for content phases 9 and 10; independent of Phase 8 per ADR-0001 D-03)*
+- [x] **Phase 7: Reconciliation** — Wrap the existing verifier as `gridflow-drift-check`; run Verification across all 6 Vendors; triage every Drift finding into `open` / `wontfix-v3` / `needs-info`+`defer-entitlement`; land Vault edits for the fixable bucket; commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002 *(gating for content phases 9 and 10; independent of Phase 8 per ADR-0001 D-03)* **[Complete 2026-05-19 — RECON-01..RECON-05 satisfied]**
 - [ ] **Phase 8: Dataset-page formatting bug fix** — Diagnose and fix the top-of-page formatting bug confirmed on `fuelhh.html`; verify the fix propagates cleanly to all 34 existing pages before scaling to 129 more *(layout/typography work, independent of Reconciliation)*
 - [ ] **Phase 9: ENTSO-E full coverage** — Vendor 48 new ENTSO-E `.md` files; extend `entsoe.json` to 49 datasets; render all 49 pages at `fuelhh` fidelity; upgrade hub from 1-dataset proof to 49-dataset catalog *(stress-tests the template at scale on a non-Elexon vendor — different schema vocabulary: codelists, PSR types, BIDDING_ZONE references; ENTSO-E entitlement choice — extend access vs skip-with-warn — lands in this phase's discuss-phase per Phase 7 D-06)*
 - [ ] **Phase 10: Four-vendor batch coverage + site-wide consistency** — Vendor and render ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new pages; move 4 vendor entries from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`; update site-wide count strings to 163; every vendor row on the catalog links to a real hub
@@ -105,12 +105,12 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 4. Cross-vendor proof + dead-link real fix | inline | Complete | 2026-05-18 (PR #7) |
 | 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
-| 7. Reconciliation | 2/4 complete | Executing (07-03 next) | — |
+| 7. Reconciliation | 4/4 | Complete | 2026-05-19 |
 | 8. Dataset-page formatting bug fix | 0/? | Not started | — |
 | 9. ENTSO-E full coverage | 0/? | Not started | — |
 | 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started | — |
 
-v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 2/31 REQ-IDs delivered (RECON-01 + RECON-02 complete; 5 RECON-* added with the Phase 7 rescope).
+v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 5/31 REQ-IDs delivered (RECON-01..RECON-05 complete — Phase 7 done 2026-05-19).
 
 ---
 

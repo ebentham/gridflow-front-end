@@ -5,17 +5,17 @@
 **Project:** gridflow-front-end
 **Milestone:** v2 full-vendor-coverage
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** Phase 7 (Reconciliation) context gathered; ready for planning. Milestone rescoped 2026-05-19 per ADR-0001 to front-load a Reconciliation phase before content phases ship.
+**Current Focus:** Phase 7 (Reconciliation) complete 2026-05-19. RECON-01..RECON-05 satisfied. Next: Phase 8 (dataset-page formatting bug fix) or Phase 9 (ENTSO-E); Phase 8 and 7 were parallel-eligible per ADR-0001 D-03.
 
 ## Current Position
 
-**Phase:** 7 — Reconciliation (CONTEXT.md captured 2026-05-19; 4 plans created + verified same day)
-**Plan:** 2/4 complete — 07-01 verifier wrap DONE; 07-02 verification + triage DONE; next: 07-03 fix-open-bucket-and-revendor
-**Status:** Executing Phase 7 (`/gsd-execute-phase 7` — 07-02 complete)
-**Last activity:** 2026-05-19 — 07-02-run-verification-and-triage executed: `gridflow-drift-check` ran across all 6 vendors, regenerated JSON + markdown reports, emitted 145 finding files (52 open / 58 wontfix-v3 / 35 needs-info). RECON-02 satisfied. All 5 DRIFT-SURFACES load-bearing acceptance gates ticked.
+**Phase:** 7 — Reconciliation **COMPLETE** (all 4/4 sub-plans executed 2026-05-19)
+**Plan:** 4/4 complete — 07-01 verifier wrap · 07-02 verification + triage · 07-03 fix open bucket + re-vendor · 07-04 push Vault to private GitHub
+**Status:** Phase 7 complete; next: `/gsd-verify-phase 7` or `/gsd-plan-phase 8`
+**Last activity:** 2026-05-19 — Phase 7 execution complete. RECON-01..RECON-05 satisfied. `EBentham/quant-vault` private GitHub repo created (10 commits, `master` branch). 0 open drift findings remain; 41 closed + 69 wontfix-v3 + 35 needs-info (ENTSO-E entitlement decision deferred to Phase 9). CI gates green (`gridflow-build --check` + htmlhint + lychee). Drift check: 33 failures → 0.
 
 ```
-[██████░░░░░░░░░░░░░░] 30% — Phase 7 plan 2/4 complete
+[████████████████░░░░] 80% — Phase 7 complete (5/31 v2 REQ-IDs delivered)
 ```
 
 ## Accumulated Context
@@ -68,21 +68,22 @@
 - Drift-detection research package at `.planning/research/post-v1/drift-detection/` is now Phase 7 input (no longer post-v2)
 - v3 candidates catalogued in `PROJECT.md § Out of Scope`, `MILESTONE-COMPLETE.md § Deferred to v2`, and `07-CONTEXT.md § Deferred`
 
-### Phase 7 open items left to plan-phase
+### Phase 7 resolved items
 
-- Exact sub-plan filenames (`07a-...-PLAN.md` vs `07-01-...-PLAN.md`); planner picks per project convention
-- Exact JSON schema extensions to `vault-curl-schema-validation.json` (Q-DD-17)
-- Exact format of `.planning/reconciliation/<vendor>/<NN>-<slug>.md` finding files (mandatory `status:` + `reason:`; other fields planner's discretion)
-- `[drift]` extras location (vault `pyproject.toml` vs front-end's — Q-DD-16)
-- Sequencing of `07a` vs `07d` (verifier-rename commits land in `EBentham/quant-vault` once it exists; either order works)
-- `LICENSE` for the new `EBentham/quant-vault` repo (yes/no; MIT vs CC)
+All Phase 7 open items resolved during execution:
+- Sub-plan filenames: `07-01..07-04` (per project convention)
+- JSON schema: verifier reports committed to quant-vault at `vault-curl-schema-validation.{json,md}` (Q-DD-17 default lean)
+- Finding file format: YAML frontmatter with `status:` + `reason:` + `vendor:` + `dataset:` + `drift_category:` + `verifier_finding_id:` + `references:` + `tags:` (established in 07-02)
+- `[drift]` extras: in `gridflow-front-end/pyproject.toml` (Q-DD-16 lean confirmed — quant-vault has no pyproject.toml)
+- Sequencing: 07-01 → 07-02 → 07-03 → 07-04 (sequential Wave 1 then Wave 2)
+- LICENSE: MIT (inertia from gridflow-front-end; planner decision in 07-04)
 
 ## Session Continuity
 
-**Last action:** 07-02-run-verification-and-triage executed 2026-05-19. Six commits: `6517f3e` (verifier run) + `b7042c3` (elexon findings) + `38c5ed3` (entsoe findings) + `e0a4a91` (entsog findings) + `b2fd06a` (gie/neso/openmeteo findings) + `bfe8904` (verification report update). RECON-02 satisfied. Summary at `.planning/phases/07-reconciliation/07-02-SUMMARY.md`.
-**Next action:** Execute 07-03 (fix open bucket — 52 findings with status:open — and re-vendor into gridflow-front-end/vault/<vendor>/). Wave 2 begins.
-**Resume from:** `.planning/phases/07-reconciliation/07-03-fix-open-bucket-and-revendor-PLAN.md`. Read `.planning/reconciliation/*/` finding files where `status: open` (52 total) to locate the Vault edits needed.
+**Last action:** `/gsd-execute-phase 7` completed 2026-05-19. All 4 sub-plans executed. Phase 7 (Reconciliation) is complete. RECON-01..RECON-05 satisfied. Final commit: `abc417e` (07-04 VAULT-WORKFLOW.md). `EBentham/quant-vault` private GitHub repo created and pushed (10 commits on `master` branch).
+**Next action:** Run `/gsd-verify-phase 7` to formally verify Phase 7 goal achievement, or `/gsd-plan-phase 8` to begin the dataset-page formatting bug fix phase.
+**Resume from:** Phase 8 (`/gsd-plan-phase 8`). Context at `.planning/phases/07-reconciliation/` (all 4 summaries + CONTEXT.md). For Phase 9 context: 35 ENTSO-E `needs-info`/`defer-entitlement` findings at `.planning/reconciliation/entsoe/` await the entitlement decision in Phase 9 discuss-phase.
 
 ---
 
-*State updated 2026-05-19 — 07-02-run-verification-and-triage executed. RECON-02 satisfied. 07-03-fix-open-bucket-and-revendor is next.*
+*State updated 2026-05-19 — Phase 7 (Reconciliation) complete. 4/4 sub-plans executed. RECON-01..RECON-05 satisfied. 5/31 v2 REQ-IDs delivered. Next: /gsd-verify-phase 7 or /gsd-plan-phase 8.*
