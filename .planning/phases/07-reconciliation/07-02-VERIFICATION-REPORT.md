@@ -76,6 +76,20 @@ The baseline showed `open-meteo\endpoints.md:162` with `HTTP=0 curl: (35) Recv f
 ### Dependency discovery deviation
 The plan's instructions said `gridflow-drift-check` was installable via `uv pip install -e ".[drift]"`. At runtime, the verifier imports `gridflow.cli` which depends on `typer`. `typer` is not in the `[drift]` extras; it's a `gridflow` package dependency. Resolution: `uv pip install --native-tls` the `gridflow` package directly into the venv. This is a **Rule 3 auto-fix** (blocking dependency). Tagged as deviation.
 
+## Findings emitted
+
+| Vendor      | open | wontfix-v3 | needs-info/defer-entitlement | Total |
+|-------------|------|------------|------------------------------|-------|
+| elexon      | 10   | 22         | 0                            | 32    |
+| entsoe      | 36   | 2          | 35                           | 73    |
+| entsog      | 5    | 28         | 0                            | 33    |
+| gie         | 0    | 6          | 0                            | 6     |
+| neso        | 1    | 0          | 0                            | 1     |
+| openmeteo   | 0    | 0          | 0                            | 0     |
+| **Total**   | **52** | **58**  | **35**                       | **145** |
+
+**Open findings for 07-03:** 52 findings with `status: open` are ready for Vault edits.
+
 ## Security check (T-07-02-01, T-07-02-02)
 
 ```
