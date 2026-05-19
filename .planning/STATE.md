@@ -5,14 +5,14 @@
 **Project:** gridflow-front-end
 **Milestone:** v2 full-vendor-coverage
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** Phase 8 (dataset-page formatting bug fix) context gathered 2026-05-19. CONTEXT.md locks fix-scope discipline (minimal patch), verification breadth (fuelhh + 1 Elexon + ENTSO-E `actual_generation` desktop + fuelhh mobile breakpoints), regression-prevention (no new guard), and diagnosis-approval gate (light research). Provisional diagnosis: `dataset.html.j2:18` — `align-items: end` + `grid-template-columns: 1fr auto` interaction. Next: `/gsd-plan-phase 8 --skip-ui`.
+**Current Focus:** Phase 8 (dataset-page formatting bug fix) planned 2026-05-19. RESEARCH.md confirmed both hypothesised causes at `dataset.html.j2:18` (`align-items: end` dominant + `grid-template-columns: 1fr auto` × unwrapped SILVER PATH mono amplifier); candidates table reviewed and recommendation revised from (c) to **(a) only** after inner-grid sizing arithmetic surfaced a text-overflow regression in (b)/(c). Single plan `08-01-PLAN.md` (4 tasks, 2 commits expected): Task 1 single-token template edit `end` → `start`, Task 2 re-render 34 pages, Task 3 user-verified checkpoint (3 desktop + 2 mobile per D-02 — `autonomous: false`), Task 4 v1 CI gates. theme.css intentionally untouched. Next: `/gsd-execute-phase 8`.
 
 ## Current Position
 
-**Phase:** 8 — Dataset-page formatting bug fix · context gathered (CONTEXT.md + DISCUSSION-LOG.md committed)
-**Plan:** 0/? — not yet planned
-**Status:** Ready to plan; next: `/gsd-plan-phase 8 --skip-ui` (Phase 7 verification deferred; can be run in parallel via `/gsd-verify-phase 7`)
-**Last activity:** 2026-05-19 — Phase 8 discuss-phase complete. User signalled velocity-over-discussion ("The problem is clear." + ROADMAP-goal verbatim). All 4 gray areas resolved by Claude under Discretion anchored to ROADMAP success criteria. Phase 7 (Reconciliation) remains complete (5/31 v2 REQ-IDs delivered); Phase 8 is parallel-eligible per ADR-0001 D-03.
+**Phase:** 8 — Dataset-page formatting bug fix · plan ready (CONTEXT.md + DISCUSSION-LOG.md + RESEARCH.md + VALIDATION.md + 08-01-PLAN.md committed)
+**Plan:** 1/1 — single plan covering BUG-01..03 via candidate (a) minimal patch
+**Status:** Ready to execute; next: `/gsd-execute-phase 8` (Phase 7 verification deferred; can be run in parallel via `/gsd-verify-phase 7`)
+**Last activity:** 2026-05-19 — Phase 8 plan-phase complete. Light research pass per D-04 confirmed root cause + ruled out build.py / vault as contributors. Initial recommendation candidate (c) (`1fr 420px` + `start`) was revised to candidate (a) (`start` only) when inner-grid sizing arithmetic showed (b)/(c) would push ~540px of unwrapped mono content into ~174px usable cells with no word-break policy — trading the empty-rectangle bug for a text-overflow bug. Plan is 1 plan / 4 tasks / 2 commits / 1 user-checkpoint. Phase 7 (Reconciliation) remains complete (5/31 v2 REQ-IDs delivered); Phase 8 is parallel-eligible per ADR-0001 D-03.
 
 ```
 [████████████████░░░░] 80% — Phase 7 complete (5/31 v2 REQ-IDs delivered)
@@ -80,10 +80,10 @@ All Phase 7 open items resolved during execution:
 
 ## Session Continuity
 
-**Last action:** `/gsd-discuss-phase 8` completed 2026-05-19. CONTEXT.md + DISCUSSION-LOG.md written under `.planning/phases/08-bug-fix-dataset-formatting/`. Phase 8 boundary locked: minimal-patch fix scope · fuelhh + 1 Elexon + ENTSO-E desktop + fuelhh mobile breakpoints verification · no new regression guard · light research pass to confirm provisional diagnosis at `dataset.html.j2:18`. User signalled "ROADMAP goal IS the decision basis" — all 4 gray areas resolved under Claude's Discretion.
-**Next action:** Run `/gsd-plan-phase 8 --skip-ui` to produce Phase 8 plan(s). Researcher prompt should be bounded to `templates/dataset.html.j2` lines 1-70 + relevant `theme.css` rules; do NOT fan out to build.py / vault frontmatter unless researcher flags one as contributing cause.
-**Resume from:** Phase 8 plan (`/gsd-plan-phase 8 --skip-ui`). Context at `.planning/phases/08-bug-fix-dataset-formatting/08-CONTEXT.md`. Phase 7 verification (`/gsd-verify-phase 7`) remains available in parallel — Phase 7 and 8 are independent per ADR-0001 D-03.
+**Last action:** `/gsd-plan-phase 8 --auto` completed 2026-05-19. RESEARCH.md + VALIDATION.md + 08-01-PLAN.md written under `.planning/phases/08-bug-fix-dataset-formatting/`. Root cause confirmed at `dataset.html.j2:18`. Fix candidate evaluation: initial (c) revised to (a) only after inner-grid sizing arithmetic surfaced a text-overflow regression in (b)/(c) — the rejection rationale is captured verbatim in RESEARCH.md "Why (b) and (c) were rejected on a second look". Plan = 1 plan / 4 tasks / 2 commits / 1 user-checkpoint (Task 3, `autonomous: false`, per D-02). theme.css intentionally untouched (existing `[style*="1fr auto"]` mobile-stack selector continues to match unchanged column declaration).
+**Next action:** Run `/gsd-execute-phase 8` to apply the template edit, re-render 34 dataset pages, take the user-checkpoint, and run the 3 v1 CI gates. Phase 7 verification (`/gsd-verify-phase 7`) remains available in parallel — Phase 7 and 8 are independent per ADR-0001 D-03.
+**Resume from:** Phase 8 execute (`/gsd-execute-phase 8`). Plan at `.planning/phases/08-bug-fix-dataset-formatting/08-01-PLAN.md`. Task 3 user-checkpoint will require the user's reply "Phase 8 BUG-02 verified" — the executor must stop and wait for that reply before proceeding to Task 4.
 
 ---
 
-*State updated 2026-05-19 — Phase 8 discuss-phase complete. CONTEXT.md committed with all 4 gray areas locked. 5/31 v2 REQ-IDs delivered (Phase 7 RECON-01..RECON-05). Next: /gsd-plan-phase 8 --skip-ui.*
+*State updated 2026-05-19 — Phase 8 plan-phase complete. 1 plan / 4 tasks / 2 commits / 1 user-checkpoint. 5/31 v2 REQ-IDs delivered (Phase 7 RECON-01..RECON-05). Next: /gsd-execute-phase 8.*

@@ -48,7 +48,8 @@
   1. The offending location is named in writing (commit message or PR body) — one of: a specific block in `src/gridflow_front_end/templates/dataset.html.j2`, a specific rule in `site/hifi/assets/theme.css`, a specific frontmatter field in `vault/elexon/<dataset>.md`, or a specific transform in `src/gridflow_front_end/build.py` — and a fix path is chosen and applied
   2. After running `gridflow-build`, visiting `/data-sources/elexon/fuelhh.html` plus one randomly-spot-checked Elexon dataset page shows the top-of-page section visually correct (user-verified, no remaining layout/typography glitch); diff vs pre-fix HTML is contained to template/CSS output, not stray content drift
   3. `gridflow-build --check` exits 0 on the regenerated set (idempotence holds); `htmlhint --config .htmlhintrc 'site/hifi/**/*.html'` exits 0; `lychee --offline --include-fragments site/hifi/**/*.html` exits 0 — all three v1 CI gates remain green
-**Plans**: TBD
+**Plans**: 1 plan created and self-checked (single-plan minimal-patch per CONTEXT.md D-01):
+- [08-01-PLAN.md](./phases/08-bug-fix-dataset-formatting/08-01-PLAN.md) — BUG-01, BUG-02, BUG-03 · Wave 1 · `autonomous: false` (user-checkpoint at Task 3 per D-02) · fix candidate (a) only — single token `align-items: end` → `start` at `dataset.html.j2:18`, no theme.css edit per RESEARCH.md candidate evaluation
 **UI hint**: yes
 
 ### Phase 9: ENTSO-E full coverage
@@ -106,7 +107,7 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
 | 7. Reconciliation | 4/4 | Complete | 2026-05-19 |
-| 8. Dataset-page formatting bug fix | 0/? | Not started | — |
+| 8. Dataset-page formatting bug fix | 0/1 | Plan ready | — |
 | 9. ENTSO-E full coverage | 0/? | Not started | — |
 | 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started | — |
 
