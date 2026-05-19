@@ -84,6 +84,15 @@ All Phase 7 open items resolved during execution:
 **Next action:** Run `/gsd-execute-phase 8` to apply the template edit, re-render 34 dataset pages, take the user-checkpoint, and run the 3 v1 CI gates. Phase 7 verification (`/gsd-verify-phase 7`) remains available in parallel — Phase 7 and 8 are independent per ADR-0001 D-03.
 **Resume from:** Phase 8 execute (`/gsd-execute-phase 8`). Plan at `.planning/phases/08-bug-fix-dataset-formatting/08-01-PLAN.md`. Task 3 user-checkpoint will require the user's reply "Phase 8 BUG-02 verified" — the executor must stop and wait for that reply before proceeding to Task 4.
 
+**Execute-phase preconditions (known dirty-tree state):**
+Before running `/gsd-execute-phase 8` the executor must reconcile the pre-existing working-tree state. As of plan-phase commit `55ff73a` the following non-Phase-8 items are present:
+- `M CLAUDE.md` — uncommitted vault-edit-cadence addition (a `Vault edit cadence` bullet under Working agreements) likely from a prior Phase 7 / 07-04 session
+- `?? .planning/phases/07-reconciliation/07-UAT.md` — untracked Phase 7 UAT file from a prior session
+
+The Phase 8 plan's "clean working tree" checks at Task 2 Step 1 and Task 4 Step 1 / Step 5 use `git status --porcelain` and STOP on any unexpected `M` line. The executor must either (a) commit CLAUDE.md and 07-UAT.md as a `docs:` cleanup commit BEFORE running execute-phase, or (b) recognize them as pre-existing and adapt the dirty-tree check at runtime. Option (a) is strongly recommended because it makes the diff scope of Phase 8's `fix(08-01)` commits unambiguous.
+
+**Also: skills-lock.json, uv.lock, and .agents/ are untracked tooling artefacts** that are gitignored intent but not currently in .gitignore. The Phase 8 plan's dirty-tree checks already explicitly exclude these three via `grep -v -e '.agents/' -e 'skills-lock.json' -e 'uv.lock'` (Task 4 verify block).
+
 ---
 
 *State updated 2026-05-19 — Phase 8 plan-phase complete. 1 plan / 4 tasks / 2 commits / 1 user-checkpoint. 5/31 v2 REQ-IDs delivered (Phase 7 RECON-01..RECON-05). Next: /gsd-execute-phase 8.*

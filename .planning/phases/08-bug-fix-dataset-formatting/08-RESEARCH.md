@@ -23,7 +23,7 @@ research_budget: ~15% (bug fix, D-04 light pass)
 The user-reported top-of-page glitch on `site/hifi/data-sources/elexon/fuelhh.html`
 is **a desktop-only CSS layout defect** in the rendered hero region (the block
 between the breadcrumb and the stats strip). The defect originates entirely in
-`src/gridflow_front_end/templates/dataset.html.j2` lines 18-65 — specifically
+`templates/dataset.html.j2` lines 18-65 — specifically
 the outer hero grid declaration on line 18 — and is **not** an artefact of
 `build.py`, vault frontmatter, or any CSS rule in `theme.css`. `theme.css` is
 victim, not cause: it correctly handles the hero at ≤720px (see line 821-829)
