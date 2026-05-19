@@ -1,6 +1,7 @@
 ---
-status: open
+status: closed
 created: 2026-05-19
+closed-at: 2026-05-19
 vendor: entsog
 dataset: physical_flows
 drift_category: Structural
@@ -39,4 +40,4 @@ After Vault edit, re-vendor and rebuild. The schema table length will shrink sig
 
 ## Comments
 
-<!-- empty until 07-03 acts on this -->
+Closed 2026-05-19 in plan 07-03. Vault file updated in quant-vault (Task 1) and re-vendored byte-identically to gridflow-front-end/vault/ (Task 2). Fix anchored to D-01: Canonical Pydantic schema is the source of truth; Vault table now matches.
