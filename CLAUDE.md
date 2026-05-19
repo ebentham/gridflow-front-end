@@ -91,3 +91,17 @@ CI will need both vault and gridflow checkouts available when running `gridflow-
 - `/gsd-progress` — check progress / advance workflow
 
 The full GSD command catalogue is in `~/.claude/get-shit-done/`.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as markdown files under `.planning/issues/<feature>/` and `.planning/reconciliation/<vendor>/` — same surface as the rest of the GSD planning state. GitHub Issues are not used. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical labels — `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — one `CONTEXT.md` + `docs/adr/` at the repo root. Sibling repos (`gridflow`, `gridflow-models`) keep their own domain docs. See `docs/agents/domain.md`.

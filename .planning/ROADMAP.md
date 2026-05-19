@@ -1,16 +1,120 @@
 # Roadmap
 
-**Milestone:** v1 cleanup — credibility-recovery pass on the gridflow-front-end portfolio site
-**Created:** 2026-05-17
-**Granularity:** standard (5–8 phases)
-**Parallelization:** enabled (Phase 1 ‖ Phase 2 after Phase 0)
-**Coverage:** 50/50 REQ-IDs mapped to exactly one phase
+**Milestone:** v2 full-vendor-coverage (Active) · v1 cleanup (Complete, historical record below)
+**Created:** 2026-05-17 (v1) · Extended 2026-05-18 (v2) · Rescoped 2026-05-19 (Phase 7 Reconciliation inserted; existing 7→8, 8→9, 9→10 per ADR-0001)
+**Granularity:** standard
+**Parallelization:** enabled (sequential 7 → 8 → 9 → 10 recommended; Phase 8 — bug fix — is independent of Phase 7 per ADR-0001 D-03; see Phase Dependencies)
+**Coverage:** 31/31 v2 REQ-IDs mapped (5 RECON-* added with the Phase 7 rescope) + 50/50 v1 REQ-IDs delivered
 
 ## Goal
 
-When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Ship the site to that bar — 33 Elexon datasets at `fuelhh` fidelity, an ENTSO-E cross-vendor proof, no fake-live framing, mobile-functional, single source of truth for content (Obsidian Vault → Jinja2 build → static HTML).
+**v2 milestone goal:** A recruiter clicks any vendor on the data-sources hub and sees a complete dataset catalog; clicks any dataset and gets full documentation (overview · schema · sample · API · caveats · related) at `fuelhh` fidelity. Site-wide total: **163 datasets across 6 vendors** (Elexon 33 · ENTSO-E 49 · ENTSO-G 33 · GIE 8 · NESO 34 · Open-Meteo 6). The build script stays idempotent, CI-gated, and vault-driven across the expanded surface; the editorial-quiet aesthetic and honest framing established in v1 hold across all 129 new pages.
 
-## Phases
+**v1 milestone goal (delivered 2026-05-18):** Recruiter-credible portfolio at `fuelhh` fidelity for 33 Elexon datasets + ENTSO-E cross-vendor proof, no fake-live framing, mobile-functional, vault → site templating pipeline shipped.
+
+---
+
+## v2 Phases (Active)
+
+- [ ] **Phase 7: Reconciliation** — Wrap the existing verifier as `gridflow-drift-check`; run Verification across all 6 Vendors; triage every Drift finding into `open` / `wontfix-v3` / `needs-info`+`defer-entitlement`; land Vault edits for the fixable bucket; commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002 *(gating for content phases 9 and 10; independent of Phase 8 per ADR-0001 D-03)*
+- [ ] **Phase 8: Dataset-page formatting bug fix** — Diagnose and fix the top-of-page formatting bug confirmed on `fuelhh.html`; verify the fix propagates cleanly to all 34 existing pages before scaling to 129 more *(layout/typography work, independent of Reconciliation)*
+- [ ] **Phase 9: ENTSO-E full coverage** — Vendor 48 new ENTSO-E `.md` files; extend `entsoe.json` to 49 datasets; render all 49 pages at `fuelhh` fidelity; upgrade hub from 1-dataset proof to 49-dataset catalog *(stress-tests the template at scale on a non-Elexon vendor — different schema vocabulary: codelists, PSR types, BIDDING_ZONE references; ENTSO-E entitlement choice — extend access vs skip-with-warn — lands in this phase's discuss-phase per Phase 7 D-06)*
+- [ ] **Phase 10: Four-vendor batch coverage + site-wide consistency** — Vendor and render ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new pages; move 4 vendor entries from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`; update site-wide count strings to 163; every vendor row on the catalog links to a real hub
+
+## v2 Phase Details
+
+### Phase 7: Reconciliation
+**Goal**: A verified Vault layer trusted as the input for content phases. Wrap the existing `quant-vault/30-vendors/scripts/verify_curl_and_silver_schema.py` as the `gridflow-drift-check` console script (renaming, fixing the two Windows-specific portability blockers); run Verification across all 6 Vendors; surface findings as local markdown under `.planning/reconciliation/<vendor>/<NN>-<slug>.md`; triage each into `open` (fixable in v2) / `wontfix` `reason: v3-candidate` (needs gridflow code changes) / `needs-info` `reason: defer-entitlement` (e.g. ENTSO-E entitlement); fix the `open` bucket via upstream Vault edits and re-vendor into `gridflow-front-end/vault/<vendor>/`; commit the upstream Vault to a new private GitHub repo `EBentham/quant-vault` (no GitHub App auth — cross-repo CI explicitly deferred per ADR-0002). After Phase 7, content phases (9 — ENTSO-E, 10 — four-vendor batch) build pages from a Vault we trust. Overrides the v1 "no upfront audit phase" decision per ADR-0001.
+**Depends on**: Nothing (gating for content phases 9 and 10; independent of Phase 8 — bug fix — per Phase 7 D-03)
+**Requirements**: RECON-01, RECON-02, RECON-03, RECON-04, RECON-05
+**Success Criteria** (what must be TRUE):
+  1. `gridflow-drift-check` exists as a console script on path (renamed from `verify_curl_and_silver_schema.py`), portable to Linux CI — the two Windows-specific blockers (`args[0] = "curl.exe"` at L180, hardcoded `C:\Users\Bobbo\...` default at L20-26) are parameterised; a `[drift]` extra is declared in the relevant `pyproject.toml` (planner picks vault vs front-end per Q-DD-16)
+  2. Verification runs against all 6 Vendors and produces JSON + markdown reports; every Vendor under `.planning/reconciliation/<vendor>/` has a finding file for every Drift instance Verification surfaces; each finding carries a `status:` (`open` | `wontfix` | `needs-info`) and a `reason:` (where applicable: `v3-candidate` | `defer-entitlement`); the load-bearing findings from `DRIFT-SURFACES.md` §§ 4.1, 4.2, 4.4, 4.5, 4.6 are all surfaced (acceptance gate — if the verifier misses one of these, the wiring is wrong)
+  3. The `open` bucket is closed: Vault edits land in the upstream `quant-vault` (now on GitHub — see #4) and re-vendored into `gridflow-front-end/vault/<vendor>/`; the vendored snapshot matches the reconciled upstream Vault; re-running `gridflow-drift-check` returns "no new Drift" (or only documented `wontfix-v3` / `needs-info` Drift)
+  4. The upstream Vault is committed to a new private GitHub repo `EBentham/quant-vault`, no GitHub App auth configured (per ADR-0002); the v1 vendoring pattern (`gridflow-front-end/vault/<vendor>/` as a snapshot) is preserved
+  5. v1 CI gates remain green on `gridflow-front-end`: `htmlhint`, `lychee --offline --include-fragments`, and `gridflow-build --check` idempotence (Phase 7 should not change the deploy contract; it only changes the Vault content the build consumes)
+**Plans**: 4 sub-plans planned (per Phase 7 D-05): `07a` verifier wrap · `07b` run Verification + triage · `07c` fix open bucket + re-vendor · `07d` push Vault to private GitHub
+**UI hint**: no (this phase has no UI surface; Site-rendering is downstream)
+
+### Phase 8: Dataset-page formatting bug fix
+**Goal**: Root-cause and fix the top-of-page formatting bug confirmed on `fuelhh.html` before scaling 129 new pages off the same template. Whatever the offending location (Jinja2 template / shared `theme.css` / vault `.md` frontmatter / build-script transform), it gets named and corrected in one place; the fix propagates via `gridflow-build` to all 34 existing pages with zero regression on the v1 honesty / a11y / mobile guarantees. This phase is gating for the content phases: shipping 163 pages off a broken template multiplies the defect by 163×. Independent of Phase 7 (Reconciliation) per ADR-0001 D-03 — the bug is in the rendering layer, not the Vault content layer.
+**Depends on**: Nothing hard (v1 milestone is complete; Phase 7 — Reconciliation — runs in parallel). Sequential 7 → 8 is **not** required.
+**Requirements**: BUG-01, BUG-02, BUG-03
+**Success Criteria** (what must be TRUE):
+  1. The offending location is named in writing (commit message or PR body) — one of: a specific block in `src/gridflow_front_end/templates/dataset.html.j2`, a specific rule in `site/hifi/assets/theme.css`, a specific frontmatter field in `vault/elexon/<dataset>.md`, or a specific transform in `src/gridflow_front_end/build.py` — and a fix path is chosen and applied
+  2. After running `gridflow-build`, visiting `/data-sources/elexon/fuelhh.html` plus one randomly-spot-checked Elexon dataset page shows the top-of-page section visually correct (user-verified, no remaining layout/typography glitch); diff vs pre-fix HTML is contained to template/CSS output, not stray content drift
+  3. `gridflow-build --check` exits 0 on the regenerated set (idempotence holds); `htmlhint --config .htmlhintrc 'site/hifi/**/*.html'` exits 0; `lychee --offline --include-fragments site/hifi/**/*.html` exits 0 — all three v1 CI gates remain green
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 9: ENTSO-E full coverage
+**Goal**: Render the remaining 48 ENTSO-E datasets at `fuelhh` fidelity; upgrade `/data-sources/entsoe.html` from a 1-dataset proof to a 49-dataset catalog. This is the biggest single vendor in v2 and uses materially different schema vocabulary from Elexon — codelists, PSR-type taxonomy, BIDDING_ZONE references, quarter-hour settlement — so it stress-tests the post-Phase-8 template against a non-Elexon vendor at scale before the simpler four-vendor batch in Phase 10. The ENTSO-E entitlement question (33 HTTP 401 datasets deferred from Phase 7 per D-06) is resolved in this phase's discuss-phase before content build proceeds.
+**Depends on**: Phase 7 (reconciled Vault input — including ENTSO-E `needs-info` finding files for the 33 entitlement-blocked datasets) AND Phase 8 (template fix must land before scaling 48 new pages off it)
+**Requirements**: ENTSOE-01, ENTSOE-02, ENTSOE-03, ENTSOE-04, ENTSOE-05
+**Success Criteria** (what must be TRUE):
+  1. `ls vault/entsoe/*.md | wc -l` returns 49 (1 existing + 48 newly vendored from the reconciled `quant-vault/30-vendors/entsoe/datasets/`); upstream provenance recorded in the vendoring commit; ENTSO-E entitlement decision (extend access vs `skip-with-warn`) documented in this phase's CONTEXT.md per Phase 7 D-06
+  2. `site/hifi/data/entsoe.json` contains exactly 49 dataset entries, grouped into ENTSO-E categories (generation / load / transmission / outages / capacity / prices, or whatever taxonomy the vault carries); the manifest validates against the build script's expectations
+  3. Running `gridflow-build` produces 49 HTML files under `site/hifi/data-sources/entsoe/`; visiting any one renders all six sidebar anchors (`#overview`, `#schema`, `#sample`, `#api`, `#caveats`, `#related`) and each resolves to a real `<section id>`; every page shows the `verified-against-vendor-docs: YYYY-MM-DD` micro-line; ENTSO-E codelist / PSR-type vocabulary renders cleanly (no raw codelist IDs leaking into prose); schema reference present or `requires additional entitlement` caveat where applicable (per the entitlement decision)
+  4. Visiting `/data-sources/entsoe.html` shows a 49-dataset catalog rendered from `vendor-hub.html.j2` over the expanded `entsoe.json`; the hub header reflects 49 datasets, not 1
+  5. `gridflow-build --check` exits 0 on the expanded ENTSO-E set (idempotence holds across 49 pages); `htmlhint` and `lychee --offline --include-fragments` exit 0 with zero new dead anchors or structural HTML breakage
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 10: Four-vendor batch coverage + site-wide consistency
+**Goal**: Ship the remaining four vendors as a batch — ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new dataset pages — and close the v2 milestone with site-wide consistency: every vendor on `data-sources.html` links to a real hub, dataset count strings reflect the v2 total of 163, and zero coming-soon stub links remain in the catalog table. Content shape for these four vendors is simpler than ENTSO-E (smaller per-vendor surface, fewer codelist quirks), and by this point the template has been proven by Phase 9 at scale on a non-Elexon vendor, so the work is mechanical: vendor `.md` (from the reconciled Vault), author manifest, move `build.py` entry from `COMING_SOON_VENDORS` to `REAL_VENDORS`, run build, verify CI.
+**Depends on**: Phase 7 (reconciled Vault input, including ENTSO-G `physical_flows` 35-field rewrite and the 4 ENTSO-G 404 endpoints handled) AND Phase 8 (template fix is the hard prerequisite). Sequential execution after Phase 9 is recommended (not required) to avoid merge conflicts on `data-sources.html` and on the `REAL_VENDORS` dict in `src/gridflow_front_end/build.py`, and to keep PR review surfaces tractable.
+**Requirements**: ENTSOG-01, ENTSOG-02, ENTSOG-03, ENTSOG-04, GIE-01, GIE-02, GIE-03, GIE-04, NESO-01, NESO-02, NESO-03, NESO-04, METEO-01, METEO-02, METEO-03, METEO-04, SITE-01, SITE-02
+**Success Criteria** (what must be TRUE):
+  1. Vault snapshot expanded: `ls vault/entsog/*.md | wc -l` = 33; `ls vault/gie/*.md | wc -l` = 8 (or split across `vault/gie_agsi/` + `vault/gie_alsi/` if the Phase 9 plan keeps the split — totalling 8); `ls vault/neso/*.md | wc -l` = 34; `ls vault/openmeteo/*.md | wc -l` = 6 — 81 new files in total, vendored from upstream `quant-vault`
+  2. Four manifests authored and validated: `site/hifi/data/entsog.json` (33 datasets), `site/hifi/data/gie.json` or split `gie_agsi.json` + `gie_alsi.json` (8 datasets), `site/hifi/data/neso.json` (34 datasets), `site/hifi/data/openmeteo.json` (6 datasets); each lists the correct dataset count; each groups datasets per vendor taxonomy
+  3. Running `gridflow-build` produces 81 new HTML files (33 + 8 + 34 + 6) under `site/hifi/data-sources/<vendor>/`; spot-checking any one across each vendor confirms `fuelhh` fidelity (all six sidebar anchors resolve to real `<section id>`s; `verified-against-vendor-docs` micro-line present; schema reference or drift-surface flag)
+  4. In `src/gridflow_front_end/build.py`, the `entsog`, `gie` (or `gie_agsi` + `gie_alsi`), `neso`, and `openmeteo` entries are removed from `COMING_SOON_VENDORS` and added to `REAL_VENDORS` with full `vendor_meta` config (label, doc_base, description, etc.); `grep -n COMING_SOON_VENDORS src/gridflow_front_end/build.py` shows none of those four vendor keys remain; the four hubs at `/data-sources/<vendor>.html` render from `vendor-hub.html.j2`, not `vendor-coming-soon.html.j2`
+  5. Site-wide dataset count strings consistently show 163 across `site/hifi/index.html` stat strip, footer line in `site/hifi/assets/site.js`, and `site/hifi/data-sources.html` catalog header; `grep -rn "33 Elexon" site/hifi/` returns only the on-purpose Elexon-specific row (not a stale total); `grep -rn 'href="/data-sources/[a-z_]*\.html"' site/hifi/data-sources.html` confirms every vendor row links to a real hub with zero remaining coming-soon stub links in the catalog table
+  6. `gridflow-build --check` exits 0 across all 163 pages (idempotence holds at the v2 final scale); `htmlhint --config .htmlhintrc 'site/hifi/**/*.html'` exits 0; `lychee --offline --include-fragments site/hifi/**/*.html` exits 0 — all three v1 CI gates green on the expanded 6-vendor surface
+**Plans**: TBD
+**UI hint**: yes
+
+## Phase Dependencies
+
+```
+v1 milestone (Phases 0–6) — Complete 2026-05-18
+   │
+   ├── Phase 7 (Reconciliation) — GATING for content phases 9 and 10  ┐
+   │                                                                  │ parallel-eligible
+   └── Phase 8 (dataset-page formatting bug fix) — GATING for 9 and 10┘
+          │
+          └── Phase 9 (ENTSO-E full coverage)
+                 │
+                 └── Phase 10 (four-vendor batch + site-wide consistency)
+```
+
+**Sequential note:** Phase 7 (Reconciliation) and Phase 8 (bug fix) are **parallel-eligible** per ADR-0001 D-03 — Reconciliation operates on the Vault content layer; the bug fix operates on the rendering layer (Jinja2 template / `theme.css` / build script). Neither blocks the other. Phase 9 (ENTSO-E) and Phase 10 (four-vendor batch) **both** depend on Phase 7 (reconciled Vault input) **and** Phase 8 (fixed template). Running 7 → 8 → 9 → 10 in series is still **recommended** to avoid merge churn on `vault/<vendor>/` snapshot vendoring and to keep PR review surfaces tractable — running 7 || 8 in parallel adds a merge surface on `vault/<vendor>/` (Phase 7 edits) vs the build script / template (Phase 8 edits) that's manageable but not free. Sequential 7 → 8 also makes Phase 8's success criterion #3 (CI gates green on regenerated set) trivially true because the regenerated set already includes the Reconciliation-fixed Vault.
+
+## Progress Table
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 0. Commit in-flight refactor | 1/1 | Complete | 2026-05-18 |
+| 1. Trivial bug fixes | inline | Complete | 2026-05-18 (PR #4) |
+| 2. Shared CSS/JS extraction | inline | Complete | 2026-05-18 (PR #5) |
+| 3. Build mechanism + Elexon dataset depth | inline | Complete | 2026-05-18 (PR #6) |
+| 4. Cross-vendor proof + dead-link real fix | inline | Complete | 2026-05-18 (PR #7) |
+| 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
+| 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
+| 7. Reconciliation | 0/4 (planned) | Context gathered | — |
+| 8. Dataset-page formatting bug fix | 0/? | Not started | — |
+| 9. ENTSO-E full coverage | 0/? | Not started | — |
+| 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started | — |
+
+v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 0/31 REQ-IDs delivered (5 RECON-* added with the Phase 7 rescope).
+
+---
+
+## v1 Phases (Complete — historical record)
+
+The v1 cleanup milestone completed 2026-05-18 with 50/50 REQ-IDs delivered. Full per-success-criterion audit in [`MILESTONE-COMPLETE.md`](./MILESTONE-COMPLETE.md). Phase details below are preserved verbatim from the original v1 roadmap so future contributors can trace what each REQ-ID mapped to.
+
+### v1 Phase Summary
 
 - [x] **Phase 0: Commit in-flight refactor** — Land the 26 modified files as 4 logical commits + `.gitattributes`; clean working tree is the gating prerequisite for everything else *(completed 2026-05-18)*
 - [x] **Phase 1: Trivial bug fixes** — Mobile viewport tag find-and-replace, `LICENSE` file + aligned strings, `rel="noopener"` on the two missing links (parallelisable with Phase 2) *(completed 2026-05-18)*
@@ -20,9 +124,9 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 - [x] **Phase 5: Honesty sweep + a11y + mobile CSS + main-page polish** — Atomic kill of all 6 "live"-framing surfaces; mobile CSS in `theme.css`; `<main>` + `aria-current` + `aria-label` + `aria-hidden` minimums; editorial polish pass on index, architecture, data-sources hub *(completed 2026-05-18, PR #8)*
 - [x] **Phase 6: CI validation** — `htmlhint` + `lychee` + build-idempotence check in `.github/workflows/deploy.yml` before `upload-pages-artifact` *(completed 2026-05-18, PR #9 + #10 + #11 fix-ups)*
 
-## Phase Details
+### v1 Phase Details
 
-### Phase 0: Commit in-flight refactor
+#### Phase 0: Commit in-flight refactor
 **Goal**: Clean working tree with the 26-file refactor split into 4 logical commits, line-ending churn permanently stopped via `.gitattributes`. Every subsequent commit can be reviewed without entangling three concurrent refactors.
 **Depends on**: Nothing (gating prerequisite — blocks all other phases per all four research streams)
 **Requirements**: HYG-01, HYG-02
@@ -33,7 +137,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 **Plans**: 1 plan
 - [x] 00-01-PLAN.md — Planner-record commit + 4 cleanup chunks + 2 hygiene + ROADMAP SC#1 reconciliation + PR/merge/Pages-verify (11 sequential tasks, Wave 1) *(completed 2026-05-18, PR #3 merged)*
 
-### Phase 1: Trivial bug fixes
+#### Phase 1: Trivial bug fixes
 **Goal**: Ship the no-architectural-dependency one-line fixes that block mobile usability and license credibility, in parallel with Phase 2. These are cosmetic-class to a recruiter spot-check yet high-leverage (mobile viewport is the single highest-leverage fix in the milestone per Pitfall 10).
 **Depends on**: Phase 0
 **Requirements**: MOB-01, HON-04, A11Y-06
@@ -43,7 +147,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
   3. Both `target="_blank"` links currently missing `rel="noopener"` (architecture.html ~line 1156, data-sources/elexon.html ~line 41) now carry the attribute
 **Plans**: TBD
 
-### Phase 2: Shared CSS/JS extraction
+#### Phase 2: Shared CSS/JS extraction
 **Goal**: Remove the structural duplication that blocks templating in Phase 3 and inflates every cross-cutting change to a 22-file edit. Output is a single source of truth for dataset-page styling and the scroll-spy + tabs helpers, used by the Phase 3 template.
 **Depends on**: Phase 0
 **Requirements**: REF-01, REF-02, REF-03, A11Y-05
@@ -55,7 +159,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 3: Build mechanism + Elexon dataset depth
+#### Phase 3: Build mechanism + Elexon dataset depth
 **Goal**: Stand up the Python+Jinja2 `gridflow-build` CLI over Obsidian Vault content (vault → site direction), regenerate the 6 currently-complete pages to byte-equivalent state to validate the template captures existing fidelity, then ship all 33 Elexon datasets at `fuelhh` fidelity. After this phase, editing dataset content means editing one vault `.md` file; layout changes mean editing one template.
 **Depends on**: Phase 0, Phase 2 (template inputs must reference shared CSS/JS, not duplicated inline blocks)
 **Requirements**: BUILD-01, BUILD-02, BUILD-03, BUILD-04, BUILD-05, BUILD-06, BUILD-07, BUILD-08, VAULT-01, VAULT-02, VAULT-03, VAULT-04, ELX-01, ELX-02, ELX-03, ELX-04, ELX-05, ELX-06, ELX-07, ELX-08
@@ -68,7 +172,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 4: Cross-vendor proof + dead-link real fix
+#### Phase 4: Cross-vendor proof + dead-link real fix
 **Goal**: Prove the templating from Phase 3 generalises across vendors by shipping an ENTSO-E hub + "Generation by PSR type" dataset at `fuelhh` fidelity (template-stretching choice: quarter-hour settlement + PSR-type taxonomy). In the same pass, replace every `<a href="#">` placeholder on the data-sources hub with a real link — either a real vendor hub (Elexon, ENTSO-E) or a visually-distinct coming-soon stub for the 5 deferred vendors.
 **Depends on**: Phase 3 (cross-vendor extrapolation requires Elexon template consistency; coming-soon stubs use `vendor-coming-soon.html.j2`)
 **Requirements**: VEND-01, VEND-02, VEND-03, VEND-04, VEND-05, PAGE-03
@@ -79,7 +183,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 5: Honesty sweep + a11y + mobile CSS + main-page polish
+#### Phase 5: Honesty sweep + a11y + mobile CSS + main-page polish
 **Goal**: Run the atomic honesty pass that kills all 6 "live"-framing surfaces in one go (per Pitfall 1 — touching only some is worse than touching none), land the mobile CSS the dataset pages never had, add the a11y landmark minimums, and polish the three hand-authored main pages (home, architecture, data-sources hub). Because Phase 3 made dataset pages template-generated, this is a small number of template edits rather than 33 per-page find-and-replace.
 **Depends on**: Phase 3 (template-generated pages absorb the changes in one place), Phase 4 (newly-shipped ENTSO-E and coming-soon stubs are cleaned in the same pass)
 **Requirements**: HON-01, HON-02, HON-03, MOB-02, MOB-03, A11Y-01, A11Y-02, A11Y-03, A11Y-04, PAGE-01, PAGE-02, PAGE-04
@@ -91,7 +195,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 6: CI validation
+#### Phase 6: CI validation
 **Goal**: Lock in the milestone's structural wins with cheap automated checks that catch the exact bug class motivating v1 — broken dataset stubs, dead links, phantom sidebar anchors, build-idempotence regressions.
 **Depends on**: Phase 3 (build-idempotence check requires the build script to exist), Phase 5 (link-checker assumes pages have stabilised)
 **Requirements**: CI-01, CI-02, CI-03
@@ -101,7 +205,7 @@ When a recruiter spends 30 seconds on the site, the dominant impression is "this
   3. CI runs `gridflow-build` twice on the same vault checkout and fails the deploy if `git diff` of the output directory is non-empty (build-idempotence smoke test)
 **Plans**: TBD
 
-## Phase Dependencies
+### v1 Phase Dependencies
 
 ```
 Phase 0 (commit in-flight refactor) — GATING
@@ -119,23 +223,10 @@ Phase 0 (commit in-flight refactor) — GATING
                                └── Phase 6 (CI validation)
 ```
 
-**Parallelisation note:** Phase 1 and Phase 2 are independent after Phase 0 lands. Both can be developed and reviewed in parallel; merge order does not matter between them. Phases 3–6 are strictly sequential because each consumes the output of the previous (template + content depth → cross-vendor template proof → atomic sweep over the template-generated set → CI guarding the stabilised pages).
-
-## Progress Table
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 0. Commit in-flight refactor | 1/1 | Complete | 2026-05-18 |
-| 1. Trivial bug fixes | inline | Complete | 2026-05-18 (PR #4) |
-| 2. Shared CSS/JS extraction | inline | Complete | 2026-05-18 (PR #5) |
-| 3. Build mechanism + Elexon dataset depth | inline | Complete | 2026-05-18 (PR #6) |
-| 4. Cross-vendor proof + dead-link real fix | inline | Complete | 2026-05-18 (PR #7) |
-| 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
-| 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
-
-v1 milestone complete · 50/50 REQ-IDs delivered. See [`MILESTONE-COMPLETE.md`](./MILESTONE-COMPLETE.md) for the full success-criteria audit and the list of v2 candidates.
+**Parallelisation note (v1):** Phase 1 and Phase 2 were independent after Phase 0 landed. Phases 3–6 were strictly sequential because each consumed the output of the previous (template + content depth → cross-vendor template proof → atomic sweep over the template-generated set → CI guarding the stabilised pages).
 
 Phases 1–6 were planned inline during autonomous execution per `AUTONOMOUS-V1-BRIEF.md`'s authorization to skip `/gsd-plan-phase` for non-Phase-0 work.
 
 ---
-*Roadmap created 2026-05-17. Coverage: 50/50 REQ-IDs mapped. Source: PROJECT.md + REQUIREMENTS.md + research/SUMMARY.md + research/ARCHITECTURE.md + research/PITFALLS.md + codebase/CONCERNS.md.*
+
+*v1 roadmap created 2026-05-17 (50/50 REQ-IDs delivered 2026-05-18). v2 roadmap added 2026-05-18 (26 v2 REQ-IDs mapped, 0/26 delivered). Rescoped 2026-05-19 — Phase 7 Reconciliation inserted; existing 7→8, 8→9, 9→10. 5 RECON-* REQ-IDs added → 31/31 v2 coverage. Source for v2: PROJECT.md § Active + REQUIREMENTS.md § v2 Requirements + MILESTONE-COMPLETE.md + docs/adr/0001-reconciliation-phase-added-to-v2.md + docs/adr/0002-vault-hosted-private-github-repo.md + .planning/V2-PHASE-7-HANDOFF.md + .planning/phases/07-reconciliation/07-CONTEXT.md.*

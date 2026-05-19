@@ -12,11 +12,12 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 
 ## Current Milestone: v2 full-vendor-coverage
 
-**Goal:** Move every vendor on the site from "coming soon" to a complete dataset catalog. A recruiter clicks any vendor, sees a full dataset list; clicks any dataset, gets `fuelhh`-fidelity documentation (schema · sample · API · caveats · related). Ship 129 new dataset pages across ENTSO-E (48 new), ENTSO-G (33), GIE (8), NESO (34), and Open-Meteo (6) — total catalogue across 6 vendors reaches 163 datasets.
+**Goal:** Move every vendor on the site from "coming soon" to a complete dataset catalog. A recruiter clicks any vendor, sees a full dataset list; clicks any dataset, gets `fuelhh`-fidelity documentation (schema · sample · API · caveats · related). Ship 129 new dataset pages across ENTSO-E (48 new), ENTSO-G (33), GIE (8), NESO (34), and Open-Meteo (6) — total catalogue across 6 vendors reaches 163 datasets. **Front-loaded with a Reconciliation phase (per ADR-0001, 2026-05-19) that reconciles every Vendor's Vault layer against the Canonical before any content phase ships.**
 
 **Target features:**
-- Diagnose and fix the dataset-page top-of-page formatting bug (confirmed on `fuelhh.html`) before scaling
-- Render the remaining 48 ENTSO-E datasets at `fuelhh` fidelity; upgrade ENTSO-E hub from 1-dataset proof to a 49-dataset catalog
+- Reconcile the Vault layer: wrap the existing verifier as `gridflow-drift-check`, run Verification across all 6 Vendors, triage every Drift finding, fix the `open` bucket, and commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002
+- Diagnose and fix the dataset-page top-of-page formatting bug (confirmed on `fuelhh.html`) before scaling (parallel-eligible with the Reconciliation phase per ADR-0001 D-03)
+- Render the remaining 48 ENTSO-E datasets at `fuelhh` fidelity; upgrade ENTSO-E hub from 1-dataset proof to a 49-dataset catalog (the ENTSO-E entitlement decision lands in this phase's discuss-phase per Phase 7 D-06)
 - Render ENTSO-G (33), GIE (8), NESO (34), Open-Meteo (6) at `fuelhh` fidelity; upgrade their hubs from coming-soon stubs to real catalogs
 - Keep `gridflow-build` idempotent, CI-gated, and vault-driven across the expanded surface
 
@@ -46,9 +47,16 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 
 ### Active
 
-<!-- v2 full-vendor-coverage milestone. -->
+<!-- v2 full-vendor-coverage milestone. Rescoped 2026-05-19 per ADR-0001: new Phase 7 (Reconciliation) inserted ahead of content phases; existing Phases 7/8/9 renumbered to 8/9/10. -->
 
-**Dataset-page formatting bug (gating):**
+**Reconciliation (Phase 7, gating for content phases 9 and 10):**
+- [ ] Wrap `quant-vault/30-vendors/scripts/verify_curl_and_silver_schema.py` as the `gridflow-drift-check` console script; fix the two Windows-specific portability blockers
+- [ ] Run Verification across all 6 Vendors; produce JSON + markdown reports; emit a finding file under `.planning/reconciliation/<vendor>/<NN>-<slug>.md` for every Drift instance
+- [ ] Triage every finding into `open` (fixable in v2) / `wontfix` `reason: v3-candidate` (needs gridflow code changes) / `needs-info` `reason: defer-entitlement` (e.g. ENTSO-E entitlement)
+- [ ] Fix the `open` bucket: edit the upstream Vault, re-vendor into `gridflow-front-end/vault/<vendor>/`; re-run `gridflow-drift-check` to confirm no new Drift
+- [ ] Commit the upstream Vault to a new private GitHub repo `EBentham/quant-vault` per ADR-0002; no GitHub App auth
+
+**Dataset-page formatting bug (Phase 8, gating for content phases 9 and 10; parallel-eligible with Phase 7):**
 - [ ] Diagnose the top-of-page formatting bug confirmed on `fuelhh.html`; root-cause in template/CSS/vault content
 - [ ] Apply the fix and verify it propagates cleanly to all 34 existing dataset pages via `gridflow-build`
 - [ ] No regression on the v1 honesty / a11y / mobile guarantees
@@ -140,9 +148,13 @@ Domain depth wins every tradeoff: depth of dataset documentation > visual polish
 | **v1 Decision: Vault vendored in-repo at `vault/<vendor>/`, not cross-repo checkout** | Upstream `quant-vault` is not a GitHub repo, so CI cannot clone it. `--vault-path` / `$GRIDFLOW_VAULT_PATH` enables local dev against the live vault; CI uses the vendored snapshot | ✓ Locked (v1) — v2 extends snapshot to all 6 vendors |
 | **v1 Decision: Pydantic class drift policy = render-with-flag** | 22 of 33 Elexon datasets render "no dedicated Pydantic class declared yet — drift-surface flagged" rather than block the build. Honest gap-surfacing over fake-coverage | ✓ Locked (v1) — closing the gap is a v3 candidate |
 | **v1 Decision: Templates born honest** | `dataset.html.j2` never emits `chip live`, `LAST FETCH`, `N min ago`, or time-window pill chips. HON-01 grep checklist returns zero hits on generated pages by construction | ✓ Locked (v1) — v2 inherits the honest template |
-| **v2 Decision: Phase shape = bug fix + ENTSO-E + batch the rest (3 phases)** | Phase 7: bug fix (gating). Phase 8: ENTSO-E full coverage (48 new — biggest, proves template handles vendor stretch at scale). Phase 9: batch ENTSO-G + GIE + NESO + Open-Meteo (81 mechanical pages, template is proven by then) | — Pending (v2) |
-| **v2 Decision: Assume vault content complete; no upfront audit phase** | `gridflow-build --check` (existing VAULT-03 gate) surfaces gaps per-dataset. Trust the upstream vault has 163 documented datasets; audit only what the build flags | — Pending (v2) |
-| **v2 Decision: Strict scope discipline — no drift fix, related blurbs, or fuel-pill restoration** | All three are real gaps but v2 stays narrow on "full vendor coverage". v3 candidates: Pydantic drift closure, `related_blurbs:` vault field, `fuel_types: [...]` vault field | — Pending (v2) |
+| **v2 Decision (rescoped 2026-05-19): Phase shape = Reconciliation + bug fix + ENTSO-E + batch the rest (4 phases)** | Phase 7: Reconciliation (gating for content phases). Phase 8: bug fix (parallel-eligible with Phase 7). Phase 9: ENTSO-E full coverage (48 new — biggest, proves template handles vendor stretch at scale). Phase 10: batch ENTSO-G + GIE + NESO + Open-Meteo (81 mechanical pages, template is proven by then). Per ADR-0001 and Phase 7 D-05 | — Pending (v2) |
+| **v2 Decision: ~~Assume vault content complete; no upfront audit phase~~ (OVERRIDDEN 2026-05-19 by ADR-0001)** | `gridflow-build --check` is an *idempotence* check, not a content-accuracy check; drift research surfaced real shipped Drift on the live Site (`ndf`/`ndfd`/`fuelhh` `published_at` omission · 33 ENTSO-E 401s · ENTSO-G `physical_flows` 35-field mismatch). The accuracy constraint in § Constraints made the original decision untenable. See ADR-0001 | ✗ Overridden by Phase 7 (Reconciliation) |
+| **v2 Decision (2026-05-19): Vault is committed to a new private GitHub repo `EBentham/quant-vault`, no GitHub App auth** | Phase 7's Reconciliation work needs the Vault to be version-controlled. Private over public (privacy on a recruiter-facing portfolio); no GitHub App because cross-repo automated drift CI is not yet load-bearing for v2. Vendoring pattern (`gridflow-front-end/vault/<vendor>/` as snapshot) is preserved. See ADR-0002 | — Pending (v2, Phase 7d) |
+| **v2 Decision (2026-05-19): Reconciliation findings live as local markdown under `.planning/reconciliation/<vendor>/`, not GitHub Issues** | Avoids splitting workflow context across two systems. Matches the existing single-context discipline. Canonical labels per `docs/agents/triage-labels.md` (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/issue-tracker.md` | — Pending (v2, Phase 7b/c) |
+| **v2 Decision (2026-05-19): Pocock skill set (`to-issues`, `triage`) for Phase 7's exploratory work; GSD for pre-planned phases** | Phase 7 has inherent open-endedness — Verification surfaces unknown findings; Pocock's capture-triage-act shape fits better than GSD's task-list shape. Phases 8/9/10 stay on standard GSD flow | — Pending (v2, Phase 7b/c) |
+| **v2 Decision (2026-05-19): ENTSO-E entitlement (33 HTTP 401 cases) deferred from Phase 7 to Phase 9 discuss** | Phase 7 only triages as `needs-info`/`defer-entitlement`; the actual resolution (extend access vs `skip-with-warn`) binds on content shape which Phase 9 owns. Avoids blocking Phase 7 on unbounded vendor lead-time | — Pending (Phase 9 discuss) |
+| **v2 Decision: Strict scope discipline — no drift fix, related blurbs, or fuel-pill restoration** | All three are real gaps but v2 stays narrow on "full vendor coverage" + Reconciliation. v3 candidates: Pydantic drift closure (declaring `ElexonAGPT` / `ElexonAGWS` / etc.), `related_blurbs:` vault field, `fuel_types: [...]` vault field. Phase 7 explicitly triages the 22 Elexon `manual_transformer_schema` cases as `wontfix`/`v3-candidate` | — Pending (v2) |
 
 ## Evolution
 
@@ -162,4 +174,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-18 — v2 milestone (full-vendor-coverage) started after v1 milestone completion (50/50 REQ-IDs delivered, deployed at https://ebentham.github.io/gridflow-front-end/).*
+*Last updated: 2026-05-19 — v2 milestone rescoped per `docs/adr/0001-reconciliation-phase-added-to-v2.md` and `docs/adr/0002-vault-hosted-private-github-repo.md`. New Phase 7 (Reconciliation) inserted at start of v2; existing Phases 7/8/9 renumbered to 8/9/10. Initial v2 milestone start was 2026-05-18 after v1 completion (50/50 REQ-IDs delivered, deployed at https://ebentham.github.io/gridflow-front-end/).*
