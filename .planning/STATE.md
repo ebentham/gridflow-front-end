@@ -10,12 +10,12 @@
 ## Current Position
 
 **Phase:** 7 — Reconciliation (CONTEXT.md captured 2026-05-19; 4 plans created + verified same day)
-**Plan:** 4/4 sub-plans created and verified by plan-checker (07-01 verifier wrap · 07-02 run Verification + triage · 07-03 fix open bucket + re-vendor · 07-04 push Vault to private GitHub)
-**Status:** Ready to execute (`/gsd-execute-phase 7`)
-**Last activity:** 2026-05-19 — `/gsd-plan-phase 7` completed; planner produced 4 sub-plans (~1887 lines total) honouring all 10 binding decisions D-01..D-10; plan-checker found 1 BLOCKER on 07-04 (file truncated due to socket drop), fixed via direct edit (added missing acceptance_criteria + done + threat_model + verification + success_criteria + output blocks; tag balance restored 3↔3); targeted re-check returned `## VERIFICATION PASSED`.
+**Plan:** 1/4 complete — 07-01 verifier wrap DONE; next: 07-02 run Verification + triage
+**Status:** Executing Phase 7 (`/gsd-execute-phase 7` — 07-01 complete)
+**Last activity:** 2026-05-19 — 07-01-verifier-wrap executed: renamed `verify_curl_and_silver_schema.py` → `gridflow_drift_check.py`, fixed two Windows portability blockers, exposed `gridflow-drift-check` console script via gridflow-front-end `pyproject.toml`. RECON-01 satisfied.
 
 ```
-[██░░░░░░░░░░░░░░░░░░] 10% — Phase 7 planned, ready to execute
+[███░░░░░░░░░░░░░░░░░] 15% — Phase 7 plan 1/4 complete
 ```
 
 ## Accumulated Context
@@ -48,6 +48,9 @@
 | 9 | Reconciliation findings live as local markdown under `.planning/reconciliation/<vendor>/`, not GitHub Issues | grill 2026-05-19 + 07-CONTEXT.md D-08 |
 | 10 | Vault committed to **private** GitHub repo `EBentham/quant-vault`, no GitHub App auth | ADR-0002 + discuss-phase 2026-05-19 + 07-CONTEXT.md D-09 |
 | 11 | Strict scope discipline — no Pydantic drift fix, related blurbs, or fuel-pill restoration in v2 | PROJECT.md Key Decisions (v2) |
+| 12 | [drift] extras = PyYAML only; pydantic comes transitively via gridflow sys.path insert (adding pydantic as wheel dep would conflict) | 07-01 execution 2026-05-19 |
+| 13 | `_discover_curl()` runs at module level on import (fail-loud on misconfigured env, T-07-01-04 accepted); shutil.which('curl') > shutil.which('curl.exe') > RuntimeError | 07-01 execution 2026-05-19 |
+| 14 | `gridflow-drift-check --help` not implemented; full verifier runs immediately — 07-02 must invoke without --help | 07-01 execution 2026-05-19 |
 
 ### Decisions Overridden (v2)
 
@@ -71,10 +74,10 @@
 
 ## Session Continuity
 
-**Last action:** `/gsd-plan-phase 7` completed 2026-05-19. Planner produced 4 sub-plans (07-01..07-04) totalling ~1887 lines, all 5 RECON-* REQ-IDs covered. Plan-checker initially found 1 BLOCKER (07-04 truncated due to socket drop mid-write); fixed via direct edit per checker's prescribed remedy; targeted re-check returned VERIFICATION PASSED. All 4 plans ready for execution.
-**Next action:** Run `/gsd-execute-phase 7` to execute Phase 7. Wave 1 = 07-01 → 07-02; Wave 2 = 07-03 → 07-04. Note: 07-04 has `autonomous: false` because `gh repo create` requires GitHub auth — manual checkpoint after Task 2 ("approved" sign-off after browser sanity-check).
-**Resume from:** `.planning/phases/07-reconciliation/07-01-verifier-wrap-PLAN.md` (Wave 1 entry point). All 4 plans + CONTEXT + DISCUSSION-LOG live under `.planning/phases/07-reconciliation/`.
+**Last action:** 07-01-verifier-wrap executed 2026-05-19. Two commits: `739c2ed` (refactor, quant-vault) + `87f0234` (feat, gridflow-front-end). RECON-01 satisfied. Summary at `.planning/phases/07-reconciliation/07-01-SUMMARY.md`.
+**Next action:** Execute 07-02 (run Verification across all 6 Vendors + triage). Wave 1 continues. `gridflow-drift-check` is installed; run without `--help` (no argparse in verifier).
+**Resume from:** `.planning/phases/07-reconciliation/07-02-run-verification-and-triage-PLAN.md` (Wave 1 continuation). All 4 plans + CONTEXT + DISCUSSION-LOG live under `.planning/phases/07-reconciliation/`.
 
 ---
 
-*State updated 2026-05-19 — Phase 7 (Reconciliation) planned and verified after milestone rescope per ADR-0001. 4 sub-plans ready for /gsd-execute-phase 7.*
+*State updated 2026-05-19 — 07-01-verifier-wrap executed. RECON-01 satisfied. 07-02-run-verification-and-triage is next.*

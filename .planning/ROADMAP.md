@@ -105,7 +105,7 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 4. Cross-vendor proof + dead-link real fix | inline | Complete | 2026-05-18 (PR #7) |
 | 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
-| 7. Reconciliation | 4/4 | Ready to execute | — |
+| 7. Reconciliation | 1/4 complete | Executing (07-02 next) | — |
 | 8. Dataset-page formatting bug fix | 0/? | Not started | — |
 | 9. ENTSO-E full coverage | 0/? | Not started | — |
 | 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started | — |
