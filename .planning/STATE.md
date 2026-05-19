@@ -5,14 +5,14 @@
 **Project:** gridflow-front-end
 **Milestone:** v2 full-vendor-coverage
 **Core Value:** When a recruiter spends 30 seconds on the site, the dominant impression is "this person genuinely knows UK/EU energy market data." Domain depth wins every tradeoff.
-**Current Focus:** Phase 7 (Reconciliation) complete 2026-05-19. RECON-01..RECON-05 satisfied. Next: Phase 8 (dataset-page formatting bug fix) or Phase 9 (ENTSO-E); Phase 8 and 7 were parallel-eligible per ADR-0001 D-03.
+**Current Focus:** Phase 8 (dataset-page formatting bug fix) context gathered 2026-05-19. CONTEXT.md locks fix-scope discipline (minimal patch), verification breadth (fuelhh + 1 Elexon + ENTSO-E `actual_generation` desktop + fuelhh mobile breakpoints), regression-prevention (no new guard), and diagnosis-approval gate (light research). Provisional diagnosis: `dataset.html.j2:18` — `align-items: end` + `grid-template-columns: 1fr auto` interaction. Next: `/gsd-plan-phase 8 --skip-ui`.
 
 ## Current Position
 
-**Phase:** 7 — Reconciliation **COMPLETE** (all 4/4 sub-plans executed 2026-05-19)
-**Plan:** 4/4 complete — 07-01 verifier wrap · 07-02 verification + triage · 07-03 fix open bucket + re-vendor · 07-04 push Vault to private GitHub
-**Status:** Phase 7 complete; next: `/gsd-verify-phase 7` or `/gsd-plan-phase 8`
-**Last activity:** 2026-05-19 — Phase 7 execution complete. RECON-01..RECON-05 satisfied. `EBentham/quant-vault` private GitHub repo created (10 commits, `master` branch). 0 open drift findings remain; 41 closed + 69 wontfix-v3 + 35 needs-info (ENTSO-E entitlement decision deferred to Phase 9). CI gates green (`gridflow-build --check` + htmlhint + lychee). Drift check: 33 failures → 0.
+**Phase:** 8 — Dataset-page formatting bug fix · context gathered (CONTEXT.md + DISCUSSION-LOG.md committed)
+**Plan:** 0/? — not yet planned
+**Status:** Ready to plan; next: `/gsd-plan-phase 8 --skip-ui` (Phase 7 verification deferred; can be run in parallel via `/gsd-verify-phase 7`)
+**Last activity:** 2026-05-19 — Phase 8 discuss-phase complete. User signalled velocity-over-discussion ("The problem is clear." + ROADMAP-goal verbatim). All 4 gray areas resolved by Claude under Discretion anchored to ROADMAP success criteria. Phase 7 (Reconciliation) remains complete (5/31 v2 REQ-IDs delivered); Phase 8 is parallel-eligible per ADR-0001 D-03.
 
 ```
 [████████████████░░░░] 80% — Phase 7 complete (5/31 v2 REQ-IDs delivered)
@@ -80,10 +80,10 @@ All Phase 7 open items resolved during execution:
 
 ## Session Continuity
 
-**Last action:** `/gsd-execute-phase 7` completed 2026-05-19. All 4 sub-plans executed. Phase 7 (Reconciliation) is complete. RECON-01..RECON-05 satisfied. Final commit: `abc417e` (07-04 VAULT-WORKFLOW.md). `EBentham/quant-vault` private GitHub repo created and pushed (10 commits on `master` branch).
-**Next action:** Run `/gsd-verify-phase 7` to formally verify Phase 7 goal achievement, or `/gsd-plan-phase 8` to begin the dataset-page formatting bug fix phase.
-**Resume from:** Phase 8 (`/gsd-plan-phase 8`). Context at `.planning/phases/07-reconciliation/` (all 4 summaries + CONTEXT.md). For Phase 9 context: 35 ENTSO-E `needs-info`/`defer-entitlement` findings at `.planning/reconciliation/entsoe/` await the entitlement decision in Phase 9 discuss-phase.
+**Last action:** `/gsd-discuss-phase 8` completed 2026-05-19. CONTEXT.md + DISCUSSION-LOG.md written under `.planning/phases/08-bug-fix-dataset-formatting/`. Phase 8 boundary locked: minimal-patch fix scope · fuelhh + 1 Elexon + ENTSO-E desktop + fuelhh mobile breakpoints verification · no new regression guard · light research pass to confirm provisional diagnosis at `dataset.html.j2:18`. User signalled "ROADMAP goal IS the decision basis" — all 4 gray areas resolved under Claude's Discretion.
+**Next action:** Run `/gsd-plan-phase 8 --skip-ui` to produce Phase 8 plan(s). Researcher prompt should be bounded to `templates/dataset.html.j2` lines 1-70 + relevant `theme.css` rules; do NOT fan out to build.py / vault frontmatter unless researcher flags one as contributing cause.
+**Resume from:** Phase 8 plan (`/gsd-plan-phase 8 --skip-ui`). Context at `.planning/phases/08-bug-fix-dataset-formatting/08-CONTEXT.md`. Phase 7 verification (`/gsd-verify-phase 7`) remains available in parallel — Phase 7 and 8 are independent per ADR-0001 D-03.
 
 ---
 
-*State updated 2026-05-19 — Phase 7 (Reconciliation) complete. 4/4 sub-plans executed. RECON-01..RECON-05 satisfied. 5/31 v2 REQ-IDs delivered. Next: /gsd-verify-phase 7 or /gsd-plan-phase 8.*
+*State updated 2026-05-19 — Phase 8 discuss-phase complete. CONTEXT.md committed with all 4 gray areas locked. 5/31 v2 REQ-IDs delivered (Phase 7 RECON-01..RECON-05). Next: /gsd-plan-phase 8 --skip-ui.*
