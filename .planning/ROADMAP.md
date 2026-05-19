@@ -33,7 +33,11 @@
   3. The `open` bucket is closed: Vault edits land in the upstream `quant-vault` (now on GitHub — see #4) and re-vendored into `gridflow-front-end/vault/<vendor>/`; the vendored snapshot matches the reconciled upstream Vault; re-running `gridflow-drift-check` returns "no new Drift" (or only documented `wontfix-v3` / `needs-info` Drift)
   4. The upstream Vault is committed to a new private GitHub repo `EBentham/quant-vault`, no GitHub App auth configured (per ADR-0002); the v1 vendoring pattern (`gridflow-front-end/vault/<vendor>/` as a snapshot) is preserved
   5. v1 CI gates remain green on `gridflow-front-end`: `htmlhint`, `lychee --offline --include-fragments`, and `gridflow-build --check` idempotence (Phase 7 should not change the deploy contract; it only changes the Vault content the build consumes)
-**Plans**: 4 sub-plans planned (per Phase 7 D-05): `07a` verifier wrap · `07b` run Verification + triage · `07c` fix open bucket + re-vendor · `07d` push Vault to private GitHub
+**Plans**: 4 sub-plans created and verified by plan-checker (per Phase 7 D-05):
+- [07-01-verifier-wrap-PLAN.md](./phases/07-reconciliation/07-01-verifier-wrap-PLAN.md) — RECON-01 · Wave 1
+- [07-02-run-verification-and-triage-PLAN.md](./phases/07-reconciliation/07-02-run-verification-and-triage-PLAN.md) — RECON-02 · Wave 1 · depends on 07-01
+- [07-03-fix-open-bucket-and-revendor-PLAN.md](./phases/07-reconciliation/07-03-fix-open-bucket-and-revendor-PLAN.md) — RECON-03, RECON-05 · Wave 2 · depends on 07-02
+- [07-04-push-vault-to-private-github-PLAN.md](./phases/07-reconciliation/07-04-push-vault-to-private-github-PLAN.md) — RECON-04 · Wave 2 · depends on 07-03 · `autonomous: false` (gh auth checkpoint)
 **UI hint**: no (this phase has no UI surface; Site-rendering is downstream)
 
 ### Phase 8: Dataset-page formatting bug fix
@@ -101,7 +105,7 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 4. Cross-vendor proof + dead-link real fix | inline | Complete | 2026-05-18 (PR #7) |
 | 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
-| 7. Reconciliation | 0/4 (planned) | Context gathered | — |
+| 7. Reconciliation | 4/4 | Ready to execute | — |
 | 8. Dataset-page formatting bug fix | 0/? | Not started | — |
 | 9. ENTSO-E full coverage | 0/? | Not started | — |
 | 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started | — |
