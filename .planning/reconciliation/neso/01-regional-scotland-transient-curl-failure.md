@@ -1,6 +1,7 @@
 ---
-status: open
+status: closed
 created: 2026-05-19
+closed-at: 2026-05-19
 vendor: neso
 dataset: regional_scotland
 drift_category: Temporal
@@ -28,4 +29,9 @@ Closed when the endpoint returns HTTP 200 on a subsequent verification run. If t
 
 ## Comments
 
-<!-- Re-verify in 07-03 before applying any Vault edit -->
+Closed 2026-05-19 in plan 07-03. Task 3 re-run (07-03 drift check) shows this endpoint
+no longer appears in the `failed` list — the DNS resolution failure was transient.
+Confirmed by baseline → re-run comparison: 07-02 had `failed: 7`, 07-03 has `failed: 5`;
+the two disappeared failures are NESO regional_scotland and Elexon melngc (both were
+`getaddrinfo()` thread failures, consistent with transient network issues).
+No Vault edit required.
