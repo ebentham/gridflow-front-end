@@ -17,7 +17,8 @@
 ## v2 Phases (Active)
 
 - [x] **Phase 7: Reconciliation** — Wrap the existing verifier as `gridflow-drift-check`; run Verification across all 6 Vendors; triage every Drift finding into `open` / `wontfix-v3` / `needs-info`+`defer-entitlement`; land Vault edits for the fixable bucket; commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002 *(gating for content phases 9 and 10; independent of Phase 8 per ADR-0001 D-03)* **[Complete 2026-05-19 — RECON-01..RECON-05 satisfied]**
-- [ ] **Phase 8: Dataset-page formatting bug fix** — Diagnose and fix the top-of-page formatting bug confirmed on `fuelhh.html`; verify the fix propagates cleanly to all 34 existing pages before scaling to 129 more *(layout/typography work, independent of Reconciliation)*
+- [~] **Phase 8: Dataset-page formatting bug fix** — Attempted as locked-scope minimal CSS patch; **two iterations failed visual verification** at BUG-02 user-checkpoint; root cause turned out to be editorial-content gap in vault, not a rendering-layer bug *(closed as superseded 2026-05-19; see `phases/08-bug-fix-dataset-formatting/08-01-SUMMARY.md`)*
+- [ ] **Phase 8B: Claude-Design hero rewrite (hybrid authored/templated)** — Adopt hand-authored pages for showcase datasets; add `authored-pages/<vendor>/<slug>.html` override path to `build.py` so authored pages bypass the template; long tail still vault-driven via Jinja2. Carries forward BUG-01/BUG-02/BUG-03 from Phase 8 with re-scoped acceptance *(gating for Phase 9 and Phase 10; replaces Phase 8 as the template-quality gate)*
 - [ ] **Phase 9: ENTSO-E full coverage** — Vendor 48 new ENTSO-E `.md` files; extend `entsoe.json` to 49 datasets; render all 49 pages at `fuelhh` fidelity; upgrade hub from 1-dataset proof to 49-dataset catalog *(stress-tests the template at scale on a non-Elexon vendor — different schema vocabulary: codelists, PSR types, BIDDING_ZONE references; ENTSO-E entitlement choice — extend access vs skip-with-warn — lands in this phase's discuss-phase per Phase 7 D-06)*
 - [ ] **Phase 10: Four-vendor batch coverage + site-wide consistency** — Vendor and render ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new pages; move 4 vendor entries from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`; update site-wide count strings to 163; every vendor row on the catalog links to a real hub
 
@@ -40,21 +41,28 @@
 - [07-04-push-vault-to-private-github-PLAN.md](./phases/07-reconciliation/07-04-push-vault-to-private-github-PLAN.md) — RECON-04 · Wave 2 · depends on 07-03 · `autonomous: false` (gh auth checkpoint)
 **UI hint**: no (this phase has no UI surface; Site-rendering is downstream)
 
-### Phase 8: Dataset-page formatting bug fix
-**Goal**: Root-cause and fix the top-of-page formatting bug confirmed on `fuelhh.html` before scaling 129 new pages off the same template. Whatever the offending location (Jinja2 template / shared `theme.css` / vault `.md` frontmatter / build-script transform), it gets named and corrected in one place; the fix propagates via `gridflow-build` to all 34 existing pages with zero regression on the v1 honesty / a11y / mobile guarantees. This phase is gating for the content phases: shipping 163 pages off a broken template multiplies the defect by 163×. Independent of Phase 7 (Reconciliation) per ADR-0001 D-03 — the bug is in the rendering layer, not the Vault content layer.
-**Depends on**: Nothing hard (v1 milestone is complete; Phase 7 — Reconciliation — runs in parallel). Sequential 7 → 8 is **not** required.
-**Requirements**: BUG-01, BUG-02, BUG-03
+### Phase 8: Dataset-page formatting bug fix *(closed — superseded)*
+**Goal (original)**: Root-cause and fix the top-of-page formatting bug confirmed on `fuelhh.html` before scaling 129 new pages off the same template. Locked to D-01 minimal-patch scope (no visual redesign).
+**Outcome**: **Failed.** Two iterations of the locked-scope CSS patch (Iteration 1: `align-items: end` → `start`; Iteration 2: `align-items: stretch` + `grid-template-rows: repeat(3, 1fr)` + short silver-path display) both failed user visual verification at the BUG-02 checkpoint. Root cause was an **editorial-content gap in the vault** (no short H1 tagline field, no accent-styled fragments) — not a rendering-layer bug. The "alignment bug" was the most visible symptom of an underlying source-layer gap that no rendering-layer patch can fix.
+**Decision**: Phase 8 closed as superseded by Phase 8B. The Iteration 2 template changes are kept in place (best-effort layout for long-tail templated pages under the Phase 8B hybrid model). Full retrospective: [`phases/08-bug-fix-dataset-formatting/08-01-SUMMARY.md`](./phases/08-bug-fix-dataset-formatting/08-01-SUMMARY.md).
+**Requirements re-mapped to Phase 8B**: BUG-01, BUG-02, BUG-03
+
+### Phase 8B: Claude-Design hero rewrite (hybrid authored/templated)
+**Goal**: Adopt hand-authored HTML pages for showcase dataset pages (starting with `fuelhh.html`, generated externally via Claude Design), and add an `authored-pages/<vendor>/<slug>.html` override path to `src/gridflow_front_end/build.py` so the build script reads authored pages first and falls back to the Jinja2 template for the long-tail. This replaces Phase 8's locked-scope minimal patch with a hybrid model: ~5–15 showcase pages hand-authored at full editorial quality; ~150 long-tail pages template-rendered from vault. The Iteration 2 template changes from Phase 8 (stretch layout + `silver.{slug}` short-form) carry forward for the templated branch. If AI-hand-porting a second showcase page (e.g., `system_prices`) does not produce Claude-Design–equivalent quality, fall back to **Option C** (all 163 pages hand-designed in Claude Design and committed under `authored-pages/`).
+**Depends on**: Phase 8 (closed/superseded) — Phase 8B's hybrid architecture is the explicit alternative to Phase 8's failed minimal-patch approach. Independent of Phase 7 (operates on rendering layer, not Vault content). Like Phase 8, runs parallel-eligible to Phase 7 but Phase 7 is already complete.
+**Requirements**: BUG-01, BUG-02, BUG-03 (re-mapped from Phase 8 with re-scoped acceptance — see below)
 **Success Criteria** (what must be TRUE):
-  1. The offending location is named in writing (commit message or PR body) — one of: a specific block in `src/gridflow_front_end/templates/dataset.html.j2`, a specific rule in `site/hifi/assets/theme.css`, a specific frontmatter field in `vault/elexon/<dataset>.md`, or a specific transform in `src/gridflow_front_end/build.py` — and a fix path is chosen and applied
-  2. After running `gridflow-build`, visiting `/data-sources/elexon/fuelhh.html` plus one randomly-spot-checked Elexon dataset page shows the top-of-page section visually correct (user-verified, no remaining layout/typography glitch); diff vs pre-fix HTML is contained to template/CSS output, not stray content drift
-  3. `gridflow-build --check` exits 0 on the regenerated set (idempotence holds); `htmlhint --config .htmlhintrc 'site/hifi/**/*.html'` exits 0; `lychee --offline --include-fragments site/hifi/**/*.html` exits 0 — all three v1 CI gates remain green
-**Plans**: 1 plan created and self-checked (single-plan minimal-patch per CONTEXT.md D-01):
-- [08-01-PLAN.md](./phases/08-bug-fix-dataset-formatting/08-01-PLAN.md) — BUG-01, BUG-02, BUG-03 · Wave 1 · `autonomous: false` (user-checkpoint at Task 3 per D-02) · fix candidate (a) only — single token `align-items: end` → `start` at `dataset.html.j2:18`, no theme.css edit per RESEARCH.md candidate evaluation
+  1. `authored-pages/elexon/fuelhh.html` exists, committed, byte-equal to the Claude-Design output verified 2026-05-19, and copied/preserved by the build at `site/hifi/data-sources/elexon/fuelhh.html` on every `gridflow-build` run (no clobbering)
+  2. `src/gridflow_front_end/build.py` reads `authored-pages/<vendor>/<slug>.html` before invoking the Jinja2 template; if present, the authored file is the source; if absent, the template renders from vault as today. This logic lives in one named function (e.g., `_resolve_page_source`) with a one-line docstring naming the override semantics
+  3. At least **one** additional page exists in `authored-pages/` and passes user visual verification at fuelhh-equivalent fidelity — either AI-hand-ported by the orchestrator (cheap path) or externally generated via Claude Design (fallback to Option C). Initial test target: `system_prices` (different schema, no fuel-pill section — stress-tests the design generalisation)
+  4. The decision on the long-tail path is recorded in this phase's SUMMARY.md: either (a) **AI-hand-port** the remaining 32 Elexon + 1 ENTSO-E pages under `authored-pages/`, or (b) **Claude-Design all of them** (Option C), or (c) **leave them templated** (most-likely outcome — long tail accepts template quality, showcase pages get authored override)
+  5. All v1 CI gates remain green on the regenerated set: `gridflow-build --check` exits 0 (idempotence holds across both authored and templated branches), `htmlhint --config .htmlhintrc 'site/hifi/**/*.html'` exits 0, `lychee --offline --include-fragments site/hifi/**/*.html` exits 0
+**Plans**: TBD (likely 2–3 sub-plans: build-script override path, second-page port + verification, long-tail decision)
 **UI hint**: yes
 
 ### Phase 9: ENTSO-E full coverage
 **Goal**: Render the remaining 48 ENTSO-E datasets at `fuelhh` fidelity; upgrade `/data-sources/entsoe.html` from a 1-dataset proof to a 49-dataset catalog. This is the biggest single vendor in v2 and uses materially different schema vocabulary from Elexon — codelists, PSR-type taxonomy, BIDDING_ZONE references, quarter-hour settlement — so it stress-tests the post-Phase-8 template against a non-Elexon vendor at scale before the simpler four-vendor batch in Phase 10. The ENTSO-E entitlement question (33 HTTP 401 datasets deferred from Phase 7 per D-06) is resolved in this phase's discuss-phase before content build proceeds.
-**Depends on**: Phase 7 (reconciled Vault input — including ENTSO-E `needs-info` finding files for the 33 entitlement-blocked datasets) AND Phase 8 (template fix must land before scaling 48 new pages off it)
+**Depends on**: Phase 7 (reconciled Vault input — including ENTSO-E `needs-info` finding files for the 33 entitlement-blocked datasets) AND **Phase 8B** (hybrid authored/templated path must be in place — replaces the original Phase 8 dependency, which was closed as superseded 2026-05-19)
 **Requirements**: ENTSOE-01, ENTSOE-02, ENTSOE-03, ENTSOE-04, ENTSOE-05
 **Success Criteria** (what must be TRUE):
   1. `ls vault/entsoe/*.md | wc -l` returns 49 (1 existing + 48 newly vendored from the reconciled `quant-vault/30-vendors/entsoe/datasets/`); upstream provenance recorded in the vendoring commit; ENTSO-E entitlement decision (extend access vs `skip-with-warn`) documented in this phase's CONTEXT.md per Phase 7 D-06
@@ -67,7 +75,7 @@
 
 ### Phase 10: Four-vendor batch coverage + site-wide consistency
 **Goal**: Ship the remaining four vendors as a batch — ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new dataset pages — and close the v2 milestone with site-wide consistency: every vendor on `data-sources.html` links to a real hub, dataset count strings reflect the v2 total of 163, and zero coming-soon stub links remain in the catalog table. Content shape for these four vendors is simpler than ENTSO-E (smaller per-vendor surface, fewer codelist quirks), and by this point the template has been proven by Phase 9 at scale on a non-Elexon vendor, so the work is mechanical: vendor `.md` (from the reconciled Vault), author manifest, move `build.py` entry from `COMING_SOON_VENDORS` to `REAL_VENDORS`, run build, verify CI.
-**Depends on**: Phase 7 (reconciled Vault input, including ENTSO-G `physical_flows` 35-field rewrite and the 4 ENTSO-G 404 endpoints handled) AND Phase 8 (template fix is the hard prerequisite). Sequential execution after Phase 9 is recommended (not required) to avoid merge conflicts on `data-sources.html` and on the `REAL_VENDORS` dict in `src/gridflow_front_end/build.py`, and to keep PR review surfaces tractable.
+**Depends on**: Phase 7 (reconciled Vault input, including ENTSO-G `physical_flows` 35-field rewrite and the 4 ENTSO-G 404 endpoints handled) AND **Phase 8B** (hybrid authored/templated path — replaces the original Phase 8 dependency, which was closed as superseded 2026-05-19). Sequential execution after Phase 9 is recommended (not required) to avoid merge conflicts on `data-sources.html` and on the `REAL_VENDORS` dict in `src/gridflow_front_end/build.py`, and to keep PR review surfaces tractable.
 **Requirements**: ENTSOG-01, ENTSOG-02, ENTSOG-03, ENTSOG-04, GIE-01, GIE-02, GIE-03, GIE-04, NESO-01, NESO-02, NESO-03, NESO-04, METEO-01, METEO-02, METEO-03, METEO-04, SITE-01, SITE-02
 **Success Criteria** (what must be TRUE):
   1. Vault snapshot expanded: `ls vault/entsog/*.md | wc -l` = 33; `ls vault/gie/*.md | wc -l` = 8 (or split across `vault/gie_agsi/` + `vault/gie_alsi/` if the Phase 9 plan keeps the split — totalling 8); `ls vault/neso/*.md | wc -l` = 34; `ls vault/openmeteo/*.md | wc -l` = 6 — 81 new files in total, vendored from upstream `quant-vault`
@@ -84,16 +92,18 @@
 ```
 v1 milestone (Phases 0–6) — Complete 2026-05-18
    │
-   ├── Phase 7 (Reconciliation) — GATING for content phases 9 and 10  ┐
-   │                                                                  │ parallel-eligible
-   └── Phase 8 (dataset-page formatting bug fix) — GATING for 9 and 10┘
+   ├── Phase 7 (Reconciliation) — Complete 2026-05-19
+   │
+   ├── Phase 8 (CSS bug fix) — Closed/superseded 2026-05-19 (failed visual verification ×2)
+   │
+   └── Phase 8B (Claude-Design hybrid) — GATING for 9 and 10
           │
           └── Phase 9 (ENTSO-E full coverage)
                  │
                  └── Phase 10 (four-vendor batch + site-wide consistency)
 ```
 
-**Sequential note:** Phase 7 (Reconciliation) and Phase 8 (bug fix) are **parallel-eligible** per ADR-0001 D-03 — Reconciliation operates on the Vault content layer; the bug fix operates on the rendering layer (Jinja2 template / `theme.css` / build script). Neither blocks the other. Phase 9 (ENTSO-E) and Phase 10 (four-vendor batch) **both** depend on Phase 7 (reconciled Vault input) **and** Phase 8 (fixed template). Running 7 → 8 → 9 → 10 in series is still **recommended** to avoid merge churn on `vault/<vendor>/` snapshot vendoring and to keep PR review surfaces tractable — running 7 || 8 in parallel adds a merge surface on `vault/<vendor>/` (Phase 7 edits) vs the build script / template (Phase 8 edits) that's manageable but not free. Sequential 7 → 8 also makes Phase 8's success criterion #3 (CI gates green on regenerated set) trivially true because the regenerated set already includes the Reconciliation-fixed Vault.
+**Sequential note:** Phase 7 (Reconciliation) completed 2026-05-19; Phase 8 was attempted parallel to it but closed as superseded the same day (see Phase 8 outcome above and `08-01-SUMMARY.md`). Phase 8B replaces Phase 8 as the rendering-layer gate for content phases. Phase 9 (ENTSO-E) and Phase 10 (four-vendor batch) both depend on Phase 7 (reconciled Vault input) **and** Phase 8B (hybrid authored/templated path in place). Running 8B → 9 → 10 in series is **recommended** to keep merge surfaces tractable and to let the long-tail-path decision from Phase 8B (templated vs. authored vs. Claude-Design-all) inform Phase 9's vendoring approach.
 
 ## Progress Table
 
@@ -107,9 +117,10 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 5. Honesty + a11y + mobile + main-page polish | inline | Complete | 2026-05-18 (PR #8) |
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
 | 7. Reconciliation | 4/4 | Complete | 2026-05-19 |
-| 8. Dataset-page formatting bug fix | 0/1 | Plan ready | — |
-| 9. ENTSO-E full coverage | 0/? | Not started | — |
-| 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started | — |
+| 8. Dataset-page formatting bug fix | 1/1 (failed) | Closed/superseded by 8B | 2026-05-19 |
+| 8B. Claude-Design hero rewrite (hybrid) | 0/? | Ready to plan | — |
+| 9. ENTSO-E full coverage | 0/? | Not started (blocked on 8B) | — |
+| 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started (blocked on 8B + 9) | — |
 
 v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 5/31 REQ-IDs delivered (RECON-01..RECON-05 complete — Phase 7 done 2026-05-19).
 
