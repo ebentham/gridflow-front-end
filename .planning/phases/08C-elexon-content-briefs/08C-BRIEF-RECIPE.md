@@ -2,12 +2,19 @@
 
 **Purpose**: This is the per-dataset runbook the Phase 8C-01 executor follows for each of the 33 Elexon datasets. The output is a self-contained markdown document that Claude Design can render against the fuelhh.html / system_prices.html visual reference without needing additional research.
 
-> **2026-05-20 update (post-POC verbosity learning):** Brief format tightened after the 5-dataset POC batch (Phase 8D follow-on) showed Claude Design over-produces verbose Overview + Caveats sections from this recipe. The tightened format:
+> **2026-05-20 evening update (D-22 — Elexon-only Overview restoration):** The 3-paragraph `# Overview` section, removed by D-20 (see next callout), is **restored for Elexon briefs only** in a tighter concise form. Other vendors (Phase 9 ENTSO-E, Phase 10 ENTSO-G / GIE / NESO / Open-Meteo) remain on the D-20 format (no Overview) until they are separately retrofitted — the user's Claude Design budget is low this week. The new shape:
+> - **# Overview:** 3 short paragraphs, ~110 words total (P1 ≈50w "what it is + use cases" · P2 ≈45w "how gridflow fetches + transforms" · P3 ≈20w "cadence + verification date"). Modeled on `authored-pages/elexon/fuelhh.html` lines 234-259.
+> - **# Sample chart:** Per-dataset realistic shape wired to the `charts.js` `SHAPES` registry (`diurnal-load`, `diurnal-price`, `frequency`, `volatile-spikes`, etc.). Sparkline + priceLadder use `**Shape:**` + `**Params:**` lines; stackedArea with PSR-specific layers uses `**Series:**` (an explicit `series: [...]` JSON); barsH uses inline `**Items:**` (synthesized plausible domain values).
+> - Structural check #5 now requires `# Overview` for Elexon briefs (restored). Other vendors keep it suspended for now.
+>
+> See `content-briefs/elexon/fuelhh.md` for the canonical Elexon-D-22 brief.
+
+> **2026-05-20 update (post-POC verbosity learning — superseded for Elexon by D-22 above):** Brief format tightened after the 5-dataset POC batch (Phase 8D follow-on) showed Claude Design over-produces verbose Overview + Caveats sections from this recipe. The tightened format:
 > - **Lede:** 1 short sentence, ~15–25 words. "What it is + how you use it for modelling." No second sentence unless genuinely additive.
-> - **No `# Overview` section.** The lede + schema notes + sample-data caption already cover what the dataset is. The 3-paragraph Overview was being stripped from rendered pages as redundant with the hero lede.
+> - **No `# Overview` section.** The lede + schema notes + sample-data caption already cover what the dataset is. The 3-paragraph Overview was being stripped from rendered pages as redundant with the hero lede. **D-22 reverses this for Elexon only — see callout above.**
 > - **Caveats:** Each item compresses to 1 short sentence (rarely 2) + source citation. Maximum 6 items. The body is research-record-quality, not user-facing prose — Claude Design no longer renders Caveats as a standalone HTML section.
 >
-> Phase 9 (ENTSO-E, 49 briefs) and Phase 10 (4-vendor batch, 80 briefs) inherit this tightened format. The structural-check `# Overview` row below is **suspended** (kept in legacy briefs that pre-date the tighten; new briefs MUST omit). See `content-briefs/elexon/fuelhh.md` for the canonical tightened brief.
+> Phase 9 (ENTSO-E, 49 briefs) and Phase 10 (4-vendor batch, 80 briefs) inherit this tightened format. The structural-check `# Overview` row below was **suspended** at D-20 (kept in legacy briefs that pre-date the tighten; new briefs MUST omit) and is **restored for Elexon only** at D-22. See `content-briefs/elexon/fuelhh.md` for the canonical tightened brief (now also Elexon-D-22 compliant).
 
 ## Sources (mandatory triangulation)
 
@@ -98,18 +105,41 @@ For Slot 3, identify what's notable about the dataset. Examples:
 
 A markdown list: 4-6 sibling slugs from the same group in `elexon.json` (semantically related). One slug per line.
 
-### # Overview — **REMOVED 2026-05-20**
+### # Overview — **RESTORED 2026-05-20 evening (D-22) for Elexon only**
 
-This section is no longer required and MUST be omitted from new briefs.
+> **For Elexon briefs:** required. For all other vendors: still omitted (until separately retrofitted).
 
-**Why removed:** Empirical evidence from the 5-dataset POC batch (entsoe / entsog / gie / neso / openmeteo, 2026-05-20) showed the rendered HTML "What this dataset is" section was straight-up redundant with the hero lede — the user stripped it from all 5 pages. The 3-paragraph Overview cost research time and produced no incremental value over the lede + schema + sample data.
+The 3-paragraph Overview is restored in a concise form for Elexon. Total target ~110 words, modeled on the rendered Overview in `authored-pages/elexon/fuelhh.html` (lines 234-259).
 
-**Where the old paragraph content goes instead:**
-- Paragraph 1 ("what it is") → already in the **Lede**.
-- Paragraph 2 ("how Gridflow fetches it") → in the **# API & ingestion** section's Card 1 / Card 2 (endpoint + transformer + bronze path are already there).
-- Paragraph 3 ("cadence + provenance") → cadence is in the **# Hero metadata** table and **# Stats strip**; verification date is in frontmatter `last_verified`.
+**Paragraph 1 (≈50 words) — "What it is + use cases":**
 
-If a dataset has a genuinely load-bearing fact that doesn't fit anywhere else (rare — e.g. a complex bitemporal pattern), append it as a **2-sentence "Notable" callout** under the lede. Do NOT reintroduce a 3-paragraph block.
+Open with an inline `<code>{slug}</code>` chip and a single declarative sentence stating what the dataset is. Follow with one sentence enumerating modelling use cases (forecast-error analysis, cash-out attribution, capacity-factor work, etc.). Use the brief's existing Lede as the seed; expand by one sentence with a use-case the Lede doesn't already cover.
+
+**Paragraph 2 (≈45 words) — "How Gridflow fetches and transforms it":**
+
+State the API path (`<code>/datasets/XYZ</code>`), the fetch param style (`publishDateTimeFrom` / `publishDateTimeTo`, `measurementDateTimeFrom`, `DATE_PATH`, `SETTLEMENT_DATE_PERIOD`, etc.), and the transformer name (`<code>XYZTransformer</code>`). Mention the Pydantic schema if one exists; otherwise note "no Pydantic class; shape enforced by the transformer's `output_cols`". Sources: brief's `discrepancies_found` frontmatter + Hero metadata + Schema citation.
+
+**Paragraph 3 (≈20 words) — "Cadence + verification date":**
+
+Single sentence stating refresh frequency and publication lag (from `# Hero metadata`), then "Verified against vendor docs on {last_verified}". That's it.
+
+**Canonical example (fuelhh):**
+
+```markdown
+# Overview
+
+1. <code>fuelhh</code> is the half-hourly GB generation outturn aggregated by fuel type — the realised MWh in each settlement period split by fuel category (CCGT, coal, nuclear, wind, solar, biomass, interconnectors). It is the canonical observation series for the GB generation mix and underpins capacity-factor analytics and emissions reporting.
+
+2. Gridflow fetches it from <code>/datasets/FUELHH</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against the <code>ElexonFuelHH</code> Pydantic schema, and written to the silver parquet partition via <code>FuelHHTransformer</code>.
+
+3. Refreshed every 30 minutes with ~5 minute publication lag. Verified against vendor docs on 2026-05-08.
+```
+
+Hard caps:
+- Maximum 120 words across all three paragraphs.
+- No bullet lists, no second h2, no "Notable" sidecar — Overview is plain prose only.
+
+For non-Elexon vendors (Phase 9 ENTSO-E, Phase 10 ENTSO-G/GIE/NESO/Open-Meteo), this section is still **omitted** until they are separately retrofitted in a later D-XX decision.
 
 ### # Sample chart
 
@@ -123,8 +153,20 @@ Markdown subsections:
   - "What fraction" displays → `donut`
 - **Title**: e.g., "SBP & SSP · 24-hour snapshot"
 - **Subtitle**: e.g., "Price ladder · £/MWh · UTC · 6 May 2026"
-- **Seed**: an integer 1-99 for chart variety
+
+**D-22 chart-shape contract (Elexon).** Pick **one** of the four shape-spec keys based on chart type:
+
+- **`Shape:` + `Params:`** (sparkline / priceLadder) — name a key from the `charts.js` `SHAPES` registry and a JSON object of overrides. Available shapes: `diurnal-load`, `diurnal-solar`, `diurnal-wind`, `diurnal-price`, `diurnal-temp`, `flat-baseload`, `frequency`, `bipolar-flow`, `volatile-spikes`. Example:
+  ```
+  - **Shape:** `diurnal-load`
+  - **Params:** `{"peak": 42000, "trough": 26000, "noise": 0.04, "seed": 13}`
+  ```
+- **`Series:`** (stackedArea with PSR-correct or domain-specific layers — agpt, agws) — an array of `{name, color, shape, params?}` objects, one per stacked layer. Example: agpt has 5 layers (Wind Onshore, Wind Offshore, Solar, Biomass, Pumped Storage) with shape + params per layer.
+- **(unspecified — legacy default)** (stackedArea where the default GB fuel mix renders well — fuelhh, fuelinst, fou2t14d, uou2t14d) — just specify `Type: stackedArea` and `Seed:`. The `charts.js` legacy path generates the realistic GB fuel mix.
+- **`Items:`** (barsH) — an inline array of `{label, value, color?, display?}` synthesized with plausible domain values (e.g. top-10 BMU names, fuel categories, interconnector codes). Embedded directly in `data-opts` of the HTML page.
+
 - **Toggles**: usually `24h` / `7d` / `30d` chips (with `24h` active)
+- **Seed**: an integer 1-99 for chart variety (still used as fallback for any path that doesn't set its own seed in params).
 
 ### # Schema (per-column table)
 
@@ -241,12 +283,14 @@ done
 sources_count=$(awk '/^sources_consulted:/{flag=1; next} /^[a-z_]+:/{flag=0} flag' "$FILE" | grep -c "^  -")
 [ "$sources_count" -ge 3 ] || echo "FAIL: < 3 sources cited ($sources_count)"
 
-# 5. All required sections present (in order — `# Overview` removed 2026-05-20)
-for section in "# Editorial layer" "# Hero metadata" "# Stats strip" "# Sidebar siblings" "# Sample chart" "# Schema" "# Sample data" "# API & ingestion" "# Caveats" "# Related datasets"; do
+# 5. All required sections present (in order — D-22: `# Overview` RESTORED for Elexon only)
+for section in "# Editorial layer" "# Hero metadata" "# Stats strip" "# Sidebar siblings" "# Overview" "# Sample chart" "# Schema" "# Sample data" "# API & ingestion" "# Caveats" "# Related datasets"; do
   grep -qF "$section" "$FILE" || echo "FAIL: missing section: $section"
 done
-# 5b. NEW (2026-05-20) — confirm legacy `# Overview` section is absent in new briefs
-grep -qF "# Overview" "$FILE" && echo "WARN: legacy '# Overview' section present — should be removed per tightened recipe"
+# 5b. D-22 (2026-05-20 evening, Elexon-only) — Overview is required again for Elexon briefs.
+#     For other vendors keep the D-20 omit rule until they are retrofitted separately.
+#     (If running this check against an ENTSO-E / ENTSO-G / GIE / NESO / Open-Meteo brief,
+#     remove "# Overview" from the section list above.)
 
 # 6. Schema has at least 3 rows (excluding header + separator) — check by counting | at row starts
 schema_rows=$(awk '/^# Schema/{flag=1; next} /^# /{flag=0} flag && /^\|/' "$FILE" | grep -v '^|--' | grep -v '^| Column' | wc -l)
