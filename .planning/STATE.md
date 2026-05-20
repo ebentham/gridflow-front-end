@@ -9,13 +9,13 @@
 
 ## Current Position
 
-**Phase:** 8B — Claude-Design hero rewrite — **COMPLETE 2026-05-20**
-**Plan:** 1/1 — all 33 Elexon dataset pages ported to authored-pages/elexon/; build.py override wired; BUG-01/BUG-02/BUG-03 satisfied
-**Status:** Phase 8B complete. Next: Phase 9 (ENTSO-E full coverage) — `/gsd-plan-phase 9`
-**Last activity:** 2026-05-20 — Autonomous overnight run ported all 31 remaining Elexon datasets (T01–T32, fuelhh and system_prices pre-existing). All 33 files pass 12-check structural verification. Zero failures in PORT-LOG.md. 20 feat(08B) commits on branch docs/v2-milestone-start.
+**Phase:** 8D — Vendor landing-page briefs (5 hubs) — **COMPLETE 2026-05-20**
+**Plan:** 1/1 — 5 vendor-hub briefs at `content-briefs/<vendor>/_landing.md` (entsoe, entsog, gie, neso, openmeteo); build.py `build_vendor` override extended to check `authored-pages/<vendor>/_landing.html`; SUMMARY committed
+**Status:** Phase 8D complete. Next: Phase 9 (ENTSO-E per-dataset briefs, 49 datasets) — `/gsd-plan-phase 9`
+**Last activity:** 2026-05-20 — Sonnet 4.6 background executor ran Tasks 02-08 to completion (hit usage limit during Task 09 verification; recovery was a single-commit fix for an in-flight transformer-count correction in gie brief + ROADMAP progress table update). All 5 briefs pass 10 structural checks; 15 cross-source discrepancies surfaced; per-dataset row counts match vault (49/33/8/33/6 — NESO is 33 not 34, README.md inflated the plan's expected count).
 
 ```
-[████████████████████] 26% — Phase 8B complete (8/31 v2 REQ-IDs delivered)
+[████████████████████] 42% — Phase 8D complete (13/31 v2 REQ-IDs delivered cumulative; BUG-01/BUG-02/BUG-03 satisfied through 8C+8D)
 ```
 
 ## Accumulated Context
@@ -80,15 +80,18 @@ All Phase 7 open items resolved during execution:
 
 ## Session Continuity
 
-**Last action:** Phase 8B autonomous execution complete 2026-05-20. All 33 Elexon dataset pages exist under `authored-pages/elexon/`. All pass the 12-check structural verifier (`check_port.sh`). 20 `feat(08B):` commits on branch `docs/v2-milestone-start`. PORT-LOG.md shows zero failures.
-**Next action:** Plan Phase 9 — ENTSO-E full coverage. Run `/gsd-plan-phase 9`.
-**Resume from:** Phase 9 plan (`/gsd-plan-phase 9`). ENTSO-E entitlement decision (33 HTTP 401 datasets deferred from Phase 7 per D-06) must be resolved in the discuss-phase before content build proceeds.
+**Last action:** Phase 8D execution complete 2026-05-20. 5 vendor-hub briefs committed (entsoe 49/6, entsog 33/5, gie 8/2, neso 33/4, openmeteo 6/2); build.py override extended for vendor hubs; SUMMARY + ROADMAP updated. 8 `docs(08D):` + `fix(08D):` commits on branch `docs/v2-milestone-start`. BRIEF-LOG.md has one logged false positive (NESO Check 7 regex needs `[a-z0-9_]+` to handle numeric slug suffixes).
+**Next action:** Plan Phase 9 — ENTSO-E per-dataset briefs (49 datasets following the 8C pattern). Run `/gsd-plan-phase 9`.
+**Resume from:** Phase 9 plan (`/gsd-plan-phase 9`). ENTSO-E entitlement decision (33 HTTP 401 datasets deferred from Phase 7 per D-06) must be resolved in the discuss-phase before content build proceeds. Phase 10 also unblocked (4-vendor batch: 80 per-dataset briefs).
 
-**Branch state as of Phase 8B completion:**
-- `authored-pages/elexon/` — 33 files, all committed
-- `site/hifi/data-sources/elexon/` — 33 corresponding copies (gitignored, not committed)
-- `src/gridflow_front_end/build.py` — override path wired (committed in Phase 8B T00)
-- Untracked: `.agents/`, `skills-lock.json`, `uv.lock` (tooling artefacts, gitignored intent)
+**Branch state as of Phase 8D completion (~88 commits ahead of main, NOT pushed):**
+- `content-briefs/elexon/` — 33 files (Phase 8C, committed)
+- `content-briefs/{entsoe,entsog,gie,neso,openmeteo}/_landing.md` — 5 files (Phase 8D, committed)
+- `content-briefs/{entsoe,entsog,gie,neso,openmeteo}/<one_slug>.md` — 5 sample per-dataset briefs (pre-Phase-8D, committed)
+- `authored-pages/elexon/` — 33 files (Phase 8B, committed)
+- `src/gridflow_front_end/build.py` — both per-dataset (8B) and per-hub (8D) override paths wired
+- Untracked: `.agents/`, `skills-lock.json`, `uv.lock`, `.planning/CONTROL.md`, `.planning/research/*.md` (pre-existing, gitignored-intent)
+- Modified (pre-existing user work, not from this session's agents): `CLAUDE.md`
 
 ---
 

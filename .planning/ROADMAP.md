@@ -126,7 +126,7 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 8. Dataset-page formatting bug fix | 1/1 (failed) | Closed/superseded by 8B | 2026-05-19 |
 | 8B. Claude-Design hero rewrite (build override kept; AI-ports archived) | 1/1 (output sub-optimal) | Partial — output archived 2026-05-20; superseded by 8C | 2026-05-20 |
 | 8C. Elexon content briefs (triangulated research) | 1/1 | Complete (33/33 briefs ✓ all 12 structural checks; 45 discrepancies surfaced) | 2026-05-20 |
-| 8D. Vendor landing-page briefs (5 hubs) | 0/1 | Ready to plan (handover doc at `.planning/handovers/2026-05-20-phase-8d-landing-pages.md`) | — |
+| 8D. Vendor landing-page briefs (5 hubs) | 1/1 | Complete (5/5 briefs ✓ all 10 structural checks; build override patch shipped; 15 discrepancies surfaced; see `phases/08D-vendor-landing-page-briefs/08D-01-SUMMARY.md`) | 2026-05-20 |
 | 9. ENTSO-E full coverage | 0/? | Not started (blocked on 8D) | — |
 | 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started (blocked on 8D + 9) | — |
 
