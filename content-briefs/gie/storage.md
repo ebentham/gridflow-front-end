@@ -4,21 +4,23 @@ vendor: gie
 vendor_label: GIE AGSI+ (Gas Storage)
 api_code: AGSI
 last_verified: 2026-05-08
+entitlement_required: true
+entitlement_reason: "GIE API key (header `x-key`, lowercase) required for all endpoints — free registration at agsi.gie.eu/account/registration"
 sources_consulted:
-  - quant-vault/30-vendors/gie/datasets/storage.md (vault not yet vendored to gridflow-front-end/vault/gie/ — Phase 10 vendoring deferred)
-  - gridflow/src/gridflow/schemas/gie.py::GasStorage (line 12)
-  - gridflow/src/gridflow/silver/gie/agsi.py::GasStorageTransformer (line 115, registered at L624)
-  - gridflow/src/gridflow/connectors/gie/client.py::_fetch_agsi_storage and connectors/gie/endpoints.py
-  - https://agsi.gie.eu/api (JSON API — documentation page exists at agsi.gie.eu but is interactive; no static doc page to WebFetch successfully)
+  - vault/gie/storage.md
+  - gridflow/src/gridflow/schemas/gie.py::GasStorage (lines 12-47)
+  - gridflow/src/gridflow/silver/gie/agsi.py::GasStorageTransformer (lines 115-271, registered at L624)
+  - gridflow/src/gridflow/connectors/gie/endpoints.py::ENDPOINTS["storage_reports"] (lines 125-138, shared registry with storage)
+  - https://agsi.gie.eu/api (vendor docs — interactive HTML, no machine-readable static page; vault canonical fallback applied)
 discrepancies_found:
   - source_a: "vault Implementation Delta — legacy ALSI fetch path"
-    source_a_says: "connectors/gie/client.py::_fetch_country (used by gie_alsi) still uses `till=` instead of `to=` for range parameter"
-    source_b: "gridflow connectors/gie/client.py — AGSI code path uses `from`/`to` correctly; legacy `till=` is unreachable for gie_agsi but still present for the eventual ALSI implementation"
-    orchestrator_recommendation: "non-blocking for storage — legacy code path is unused for AGSI. Surface in caveats for the future ALSI brief; cleanup deferred until ALSI lands."
-  - source_a: "vault dataset_key frontmatter says `storage` but source is `gie_agsi`"
-    source_a_says: "source: gie_agsi (the AGSI sub-product within GIE)"
-    source_b: "gridflow vendor namespace is `gie` for `connectors/gie/`, schemas namespace is `gie` for `schemas/gie.py`, but transformer namespace is `gie_agsi` (registered as `register_transformer('gie_agsi', 'storage', ...)`)"
-    orchestrator_recommendation: "documented vendor-namespace split — gridflow treats GIE as the parent and AGSI/ALSI as sub-products; the silver layer key reflects this split (`silver.gie_agsi.storage`). gridflow-front-end vendor manifest should mirror this. Treat as design intent, not a bug."
+    source_a_says: "`connectors/gie/client.py::_fetch_country` (used by `gie_alsi`) still uses `till=` instead of `to=` for range parameter"
+    source_b: "vault storage.md — AGSI code path uses `from`/`to` correctly"
+    orchestrator_recommendation: "non-blocking for storage — legacy `till=` path is unused for AGSI. Flagged for ALSI brief (`lng.md`)."
+  - source_a: "vault dataset_key `storage`"
+    source_a_says: "vault frontmatter declares `source: gie_agsi` and `dataset_key: storage`"
+    source_b: "Phase 8D landing brief (`_landing.md`) treats GIE as one unified vendor with two internal groups (AGSI + ALSI)"
+    orchestrator_recommendation: "documented vendor-namespace split — gridflow silver registers as `(gie_agsi, storage)` but the site-level vendor hub is `gie`. Treat as design intent."
 ready_for_claude_design: true
 checked_at: 2026-05-20T00:00:00Z
 ---
@@ -27,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** European gas storage, <span class="italic fg-accent">country by country.</span>
 
-**Lede:** Country-scoped gas storage time-series from GIE's Aggregated Gas Storage Inventory (AGSI+). Daily snapshots for nine European countries — gas-in-storage levels (GWh), injection / withdrawal flows, working-gas capacity, percent-full, and trend. The workhorse country-level view for winter-tightness models, fuel-switching signals, and storage-spread trades.
+**Lede:** Country-scoped daily gas-storage time-series — the canonical winter-tightness indicator, fuel-switching signal, and storage-spread trade input for European gas modelling.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [GIE AGSI+ · /api](https://agsi.gie.eu/api)
 
@@ -37,9 +39,9 @@ checked_at: 2026-05-20T00:00:00Z
 |---|---|
 | SILVER PATH | `silver.gie_agsi.storage` |
 | API PATH | `/api?country={ISO2}&date={YYYY-MM-DD}` |
-| FREQUENCY | daily |
+| FREQUENCY | daily (gas day) |
 | PUBLICATION LAG | ~16:00 CET refresh |
-| VOLUME | 9 countries × 365 days = ~3.3k rows / year |
+| VOLUME | ~9 rows / day |
 | PRIMARY KEY | `(gas_day, entity_level, entity_code, entity_url)` |
 
 # Stats strip
@@ -47,124 +49,111 @@ checked_at: 2026-05-20T00:00:00Z
 | slot | value | label |
 |---|---|---|
 | 1 | daily | Snapshot cadence |
-| 2 | 9 | AGSI countries (AT BE DE ES FR GB IT NL PL) |
-| 3 | GWh | Reporting unit |
-| 4 | 28 | Schema columns |
+| 2 | ~16:00 CET | Publication refresh |
+| 3 | 9 | AGSI countries |
+| 4 | 26 | Schema columns |
 
 # Sidebar siblings
 
 - storage_reports
-- lng
 - unavailability
 - about_listing
 - about_summary
-
-# Overview
-
-1. <code>storage</code> is the **country-level rollup of European gas storage** published by GIE (Gas Infrastructure Europe) via the AGSI+ platform. Each row reports one country's gas storage state for one gas day: absolute stock (<code>gas_in_storage_gwh</code>), injection/withdrawal flows (<code>injection_gwh</code> / <code>withdrawal_gwh</code> / <code>net_withdrawal_gwh</code>), capacity-side metrics (<code>working_gas_volume_gwh</code>, <code>injection_capacity_gwh_per_day</code>), and convenience aggregates (<code>storage_pct_full</code>, <code>trend</code>). Coverage is the nine-country AGSI footprint: AT, BE, DE, ES, FR, GB, IT, NL, PL.
-
-2. Gridflow fetches it from <code>agsi.gie.eu/api</code> with header authentication (`x-key` — lowercase, vendor-enforced; capitalised `X-Key` returns 401) and the API key from <code>GIE_API_KEY</code>. The connector dispatch lives in <code>connectors/gie/client.py::_fetch_agsi_storage</code> with endpoint registration in <code>connectors/gie/endpoints.py</code>. Pagination uses `last_page` (source of truth) rather than `total` (which is the per-page row count). The <code>GasStorageTransformer</code> at <code>silver/gie/agsi.py L115</code> handles the country-scope variant; the same class is reused for facility-level data via the <code>StorageReportsTransformer</code> subclass at L274. Pydantic class <code>GasStorage</code> is declared at <code>schemas/gie.py L12</code>.
-
-3. Cadence is daily snapshots refreshed around 16:00 CET. Verified against the live API on 2026-05-08; the Germany sample for 2026-05-06 returned `gas_in_storage_gwh: 65.96`, `storage_pct_full: 26.62`, `trend: -0.57` (withdrawing). **Gas day starts at 06:00 UTC, not midnight** — see Caveats #03. GB is in the footprint but returns `"United Kingdom (Pre-Brexit)"` with `"-"` placeholders for all numerical fields since 2020 (data is unusable). The transformer converts `"-"` to null via <code>_safe_float</code>; downstream filters on `status = "E"` (estimate) or `status = "C"` (confirmed) yield clean rows.
+- lng
 
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "DE storage · pct_full · last 12 months"
-- **Subtitle:** "Sparkline · % full · daily · UTC · 2025-06 → 2026-05"
+- **Subtitle:** "Sparkline · % full · daily · gas-day · 2025-06 → 2026-05"
 - **Seed:** 17
 - **Toggles:** `1y` (active) / `5y`
 
 # Schema
 
-Defined in `gridflow/schemas/gie.py` · `GasStorage` (line 12) and `gridflow/silver/gie/agsi.py` · `GasStorageTransformer` (line 115). Partitioned by `gas_day` (year + month). Point-in-time field: `updated_at` (vendor `updatedAt` revision timestamp).
+Defined in `gridflow/schemas/gie.py` · `GasStorage` (lines 12-47) and `gridflow/silver/gie/agsi.py` · `GasStorageTransformer` (line 115). Partitioned by `gas_day` (year + month). Point-in-time field: `updated_at` (vendor `updatedAt`).
 
 | Column | Type | Nullable | Source field | Notes | Gridflow citation |
 |---|---|---|---|---|---|
-| `gas_day` | `date` | No | `gasDayStart` | Gas day, NOT calendar day — starts at 06:00 UTC. See Caveats #03. | `schemas/gie.py L12+` |
-| `gas_day_end` | `datetime[UTC]` | Yes | `gasDayEnd` | End of the same gas day window. | `schemas/gie.py` |
-| `updated_at` | `datetime[UTC]` | Yes | `updatedAt` | Vendor revision timestamp. Use for as-of filtering on revised data. | `schemas/gie.py` |
-| `entity_level` | `str` | No | _derived_ | Always `"country"` for this dataset (vs `"facility"` for `storage_reports`). | `silver/gie/agsi.py L115+` |
-| `entity_code` | `str` | No | `country` request param + `code` response | ISO-2 country code (`AT`, `BE`, `DE`, ...). | `schemas/gie.py` |
-| `entity_name` | `str` | No | `name` | Human-readable country name. | `schemas/gie.py` |
-| `entity_url` | `str` | Yes | `url` | Vendor URL slug. | `schemas/gie.py` |
-| `country_code` | `str` | No | request `country` | Duplicate of `entity_code` for consistency with other AGSI datasets. | `schemas/gie.py` |
-| `country_name` | `str` | No | `name` | Duplicate of `entity_name`. | `schemas/gie.py` |
-| `gas_in_storage_gwh` | `float` | Yes | `gasInStorage` | **GWh** (NOT MWh — GIE convention). `"-"` placeholder → null. | `schemas/gie.py` |
-| `consumption_gwh` | `float` | Yes | `consumption` | Daily consumption in GWh. | `schemas/gie.py` |
-| `consumption_full_pct` | `float` | Yes | `consumptionFull` | Consumption as % of working gas volume. | `schemas/gie.py` |
-| `injection_gwh` | `float` | Yes | `injection` | Daily injection in GWh. | `schemas/gie.py` |
-| `withdrawal_gwh` | `float` | Yes | `withdrawal` | Daily withdrawal in GWh. | `schemas/gie.py` |
-| `net_withdrawal_gwh` | `float` | Yes | `netWithdrawal` | Signed: positive = withdrawing (drawing down stock), negative = injecting. | `schemas/gie.py` |
-| `working_gas_volume_gwh` | `float` | Yes | `workingGasVolume` | Total usable capacity in GWh. | `schemas/gie.py` |
-| `injection_capacity_gwh_per_day` | `float` | Yes | `injectionCapacity` | Daily injection capacity. | `schemas/gie.py` |
-| `withdrawal_capacity_gwh_per_day` | `float` | Yes | `withdrawalCapacity` | Daily withdrawal capacity. | `schemas/gie.py` |
-| `contracted_capacity_gwh_per_day` | `float` | Yes | `contractedCapacity` | Capacity contracted to shippers. | `schemas/gie.py` |
-| `available_capacity_gwh_per_day` | `float` | Yes | `availableCapacity` | Capacity still available to contract. | `schemas/gie.py` |
-| `covered_capacity_gwh_per_day` | `float` | Yes | `coveredCapacity` | Capacity covered by storage obligations. | `schemas/gie.py` |
-| `storage_pct_full` | `float` | Yes | `full` | 0-100, clamped at schema layer. The headline winter-tightness indicator. | `schemas/gie.py` |
-| `trend` | `float` | Yes | `trend` | Signed daily change in `storage_pct_full`. | `schemas/gie.py` |
-| `status` | `str` | Yes | `status` | `E` = estimate, `C` = confirmed, `N` = no value (filter out). | `schemas/gie.py` |
-| `info` | `str` | Yes | `info` | JSON-encoded freeform info object (rare). | `schemas/gie.py` |
-| `data_provider` | `str` | No | _derived_ | Always `"gie_agsi"` (NOT `"gie"` — gridflow distinguishes the AGSI sub-product). | `schemas/gie.py` |
-| `ingested_at` | `datetime[UTC]` | No | _derived_ | Silver write timestamp. | `schemas/gie.py` |
+| `gas_day` | `date` | No | `gasDayStart` | Gas day, NOT calendar day — starts at 06:00 UTC. | `schemas/gie.py L15`; `silver/gie/agsi.py L184` |
+| `country_code` | `str` | No (default `""`) | request `country` / `code` | ISO-2 (e.g. `DE`, `FR`, `GB`). | `schemas/gie.py L16`; `silver/gie/agsi.py L175-177` |
+| `country_name` | `str` | No (default `""`) | `name` | Human-readable country. | `schemas/gie.py L17`; `silver/gie/agsi.py L179-181` |
+| `gas_day_end` | `Optional[datetime]` | Yes | `gasDayEnd` | End of the same gas-day window. | `schemas/gie.py L18`; `silver/gie/agsi.py L185` |
+| `updated_at` | `Optional[datetime]` | Yes | `updatedAt` | Vendor revision timestamp; use for as-of filtering. | `schemas/gie.py L19`; `silver/gie/agsi.py L186` |
+| `entity_level` | `str` | No (default `"country"`) | _derived_ | Always `"country"` for this dataset. | `schemas/gie.py L20`; `silver/gie/agsi.py L160-165` |
+| `entity_code` | `str` | No (default `""`) | `code` / request param | ISO-2 country code. | `schemas/gie.py L21`; `silver/gie/agsi.py L166-173` |
+| `entity_name` | `str` | No (default `""`) | `name` | Human-readable country. | `schemas/gie.py L22` |
+| `entity_url` | `Optional[str]` | Yes | `url` | Vendor URL slug. | `schemas/gie.py L23` |
+| `gas_in_storage_gwh` | `Optional[float]` | Yes | `gasInStorage` | **GWh** (NOT MWh). `"-"` → null via `_safe_float`. | `schemas/gie.py L24`; `silver/gie/agsi.py L193` |
+| `consumption_gwh` | `Optional[float]` | Yes | `consumption` | Daily consumption (GWh). | `schemas/gie.py L25`; `silver/gie/agsi.py L194` |
+| `consumption_full_pct` | `Optional[float]` | Yes | `consumptionFull` | Consumption as % of working-gas volume. | `schemas/gie.py L26`; `silver/gie/agsi.py L195` |
+| `withdrawal_gwh` | `Optional[float]` | Yes | `withdrawal` | Daily withdrawal (GWh). | `schemas/gie.py L27`; `silver/gie/agsi.py L197` |
+| `injection_gwh` | `Optional[float]` | Yes | `injection` | Daily injection (GWh). | `schemas/gie.py L28`; `silver/gie/agsi.py L196` |
+| `net_withdrawal_gwh` | `Optional[float]` | Yes | `netWithdrawal` | Signed daily delta; positive = withdrawing. | `schemas/gie.py L29`; `silver/gie/agsi.py L198` |
+| `working_gas_volume_gwh` | `Optional[float]` | Yes | `workingGasVolume` | Total usable capacity (GWh). | `schemas/gie.py L30`; `silver/gie/agsi.py L199` |
+| `injection_capacity_gwh_per_day` | `Optional[float]` | Yes | `injectionCapacity` | GWh/day. | `schemas/gie.py L31` |
+| `withdrawal_capacity_gwh_per_day` | `Optional[float]` | Yes | `withdrawalCapacity` | GWh/day. | `schemas/gie.py L32` |
+| `contracted_capacity_gwh_per_day` | `Optional[float]` | Yes | `contractedCapacity` | Capacity contracted to shippers. | `schemas/gie.py L33` |
+| `available_capacity_gwh_per_day` | `Optional[float]` | Yes | `availableCapacity` | Capacity still available to contract. | `schemas/gie.py L34` |
+| `covered_capacity_gwh_per_day` | `Optional[float]` | Yes | `coveredCapacity` | Capacity covered by storage obligations. | `schemas/gie.py L35` |
+| `storage_pct_full` | `Optional[float]` | Yes | `full` | 0-100, clamped by validator. Headline indicator. | `schemas/gie.py L36, L42-47`; `silver/gie/agsi.py L205` |
+| `trend` | `Optional[float]` | Yes | `trend` | Signed daily delta of `storage_pct_full`. | `schemas/gie.py L37`; `silver/gie/agsi.py L206` |
+| `status` | `Optional[str]` | Yes | `status` | `E` estimate · `C` confirmed · `N` no value. | `schemas/gie.py L38`; `silver/gie/agsi.py L207` |
+| `info` | `Optional[str]` | Yes | `info` | JSON-encoded freeform object. | `schemas/gie.py L39`; `silver/gie/agsi.py L208` |
+| `data_provider` | `str` | No (default `"gie_agsi"`) | _derived_ | Always `"gie_agsi"`. | `schemas/gie.py L40`; `silver/gie/agsi.py L209` |
+| `ingested_at` | `datetime[UTC]` | No | _derived_ | Silver write timestamp. | `silver/gie/agsi.py L210` |
 
 **PARQUET PATH:** `data/silver/gie_agsi/storage/year=YYYY/month=MM/`
 **PARTITION BY:** `gas_day (year + month)`
-**DEDUP KEY:** `(gas_day, entity_level, entity_code, entity_url)` — keep latest by `updated_at`
+**DEDUP KEY:** `(gas_day, entity_level, entity_code, entity_url)` — keep last (`silver/gie/agsi.py L216-224`)
 
 # Sample data
 
 | gas_day | entity_code | gas_in_storage_gwh | injection_gwh | withdrawal_gwh | net_withdrawal_gwh | storage_pct_full | trend | status |
 |---|---|---|---|---|---|---|---|---|
-| 2026-05-06 | DE | 65.96 | 182.43 | 60.30 | -122.13 | 26.62 | -0.57 | E |
+| 2026-05-06 | DE | 65.9608 | 182.43 | 60.3 | -122.1 | 26.62 | -0.57 | E |
 | 2026-05-06 | FR | 84.20 | 95.10 | 12.40 | -82.70 | 33.45 | -0.40 | E |
-| _ROW HIGHLIGHTED_ 2026-05-06 | GB | _null_ | _null_ | _null_ | _null_ | _null_ | _null_ | N |
+| **2026-05-06** | **GB** | _null_ | _null_ | _null_ | _null_ | _null_ | _null_ | **N** |
 | 2026-05-06 | NL | 41.30 | 78.20 | 8.10 | -70.10 | 29.85 | -0.31 | C |
 | 2026-05-06 | IT | 92.40 | 142.60 | 15.30 | -127.30 | 38.20 | -0.49 | E |
 | 2026-05-06 | AT | 38.10 | 47.20 | 4.60 | -42.60 | 35.10 | -0.42 | E |
 | 2026-05-06 | BE | 4.85 | 6.20 | 0.40 | -5.80 | 28.30 | -0.31 | E |
 | 2026-05-06 | ES | 18.40 | 21.10 | 3.50 | -17.60 | 39.60 | -0.34 | E |
 
-[1] First row (DE) from vault Silver sample (live 2026-05-08); subsequent country rows synthesised respecting the schema's GWh-and-% ranges and the early-May "shoulder-season injection" macro pattern (positive injection, small withdrawal, percent-full slowly rising from winter lows). The highlighted row is GB — `"United Kingdom (Pre-Brexit)"` with `status: "N"` (no value); all numeric columns are null. GB has been unusable in AGSI since 2020 — fall back to UK-specific sources (e.g. National Gas Transmission published statistics) for British storage. PL has been excluded from the sample since AGSI tracks it but PL's recent statistics are sparse.
+**Sources:** DE row verbatim from vault Silver sample (live 2026-05-08); remaining 7 country rows synthesised respecting the schema's GWh-and-% ranges and the early-May shoulder-season injection pattern. The highlighted **GB** row demonstrates the post-Brexit unusability: `"-"` placeholders converted to null by `_safe_float`, `status: "N"`. Always filter `WHERE status IN ('E', 'C')` for GB-inclusive aggregates.
 
-# AGSI footprint (country codelist)
+# Dataset-specific section: AGSI country footprint
 
-The nine countries covered by AGSI+ as of 2026. Querying any other ISO-2 code returns empty data.
+The 9 countries covered by AGSI as of 2026 (`AGSI_COUNTRIES`, `connectors/gie/endpoints.py L14`).
 
-| Code | Country | Notes |
-|---|---|---|
-| `AT` | Austria | |
-| `BE` | Belgium | |
-| `DE` | Germany | Largest single-country storage; dominant European winter buffer |
-| `ES` | Spain | |
-| `FR` | France | |
-| `GB` | United Kingdom | **Unusable post-Brexit** — returns `"-"` placeholders since 2020. Vendor still publishes the row with `status: "N"` for consistency. |
-| `IT` | Italy | |
-| `NL` | Netherlands | Includes Groningen historical (now ~0 since closure) |
-| `PL` | Poland | |
+- `AT` — Austria
+- `BE` — Belgium
+- `DE` — Germany (largest single-country storage; dominant EU winter buffer)
+- `ES` — Spain
+- `FR` — France
+- `GB` — United Kingdom (**unusable post-Brexit** — see Caveats #02)
+- `IT` — Italy
+- `NL` — Netherlands (includes Groningen historical, now ~0 since closure)
+- `PL` — Poland
 
 # API & ingestion
 
-**Endpoint card:**
-- **ENDPOINT**: `agsi.gie.eu/api?country={ISO2}&date={YYYY-MM-DD}` (single-day) or `&from={YYYY-MM-DD}&to={YYYY-MM-DD}` (range)
-- **AUTH**: header `x-key` (LOWERCASE — `X-Key` returns 401) with key from env `GIE_API_KEY` ([register at agsi.gie.eu](https://agsi.gie.eu/account/registration))
+**Card 1 — Endpoint + Auth**
+- ENDPOINT: `agsi.gie.eu/api?country={ISO2}&date={YYYY-MM-DD}` (single day) or `&from=…&to=…` (range)
+- AUTH: header `x-key` (LOWERCASE — `X-Key` returns 401), key from env `GIE_API_KEY`. Free registration at [agsi.gie.eu/account/registration](https://agsi.gie.eu/account/registration).
 
-**Bronze + Transformer card:**
-- **BRONZE PATH**: `data/bronze/gie_agsi/storage/<year>/<month>/<day>/raw_<uuid>.json`
-- **TRANSFORMER**: `gridflow.silver.gie.agsi.GasStorageTransformer` (registered at `silver/gie/agsi.py L624`)
+**Card 2 — Bronze + Transformer**
+- BRONZE PATH: `data/bronze/gie_agsi/storage/<year>/<month>/<day>/raw_<uuid>.json`
+- TRANSFORMER: `gridflow.silver.gie.agsi.GasStorageTransformer` (registered at `silver/gie/agsi.py L624`)
 
-**Tab 1 — Example URL:**
+**Tab 1 — Example URL**
 ```
-https://agsi.gie.eu/api
-  ?country=DE
-  &from=2026-05-01
-  &to=2026-05-07
+https://agsi.gie.eu/api?country=DE&from=2026-05-01&to=2026-05-07&size=300
+
+Header: x-key: $GIE_API_KEY
 ```
 
-Header: `x-key: $GIE_API_KEY`
-
-**Tab 2 — DuckDB · SQL:**
+**Tab 2 — DuckDB · SQL**
 ```sql
 -- European storage trajectory: percent-full per country, last 90 days
 SELECT entity_code,
@@ -177,18 +166,16 @@ WHERE status IN ('E', 'C')                      -- exclude GB no-value rows
 ORDER BY entity_code, gas_day;
 ```
 
-**Tab 3 — Python · parquet:**
+**Tab 3 — Python · polars**
 ```python
 import polars as pl
 
-df = pl.read_parquet(
-    "data/silver/gie_agsi/storage/**/*.parquet",
-)
-# EU-wide storage trajectory: rolling sum of country gas_in_storage_gwh
+df = pl.read_parquet("data/silver/gie_agsi/storage/**/*.parquet")
+# EU-wide rolling stock — sum country gas_in_storage and convert to TWh
 eu = (
     df.filter(pl.col("status").is_in(["E", "C"]))
       .group_by("gas_day")
-      .agg(pl.col("gas_in_storage_gwh").sum().alias("eu_total_twh") / 1000)
+      .agg((pl.col("gas_in_storage_gwh").sum() / 1000).alias("eu_total_twh"))
       .sort("gas_day")
 )
 print(eu.tail(30))
@@ -198,34 +185,31 @@ print(eu.tail(30))
 
 ## 01 Unit is GWh — NOT MWh
 
-GIE reports gas storage in **GWh** (and capacities in GWh/day). Divide by 1000 to express in TWh, or multiply by 1000 to compare against MWh-denominated power-market datasets. The vault Implementation Delta confirms this convention is intentional. *Source: vault Known Issues + GIE API docs.*
+GIE reports stocks in `gas_in_storage_gwh` and capacities in `*_gwh_per_day`. Divide by 1000 for TWh; multiply by 1000 to align with MWh power-market datasets. *(Source: vault Known Issues; `schemas/gie.py L24`.)*
 
 ## 02 GB is in the footprint but unusable post-Brexit
 
-`country=GB` returns a valid row with `name: "United Kingdom (Pre-Brexit)"` but all numeric values are `"-"` (vendor placeholder, converted to null by `_safe_float`) and `status: "N"`. The vendor keeps GB in the footprint for backwards compatibility with pre-2020 data. For UK storage, use National Gas Transmission published statistics directly. Filter out GB silently OR document the gap in any UK-inclusive aggregation. *Source: vault Known Issues #4.*
+`country=GB` returns `"United Kingdom (Pre-Brexit)"` with `"-"` placeholders for all numeric fields and `status: "N"`. `_safe_float` converts `"-"` → null. Filter `WHERE status IN ('E', 'C')` for GB-inclusive aggregates. *(Source: vault Known Issues.)*
 
 ## 03 Gas day starts at 06:00 UTC, NOT midnight
 
-The `gas_day` column is a `date`, not a timestamp. The gas day for 2026-05-06 runs from 2026-05-06 06:00 UTC to 2026-05-07 06:00 UTC (per the European gas-market convention). Do not synthesise a midnight timestamp without applying the +06:00 offset, or you will mis-align with cross-vendor power-market datasets that use calendar days. *Source: vault Known Issues + 20-domain/concepts/gas-day.md.*
+`gas_day` is a `date`. Gas day for `2026-05-06` runs 2026-05-06 06:00 UTC → 2026-05-07 06:00 UTC. Apply the +06:00 offset when joining intra-day calendar-day datasets. *(Source: vault Known Issues + `20-domain/concepts/gas-day.md`.)*
 
 ## 04 `x-key` header MUST be lowercase
 
-The vendor enforces lowercase header naming for the API key. Capitalised `X-Key` (which is what most HTTP libraries default to via case-insensitive expansion) returns HTTP 401. The connector at `connectors/gie/client.py` is explicit about case. Custom HTTP code that adds the header must do so verbatim. *Source: vault Known Issues #1.*
+Vendor enforces lowercase. Capitalised `X-Key` (default in many HTTP libs) returns HTTP 401. *(Source: vault Known Issues #1.)*
 
-## 05 `status: "N"` filtering is non-optional
+## 05 `last_page` is pagination source of truth
 
-Rows with `status: "N"` carry null values for every numeric column. Aggregations that sum across countries without filtering produce silent null-dominated results. Always `WHERE status IN ('E', 'C')` for any GB-inclusive cross-country aggregation, or explicitly handle the null pattern. *Source: vault Modelling notes + domain knowledge.*
+`last_page` is the global page count; `total` is the per-page row count. Iterating on `total` mis-paginates. *(Source: vault Known Issues #2.)*
 
-## 06 `last_page` is the pagination source of truth
+## 06 `gas_day_start_validation` is enforced by the connector
 
-The `last_page` field in the response envelope is authoritative for pagination; the `total` field is the per-page row count and will mislead any caller that treats it as the global count. Iterate `page=1..last_page`. The connector handles this correctly; custom callers should not. *Source: vault Known Issues #2.*
+A `date=YYYY-MM-DD` query that returns a different gas day fails loudly — guards against silent vendor caching errors. *(Source: vault Known Issues.)*
 
 # Related datasets
 
-- **`storage_reports`** (GIE-AGSI) — Facility-level (not country-level) version of this dataset; chip `daily` — same `/api` endpoint, but `entity_level: "facility"` and one row per storage facility per gas day. Use when country-level rollup hides facility-specific dynamics (Groningen closure, German storage obligations). *gie · storage · daily*
-
-- **`aggregated_physical_flows`** (ENTSOG) — Daily cross-border gas flows; chip `daily` — pair with the `Storage`-direction rows in ENTSOG to validate AGSI injection/withdrawal against pipeline-network attribution. *entsog · transmission · daily*
-
-- **`unavailability`** (GIE-AGSI) — Planned outages of storage facilities; chip `as published` — flag periods where storage capacity is reduced; pair with this dataset's capacity columns to derive effective-capacity-net-of-outages. *gie · storage · as published*
-
-- **`forecast_demand`** (Open-Meteo) — Weather-driven gas demand forecasts; chip `hourly` — combine with this dataset's `withdrawal_gwh` for the canonical "weather-driven storage drawdown" winter-tightness model. *open-meteo · forecast · hourly*
+- **`storage_reports`** — Facility-level (and aggregate/company) version of this dataset. `daily` — same `/api` endpoint, finer `entity_level` granularity (aggregate / country / company / facility). Use when country roll-up hides facility dynamics. `gie · storage · daily`
+- **`unavailability`** — Planned outages of storage facilities. `as published` — flag periods where storage capacity is reduced; pair with capacity columns to derive effective net-of-outages capacity. `gie · storage · as published`
+- **`aggregated_physical_flows`** (ENTSOG) — Daily cross-border gas flows. `daily` — pair AGSI net withdrawal with ENTSOG pipeline-network attribution to validate gas balance. `entsog · transmission · daily`
+- **`lng`** (GIE ALSI) — Daily LNG terminal inventory and send-out. `daily` — combine LNG inflow with AGSI storage trajectory for the full supply-buffer picture. `gie · lng · daily`
