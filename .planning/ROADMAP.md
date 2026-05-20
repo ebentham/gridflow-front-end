@@ -18,7 +18,7 @@
 
 - [x] **Phase 7: Reconciliation** — Wrap the existing verifier as `gridflow-drift-check`; run Verification across all 6 Vendors; triage every Drift finding into `open` / `wontfix-v3` / `needs-info`+`defer-entitlement`; land Vault edits for the fixable bucket; commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002 *(gating for content phases 9 and 10; independent of Phase 8 per ADR-0001 D-03)* **[Complete 2026-05-19 — RECON-01..RECON-05 satisfied]**
 - [~] **Phase 8: Dataset-page formatting bug fix** — Attempted as locked-scope minimal CSS patch; **two iterations failed visual verification** at BUG-02 user-checkpoint; root cause turned out to be editorial-content gap in vault, not a rendering-layer bug *(closed as superseded 2026-05-19; see `phases/08-bug-fix-dataset-formatting/08-01-SUMMARY.md`)*
-- [ ] **Phase 8B: Claude-Design hero rewrite (hybrid authored/templated)** — Adopt hand-authored pages for showcase datasets; add `authored-pages/<vendor>/<slug>.html` override path to `build.py` so authored pages bypass the template; long tail still vault-driven via Jinja2. Carries forward BUG-01/BUG-02/BUG-03 from Phase 8 with re-scoped acceptance *(gating for Phase 9 and Phase 10; replaces Phase 8 as the template-quality gate)*
+- [x] **Phase 8B: Claude-Design hero rewrite (hybrid authored/templated)** — Adopt hand-authored pages for showcase datasets; add `authored-pages/<vendor>/<slug>.html` override path to `build.py` so authored pages bypass the template; long tail still vault-driven via Jinja2. Carries forward BUG-01/BUG-02/BUG-03 from Phase 8 with re-scoped acceptance *(gating for Phase 9 and Phase 10; replaces Phase 8 as the template-quality gate)* **[Complete 2026-05-20 — all 33 Elexon datasets ported under authored-pages/elexon/; BUG-01/BUG-02/BUG-03 satisfied; build.py override path wired]**
 - [ ] **Phase 9: ENTSO-E full coverage** — Vendor 48 new ENTSO-E `.md` files; extend `entsoe.json` to 49 datasets; render all 49 pages at `fuelhh` fidelity; upgrade hub from 1-dataset proof to 49-dataset catalog *(stress-tests the template at scale on a non-Elexon vendor — different schema vocabulary: codelists, PSR types, BIDDING_ZONE references; ENTSO-E entitlement choice — extend access vs skip-with-warn — lands in this phase's discuss-phase per Phase 7 D-06)*
 - [ ] **Phase 10: Four-vendor batch coverage + site-wide consistency** — Vendor and render ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new pages; move 4 vendor entries from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`; update site-wide count strings to 163; every vendor row on the catalog links to a real hub
 
@@ -118,11 +118,11 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
 | 7. Reconciliation | 4/4 | Complete | 2026-05-19 |
 | 8. Dataset-page formatting bug fix | 1/1 (failed) | Closed/superseded by 8B | 2026-05-19 |
-| 8B. Claude-Design hero rewrite (hybrid) | 0/? | Ready to plan | — |
+| 8B. Claude-Design hero rewrite (hybrid) | 1/1 | Complete | 2026-05-20 |
 | 9. ENTSO-E full coverage | 0/? | Not started (blocked on 8B) | — |
 | 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started (blocked on 8B + 9) | — |
 
-v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 5/31 REQ-IDs delivered (RECON-01..RECON-05 complete — Phase 7 done 2026-05-19).
+v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 8/31 REQ-IDs delivered (RECON-01..RECON-05 complete — Phase 7 done 2026-05-19; BUG-01/BUG-02/BUG-03 complete — Phase 8B done 2026-05-20).
 
 ---
 
