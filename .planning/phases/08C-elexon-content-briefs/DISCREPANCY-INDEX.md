@@ -11,7 +11,7 @@
 
 **Pattern:** `schemas/elexon.py` declares only 12 Pydantic classes (`ElexonSystemPrice`, `ElexonGenerationByFuel`, `ElexonFuelHH`, `ElexonBOAL`, `ElexonBOD`, `ElexonMID`, `ElexonFrequency`, `ElexonDemandForecast`, `ElexonWindForecast`, `ElexonPN`, `ElexonDISBSAD`, `ElexonBMUnit`). The other 21 active Elexon datasets have no Pydantic class — their silver-layer shape is defined by `<Transformer>.output_cols` lists alone. Any downstream code that imports a non-existent `ElexonAGPT` / `ElexonAGWS` / etc. will fail at import.
 
-**Affected datasets** (21): `agpt`, `agws`, `atl`, `disbsad` (has class but discrepancy here is unrelated — list it under category 2), `fou2t14d`, `fuelinst`, `imbalngc`, `inddem`, `indgen`, `indo`, `indod`, `itsdo`, `lolpdrm`, `market_depth`, `melngc`, `netbsad`, `nonbm`, `soso`, `temp`, `tsdf`, `tsdfd`, `uou2t14d`.
+**Affected datasets** (21): `agpt`, `agws`, `atl`, `fou2t14d`, `imbalngc`, `inddem`, `indgen`, `indo`, `indod`, `itsdo`, `lolpdrm`, `market_depth`, `melngc`, `netbsad`, `nonbm`, `remit`, `soso`, `temp`, `tsdf`, `tsdfd`, `uou2t14d`.
 
 **Per-occurrence template** (consistent across all 21):
 - source_a: `gridflow schemas/elexon.py`
