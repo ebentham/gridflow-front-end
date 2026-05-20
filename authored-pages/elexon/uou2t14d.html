@@ -34,7 +34,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="uou2t14d.html" class="active">uou2t14d</a><a href="fou2t14d.html" style="color:var(--ink-faint)">fou2t14d</a>
         <a href="bmunits_reference.html" style="color:var(--ink-faint)">bmunits_reference</a>
         <a href="pn.html" style="color:var(--ink-faint)">pn</a>
@@ -42,7 +42,16 @@
         <a href="ndfd.html" style="color:var(--ink-faint)">ndfd</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>uou2t14d</code> is the daily-published per-BMU 2-to-14-day-ahead availability — the canonical unit-level declaration that aggregates to <code>fou2t14d</code> when summed by fuel. It is used for outage-impact analysis, redispatch modelling, and reconciliation with the BMU reference list.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/UOU2T14D</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (max chunk = 4 hours). The raw JSON lands in bronze and is written to the silver parquet partition via <code>UOU2T14DTransformer</code> — fuel_type is dropped from silver output, so fuel context must come from <code>bmunits_reference</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed daily with 0 publication lag (forward-looking). Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div><h2 class="display-3 mb-24">BMU availability by fuel · 14-day <span class="italic fg-accent">forward.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">uou2t14d · silver layer</div><div class="small">Stacked area · MW · forecast delivery date · published 6 May 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">14d</span><span class="chip btn-like">7d</span><span class="chip btn-like">2d</span></div></div>

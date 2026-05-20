@@ -33,7 +33,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="itsdo.html" class="active">itsdo</a><a href="indo.html" style="color:var(--ink-faint)">indo</a>
         <a href="atl.html" style="color:var(--ink-faint)">atl</a>
         <a href="indod.html" style="color:var(--ink-faint)">indod</a>
@@ -41,11 +41,20 @@
         <a href="tsdfd.html" style="color:var(--ink-faint)">tsdfd</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>itsdo</code> is the half-hourly GB transmission-system demand outturn — <code>indo</code>'s transmission-only counterpart that excludes embedded generation. It is the canonical outturn for transmission imbalance, embedded-generation derivation (as <code>indo</code> − <code>itsdo</code>), and TSDF forecast-error analysis.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/ITSDO</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>ITSDOTransformer</code> — no Pydantic class; same shape gap as <code>indo</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed every 30 minutes with ~5 minute publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div><h2 class="display-3 mb-24">Transmission demand · 24-hour <span class="italic fg-accent">profile.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">itsdo · silver layer</div><div class="small">Sparkline · MW · UTC · 6 May 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span><span class="chip btn-like">30d</span></div></div>
-          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":19}'></div>
+          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"shape":"diurnal-load","params":{"peak":38000,"trough":22000,"noise":0.04,"seed":19}}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

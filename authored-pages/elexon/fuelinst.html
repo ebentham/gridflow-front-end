@@ -34,7 +34,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#fuel-types">Fuel types</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#fuel-types">Fuel types</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="fuelinst.html" class="active">fuelinst</a><a href="fuelhh.html" style="color:var(--ink-faint)">fuelhh</a>
         <a href="agpt.html" style="color:var(--ink-faint)">agpt</a>
         <a href="agws.html" style="color:var(--ink-faint)">agws</a>
@@ -42,7 +42,16 @@
         <a href="freq.html" style="color:var(--ink-faint)">freq</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>fuelinst</code> is the five-minute GB generation outturn by fuel type — the near-real-time companion to <code>fuelhh</code>'s half-hourly aggregate. It is the canonical signal for live stack monitoring, intra-period dispatch analysis, and validation of the FUELHH roll-up.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/FUELINST</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>FuelInstTransformer</code> — keyed on <code>(timestamp_utc, fuel_type)</code> rather than settlement-period, reflecting its 5-minute cadence.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed every ~5 minutes with ~1 minute publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">GB generation mix · 5-minute <span class="italic fg-accent">resolution.</span></h2>
         <div class="chart" style="padding:24px 28px">

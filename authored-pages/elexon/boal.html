@@ -34,7 +34,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="boal.html" class="active">boal</a><a href="pn.html" style="color:var(--ink-faint)">pn</a>
         <a href="bmunits_reference.html" style="color:var(--ink-faint)">bmunits_reference</a>
         <a href="disbsad.html" style="color:var(--ink-faint)">disbsad</a>
@@ -42,12 +42,21 @@
         <a href="system_prices.html" style="color:var(--ink-faint)">system_prices</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>boal</code> is the per-BMU GB balancing-mechanism acceptance feed — every accepted bid or offer instruction, keyed on <code>(settlement_date, settlement_period, bm_unit_id, acceptance_number)</code>. It is the canonical audit trail for BSC settlement, BMU dispatch modelling, and STOR analysis. The Elexon API now serves it as <code>BOALF</code>; gridflow keeps the legacy slug.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/BOALF</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonBOAL</code>, and written to silver via <code>BOALTransformer</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed hourly with ~10 minute publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">Top 10 BMUs by acceptance volume · last 24 <span class="italic fg-accent">hours.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">boal · silver layer</div><div class="small">Horizontal bars · |MW| accepted · UTC · 6 May 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span><span class="chip btn-like">30d</span></div></div>
-          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":8}'></div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"items":[{"label":"T_DRAXX-1","value":540,"color":"#c9a96e","display":"540 MW"},{"label":"T_GRAIN-7","value":420,"color":"#c45a3a","display":"420 MW"},{"label":"T_PEMB-21","value":380,"color":"#c45a3a","display":"380 MW"},{"label":"T_SHBN-1","value":305,"color":"#3b6b4b","display":"305 MW"},{"label":"T_FFES-1","value":290,"color":"#86627d","display":"290 MW"},{"label":"T_DINO-1","value":245,"color":"#86627d","display":"245 MW"},{"label":"T_KEAD-2","value":220,"color":"#c45a3a","display":"220 MW"},{"label":"T_HRTL-1","value":195,"color":"#c45a3a","display":"195 MW"},{"label":"T_RCBKO-1","value":165,"color":"#3b6b4b","display":"165 MW"},{"label":"T_WLNYO-3","value":140,"color":"#3b6b4b","display":"140 MW"}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

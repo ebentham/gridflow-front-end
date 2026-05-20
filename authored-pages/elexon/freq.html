@@ -34,7 +34,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="freq.html" class="active">freq</a><a href="system_prices.html" style="color:var(--ink-faint)">system_prices</a>
         <a href="netbsad.html" style="color:var(--ink-faint)">netbsad</a>
         <a href="disbsad.html" style="color:var(--ink-faint)">disbsad</a>
@@ -42,12 +42,21 @@
         <a href="fuelinst.html" style="color:var(--ink-faint)">fuelinst</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>freq</code> is the second-by-second GB system frequency — the high-resolution telemetry for frequency-response models, RoCoF estimation, and ancillary-services validation. Statutory band is 49.5–50.5 Hz; the schema admits 49.0–51.0 to preserve genuine events.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/FREQ</code> using the <code>measurementDateTimeFrom</code> / <code>measurementDateTimeTo</code> pattern (post V2-FIX-01 — earlier bronze captured "latest 5761 samples" from the buggy publish-window). The raw JSON lands in bronze, is validated against <code>ElexonFrequency</code>, and written to silver via <code>FreqTransformer</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Published hourly with ~1 min lag (sample interval ~2 s). Verified against vendor docs on 2026-05-09.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">System frequency · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">freq · silver layer</div><div class="small">Sparkline · Hz · UTC · 6 May 2026</div></div><div class="row gap-8"><span class="chip btn-like">1h</span><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span></div></div>
-          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":50}'></div>
+          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"shape":"frequency","params":{"mean":50,"amplitude":0.15,"noise":0.03,"seed":50}}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

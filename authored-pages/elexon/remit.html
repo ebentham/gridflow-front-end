@@ -33,7 +33,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="remit.html" class="active">remit</a><a href="bmunits_reference.html" style="color:var(--ink-faint)">bmunits_reference</a>
         <a href="fou2t14d.html" style="color:var(--ink-faint)">fou2t14d</a>
         <a href="uou2t14d.html" style="color:var(--ink-faint)">uou2t14d</a>
@@ -41,11 +41,20 @@
         <a href="soso.html" style="color:var(--ink-faint)">soso</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>remit</code> is the per-asset GB outage and unavailability messages feed — REMIT Urgent Market Messages (UMMs) with full revision tracking. It is the canonical record for what's offline, capacity at risk, and outage attribution by fuel category.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/REMIT</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (max chunk = 23 hours). The raw JSON lands in bronze and is written to the silver parquet partition via <code>REMITTransformer</code> in <strong>append-only</strong> mode — 25 columns; every revision is preserved.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed as messages publish; PIT field is <code>revision_number</code>. Verified against vendor docs on 2026-05-09.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div><h2 class="display-3 mb-24">Active REMIT outages by fuel type · current <span class="italic fg-accent">snapshot.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">remit · silver layer</div><div class="small">Horizontal bars · unavailable MW · UTC · 2026-05-08</div></div><div class="row gap-8"><span class="chip ink btn-like">active</span><span class="chip btn-like">planned upcoming</span></div></div>
-          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":36}'></div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"items":[{"label":"Nuclear","value":1820,"color":"#86627d","display":"1820 MW"},{"label":"CCGT","value":1240,"color":"#c45a3a","display":"1240 MW"},{"label":"Coal","value":0,"color":"#5a5e5f","display":"0 MW"},{"label":"Wind","value":410,"color":"#3b6b4b","display":"410 MW"},{"label":"Interconnector","value":720,"color":"#5a8aa6","display":"720 MW"},{"label":"OCGT","value":180,"color":"#c45a3a","display":"180 MW"},{"label":"Biomass","value":290,"color":"#c9a96e","display":"290 MW"},{"label":"Hydro / pumped","value":130,"color":"#5a8aa6","display":"130 MW"}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

@@ -33,7 +33,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="ndfd.html" class="active">ndfd</a><a href="ndf.html" style="color:var(--ink-faint)">ndf</a>
         <a href="tsdf.html" style="color:var(--ink-faint)">tsdf</a>
         <a href="tsdfd.html" style="color:var(--ink-faint)">tsdfd</a>
@@ -41,11 +41,20 @@
         <a href="uou2t14d.html" style="color:var(--ink-faint)">uou2t14d</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>ndfd</code> is the daily-published 2-to-14-day-ahead GB demand forecast — the medium-horizon companion to <code>ndf</code> for forward margin, spark-spread analytics, and capacity-adequacy planning.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/NDFD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonDemandForecast</code> (shared schema with NDF), and written to silver via the same <code>DemandForecastTransformer</code> — NDFD payloads lack <code>settlementPeriod</code>, so the transformer fills with placeholder <code>1</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed daily with 12-day horizon and 0 publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div><h2 class="display-3 mb-24">GB demand forecast · 14-day <span class="italic fg-accent">horizon.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">ndfd · silver layer</div><div class="small">Sparkline · MW · UTC · forecast delivery dates · published 1 Apr 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">daily peak</span><span class="chip btn-like">daily mean</span></div></div>
-          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":32}'></div>
+          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"shape":"diurnal-load","params":{"peak":42000,"trough":27000,"noise":0.03,"seed":32}}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

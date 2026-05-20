@@ -96,7 +96,7 @@
     <nav class="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-section-title">On this page</div>
-        <a href="#snapshot" class="active">Snapshot chart</a>
+        <a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a>
         <a href="#schema">Schema</a>
         <a href="#sample">Sample data</a>
         <a href="#psr-types">PSR types</a>
@@ -117,7 +117,16 @@
     <div class="main-content">
 
       <!-- Snapshot chart -->
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>agpt</code> is the half-hourly GB generation by ENTSO-E Production-Source-of-Resource (PSR) type — the European B1620 cut that splits Wind into onshore and offshore, separates pumped storage from non-pumped hydro, and pulls each fuel into its own row. It is the canonical source for capacity factors and pan-European comparability.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/AGPT</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>AGPTTransformer</code> — no Pydantic class; shape is enforced by the transformer's <code>output_cols</code> (~25 PSR types per period).</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">Generation per PSR type · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
         <div class="chart" style="padding:24px 28px">
@@ -128,7 +137,7 @@
             </div>
             <div class="row gap-8"><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span><span class="chip btn-like">30d</span></div>
           </div>
-          <div data-chart="stackedArea" data-opts='{"width":900,"height":280,"seed":42}'></div>
+          <div data-chart="stackedArea" data-opts='{"width":900,"height":280,"series":[{"name":"Wind Onshore","color":"#3b6b4b","shape":"diurnal-wind","params":{"mean":3500,"volatility":1200,"persistence":0.75,"seed":42}},{"name":"Wind Offshore","color":"#5a8aa6","shape":"diurnal-wind","params":{"mean":5200,"volatility":1500,"persistence":0.78,"seed":43}},{"name":"Solar","color":"#d4a73a","shape":"diurnal-solar","params":{"peak":3800,"peak_hour":12.5,"half_width":5}},{"name":"Biomass","color":"#c9a96e","shape":"flat-baseload","params":{"mean":2200,"noise":0.04}},{"name":"Pumped Storage","color":"#86627d","shape":"bipolar-flow","params":{"amplitude":900,"period":12,"noise":0.2}}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

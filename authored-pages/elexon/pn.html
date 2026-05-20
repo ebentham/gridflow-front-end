@@ -33,7 +33,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="pn.html" class="active">pn</a><a href="boal.html" style="color:var(--ink-faint)">boal</a>
         <a href="bmunits_reference.html" style="color:var(--ink-faint)">bmunits_reference</a>
         <a href="disbsad.html" style="color:var(--ink-faint)">disbsad</a>
@@ -41,11 +41,20 @@
         <a href="system_prices.html" style="color:var(--ink-faint)">system_prices</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>pn</code> is the per-BMU GB physical notifications feed — every unit's declared output profile per settlement period, submitted pre-gate-closure. It is the canonical baseline for dispatch modelling, redispatched-MW derivation (PN vs <code>boal</code>), and PN-vs-outturn validation.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/PN</code> using the SETTLEMENT-DATE-PERIOD style (period-iterating fetch). The raw JSON lands in bronze, is validated against <code>ElexonPN</code>, and written to silver via <code>PNTransformer</code> — about 2.5k rows per period.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed hourly with ~10 minute publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div><h2 class="display-3 mb-24">Top 15 BMUs by absolute PN delta · last <span class="italic fg-accent">24h.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">pn · silver layer</div><div class="small">Horizontal bars · |level_to − level_from| MW · UTC · 6 May 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span><span class="chip btn-like">30d</span></div></div>
-          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":9}'></div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"items":[{"label":"T_DRAXX-1","value":295,"color":"#c9a96e","display":"295 MW"},{"label":"T_GRAIN-7","value":240,"color":"#c45a3a","display":"240 MW"},{"label":"T_PEMB-21","value":215,"color":"#c45a3a","display":"215 MW"},{"label":"T_HEYM-1","value":195,"color":"#86627d","display":"195 MW"},{"label":"T_FFES-1","value":175,"color":"#86627d","display":"175 MW"},{"label":"T_KEAD-2","value":160,"color":"#c45a3a","display":"160 MW"},{"label":"T_HRTL-1","value":145,"color":"#c45a3a","display":"145 MW"},{"label":"T_SHBN-1","value":135,"color":"#3b6b4b","display":"135 MW"},{"label":"T_RCBKO-1","value":125,"color":"#3b6b4b","display":"125 MW"},{"label":"T_WLNYO-3","value":115,"color":"#3b6b4b","display":"115 MW"},{"label":"T_DINO-1","value":105,"color":"#86627d","display":"105 MW"},{"label":"T_GANN-21","value":95,"color":"#3b6b4b","display":"95 MW"},{"label":"T_TKNEW-1","value":80,"color":"#3b6b4b","display":"80 MW"},{"label":"T_HUMR-1","value":70,"color":"#3b6b4b","display":"70 MW"},{"label":"T_BLLA-3","value":60,"color":"#3b6b4b","display":"60 MW"}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

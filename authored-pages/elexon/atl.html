@@ -96,7 +96,7 @@
     <nav class="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-section-title">On this page</div>
-        <a href="#snapshot" class="active">Snapshot chart</a>
+        <a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a>
         <a href="#schema">Schema</a>
         <a href="#sample">Sample data</a>
         <a href="#api">API &amp; ingestion</a>
@@ -117,7 +117,16 @@
     <div class="main-content">
 
       <!-- Snapshot chart -->
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>atl</code> is the half-hourly GB total load — Elexon's ENTSO-E-aligned consumption series for the whole transmission system. It underpins demand profiling, day-of-week and weather-correction work, and forecast-error analyses that pair it with <code>ndf</code> or <code>tsdf</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/ATL</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>ATLTransformer</code> — no Pydantic class; shape is enforced by the transformer's <code>output_cols</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">GB total load · 7-day <span class="italic fg-accent">snapshot.</span></h2>
         <div class="chart" style="padding:24px 28px">
@@ -128,7 +137,7 @@
             </div>
             <div class="row gap-8"><span class="chip btn-like">24h</span><span class="chip ink btn-like">7d</span><span class="chip btn-like">30d</span></div>
           </div>
-          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":13}'></div>
+          <div data-chart="sparkline" data-opts='{"width":900,"height":280,"shape":"diurnal-load","params":{"peak":42000,"trough":26000,"noise":0.04,"seed":13}}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

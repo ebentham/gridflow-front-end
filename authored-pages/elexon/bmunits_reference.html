@@ -96,7 +96,7 @@
     <nav class="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-section-title">On this page</div>
-        <a href="#snapshot" class="active">Snapshot chart</a>
+        <a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a>
         <a href="#schema">Schema</a>
         <a href="#sample">Sample data</a>
         <a href="#bm-unit-categories">BM-unit categories</a>
@@ -117,7 +117,16 @@
     <div class="main-content">
 
       <!-- Snapshot chart -->
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>bmunits_reference</code> is the GB BM-unit registry — the canonical lookup for unit metadata (lead party, fuel type, registered capacity, NGC code) referenced by every per-BMU dataset like <code>boal</code>, <code>pn</code>, and <code>uou2t14d</code>.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/reference/bmunits/all</code> using the NO-PARAMS style (single full-snapshot pull, no pagination). The raw JSON lands in bronze, is validated against <code>ElexonBMUnit</code>, and written to silver via <code>BMUnitsTransformer</code> — single non-partitioned reference file.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed weekly with 0 publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">BM units by fuel type · current <span class="italic fg-accent">snapshot.</span></h2>
         <div class="chart" style="padding:24px 28px">
@@ -128,7 +137,7 @@
             </div>
             <div class="row gap-8"><span class="chip ink btn-like">count</span><span class="chip btn-like">capacity (MW)</span></div>
           </div>
-          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":5}'></div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"items":[{"label":"CCGT","value":92,"color":"#c45a3a","display":"92 units"},{"label":"Wind","value":168,"color":"#3b6b4b","display":"168 units"},{"label":"Solar","value":24,"color":"#d4a73a","display":"24 units"},{"label":"Nuclear","value":16,"color":"#86627d","display":"16 units"},{"label":"Biomass","value":12,"color":"#c9a96e","display":"12 units"},{"label":"OCGT","value":41,"color":"#c45a3a","display":"41 units"},{"label":"Pumped storage","value":9,"color":"#86627d","display":"9 units"},{"label":"Hydro","value":28,"color":"#5a8aa6","display":"28 units"},{"label":"Storage (BESS)","value":86,"color":"#5a5e5f","display":"86 units"},{"label":"Interconnector","value":8,"color":"#5a8aa6","display":"8 units"}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

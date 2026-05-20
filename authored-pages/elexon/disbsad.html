@@ -34,7 +34,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="disbsad.html" class="active">disbsad</a><a href="netbsad.html" style="color:var(--ink-faint)">netbsad</a>
         <a href="boal.html" style="color:var(--ink-faint)">boal</a>
         <a href="system_prices.html" style="color:var(--ink-faint)">system_prices</a>
@@ -42,12 +42,21 @@
         <a href="nonbm.html" style="color:var(--ink-faint)">nonbm</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>disbsad</code> is the disaggregated GB non-BM balancing-services adjustment feed — one row per action, capturing volumes and costs for ESO services outside the BM. It is the canonical row-level reference for cost attribution, STOR analysis, and BSC settlement reconciliation.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it from <code>/datasets/DISBSAD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonDISBSAD</code>, and written to silver via <code>DISBSADTransformer</code> — the vendor's renamed <code>service</code> field is not yet mapped (vault refers to <code>component</code>).</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed daily with 1 day publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div>
         <h2 class="display-3 mb-24">Daily DISBSAD cost by component · last 30 <span class="italic fg-accent">days.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">disbsad · silver layer</div><div class="small">Horizontal bars · GBP · UTC · April 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">cost</span><span class="chip btn-like">volume (MWh)</span></div></div>
-          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":17}'></div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"items":[{"label":"STOR","value":1820000,"color":"#3b6b4b","display":"\u00a31.82M"},{"label":"Constraint","value":1240000,"color":"#c45a3a","display":"\u00a31.24M"},{"label":"Response","value":880000,"color":"#86627d","display":"\u00a30.88M"},{"label":"Reserve (BM)","value":620000,"color":"#c9a96e","display":"\u00a30.62M"},{"label":"Black start","value":410000,"color":"#5a8aa6","display":"\u00a30.41M"},{"label":"Footroom","value":310000,"color":"#5a5e5f","display":"\u00a30.31M"}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>

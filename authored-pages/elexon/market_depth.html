@@ -33,7 +33,7 @@
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="page-layout">
     <nav class="sidebar">
-      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#snapshot" class="active">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
+      <div class="sidebar-section"><div class="sidebar-section-title">On this page</div><a href="#overview" class="active">Overview</a><a href="#snapshot">Snapshot chart</a><a href="#schema">Schema</a><a href="#sample">Sample data</a><a href="#api">API &amp; ingestion</a><a href="#related">Related datasets</a></div>
       <div class="sidebar-section" style="margin-top:24px"><div class="sidebar-section-title">Elexon BMRS</div><a href="../elexon.html">← All datasets</a><a href="market_depth.html" class="active">market_depth</a><a href="system_prices.html" style="color:var(--ink-faint)">system_prices</a>
         <a href="netbsad.html" style="color:var(--ink-faint)">netbsad</a>
         <a href="disbsad.html" style="color:var(--ink-faint)">disbsad</a>
@@ -41,11 +41,20 @@
         <a href="imbalngc.html" style="color:var(--ink-faint)">imbalngc</a></div>
     </nav>
     <div class="main-content">
-      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+      <!-- ── Overview ── -->
+      <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
+        <div class="eyebrow mb-8">Overview</div>
+        <h2 class="display-3 mb-24">What this dataset is.</h2>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px"><code>market_depth</code> is the per-period GB balancing-market summary — Elexon's <code>/balancing/settlement/market-depth/{date}</code> aggregate that folds four datasets into one liquidity-and-headroom snapshot. It is the canonical reference for cash-out cost analysis, daily volume totals, and BSC cross-checks.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65;margin-bottom:16px">Gridflow fetches it via DATE-path style (date appended to URL). The raw JSON lands in bronze and is written to the silver parquet partition via <code>MarketDepthTransformer</code> — no Pydantic class; output is 12 columns including four volume aggregates.</p>
+        <p style="max-width:680px;font-size:15px;line-height:1.65">Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.</p>
+      </section>
+
+<section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
         <div class="eyebrow mb-8">Static snapshot</div><h2 class="display-3 mb-24">Daily accepted bid + offer volume · last 30 <span class="italic fg-accent">days.</span></h2>
         <div class="chart" style="padding:24px 28px">
           <div class="row between mb-16" style="align-items:baseline"><div><div class="eyebrow mb-4">market_depth · silver layer</div><div class="small">Horizontal bars · MWh · UTC · April 2026</div></div><div class="row gap-8"><span class="chip ink btn-like">accepted</span><span class="chip btn-like">total bid/offer</span></div></div>
-          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":16}'></div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"items":[{"label":"30 Apr","value":18400,"color":"#3b6b4b","display":"18.4 GWh"},{"label":"29 Apr","value":16200,"color":"#3b6b4b","display":"16.2 GWh"},{"label":"28 Apr","value":15800,"color":"#3b6b4b","display":"15.8 GWh"},{"label":"27 Apr","value":21500,"color":"#c45a3a","display":"21.5 GWh"},{"label":"26 Apr","value":14600,"color":"#3b6b4b","display":"14.6 GWh"},{"label":"25 Apr","value":17900,"color":"#3b6b4b","display":"17.9 GWh"},{"label":"24 Apr","value":23100,"color":"#c45a3a","display":"23.1 GWh"},{"label":"23 Apr","value":16800,"color":"#3b6b4b","display":"16.8 GWh"},{"label":"22 Apr","value":26400,"color":"#c45a3a","display":"26.4 GWh"},{"label":"21 Apr","value":15300,"color":"#3b6b4b","display":"15.3 GWh"}]}'></div>
           <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
         </div>
       </section>
