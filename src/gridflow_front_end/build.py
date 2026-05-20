@@ -772,10 +772,15 @@ def build_vendor(env: Environment, vendor_id: str, vault_path: Path, out_root: P
             print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html")
         n_pages += 1
 
-    hub_html = render_vendor_hub(env, manifest, vendor_id, vendor_label, vendor_cfg["vendor_meta"])
     hub_path = out_root / "data-sources" / f"{vendor_id}.html"
-    hub_path.write_text(hub_html, encoding="utf-8")
-    print(f"  wrote: data-sources/{vendor_id}.html")
+    authored_hub = AUTHORED_DIR / vendor_id / "_landing.html"
+    if authored_hub.exists():
+        shutil.copy(authored_hub, hub_path)
+        print(f"  wrote: data-sources/{vendor_id}.html (authored hub)")
+    else:
+        hub_html = render_vendor_hub(env, manifest, vendor_id, vendor_label, vendor_cfg["vendor_meta"])
+        hub_path.write_text(hub_html, encoding="utf-8")
+        print(f"  wrote: data-sources/{vendor_id}.html")
     return n_pages
 
 
