@@ -785,15 +785,61 @@ def build_vendor(env: Environment, vendor_id: str, vault_path: Path, out_root: P
 
 
 def build_coming_soon_stubs(env: Environment, out_root: Path) -> int:
-    """Render coming-soon vendor stubs for the 5 deferred vendors."""
+    """Render coming-soon vendor stubs for the 5 deferred vendors.
+
+    If ``authored-pages/<vendor_id>/_landing.html`` exists it is copied verbatim
+    instead of rendering the coming-soon template.  For the ``gie_agsi`` /
+    ``gie_alsi`` split-IDs, ``authored-pages/gie/_landing.html`` is accepted as a
+    unified fallback (Phase 8D unifies GIE into a single hub brief).
+    """
     n = 0
     for cfg in COMING_SOON_VENDORS:
-        html = render_coming_soon_stub(env, cfg)
-        out_path = out_root / "data-sources" / f"{cfg['vendor_id']}.html"
+        vendor_id = cfg["vendor_id"]
+        out_path = out_root / "data-sources" / f"{vendor_id}.html"
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(html, encoding="utf-8")
-        n += 1
-        print(f"  wrote: data-sources/{cfg['vendor_id']}.html (stub)")
+        # Authored override: exact match first, then gie parent for gie_agsi / gie_alsi
+        authored_hub = AUTHORED_DIR / vendor_id / "_landing.html"
+        gie_parent_hub = AUTHORED_DIR / "gie" / "_landing.html"
+        if authored_hub.exists():
+            shutil.copy(authored_hub, out_path)
+            n += 1
+            print(f"  wrote: data-sources/{vendor_id}.html (authored hub)")
+        elif vendor_id.startswith("gie_") and gie_parent_hub.exists():
+            shutil.copy(gie_parent_hub, out_path)
+            n += 1
+            print(f"  wrote: data-sources/{vendor_id}.html (authored hub via gie)")
+        else:
+            html = render_coming_soon_stub(env, cfg)
+            out_path.write_text(html, encoding="utf-8")
+            n += 1
+            print(f"  wrote: data-sources/{vendor_id}.html (stub)")
+    return n
+
+
+def copy_authored_dataset_pages_for_coming_soon(out_root: Path) -> int:
+    """Copy authored per-dataset HTML files for COMING_SOON vendor folders.
+
+    REAL_VENDORS get per-dataset overrides via ``build_vendor`` (manifest-driven).
+    For COMING_SOON vendors and the unified ``gie`` folder, no manifest exists,
+    so any per-dataset HTML the user authored under ``authored-pages/<vendor>/``
+    needs to be copied directly. ``_landing.html`` is excluded (it's the hub,
+    handled by ``build_coming_soon_stubs``).
+    """
+    n = 0
+    coming_soon_folders = {cfg["vendor_id"] for cfg in COMING_SOON_VENDORS} | {"gie"}
+    for vendor_folder in sorted(coming_soon_folders):
+        src_dir = AUTHORED_DIR / vendor_folder
+        if not src_dir.is_dir():
+            continue
+        dst_dir = out_root / "data-sources" / vendor_folder
+        for src in sorted(src_dir.glob("*.html")):
+            if src.name == "_landing.html":
+                continue
+            dst_dir.mkdir(parents=True, exist_ok=True)
+            dst = dst_dir / src.name
+            shutil.copy(src, dst)
+            n += 1
+            print(f"  wrote: data-sources/{vendor_folder}/{src.name} (authored dataset)")
     return n
 
 
@@ -812,6 +858,7 @@ def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int, i
         n_hubs += 1
 
     n_stubs = build_coming_soon_stubs(env, out_root)
+    n_pages += copy_authored_dataset_pages_for_coming_soon(out_root)
     return n_pages, n_hubs, n_stubs
 
 
