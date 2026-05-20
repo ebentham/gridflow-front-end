@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>temp · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str { color: #e8b8a3; }
+    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Dataset · temp">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="crumb-sep">/</span>
+        <a href="../../data-sources/elexon/index.html">Elexon BMRS</a>
+        <span class="crumb-sep">/</span>
+        <span>temp</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.35fr 1fr; gap: 48px; align-items: start;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span style="font-family: var(--mono); font-size: 12px; background: var(--paper-card); border: 1px solid var(--rule); padding: 3px 10px; color: var(--ink-soft);">Demand &amp; Forecasts</span>
+          </div>
+          <h1 style="font-family: var(--serif); font-size: 2.4rem; font-weight: 300; color: var(--ink-strong); margin: 0 0 16px;">
+            Temperature Data
+          </h1>
+          <p style="font-size: 15px; color: var(--ink-soft); line-height: 1.65; margin: 0;">
+            GB ambient temperature data published daily by NESO — measured temperature plus seasonal-normal, low, and high reference values. TEMP is the meteorological covariate used in demand-forecast calibration and temperature-sensitive load modelling.
+          </p>
+        </div>
+        <div style="background: var(--paper-card); border: 1px solid var(--rule); padding: 24px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <tbody>
+              <tr><td style="padding: 6px 0; color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; width: 42%;">Dataset key</td><td style="padding: 6px 0; font-family: var(--mono); color: var(--ink-strong);">temp</td></tr>
+              <tr><td style="padding: 6px 0; color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">API path</td><td style="padding: 6px 0; font-family: var(--mono); color: var(--ink-strong);">/datasets/TEMP</td></tr>
+              <tr><td style="padding: 6px 0; color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Frequency</td><td style="padding: 6px 0; color: var(--ink);">Daily (one row per measurement date)</td></tr>
+              <tr><td style="padding: 6px 0; color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Lag</td><td style="padding: 6px 0; color: var(--ink);">Daily publication</td></tr>
+              <tr><td style="padding: 6px 0; color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Silver path</td><td style="padding: 6px 0; font-family: var(--mono); color: var(--ink-strong);">silver.temp</td></tr>
+              <tr><td style="padding: 6px 0; color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Last verified</td><td style="padding: 6px 0; color: var(--ink);">2026-05-08</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-bottom: 1px solid var(--rule); background: var(--paper-deep);">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr);">
+        <div style="padding: 20px 0; border-right: 1px solid var(--rule);"><div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-faint); margin-bottom: 6px;">Layers</div><div style="font-family: var(--mono); font-size: 15px; color: var(--ink-strong);">bronze · silver</div></div>
+        <div style="padding: 20px 24px; border-right: 1px solid var(--rule);"><div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-faint); margin-bottom: 6px;">Pydantic schema</div><div style="font-family: var(--mono); font-size: 13px; color: var(--ink-strong);">none (dict-based)</div></div>
+        <div style="padding: 20px 24px; border-right: 1px solid var(--rule);"><div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-faint); margin-bottom: 6px;">Dedup key</div><div style="font-family: var(--mono); font-size: 13px; color: var(--ink-strong);">timestamp_utc</div></div>
+        <div style="padding: 20px 24px;"><div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-faint); margin-bottom: 6px;">Granularity</div><div style="font-family: var(--mono); font-size: 13px; color: var(--ink-strong);">Daily</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="page-layout">
+      <nav class="sidebar" aria-label="Page sections">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#live-chart">Snapshot</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample</a>
+          <a href="#api">API</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 16px;">Overview</h2>
+          <p style="font-size: 14px; line-height: 1.7; color: var(--ink-soft); margin: 0 0 14px;">
+            TEMP publishes one record per measurement date carrying the realised GB ambient temperature (Celsius) alongside three seasonal-reference values: normal, low, and high. These reference values are climatological normals — not forecasts — representing the expected seasonal envelope for that date of year.
+          </p>
+          <p style="font-size: 14px; line-height: 1.7; color: var(--ink-soft); margin: 0 0 14px;">
+            NESO uses TEMP in its demand-forecast calibration pipeline. Temperature deviations from seasonal normal are the primary driver of short-term demand forecast error. TEMP is the standard meteorological covariate for any regression or time-series model of GB electricity demand.
+          </p>
+          <p style="font-size: 14px; line-height: 1.7; color: var(--ink-soft); margin: 0;">
+            The silver schema has 7 columns with <code>timestamp_utc</code> as the dedup key. No Pydantic model exists. Note: the API field <code>measurementDate</code> is present in the bronze response but is not currently mapped to a dedicated silver column — the connector derives <code>timestamp_utc</code> from <code>publishTime</code>.
+          </p>
+        </section>
+
+        <section id="live-chart" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 16px;">Snapshot</h2>
+          <div style="background: var(--paper-card); border: 1px solid var(--rule); padding: 32px;">
+            <div style="font-size: 12px; color: var(--ink-faint); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.08em;">Illustrative — daily temperature °C vs seasonal normal</div>
+            <div data-chart="sparkline" data-chart-seed="temp-snapshot" style="height: 120px; width: 100%;"></div>
+            <div style="font-size: 11px; color: var(--ink-faint); margin-top: 12px;">Seeded illustrative data. Not sourced from live API.</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 16px;">Silver schema</h2>
+          <p style="font-size: 13px; color: var(--ink-soft); margin: 0 0 20px;">No Pydantic model — <code>TempTransformer</code> enforces 7-column shape via Polars casting. Dedup key: <code>timestamp_utc</code>.</p>
+          <table class="schema-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Nullable</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td class="nullable">no</td><td class="col-note">Derived from <code>publishTime</code>. Dedup key.</td></tr>
+              <tr><td class="col-name">temperature</td><td class="col-type">float</td><td class="nullable">yes</td><td class="col-note">Measured GB ambient temperature in Celsius.</td></tr>
+              <tr><td class="col-name">normal_temperature</td><td class="col-type">float</td><td class="nullable">yes</td><td class="col-note">Seasonal-normal temperature in Celsius (climatological).</td></tr>
+              <tr><td class="col-name">low_temperature</td><td class="col-type">float</td><td class="nullable">yes</td><td class="col-note">Seasonal-low reference in Celsius (climatological).</td></tr>
+              <tr><td class="col-name">high_temperature</td><td class="col-type">float</td><td class="nullable">yes</td><td class="col-note">Seasonal-high reference in Celsius (climatological).</td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td class="nullable">no</td><td class="col-note">Constant <code>"elexon"</code>.</td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td class="nullable">yes</td><td class="col-note">Time record entered bronze layer.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 16px;">Sample rows</h2>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead><tr><th>timestamp_utc</th><th>temperature</th><th>normal_temperature</th><th>low_temperature</th><th>high_temperature</th></tr></thead>
+              <tbody>
+                <tr><td class="date">2026-04-01T15:45:00Z</td><td class="num">10.6</td><td class="num">9.2</td><td class="num">5.1</td><td class="num">14.3</td></tr>
+                <tr><td class="date">2026-04-02T15:45:00Z</td><td class="num">11.4</td><td class="num">9.3</td><td class="num">5.2</td><td class="num">14.4</td></tr>
+                <tr><td class="date">2026-04-03T15:45:00Z</td><td class="num">8.9</td><td class="num">9.4</td><td class="num">5.3</td><td class="num">14.5</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 16px;">API access</h2>
+          <div style="display: flex; gap: 0; border-bottom: 1px solid var(--rule); margin-bottom: 20px;">
+            <button data-tab-group="temp" data-tab-panel="temp-url" style="padding: 10px 20px; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: var(--accent); color: var(--paper); border: none; cursor: pointer;">URL</button>
+            <button data-tab-group="temp" data-tab-panel="temp-sql" style="padding: 10px 20px; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: transparent; color: var(--ink-soft); border: none; cursor: pointer;">DuckDB</button>
+            <button data-tab-group="temp" data-tab-panel="temp-py" style="padding: 10px 20px; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: transparent; color: var(--ink-soft); border: none; cursor: pointer;">Python</button>
+          </div>
+          <div id="temp-url" data-tab-group="temp">
+            <pre style="background: var(--paper-deep); border: 1px solid var(--rule); padding: 20px; font-family: var(--mono); font-size: 12px; color: var(--ink); overflow-x: auto; margin: 0;">GET https://data.elexon.co.uk/bmrs/api/v1/datasets/TEMP
+  ?publishDateTimeFrom=2026-04-01T00:00Z
+  &amp;publishDateTimeTo=2026-04-02T00:00Z
+  &amp;format=json</pre>
+          </div>
+          <div id="temp-sql" data-tab-group="temp" style="display:none;">
+            <pre style="background: var(--paper-deep); border: 1px solid var(--rule); padding: 20px; font-family: var(--mono); font-size: 12px; color: var(--ink); overflow-x: auto; margin: 0;">SELECT timestamp_utc, temperature, normal_temperature,
+       temperature - normal_temperature AS deviation_c
+FROM read_parquet('data/silver/elexon/temp/**/*.parquet')
+WHERE timestamp_utc >= '2026-04-01'
+ORDER BY timestamp_utc;</pre>
+          </div>
+          <div id="temp-py" data-tab-group="temp" style="display:none;">
+            <pre style="background: var(--paper-deep); border: 1px solid var(--rule); padding: 20px; font-family: var(--mono); font-size: 12px; color: var(--ink); overflow-x: auto; margin: 0;">import polars as pl
+
+df = pl.read_parquet("data/silver/elexon/temp/**/*.parquet")
+print(df.with_columns(
+    (pl.col("temperature") - pl.col("normal_temperature")).alias("deviation_c")
+).sort("timestamp_utc"))</pre>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 4px;">Caveats</h2>
+          <div class="caveat-item">
+            <div class="caveat-num">01</div>
+            <div>
+              <strong style="font-size: 13px; color: var(--ink-strong); display: block; margin-bottom: 4px;">Daily resolution — empty within sub-day query windows</strong>
+              <p style="font-size: 13px; color: var(--ink-soft); margin: 0; line-height: 1.6;">TEMP publishes once per day. Queries using a 3-hour window will typically return zero rows. Use at least a 1-day window (<code>publishDateTimeTo − publishDateTimeFrom ≥ 24h</code>) to reliably retrieve data.</p>
+            </div>
+          </div>
+          <div class="caveat-item">
+            <div class="caveat-num">02</div>
+            <div>
+              <strong style="font-size: 13px; color: var(--ink-strong); display: block; margin-bottom: 4px;">Reference temperatures are climatological normals — not forecasts</strong>
+              <p style="font-size: 13px; color: var(--ink-soft); margin: 0; line-height: 1.6;"><code>normal_temperature</code>, <code>low_temperature</code>, and <code>high_temperature</code> are fixed seasonal climatology values for that date of year. They are not intra-day or short-term weather forecasts and should not be used as such.</p>
+            </div>
+          </div>
+          <div class="caveat-item">
+            <div class="caveat-num">03</div>
+            <div>
+              <strong style="font-size: 13px; color: var(--ink-strong); display: block; margin-bottom: 4px;">measurementDate not mapped to a silver column</strong>
+              <p style="font-size: 13px; color: var(--ink-soft); margin: 0; line-height: 1.6;">The API response carries a <code>measurementDate</code> field that is not currently mapped to the silver schema. <code>timestamp_utc</code> is derived from <code>publishTime</code>, which may differ slightly from the measurement date. An implementation delta exists to add an explicit <code>measurement_date</code> column.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <h2 style="font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: var(--ink-strong); margin: 0 0 16px;">Related datasets</h2>
+          <div class="related-grid">
+            <a href="ndf.html" class="row-link card flush" style="display: block; padding: 20px; background: var(--paper-card); border: 1px solid var(--rule); text-decoration: none;">
+              <div style="font-family: var(--mono); font-size: 12px; color: var(--accent); margin-bottom: 6px;">ndf</div>
+              <div style="font-size: 13px; color: var(--ink-soft);">National demand forecast — temperature-driven demand signal TEMP is calibrated against.</div>
+            </a>
+            <a href="indo.html" class="row-link card flush" style="display: block; padding: 20px; background: var(--paper-card); border: 1px solid var(--rule); text-decoration: none;">
+              <div style="font-family: var(--mono); font-size: 12px; color: var(--accent); margin-bottom: 6px;">indo</div>
+              <div style="font-size: 13px; color: var(--ink-soft);">Initial national demand outturn — realised demand to compare with temperature-adjusted forecasts.</div>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function() {
+      const links = document.querySelectorAll('.sidebar a');
+      const sections = Array.from(links).map(l => document.querySelector(l.getAttribute('href')));
+      function onScroll() {
+        let current = 0;
+        sections.forEach((s, i) => { if (s && window.scrollY >= s.offsetTop - 100) current = i; });
+        links.forEach(l => l.classList.remove('active'));
+        links[current].classList.add('active');
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+    })();
+    (function() {
+      document.querySelectorAll('[data-tab-group]').forEach(el => {
+        if (el.tagName === 'BUTTON') {
+          el.addEventListener('click', function() {
+            const group = this.dataset.tabGroup;
+            const panel = this.dataset.tabPanel;
+            document.querySelectorAll('[data-tab-group="' + group + '"]').forEach(b => {
+              if (b.tagName === 'BUTTON') { b.style.background = 'transparent'; b.style.color = 'var(--ink-soft)'; }
+              else { b.style.display = 'none'; }
+            });
+            this.style.background = 'var(--accent)';
+            this.style.color = 'var(--paper)';
+            document.getElementById(panel).style.display = 'block';
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
