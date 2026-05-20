@@ -1,0 +1,763 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    body { min-width: 0; }
+    .footer { margin-top: 0; }
+  </style>
+</head>
+<body data-page="vendor" data-root="../../" data-screen-label="Vendor · Elexon BMRS">
+<main>
+
+  
+  <section class="block" style="padding: 48px 0 40px;">
+    <div class="container">
+      <div class="crumbs">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <span class="here">Elexon BMRS</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-16" style="align-items:center;">
+            <span class="eyebrow">Vendor · United Kingdom · Electricity</span>
+            <span class="chip" style="font-size: 11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            Elexon <span class="italic">BMRS.</span>
+          </h1>
+          <p class="lede" style="max-width: 560px;">The British electricity Balancing Mechanism Reporting Service. Settlement prices, generation by fuel, demand outturn, balancing actions, and BM unit metadata — documented as a static reference site over the gridflow ETL pipeline.</p>
+          <div class="row gap-16 mt-32">
+            <a href="#datasets" class="btn primary">Browse 33 datasets ↓</a>
+            
+              <a href="https://bmrs.elexon.co.uk/" target="_blank" rel="noopener" class="btn ghost">Vendor docs ↗</a>
+            
+          </div>
+        </div>
+
+        <div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card);">
+            <div style="padding: 18px 20px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+              <div class="tiny mb-8">BASE URL</div>
+              <div class="mono small" style="word-break: break-all;">data.elexon.co.uk/bmrs/api/v1</div>
+            </div>
+            <div style="padding: 18px 20px; border-bottom: 1px solid var(--rule);">
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Public · no key required</div>
+            </div>
+            <div style="padding: 18px 20px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+              <div class="tiny mb-8">RATE LIMIT</div>
+              <div class="small">2 req/s · project default</div>
+            </div>
+            <div style="padding: 18px 20px; border-bottom: 1px solid var(--rule);">
+              <div class="tiny mb-8">FORMAT</div>
+              <div class="small">JSON · ISO-8601 · UTC</div>
+            </div>
+            <div style="padding: 18px 20px; border-right: 1px solid var(--rule);">
+              <div class="tiny mb-8">EARLIEST</div>
+              <div class="small">2014-04-01</div>
+            </div>
+            <div style="padding: 18px 20px;">
+              <div class="tiny mb-8">TIMEZONE</div>
+              <div class="small">UTC · SP 1–50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">33</div>
+        <div class="stat-l">Datasets</div>
+      </div>
+      <div>
+        <div class="stat-n">4</div>
+        <div class="stat-l">Categories</div>
+      </div>
+      <div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Settlement runs · II → DF</div>
+      </div>
+      <div>
+        <div class="stat-n">11y</div>
+        <div class="stat-l">History</div>
+      </div>
+    </div>
+  </div>
+
+  
+  <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">33 datasets · 4 categories</div>
+          <h2 class="display-3">The catalog.</h2>
+        </div>
+      </div>
+
+      
+        <div class="mb-32">
+          <div class="row between mb-16" style="align-items: baseline;">
+            <h3 style="font-family: var(--serif); font-size: 24px;">Generation</h3>
+            <span class="small">6 datasets</span>
+          </div>
+          <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Actual and forecast output from GB power stations.</p>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            
+              <a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">fuelhh</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Generation by fuel type · half-hourly</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">~5 min</span></span>
+                  <span><span class="mono">1.4M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="fuelinst.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">fuelinst</span>
+                      <span class="chip" style="font-size:10px;">~5 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Generation by fuel · instantaneous</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">~5 min</span></span>
+                  <span>Lag <span class="mono">~1 min</span></span>
+                  <span><span class="mono">8.6M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="agpt.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">agpt</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Aggregated generation per PSR type</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">1.6M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="agws.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">agws</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Wind &amp; solar actual generation</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">0.4M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="windfor.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">windfor</span>
+                      <span class="chip" style="font-size:10px;">hourly</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Wind generation forecast</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">hourly</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">0.5M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="nonbm.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">nonbm</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Non-BM STOR generation</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+          </div>
+        </div>
+      
+        <div class="mb-32">
+          <div class="row between mb-16" style="align-items: baseline;">
+            <h3 style="font-family: var(--serif); font-size: 24px;">Prices &amp; Balancing</h3>
+            <span class="small">7 datasets</span>
+          </div>
+          <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">System prices, market index, balancing actions, physical notifications.</p>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            
+              <a href="system_prices.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">system_prices</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">System buy / sell prices</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">~5 min</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="mid.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">mid</span>
+                      <span class="chip" style="font-size:10px;">hourly</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Market index data</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">hourly</span></span>
+                  <span>Lag <span class="mono">~10 min</span></span>
+                  <span><span class="mono">22k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="boal.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">boal</span>
+                      <span class="chip" style="font-size:10px;">hourly</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Bid-offer acceptance</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">hourly</span></span>
+                  <span>Lag <span class="mono">~10 min</span></span>
+                  <span><span class="mono">1.1M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="disbsad.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">disbsad</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Disaggregated balancing</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">180k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="netbsad.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">netbsad</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Net balancing services</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="pn.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">pn</span>
+                      <span class="chip" style="font-size:10px;">hourly</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Physical notifications</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">hourly</span></span>
+                  <span>Lag <span class="mono">~10 min</span></span>
+                  <span><span class="mono">5.4M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="market_depth.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">market_depth</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Settlement market depth</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+          </div>
+        </div>
+      
+        <div class="mb-32">
+          <div class="row between mb-16" style="align-items: baseline;">
+            <h3 style="font-family: var(--serif); font-size: 24px;">Demand &amp; Forecasts</h3>
+            <span class="small">14 datasets</span>
+          </div>
+          <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Outturn demand, day-ahead indicateds, and multi-horizon forecasts.</p>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            
+              <a href="indo.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">indo</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Initial demand outturn</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">~5 min</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="itsdo.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">itsdo</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Initial transmission demand</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">~5 min</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="indod.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">indod</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Initial demand outturn — daily</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">30 / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="ndf.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">ndf</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">National demand forecast (day-ahead)</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">1.4k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="ndfd.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">ndfd</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">National demand forecast 2–14d</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">20k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="tsdf.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">tsdf</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Transmission demand forecast</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="tsdfd.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">tsdfd</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">2–14d transmission demand forecast</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">14k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="fou2t14d.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">fou2t14d</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">2–14 day generation availability</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">440k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="uou2t14d.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">uou2t14d</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">2–14 day availability by BM unit</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">5.2M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="atl.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">atl</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Actual total load per bidding zone</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="inddem.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">inddem</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Indicated demand (day &amp; day-ahead)</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="indgen.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">indgen</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Indicated generation (day &amp; day-ahead)</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="imbalngc.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">imbalngc</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Indicated imbalance (day &amp; day-ahead)</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="melngc.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">melngc</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Indicated margin (day &amp; day-ahead)</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+          </div>
+        </div>
+      
+        <div class="mb-32">
+          <div class="row between mb-16" style="align-items: baseline;">
+            <h3 style="font-family: var(--serif); font-size: 24px;">System &amp; Reference</h3>
+            <span class="small">6 datasets</span>
+          </div>
+          <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Frequency, reliability, REMIT outages, BM unit reference data.</p>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            
+              <a href="freq.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">freq</span>
+                      <span class="chip" style="font-size:10px;">hourly</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">System frequency (1 s)</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">hourly</span></span>
+                  <span>Lag <span class="mono">~1 min</span></span>
+                  <span><span class="mono">2.6M / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="temp.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">temp</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Temperature reference</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">30 / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="remit.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">remit</span>
+                      <span class="chip" style="font-size:10px;">as published</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">REMIT outage messages</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">as published</span></span>
+                  <span>Lag <span class="mono">—</span></span>
+                  <span><span class="mono">varies</span></span>
+                </div>
+              </a>
+            
+              <a href="bmunits_reference.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">bmunits_reference</span>
+                      <span class="chip" style="font-size:10px;">weekly</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">BMU reference list</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">weekly</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">1 snapshot</span></span>
+                </div>
+              </a>
+            
+              <a href="soso.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">soso</span>
+                      <span class="chip" style="font-size:10px;">daily</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">SO-SO trades</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">daily</span></span>
+                  <span>Lag <span class="mono">1 day</span></span>
+                  <span><span class="mono">8k / mo</span></span>
+                </div>
+              </a>
+            
+              <a href="lolpdrm.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+                <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <div class="row gap-8 mb-8">
+                      <span class="mono small" style="color:var(--ink-strong);">lolpdrm</span>
+                      <span class="chip" style="font-size:10px;">30 min</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 18px; margin: 0;">Loss-of-load probability &amp; margin</h4>
+                  </div>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </div>
+                <div class="row gap-16 small" style="color:var(--ink-soft);">
+                  <span><span class="mono">30 min</span></span>
+                  <span>Lag <span class="mono">0</span></span>
+                  <span><span class="mono">44k / mo</span></span>
+                </div>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+  </section>
+
+  </main>
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+</body>
+</html>
