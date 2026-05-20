@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>agws · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css"/>
+  <style>
+    .schema-table{width:100%;border-collapse:collapse}
+    .schema-table thead th{text-align:left;font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding:10px 12px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);background:var(--paper-deep)}
+    .schema-table td{padding:11px 12px;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px}
+    .schema-table tr:hover td{background:var(--paper-card)}
+    .schema-table .col-name{font-family:var(--mono);font-size:12px;color:var(--ink-strong);font-weight:500;white-space:nowrap}
+    .schema-table .col-type{font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap}
+    .schema-table .col-note{color:var(--ink-soft);font-size:12px}
+    .schema-table .col-src{font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+    .schema-table .col-cite{font-family:var(--mono);font-size:10px;color:var(--ink-faint);min-width:120px}
+    .schema-table .pk-badge{display:inline-block;font-size:9px;font-family:var(--sans);font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--ink-strong);color:var(--paper);padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
+    .schema-table .nullable{color:var(--ink-faint);font-size:11px;font-family:var(--mono)}
+    .data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+    .data-table thead th{text-align:left;padding:10px 14px;background:var(--ink-strong);color:#d6d0c1;font-size:11px;font-weight:500;letter-spacing:.06em;white-space:nowrap}
+    .data-table tbody tr:nth-child(odd) td{background:#26221d}
+    .data-table tbody tr:nth-child(even) td{background:#221e19}
+    .data-table td{padding:8px 14px;color:#d6d0c1;border-bottom:1px solid #2e2924;white-space:nowrap}
+    .data-table .num{text-align:right;color:#8fbf9c}
+    .data-table .date{color:#c9a96e}
+    .data-table .str{color:#e8b8a3}
+    .data-table tr.hl td{outline:1px solid var(--accent);outline-offset:-1px}
+    .page-layout{display:grid;grid-template-columns:220px 1fr;gap:0;align-items:start}
+    .sidebar{position:sticky;top:64px;padding:32px 0;border-right:1px solid var(--rule);min-height:calc(100vh - 64px)}
+    .sidebar-section{margin-bottom:6px}
+    .sidebar-section-title{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);padding:8px 24px 4px}
+    .sidebar a{display:block;padding:6px 24px;font-size:13px;color:var(--ink-soft);border-left:2px solid transparent;text-decoration:none;transition:color .12s,border-color .12s}
+    .sidebar a:hover{color:var(--ink)}
+    .sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+    .main-content{padding:40px 64px 80px}
+    .related-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .fuel-grid{display:flex;flex-wrap:wrap;gap:8px}
+    .fuel-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--rule);background:var(--paper-card);font-family:var(--mono);font-size:12px;color:var(--ink-strong)}
+    .fuel-pill .sw{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .run-list{display:flex;flex-direction:column;gap:0}
+    .run-row{display:grid;grid-template-columns:60px 80px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--rule);align-items:baseline}
+    .run-code{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink-strong)}
+    .run-lag{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Elexon · agws">
+
+<!-- BREADCRUMB + HERO -->
+<div style="border-bottom:1px solid var(--rule)">
+  <div class="container" style="padding-top:40px;padding-bottom:40px">
+    <div class="crumbs mb-16">
+      <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+      <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+      <a href="../elexon.html">Elexon BMRS</a><span class="sep">/</span>
+      <span class="here">agws</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:56px;align-items:end">
+      <div>
+        <div class="row gap-8 mb-12" style="align-items:center;flex-wrap:wrap">
+          <span class="eyebrow">Dataset · Elexon · Generation</span>
+          <span class="chip" style="font-size:11px">30 min · 1 day lag</span>
+          <span class="chip" style="font-size:11px">Illustrative snapshot</span>
+        </div>
+        <h1 class="display-2" style="margin-bottom:14px">
+          <span class="fg-soft" style="font-size:28px;font-family:var(--mono);letter-spacing:-0.01em">agws</span><br/>
+          GB renewables, the <span class="italic fg-accent">B1630 cut.</span>
+        </h1>
+        <p class="lede" style="max-width:600px">Half-hourly GB wind and solar generation — the canonical renewables-only series for forecast-error analysis, capacity factors, and embedded-solar attribution.</p>
+        <p class="tiny mt-16" style="max-width:600px">
+          Verified against vendor docs: 2026-05-08 ·
+          <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/AGWS" class="link" target="_blank" rel="noopener">Elexon BMRS · AGWS ↗</a>
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-card);min-width:320px">
+        <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px;line-height:1.4">silver.agws</div></div><div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px;line-height:1.4">/datasets/AGWS</div></div><div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">30 min</div></div><div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">1 day</div></div><div style="padding:16px 18px;border-right:1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">0.4M / mo</div></div><div style="padding:16px 18px;"><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px;line-height:1.4">(settlement_date, settlement_period, psr_type)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS STRIP -->
+<div class="container">
+  <div class="stats-strip" style="grid-template-columns:repeat(4,1fr)">
+    <div><div class="stat-n">30<span style="font-size:18px;color:var(--ink-soft);margin-left:2px">min</span></div><div class="stat-l">Frequency</div></div><div><div class="stat-n">1<span style="font-size:18px;color:var(--ink-soft);margin-left:2px">day</span></div><div class="stat-l">Publication lag</div></div><div><div class="stat-n">3</div><div class="stat-l">PSR types (wind/solar)</div></div><div><div class="stat-n">10</div><div class="stat-l">Schema columns</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR + MAIN -->
+<div class="container" style="padding-top:0;padding-bottom:0">
+  <div class="page-layout">
+
+    <nav class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">On this page</div>
+        <a href="#snapshot" class="active">Snapshot chart</a>
+        <a href="#schema">Schema</a>
+        <a href="#sample">Sample data</a>
+        <a href="#api">API &amp; ingestion</a>
+        <a href="#related">Related datasets</a>
+      </div>
+      <div class="sidebar-section" style="margin-top:24px">
+        <div class="sidebar-section-title">Elexon BMRS</div>
+        <a href="../elexon.html">← All datasets</a>
+        <a href="agws.html" class="active">agws</a>
+        <a href="agpt.html" style="color:var(--ink-faint)">agpt</a>
+        <a href="fuelhh.html" style="color:var(--ink-faint)">fuelhh</a>
+        <a href="windfor.html" style="color:var(--ink-faint)">windfor</a>
+        <a href="fuelinst.html" style="color:var(--ink-faint)">fuelinst</a>
+      </div>
+    </nav>
+
+    <div class="main-content">
+
+      <!-- Snapshot chart -->
+      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+        <div class="eyebrow mb-8">Static snapshot</div>
+        <h2 class="display-3 mb-24">Wind onshore + offshore + solar · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
+        <div class="chart" style="padding:24px 28px">
+          <div class="row between mb-16" style="align-items:baseline">
+            <div>
+              <div class="eyebrow mb-4">agws · silver layer</div>
+              <div class="small">Stacked area · MW · UTC · 6 May 2026</div>
+            </div>
+            <div class="row gap-8"><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span><span class="chip btn-like">30d</span></div>
+          </div>
+          <div data-chart="stackedArea" data-opts='{"width":900,"height":280,"seed":21}'></div>
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
+        </div>
+      </section>
+
+      <!-- Schema -->
+      <section id="schema" style="margin-bottom:56px" data-screen-label="Schema">
+        <div class="eyebrow mb-8">Schema</div>
+        <h2 class="display-3 mb-8">Silver layer columns.</h2>
+        <p class="small mb-24" style="max-width:600px">Defined in <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">gridflow/silver/elexon/agws.py</code> · <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">AGWSTransformer.output_cols</code> (no dedicated Pydantic class). Partitioned by <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">settlement_date</code> (year + month). Point-in-time field: <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">ingested_at</code>.</p>
+        <table class="schema-table">
+          <thead>
+            <tr>
+              <th style="width:19%">Column</th>
+              <th style="width:13%">Type</th>
+              <th style="width:6%;text-align:center">Null.</th>
+              <th style="width:14%">Source field</th>
+              <th>Notes</th>
+              <th style="width:13%">Citation</th>
+            </tr>
+          </thead>
+          <tbody><tr>
+<td class="col-name">settlement_date<span class="pk-badge">PK</span></td>
+<td class="col-type">date</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">settlementDate</td>
+<td class="col-note">Settlement date (BST/GMT calendar). Partition key.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L75-78</code></td>
+</tr><tr>
+<td class="col-name">settlement_period<span class="pk-badge">PK</span></td>
+<td class="col-type">int</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">settlementPeriod</td>
+<td class="col-note">1..50 (DST: 46 spring, 50 autumn).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L75-78</code></td>
+</tr><tr>
+<td class="col-name">timestamp_utc</td>
+<td class="col-type">datetime[UTC]</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Derived from (settlement_date, settlement_period) via <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">utils/time.settlement_period_to_utc</code>.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L82-91</code></td>
+</tr><tr>
+<td class="col-name">psr_type<span class="pk-badge">PK</span></td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">psrType</td>
+<td class="col-note">One of <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Wind Onshore</code>, <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Wind Offshore</code>, <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Solar</code>. Vendor-managed list.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L75-79</code></td>
+</tr><tr>
+<td class="col-name">generation_mw</td>
+<td class="col-type">float</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">quantity</td>
+<td class="col-note">MW. Decimal precision higher than <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">fuelhh</code> (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">1238.414</code>).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L78</code></td>
+</tr><tr>
+<td class="col-name">business_type</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">businessType</td>
+<td class="col-note"><code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Wind generation</code> / <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Solar generation</code>, occasionally <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Estimated</code>.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L61</code></td>
+</tr><tr>
+<td class="col-name">document_id</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">documentId</td>
+<td class="col-note">ENTSO-E document MRID (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">NGET-EMFIP-AGWS-20861078</code>).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L62</code></td>
+</tr><tr>
+<td class="col-name">document_revision</td>
+<td class="col-type">int</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">documentRevisionNumber</td>
+<td class="col-note">Document revision counter.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L63</code></td>
+</tr><tr>
+<td class="col-name">data_provider</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Default <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">&quot;elexon&quot;</code>.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L100</code></td>
+</tr><tr>
+<td class="col-name">ingested_at</td>
+<td class="col-type">datetime[UTC]</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Time ingested into bronze.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agws.py L101</code></td>
+</tr></tbody>
+        </table>
+        <div class="card mt-24" style="padding:16px 20px;display:flex;gap:32px;align-items:start;flex-wrap:wrap">
+          <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/elexon/agws/year=YYYY/month=MM/</div></div>
+          <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">settlement_date (year + month)</div></div>
+          <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(settlement_date, settlement_period, psr_type)</div></div>
+        </div>
+      </section>
+
+      <!-- Sample data -->
+      <section id="sample" style="margin-bottom:56px" data-screen-label="Sample data">
+        <div class="eyebrow mb-8">Sample data</div>
+        <h2 class="display-3 mb-24">What a row looks like.</h2>
+        <div style="overflow-x:auto;border:1px solid var(--ink-strong)">
+          <table class="data-table">
+            <thead><tr><th>settlement_date</th><th>settlement_period</th><th>timestamp_utc</th><th>psr_type</th><th>generation_mw</th><th>business_type</th><th>document_id</th><th>document_revision</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+            <tbody><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Wind Onshore</td><td class="num" >1238.414</td><td >Wind generation</td><td >NGET-EMFIP-AGWS-20861078</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr class="hl"><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Wind Offshore</td><td class="num" >4153.834</td><td >Wind generation</td><td >NGET-EMFIP-AGWS-20861078</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Solar</td><td class="num" >0.0</td><td >Solar generation</td><td >NGET-EMFIP-AGWS-20861078</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >24</td><td class="date" >2026-05-06T11:30:00+00:00</td><td class="str" >Wind Onshore</td><td class="num" >1102.310</td><td >Wind generation</td><td >NGET-EMFIP-AGWS-20861084</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >24</td><td class="date" >2026-05-06T11:30:00+00:00</td><td class="str" >Wind Offshore</td><td class="num" >3902.117</td><td >Wind generation</td><td >NGET-EMFIP-AGWS-20861084</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >24</td><td class="date" >2026-05-06T11:30:00+00:00</td><td class="str" >Solar</td><td class="num" >7480.500</td><td >Solar generation</td><td >NGET-EMFIP-AGWS-20861084</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >36</td><td class="date" >2026-05-06T17:30:00+00:00</td><td class="str" >Wind Onshore</td><td class="num" >980.220</td><td >Wind generation</td><td >NGET-EMFIP-AGWS-20861090</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >36</td><td class="date" >2026-05-06T17:30:00+00:00</td><td class="str" >Solar</td><td class="num" >1220.880</td><td >Solar generation</td><td >NGET-EMFIP-AGWS-20861090</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr></tbody>
+          </table>
+        </div>
+        <div class="tiny mt-12">SP4 early-morning and SP24 midday rows for 2026-05-06. Wind Onshore and Wind Offshore SP4 rows verbatim from vault Bronze Sample. The highlighted Wind Offshore SP4 row: offshore alone contributing 4 GW pre-dawn — three times onshore.</div>
+      </section>
+
+      
+
+      <!-- API & Ingestion -->
+      <section id="api" style="margin-bottom:56px" data-screen-label="API">
+        <div class="eyebrow mb-8">API &amp; ingestion</div>
+        <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
+          <div class="card" style="padding:20px">
+            <div class="tiny mb-8">ENDPOINT</div>
+            <div class="mono small" style="word-break:break-all;margin-bottom:12px">data.elexon.co.uk/bmrs/api/v1/datasets/AGWS</div>
+            <div class="tiny mb-8">AUTH</div>
+            <div class="small">None required for tested endpoints (2026-05-08). Some endpoints accept an <code class="mono">apikey</code> header (env <code class="mono">ELEXON_API_KEY</code>); register at <a href="https://www.elexonportal.co.uk/" class="link" target="_blank" rel="noopener">elexonportal.co.uk ↗</a>.</div>
+          </div>
+          <div class="card" style="padding:20px">
+            <div class="tiny mb-8">BRONZE PATH</div>
+            <div class="mono small" style="word-break:break-all;margin-bottom:12px">data/bronze/elexon/agws/&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+            <div class="tiny mb-8">TRANSFORMER</div>
+            <div class="mono small">gridflow.silver.elexon.agws.AGWSTransformer</div>
+          </div>
+        </div>
+        <div data-tab-group="agws">
+          <div class="row gap-8 mb-16" style="align-items:center;border-bottom:1px solid var(--rule);padding-bottom:12px">
+            <button class="chip btn-like ink" onclick="setTab('agws','url',this)" style="cursor:pointer">Example URL</button>
+            <button class="chip btn-like" onclick="setTab('agws','sql',this)" style="cursor:pointer">DuckDB · SQL</button>
+            <button class="chip btn-like" onclick="setTab('agws','py',this)" style="cursor:pointer">Python · polars</button>
+          </div>
+          <div data-tab-panel="agws-url" style="display:block"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">https://data.elexon.co.uk/bmrs/api/v1/datasets/AGWS?publishDateTimeFrom=2026-05-01T00:00:00Z&amp;publishDateTimeTo=2026-05-02T00:00:00Z&amp;format=json</pre></div></div>
+          <div data-tab-panel="agws-sql" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto"><span class="c">-- Daily wind onshore vs offshore totals</span>
+SELECT settlement_date,
+       SUM(CASE WHEN psr_type = <span class="s">'Wind Onshore'</span>  THEN generation_mw END) AS onshore_mwh,
+       SUM(CASE WHEN psr_type = <span class="s">'Wind Offshore'</span> THEN generation_mw END) AS offshore_mwh
+FROM read_parquet(<span class="s">'data/silver/elexon/agws/**/*.parquet'</span>)
+WHERE settlement_date &gt;= current_date - INTERVAL 30 DAY
+GROUP BY settlement_date
+ORDER BY settlement_date;</pre></div></div>
+          <div data-tab-panel="agws-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
+
+df = pl.read_parquet(<span class="s">"data/silver/elexon/agws/**/*.parquet"</span>)
+<span class=<span class="s">"c"</span>># Wind capacity-factor proxy: GB onshore vs offshore</span>
+wind = (
+    df.filter(pl.col(<span class="s">"psr_type"</span>).str.starts_with(<span class="s">"Wind"</span>))
+      .group_by(<span class="s">"psr_type"</span>)
+      .agg(pl.col(<span class="s">"generation_mw"</span>).mean().alias(<span class="s">"avg_mw"</span>))
+)
+print(wind)</pre></div></div>
+        </div>
+      </section>
+
+      <!-- Related datasets -->
+      <section id="related" style="margin-bottom:56px" data-screen-label="Related">
+        <div class="eyebrow mb-8">Related datasets</div>
+        <h2 class="display-3 mb-24">What to use alongside <span class="mono">agws</span>.</h2>
+        <div class="related-grid">
+<a href="agpt.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">agpt</span>
+      <span class="chip" style="font-size:10px">30 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Aggregated generation per PSR type. The superset of AGWS; includes thermal, nuclear, hydro alongside renewables.</p>
+  <span class="tiny">elexon · generation · 30 min</span>
+</a>
+<a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">fuelhh</span>
+      <span class="chip" style="font-size:10px">30 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Coarser fuel grouping; collapses onshore + offshore wind into a single WIND bucket.</p>
+  <span class="tiny">elexon · generation · 30 min</span>
+</a>
+<a href="windfor.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">windfor</span>
+      <span class="chip" style="font-size:10px">hourly</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Wind generation forecast. Compute forecast error against AGWS Wind Onshore + Wind Offshore actuals.</p>
+  <span class="tiny">elexon · generation · hourly</span>
+</a>
+<a href="fuelinst.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">fuelinst</span>
+      <span class="chip" style="font-size:10px">~5 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Real-time companion; no PSR split, single WIND and SOLAR buckets.</p>
+  <span class="tiny">elexon · generation · ~5 min</span>
+</a></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/charts.js"></script>
+<script src="../../assets/site.js"></script>
+<script>
+(function(){
+  const sections=document.querySelectorAll('section[id]');
+  const links=document.querySelectorAll('.sidebar a[href^="#"]');
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add('active');}});},{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(s=>obs.observe(s));
+})();
+function setTab(g,t,btn){
+  document.querySelectorAll('[data-tab-panel^="'+g+'-"]').forEach(p=>p.style.display='none');
+  const p=document.querySelector('[data-tab-panel="'+g+'-'+t+'"]');
+  if(p)p.style.display='block';
+  document.querySelectorAll('[data-tab-group="'+g+'"] button').forEach(b=>b.classList.remove('ink'));
+  if(btn)btn.classList.add('ink');
+}
+</script>
+</body>
+</html>

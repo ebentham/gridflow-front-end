@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>agpt · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css"/>
+  <style>
+    .schema-table{width:100%;border-collapse:collapse}
+    .schema-table thead th{text-align:left;font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding:10px 12px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);background:var(--paper-deep)}
+    .schema-table td{padding:11px 12px;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px}
+    .schema-table tr:hover td{background:var(--paper-card)}
+    .schema-table .col-name{font-family:var(--mono);font-size:12px;color:var(--ink-strong);font-weight:500;white-space:nowrap}
+    .schema-table .col-type{font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap}
+    .schema-table .col-note{color:var(--ink-soft);font-size:12px}
+    .schema-table .col-src{font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+    .schema-table .col-cite{font-family:var(--mono);font-size:10px;color:var(--ink-faint);min-width:120px}
+    .schema-table .pk-badge{display:inline-block;font-size:9px;font-family:var(--sans);font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--ink-strong);color:var(--paper);padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
+    .schema-table .nullable{color:var(--ink-faint);font-size:11px;font-family:var(--mono)}
+    .data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+    .data-table thead th{text-align:left;padding:10px 14px;background:var(--ink-strong);color:#d6d0c1;font-size:11px;font-weight:500;letter-spacing:.06em;white-space:nowrap}
+    .data-table tbody tr:nth-child(odd) td{background:#26221d}
+    .data-table tbody tr:nth-child(even) td{background:#221e19}
+    .data-table td{padding:8px 14px;color:#d6d0c1;border-bottom:1px solid #2e2924;white-space:nowrap}
+    .data-table .num{text-align:right;color:#8fbf9c}
+    .data-table .date{color:#c9a96e}
+    .data-table .str{color:#e8b8a3}
+    .data-table tr.hl td{outline:1px solid var(--accent);outline-offset:-1px}
+    .page-layout{display:grid;grid-template-columns:220px 1fr;gap:0;align-items:start}
+    .sidebar{position:sticky;top:64px;padding:32px 0;border-right:1px solid var(--rule);min-height:calc(100vh - 64px)}
+    .sidebar-section{margin-bottom:6px}
+    .sidebar-section-title{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);padding:8px 24px 4px}
+    .sidebar a{display:block;padding:6px 24px;font-size:13px;color:var(--ink-soft);border-left:2px solid transparent;text-decoration:none;transition:color .12s,border-color .12s}
+    .sidebar a:hover{color:var(--ink)}
+    .sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+    .main-content{padding:40px 64px 80px}
+    .related-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .fuel-grid{display:flex;flex-wrap:wrap;gap:8px}
+    .fuel-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--rule);background:var(--paper-card);font-family:var(--mono);font-size:12px;color:var(--ink-strong)}
+    .fuel-pill .sw{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .run-list{display:flex;flex-direction:column;gap:0}
+    .run-row{display:grid;grid-template-columns:60px 80px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--rule);align-items:baseline}
+    .run-code{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink-strong)}
+    .run-lag{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Elexon · agpt">
+
+<!-- BREADCRUMB + HERO -->
+<div style="border-bottom:1px solid var(--rule)">
+  <div class="container" style="padding-top:40px;padding-bottom:40px">
+    <div class="crumbs mb-16">
+      <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+      <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+      <a href="../elexon.html">Elexon BMRS</a><span class="sep">/</span>
+      <span class="here">agpt</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:56px;align-items:end">
+      <div>
+        <div class="row gap-8 mb-12" style="align-items:center;flex-wrap:wrap">
+          <span class="eyebrow">Dataset · Elexon · Generation</span>
+          <span class="chip" style="font-size:11px">30 min · 1 day lag</span>
+          <span class="chip" style="font-size:11px">Illustrative snapshot</span>
+        </div>
+        <h1 class="display-2" style="margin-bottom:14px">
+          <span class="fg-soft" style="font-size:28px;font-family:var(--mono);letter-spacing:-0.01em">agpt</span><br/>
+          GB generation per PSR type, the European <span class="italic fg-accent">B1620 view.</span>
+        </h1>
+        <p class="lede" style="max-width:600px">Half-hourly GB generation per ENTSO-E PSR type — the canonical source for the onshore/offshore wind split, capacity factors, and pan-European comparability.</p>
+        <p class="tiny mt-16" style="max-width:600px">
+          Verified against vendor docs: 2026-05-08 ·
+          <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/AGPT" class="link" target="_blank" rel="noopener">Elexon BMRS · AGPT ↗</a>
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-card);min-width:320px">
+        <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px;line-height:1.4">silver.agpt</div></div><div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px;line-height:1.4">/datasets/AGPT</div></div><div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">30 min</div></div><div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">1 day</div></div><div style="padding:16px 18px;border-right:1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">1.6M / mo</div></div><div style="padding:16px 18px;"><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px;line-height:1.4">(settlement_date, settlement_period, psr_type)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS STRIP -->
+<div class="container">
+  <div class="stats-strip" style="grid-template-columns:repeat(4,1fr)">
+    <div><div class="stat-n">30<span style="font-size:18px;color:var(--ink-soft);margin-left:2px">min</span></div><div class="stat-l">Frequency</div></div><div><div class="stat-n">1<span style="font-size:18px;color:var(--ink-soft);margin-left:2px">day</span></div><div class="stat-l">Publication lag</div></div><div><div class="stat-n">~25</div><div class="stat-l">PSR types observed</div></div><div><div class="stat-n">10</div><div class="stat-l">Schema columns</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR + MAIN -->
+<div class="container" style="padding-top:0;padding-bottom:0">
+  <div class="page-layout">
+
+    <nav class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">On this page</div>
+        <a href="#snapshot" class="active">Snapshot chart</a>
+        <a href="#schema">Schema</a>
+        <a href="#sample">Sample data</a>
+        <a href="#psr-types">PSR types</a>
+        <a href="#api">API &amp; ingestion</a>
+        <a href="#related">Related datasets</a>
+      </div>
+      <div class="sidebar-section" style="margin-top:24px">
+        <div class="sidebar-section-title">Elexon BMRS</div>
+        <a href="../elexon.html">← All datasets</a>
+        <a href="agpt.html" class="active">agpt</a>
+        <a href="fuelinst.html" style="color:var(--ink-faint)">fuelinst</a>
+        <a href="agws.html" style="color:var(--ink-faint)">agws</a>
+        <a href="windfor.html" style="color:var(--ink-faint)">windfor</a>
+        <a href="nonbm.html" style="color:var(--ink-faint)">nonbm</a>
+      </div>
+    </nav>
+
+    <div class="main-content">
+
+      <!-- Snapshot chart -->
+      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+        <div class="eyebrow mb-8">Static snapshot</div>
+        <h2 class="display-3 mb-24">Generation per PSR type · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
+        <div class="chart" style="padding:24px 28px">
+          <div class="row between mb-16" style="align-items:baseline">
+            <div>
+              <div class="eyebrow mb-4">agpt · silver layer</div>
+              <div class="small">Stacked area · MW · UTC · 6 May 2026</div>
+            </div>
+            <div class="row gap-8"><span class="chip ink btn-like">24h</span><span class="chip btn-like">7d</span><span class="chip btn-like">30d</span></div>
+          </div>
+          <div data-chart="stackedArea" data-opts='{"width":900,"height":280,"seed":42}'></div>
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
+        </div>
+      </section>
+
+      <!-- Schema -->
+      <section id="schema" style="margin-bottom:56px" data-screen-label="Schema">
+        <div class="eyebrow mb-8">Schema</div>
+        <h2 class="display-3 mb-8">Silver layer columns.</h2>
+        <p class="small mb-24" style="max-width:600px">Defined in <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">gridflow/silver/elexon/agpt.py</code> · <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">AGPTTransformer.output_cols</code> (no dedicated Pydantic class). Partitioned by <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">settlement_date</code> (year + month). Point-in-time field: <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">ingested_at</code> (no native PIT field).</p>
+        <table class="schema-table">
+          <thead>
+            <tr>
+              <th style="width:19%">Column</th>
+              <th style="width:13%">Type</th>
+              <th style="width:6%;text-align:center">Null.</th>
+              <th style="width:14%">Source field</th>
+              <th>Notes</th>
+              <th style="width:13%">Citation</th>
+            </tr>
+          </thead>
+          <tbody><tr>
+<td class="col-name">settlement_date<span class="pk-badge">PK</span></td>
+<td class="col-type">date</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">settlementDate</td>
+<td class="col-note">Settlement date (BST/GMT calendar). Partition key.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L75-78</code></td>
+</tr><tr>
+<td class="col-name">settlement_period<span class="pk-badge">PK</span></td>
+<td class="col-type">int</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">settlementPeriod</td>
+<td class="col-note">1..50 (DST: 46 spring, 50 autumn).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L75-78</code></td>
+</tr><tr>
+<td class="col-name">timestamp_utc</td>
+<td class="col-type">datetime[UTC]</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Derived from (settlement_date, settlement_period) via <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">utils/time.settlement_period_to_utc</code>.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L82-91</code></td>
+</tr><tr>
+<td class="col-name">psr_type<span class="pk-badge">PK</span></td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">psrType</td>
+<td class="col-note">ENTSO-E PSR type code (e.g. "Wind Onshore", "Biomass"). Vendor-managed list.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L75-79</code></td>
+</tr><tr>
+<td class="col-name">generation_mw</td>
+<td class="col-type">float</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">quantity</td>
+<td class="col-note">MW. Cast to Float64.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L78</code></td>
+</tr><tr>
+<td class="col-name">business_type</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">businessType</td>
+<td class="col-note">ENTSO-E business type (typically "Production").</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L61</code></td>
+</tr><tr>
+<td class="col-name">document_id</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">documentId</td>
+<td class="col-note">ENTSO-E document MRID (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">NGET-EMFIP-AGPT-06476951</code>).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L62</code></td>
+</tr><tr>
+<td class="col-name">document_revision</td>
+<td class="col-type">int</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">documentRevisionNumber</td>
+<td class="col-note">Document revision counter; latest revision wins on dedup.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L63</code></td>
+</tr><tr>
+<td class="col-name">data_provider</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Default <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">&quot;elexon&quot;</code>.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L99</code></td>
+</tr><tr>
+<td class="col-name">ingested_at</td>
+<td class="col-type">datetime[UTC]</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Time ingested into bronze.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">silver/elexon/agpt.py L100</code></td>
+</tr></tbody>
+        </table>
+        <div class="card mt-24" style="padding:16px 20px;display:flex;gap:32px;align-items:start;flex-wrap:wrap">
+          <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/elexon/agpt/year=YYYY/month=MM/</div></div>
+          <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">settlement_date (year + month)</div></div>
+          <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(settlement_date, settlement_period, psr_type)</div></div>
+        </div>
+      </section>
+
+      <!-- Sample data -->
+      <section id="sample" style="margin-bottom:56px" data-screen-label="Sample data">
+        <div class="eyebrow mb-8">Sample data</div>
+        <h2 class="display-3 mb-24">What a row looks like.</h2>
+        <div style="overflow-x:auto;border:1px solid var(--ink-strong)">
+          <table class="data-table">
+            <thead><tr><th>settlement_date</th><th>settlement_period</th><th>timestamp_utc</th><th>psr_type</th><th>generation_mw</th><th>business_type</th><th>document_id</th><th>document_revision</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+            <tbody><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Biomass</td><td class="num" >2974.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Hydro Pumped Storage</td><td class="num" >1.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Fossil Gas</td><td class="num" >7729.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Nuclear</td><td class="num" >4310.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr class="hl"><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Wind Onshore</td><td class="num" >3210.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Wind Offshore</td><td class="num" >6010.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Solar</td><td class="num" >0.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="date" >2026-05-06</td><td class="num" >4</td><td class="date" >2026-05-06T01:30:00+00:00</td><td class="str" >Hydro Run-of-river and poundage</td><td class="num" >410.0</td><td >Production</td><td >NGET-EMFIP-AGPT-06476951</td><td class="num" >1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr></tbody>
+          </table>
+        </div>
+        <div class="tiny mt-12">SP4 (01:30 UTC) rows for 2026-05-06. Biomass and Hydro Pumped Storage rows verbatim from vault Bronze Sample. The highlighted Wind Onshore row is the key case: AGPT is the only Elexon endpoint that splits wind by technology — fuelhh collapses all wind into a single WIND bucket.</div>
+      </section>
+
+      
+<section id="psr-types" style="margin-bottom:56px" data-screen-label="PSR types">
+  <div class="eyebrow mb-8">PSR types</div>
+  <h2 class="display-3 mb-16">ENTSO-E A.11 <span class="italic fg-accent">categories.</span></h2>
+  <p class="small mb-16" style="max-width:560px">PSR types follow the ENTSO-E A.11 codelist. The Elexon API returns the human-readable label, not the B-code (e.g. <code class="mono">Fossil Gas</code> not <code class="mono">B04</code>). Categories regularly observed in GB AGPT:</p>
+<div class="fuel-grid">
+  <div class="fuel-pill"><span class="mono">Fossil Gas</span></div>
+  <div class="fuel-pill"><span class="mono">Nuclear</span></div>
+  <div class="fuel-pill"><span class="mono">Wind Onshore</span></div>
+  <div class="fuel-pill"><span class="mono">Wind Offshore</span></div>
+  <div class="fuel-pill"><span class="mono">Solar</span></div>
+  <div class="fuel-pill"><span class="mono">Biomass</span></div>
+  <div class="fuel-pill"><span class="mono">Hydro Pumped Storage</span><span style="font-family:var(--sans);font-size:11px;color:var(--ink-soft)"> — negative when charging</span></div>
+  <div class="fuel-pill"><span class="mono">Hydro Run-of-river and poundage</span></div>
+  <div class="fuel-pill"><span class="mono">Fossil Hard coal</span><span style="font-family:var(--sans);font-size:11px;color:var(--ink-soft)"> — rare post-2024</span></div>
+  <div class="fuel-pill"><span class="mono">Fossil Oil</span><span style="font-family:var(--sans);font-size:11px;color:var(--ink-soft)"> — emergency reserve</span></div>
+  <div class="fuel-pill"><span class="mono">Other</span></div>
+</div>
+</section>
+
+      <!-- API & Ingestion -->
+      <section id="api" style="margin-bottom:56px" data-screen-label="API">
+        <div class="eyebrow mb-8">API &amp; ingestion</div>
+        <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
+          <div class="card" style="padding:20px">
+            <div class="tiny mb-8">ENDPOINT</div>
+            <div class="mono small" style="word-break:break-all;margin-bottom:12px">data.elexon.co.uk/bmrs/api/v1/datasets/AGPT</div>
+            <div class="tiny mb-8">AUTH</div>
+            <div class="small">None required for tested endpoints (2026-05-08). Some endpoints accept an <code class="mono">apikey</code> header (env <code class="mono">ELEXON_API_KEY</code>); register at <a href="https://www.elexonportal.co.uk/" class="link" target="_blank" rel="noopener">elexonportal.co.uk ↗</a>.</div>
+          </div>
+          <div class="card" style="padding:20px">
+            <div class="tiny mb-8">BRONZE PATH</div>
+            <div class="mono small" style="word-break:break-all;margin-bottom:12px">data/bronze/elexon/agpt/&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+            <div class="tiny mb-8">TRANSFORMER</div>
+            <div class="mono small">gridflow.silver.elexon.agpt.AGPTTransformer</div>
+          </div>
+        </div>
+        <div data-tab-group="agpt">
+          <div class="row gap-8 mb-16" style="align-items:center;border-bottom:1px solid var(--rule);padding-bottom:12px">
+            <button class="chip btn-like ink" onclick="setTab('agpt','url',this)" style="cursor:pointer">Example URL</button>
+            <button class="chip btn-like" onclick="setTab('agpt','sql',this)" style="cursor:pointer">DuckDB · SQL</button>
+            <button class="chip btn-like" onclick="setTab('agpt','py',this)" style="cursor:pointer">Python · polars</button>
+          </div>
+          <div data-tab-panel="agpt-url" style="display:block"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">https://data.elexon.co.uk/bmrs/api/v1/datasets/AGPT?publishDateTimeFrom=2026-05-01T00:00:00Z&amp;publishDateTimeTo=2026-05-02T00:00:00Z&amp;format=json</pre></div></div>
+          <div data-tab-panel="agpt-sql" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto"><span class="c">-- Wind split (onshore vs offshore) over the last 30 days</span>
+SELECT settlement_date, settlement_period,
+       psr_type, generation_mw
+FROM read_parquet(<span class="s">'data/silver/elexon/agpt/**/*.parquet'</span>)
+WHERE psr_type IN (<span class="s">'Wind Onshore'</span>, <span class="s">'Wind Offshore'</span>)
+  AND settlement_date &gt;= current_date - INTERVAL 30 DAY
+ORDER BY settlement_date, settlement_period;</pre></div></div>
+          <div data-tab-panel="agpt-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
+
+df = pl.read_parquet(<span class="s">"data/silver/elexon/agpt/**/*.parquet"</span>)
+<span class=<span class="s">"c"</span>># Pivot PSR-type to columns for wind onshore/offshore share</span>
+mix = df.pivot(
+    index=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>],
+    on=<span class="s">"psr_type"</span>,
+    values=<span class="s">"generation_mw"</span>,
+    aggregate_function=<span class="s">"sum"</span>,
+)
+print(mix.head())</pre></div></div>
+        </div>
+      </section>
+
+      <!-- Related datasets -->
+      <section id="related" style="margin-bottom:56px" data-screen-label="Related">
+        <div class="eyebrow mb-8">Related datasets</div>
+        <h2 class="display-3 mb-24">What to use alongside <span class="mono">agpt</span>.</h2>
+        <div class="related-grid">
+<a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">fuelhh</span>
+      <span class="chip" style="font-size:10px">30 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Generation by fuel type, half-hourly. Same time grid; coarser groupings, collapses wind into one WIND bucket.</p>
+  <span class="tiny">elexon · generation · 30 min</span>
+</a>
+<a href="agws.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">agws</span>
+      <span class="chip" style="font-size:10px">30 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Actual or estimated wind &amp; solar generation (B1630). Wind/solar-only sibling; includes embedded estimates AGPT excludes.</p>
+  <span class="tiny">elexon · generation · 30 min</span>
+</a>
+<a href="windfor.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">windfor</span>
+      <span class="chip" style="font-size:10px">hourly</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Wind generation forecast. Pair with AGPT Wind Onshore + Wind Offshore actuals to compute forecast error.</p>
+  <span class="tiny">elexon · generation · hourly</span>
+</a>
+<a href="fuelinst.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">fuelinst</span>
+      <span class="chip" style="font-size:10px">~5 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Real-time companion when you need a fresher view; coarser fuel buckets, no D+1 lag.</p>
+  <span class="tiny">elexon · generation · ~5 min</span>
+</a></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/charts.js"></script>
+<script src="../../assets/site.js"></script>
+<script>
+(function(){
+  const sections=document.querySelectorAll('section[id]');
+  const links=document.querySelectorAll('.sidebar a[href^="#"]');
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add('active');}});},{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(s=>obs.observe(s));
+})();
+function setTab(g,t,btn){
+  document.querySelectorAll('[data-tab-panel^="'+g+'-"]').forEach(p=>p.style.display='none');
+  const p=document.querySelector('[data-tab-panel="'+g+'-'+t+'"]');
+  if(p)p.style.display='block';
+  document.querySelectorAll('[data-tab-group="'+g+'"] button').forEach(b=>b.classList.remove('ink'));
+  if(btn)btn.classList.add('ink');
+}
+</script>
+</body>
+</html>

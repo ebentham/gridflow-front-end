@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>bmunits_reference · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=1280"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css"/>
+  <style>
+    .schema-table{width:100%;border-collapse:collapse}
+    .schema-table thead th{text-align:left;font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding:10px 12px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);background:var(--paper-deep)}
+    .schema-table td{padding:11px 12px;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px}
+    .schema-table tr:hover td{background:var(--paper-card)}
+    .schema-table .col-name{font-family:var(--mono);font-size:12px;color:var(--ink-strong);font-weight:500;white-space:nowrap}
+    .schema-table .col-type{font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap}
+    .schema-table .col-note{color:var(--ink-soft);font-size:12px}
+    .schema-table .col-src{font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+    .schema-table .col-cite{font-family:var(--mono);font-size:10px;color:var(--ink-faint);min-width:120px}
+    .schema-table .pk-badge{display:inline-block;font-size:9px;font-family:var(--sans);font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--ink-strong);color:var(--paper);padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
+    .schema-table .nullable{color:var(--ink-faint);font-size:11px;font-family:var(--mono)}
+    .data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+    .data-table thead th{text-align:left;padding:10px 14px;background:var(--ink-strong);color:#d6d0c1;font-size:11px;font-weight:500;letter-spacing:.06em;white-space:nowrap}
+    .data-table tbody tr:nth-child(odd) td{background:#26221d}
+    .data-table tbody tr:nth-child(even) td{background:#221e19}
+    .data-table td{padding:8px 14px;color:#d6d0c1;border-bottom:1px solid #2e2924;white-space:nowrap}
+    .data-table .num{text-align:right;color:#8fbf9c}
+    .data-table .date{color:#c9a96e}
+    .data-table .str{color:#e8b8a3}
+    .data-table tr.hl td{outline:1px solid var(--accent);outline-offset:-1px}
+    .page-layout{display:grid;grid-template-columns:220px 1fr;gap:0;align-items:start}
+    .sidebar{position:sticky;top:64px;padding:32px 0;border-right:1px solid var(--rule);min-height:calc(100vh - 64px)}
+    .sidebar-section{margin-bottom:6px}
+    .sidebar-section-title{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);padding:8px 24px 4px}
+    .sidebar a{display:block;padding:6px 24px;font-size:13px;color:var(--ink-soft);border-left:2px solid transparent;text-decoration:none;transition:color .12s,border-color .12s}
+    .sidebar a:hover{color:var(--ink)}
+    .sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+    .main-content{padding:40px 64px 80px}
+    .related-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .fuel-grid{display:flex;flex-wrap:wrap;gap:8px}
+    .fuel-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--rule);background:var(--paper-card);font-family:var(--mono);font-size:12px;color:var(--ink-strong)}
+    .fuel-pill .sw{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .run-list{display:flex;flex-direction:column;gap:0}
+    .run-row{display:grid;grid-template-columns:60px 80px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--rule);align-items:baseline}
+    .run-code{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink-strong)}
+    .run-lag{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Elexon · bmunits_reference">
+
+<!-- BREADCRUMB + HERO -->
+<div style="border-bottom:1px solid var(--rule)">
+  <div class="container" style="padding-top:40px;padding-bottom:40px">
+    <div class="crumbs mb-16">
+      <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+      <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+      <a href="../elexon.html">Elexon BMRS</a><span class="sep">/</span>
+      <span class="here">bmunits_reference</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:56px;align-items:end">
+      <div>
+        <div class="row gap-8 mb-12" style="align-items:center;flex-wrap:wrap">
+          <span class="eyebrow">Dataset · Elexon · System &amp; Reference</span>
+          <span class="chip" style="font-size:11px">weekly</span>
+          <span class="chip" style="font-size:11px">Illustrative snapshot</span>
+        </div>
+        <h1 class="display-2" style="margin-bottom:14px">
+          <span class="fg-soft" style="font-size:28px;font-family:var(--mono);letter-spacing:-0.01em">bmunits_reference</span><br/>
+          Every registered BM unit, the <span class="italic fg-accent">join key.</span>
+        </h1>
+        <p class="lede" style="max-width:600px">GB BM-unit registry — the canonical lookup for unit metadata in every per-BMU dataset (`boal`, `pn`, `uou2t14d`).</p>
+        <p class="tiny mt-16" style="max-width:600px">
+          Verified against vendor docs: 2026-05-08 ·
+          <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/reference/bmunits/all" class="link" target="_blank" rel="noopener">Elexon BMRS · BMUNITS ↗</a>
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-card);min-width:320px">
+        <div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px;line-height:1.4">silver.bmunits_reference</div></div><div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px;line-height:1.4">/reference/bmunits/all</div></div><div style="padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">weekly</div></div><div style="padding:16px 18px;border-bottom:1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">0</div></div><div style="padding:16px 18px;border-right:1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">1 snapshot</div></div><div style="padding:16px 18px;"><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px;line-height:1.4">(bm_unit_id)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS STRIP -->
+<div class="container">
+  <div class="stats-strip" style="grid-template-columns:repeat(4,1fr)">
+    <div><div class="stat-n">weekly</div><div class="stat-l">Refresh cadence</div></div><div><div class="stat-n">~3000</div><div class="stat-l">Active BM units</div></div><div><div class="stat-n">8</div><div class="stat-l">Fuel categories</div></div><div><div class="stat-n">9</div><div class="stat-l">Schema columns</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR + MAIN -->
+<div class="container" style="padding-top:0;padding-bottom:0">
+  <div class="page-layout">
+
+    <nav class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">On this page</div>
+        <a href="#snapshot" class="active">Snapshot chart</a>
+        <a href="#schema">Schema</a>
+        <a href="#sample">Sample data</a>
+        <a href="#bm-unit-categories">BM-unit categories</a>
+        <a href="#api">API &amp; ingestion</a>
+        <a href="#related">Related datasets</a>
+      </div>
+      <div class="sidebar-section" style="margin-top:24px">
+        <div class="sidebar-section-title">Elexon BMRS</div>
+        <a href="../elexon.html">← All datasets</a>
+        <a href="bmunits_reference.html" class="active">bmunits_reference</a>
+        <a href="boal.html" style="color:var(--ink-faint)">boal</a>
+        <a href="pn.html" style="color:var(--ink-faint)">pn</a>
+        <a href="uou2t14d.html" style="color:var(--ink-faint)">uou2t14d</a>
+        <a href="fuelhh.html" style="color:var(--ink-faint)">fuelhh</a>
+      </div>
+    </nav>
+
+    <div class="main-content">
+
+      <!-- Snapshot chart -->
+      <section id="snapshot" style="margin-bottom:56px" data-screen-label="Snapshot">
+        <div class="eyebrow mb-8">Static snapshot</div>
+        <h2 class="display-3 mb-24">BM units by fuel type · current <span class="italic fg-accent">snapshot.</span></h2>
+        <div class="chart" style="padding:24px 28px">
+          <div class="row between mb-16" style="align-items:baseline">
+            <div>
+              <div class="eyebrow mb-4">bmunits_reference · silver layer</div>
+              <div class="small">Horizontal bars · count of registered units · 2026-05-08</div>
+            </div>
+            <div class="row gap-8"><span class="chip ink btn-like">count</span><span class="chip btn-like">capacity (MW)</span></div>
+          </div>
+          <div data-chart="barsH" data-opts='{"width":900,"height":280,"seed":5}'></div>
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:16px">Static snapshot · live wiring planned</div>
+        </div>
+      </section>
+
+      <!-- Schema -->
+      <section id="schema" style="margin-bottom:56px" data-screen-label="Schema">
+        <div class="eyebrow mb-8">Schema</div>
+        <h2 class="display-3 mb-8">Silver layer columns.</h2>
+        <p class="small mb-24" style="max-width:600px">Defined in <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">gridflow/schemas/elexon.py</code> · <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">ElexonBMUnit</code> (lines 269-280) and <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">gridflow/silver/elexon/bmunits.py</code> · <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">BMUnitsTransformer.output_cols</code>. The silver table is not partitioned — single reference file. Point-in-time field: <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">ingested_at</code> (snapshot semantics).</p>
+        <table class="schema-table">
+          <thead>
+            <tr>
+              <th style="width:19%">Column</th>
+              <th style="width:13%">Type</th>
+              <th style="width:6%;text-align:center">Null.</th>
+              <th style="width:14%">Source field</th>
+              <th>Notes</th>
+              <th style="width:13%">Citation</th>
+            </tr>
+          </thead>
+          <tbody><tr>
+<td class="col-name">bm_unit_id<span class="pk-badge">PK</span></td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">elexonBmUnit / bmUnit</td>
+<td class="col-note">Canonical BM Unit identifier (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">T_DRAXX-1</code>). Preserve raw casing.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L272</code></td>
+</tr><tr>
+<td class="col-name">bm_unit_name</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">bmUnitName / name</td>
+<td class="col-note">Friendly name (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">Drax Power Station 1</code>).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L273</code></td>
+</tr><tr>
+<td class="col-name">fuel_type</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">fuelType</td>
+<td class="col-note">Fuel category (CCGT, WIND, NUCLEAR, ...). Null for some unit types.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L274</code></td>
+</tr><tr>
+<td class="col-name">registered_capacity_mw</td>
+<td class="col-type">float</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">generationCapacity / registeredCapacity</td>
+<td class="col-note">MW. Cast to Float64. Note <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">demandCapacity</code> is a separate API field, not folded in.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L275</code></td>
+</tr><tr>
+<td class="col-name">company_name</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">leadPartyName / companyName</td>
+<td class="col-note">Lead party / operator.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L276</code></td>
+</tr><tr>
+<td class="col-name">gsp_group_id</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">gspGroupId</td>
+<td class="col-note">GSP group code (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">_K</code>, <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">_A</code>). Null for offshore units.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L277</code></td>
+</tr><tr>
+<td class="col-name">national_grid_bm_unit</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">nationalGridBmUnit</td>
+<td class="col-note">ENTSO-E EIC / National Grid BMU ID (e.g. <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">ABERU-1</code>).</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L278</code></td>
+</tr><tr>
+<td class="col-name">data_provider</td>
+<td class="col-type">str</td>
+<td style="text-align:center"><span class="nullable">—</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Default <code class="mono" style="font-size:11px;background:var(--paper-deep);padding:1px 5px;border:1px solid var(--rule)">&quot;elexon&quot;</code>.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L279</code></td>
+</tr><tr>
+<td class="col-name">ingested_at</td>
+<td class="col-type">datetime[UTC]</td>
+<td style="text-align:center"><span class="nullable">null</span></td>
+<td class="col-src">_derived_</td>
+<td class="col-note">Snapshot ingestion time.</td>
+<td class="col-cite"><code class="mono" style="font-size:10px;color:var(--ink-faint)">schemas/elexon.py L280</code></td>
+</tr></tbody>
+        </table>
+        <div class="card mt-24" style="padding:16px 20px;display:flex;gap:32px;align-items:start;flex-wrap:wrap">
+          <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/elexon/bmunits_reference/bmunits_reference.parquet (single file, NOT partitioned)</div></div>
+          <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">none — reference snapshot</div></div>
+          <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(bm_unit_id)</div></div>
+        </div>
+      </section>
+
+      <!-- Sample data -->
+      <section id="sample" style="margin-bottom:56px" data-screen-label="Sample data">
+        <div class="eyebrow mb-8">Sample data</div>
+        <h2 class="display-3 mb-24">What a row looks like.</h2>
+        <div style="overflow-x:auto;border:1px solid var(--ink-strong)">
+          <table class="data-table">
+            <thead><tr><th>bm_unit_id</th><th>bm_unit_name</th><th>fuel_type</th><th>registered_capacity_mw</th><th>company_name</th><th>gsp_group_id</th><th>national_grid_bm_unit</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+            <tbody><tr><td class="str" >E_ABERDARE</td><td class="str" >Aberdare Power Station</td><td class="str" >null</td><td class="num" >15.4</td><td >UK Power Reserve Limited</td><td >_K</td><td class="str" >ABERU-1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr class="hl"><td class="str" >T_ABRBO-1</td><td class="str" >ABRBO-1</td><td class="str" >WIND</td><td class="num" >99.0</td><td >Aberdeen Offshore Wind Farm</td><td >null</td><td class="str" >ABRBO-1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="str" >T_DRAXX-1</td><td class="str" >Drax Power Station 1</td><td class="str" >BIOMASS</td><td class="num" >645.0</td><td >Drax Power Limited</td><td >_D</td><td class="str" >DRAXX-1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="str" >T_HEYM27</td><td class="str" >Heysham 2 (Reactor 7)</td><td class="str" >NUCLEAR</td><td class="num" >605.0</td><td >EDF Energy Nuclear Generation Ltd</td><td >_N</td><td class="str" >HEYM27</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="str" >T_HOWAO-2</td><td class="str" >Hornsea 2 Offshore Wind Farm</td><td class="str" >WIND</td><td class="num" >1320.0</td><td >Ørsted Hornsea Project Two Ltd</td><td >null</td><td class="str" >HOWAO-2</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="str" >I_IFA1</td><td class="str" >IFA Interconnector</td><td class="str" >INTFR</td><td class="num" >2000.0</td><td >NGV (IFA) Limited</td><td >null</td><td class="str" >IFA1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="str" >T_PEHE-1</td><td class="str" >Pembroke 1 (CCGT)</td><td class="str" >CCGT</td><td class="num" >540.0</td><td >RWE Generation UK plc</td><td >null</td><td class="str" >PEHE-1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr><tr><td class="str" >T_GRMO-1</td><td class="str" >Greater Gabbard Offshore Wind Farm</td><td class="str" >WIND</td><td class="num" >504.0</td><td >Greater Gabbard Offshore Winds Ltd</td><td >null</td><td class="str" >GRMO-1</td><td >elexon</td><td class="date" >2026-05-08T12:00:00Z</td></tr></tbody>
+          </table>
+        </div>
+        <div class="tiny mt-12">Rows 1 (E_ABERDARE) and 2 (T_ABRBO-1) verbatim from vault Bronze Sample. The highlighted T_ABRBO-1 row is the interesting case: offshore wind unit with gsp_group_id null — offshore units are not tied to a GSP group.</div>
+      </section>
+
+      
+<section id="bm-unit-categories" style="margin-bottom:56px" data-screen-label="BM-unit categories">
+  <div class="eyebrow mb-8">BM-unit categories</div>
+  <h2 class="display-3 mb-16">Fuel types and prefix <span class="italic fg-accent">conventions.</span></h2>
+  <p class="small mb-16" style="max-width:560px">The <code class="mono">fuel_type</code> column uses the same vocabulary as <code class="mono">fuelhh</code>. The <code class="mono">bm_unit_id</code> prefix encodes unit category.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:0">
+<div>
+<div class="eyebrow mb-12">Fuel types</div>
+<div class="fuel-grid">
+  <div class="fuel-pill"><span class="mono">CCGT</span></div><div class="fuel-pill"><span class="mono">WIND</span></div>
+  <div class="fuel-pill"><span class="mono">NUCLEAR</span></div><div class="fuel-pill"><span class="mono">BIOMASS</span></div>
+  <div class="fuel-pill"><span class="mono">NPSHYD</span></div><div class="fuel-pill"><span class="mono">PS</span></div>
+  <div class="fuel-pill"><span class="mono">COAL</span></div><div class="fuel-pill"><span class="mono">OCGT</span></div>
+  <div class="fuel-pill"><span class="mono">OIL</span></div>
+  <div class="fuel-pill"><span class="mono">INTFR / INTIRL / INTNED / INTEW / INTEM</span><span style="font-family:var(--sans);font-size:11px;color:var(--ink-soft)"> — interconnectors</span></div>
+  <div class="fuel-pill"><span style="font-family:var(--sans);font-size:11px;color:var(--ink-soft)">null — supplier + embedded BMUs</span></div>
+</div>
+</div>
+<div>
+<div class="eyebrow mb-12">ID prefix conventions</div>
+<div class="run-list">
+  <div class="run-row"><span class="run-code">T_</span><span></span><span class="small">Transmission-connected unit (<code class="mono">T_DRAXX-1</code>)</span></div>
+  <div class="run-row"><span class="run-code">E_</span><span></span><span class="small">Embedded / distribution-connected (<code class="mono">E_ABERDARE</code>)</span></div>
+  <div class="run-row"><span class="run-code">I_</span><span></span><span class="small">Interconnector unit (<code class="mono">I_IFA1</code>)</span></div>
+  <div class="run-row"><span class="run-code">2__</span><span></span><span class="small">Supplier BMU (<code class="mono">2__DUKPR008</code>)</span></div>
+</div>
+</div>
+</div>
+</section>
+
+      <!-- API & Ingestion -->
+      <section id="api" style="margin-bottom:56px" data-screen-label="API">
+        <div class="eyebrow mb-8">API &amp; ingestion</div>
+        <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
+          <div class="card" style="padding:20px">
+            <div class="tiny mb-8">ENDPOINT</div>
+            <div class="mono small" style="word-break:break-all;margin-bottom:12px">data.elexon.co.uk/bmrs/api/v1/reference/bmunits/all</div>
+            <div class="tiny mb-8">AUTH</div>
+            <div class="small">None required for tested endpoints (2026-05-08). Some endpoints accept an <code class="mono">apikey</code> header (env <code class="mono">ELEXON_API_KEY</code>); register at <a href="https://www.elexonportal.co.uk/" class="link" target="_blank" rel="noopener">elexonportal.co.uk ↗</a>.</div>
+          </div>
+          <div class="card" style="padding:20px">
+            <div class="tiny mb-8">BRONZE PATH</div>
+            <div class="mono small" style="word-break:break-all;margin-bottom:12px">data/bronze/elexon/bmunits_reference/&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+            <div class="tiny mb-8">TRANSFORMER</div>
+            <div class="mono small">gridflow.silver.elexon.bmunits.BMUnitsTransformer</div>
+          </div>
+        </div>
+        <div data-tab-group="bmunits_reference">
+          <div class="row gap-8 mb-16" style="align-items:center;border-bottom:1px solid var(--rule);padding-bottom:12px">
+            <button class="chip btn-like ink" onclick="setTab('bmunits_reference','url',this)" style="cursor:pointer">Example URL</button>
+            <button class="chip btn-like" onclick="setTab('bmunits_reference','sql',this)" style="cursor:pointer">DuckDB · SQL</button>
+            <button class="chip btn-like" onclick="setTab('bmunits_reference','py',this)" style="cursor:pointer">Python · polars</button>
+          </div>
+          <div data-tab-panel="bmunits_reference-url" style="display:block"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">https://data.elexon.co.uk/bmrs/api/v1/reference/bmunits/all?format=json</pre></div></div>
+          <div data-tab-panel="bmunits_reference-sql" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto"><span class="c">-- BM-unit count by fuel type</span>
+SELECT COALESCE(fuel_type, <span class="s">'(null)'</span>) AS fuel,
+       COUNT(*) AS units,
+       SUM(registered_capacity_mw) AS total_capacity_mw
+FROM read_parquet(<span class="s">'data/silver/elexon/bmunits_reference/bmunits_reference.parquet'</span>)
+GROUP BY 1
+ORDER BY units DESC;</pre></div></div>
+          <div data-tab-panel="bmunits_reference-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
+
+bmu = pl.read_parquet(<span class="s">"data/silver/elexon/bmunits_reference/bmunits_reference.parquet"</span>)
+<span class=<span class="s">"c"</span>># Join example: attach fuel_type + name to a BOAL extract</span>
+boal = pl.read_parquet(<span class="s">"data/silver/elexon/boal/**/*.parquet"</span>)
+enriched = boal.join(
+    bmu.select([<span class="s">"bm_unit_id"</span>, <span class="s">"bm_unit_name"</span>, <span class="s">"fuel_type"</span>]),
+    on=<span class="s">"bm_unit_id"</span>,
+    how=<span class="s">"left"</span>,
+)
+print(enriched.head())</pre></div></div>
+        </div>
+      </section>
+
+      <!-- Related datasets -->
+      <section id="related" style="margin-bottom:56px" data-screen-label="Related">
+        <div class="eyebrow mb-8">Related datasets</div>
+        <h2 class="display-3 mb-24">What to use alongside <span class="mono">bmunits_reference</span>.</h2>
+        <div class="related-grid">
+<a href="boal.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">boal</span>
+      <span class="chip" style="font-size:10px">hourly</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Bid-offer acceptance. Joins on bm_unit_id to attach unit-level dispatch instructions to the reference register.</p>
+  <span class="tiny">elexon · prices &amp; balancing · hourly</span>
+</a>
+<a href="pn.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">pn</span>
+      <span class="chip" style="font-size:10px">hourly</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Physical notifications. Joins on bm_unit_id for BMU-level pre-gate-closure intentions.</p>
+  <span class="tiny">elexon · prices &amp; balancing · hourly</span>
+</a>
+<a href="uou2t14d.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">uou2t14d</span>
+      <span class="chip" style="font-size:10px">daily</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">2-14 day availability by BM unit. Joins on bm_unit_id for forward availability declarations.</p>
+  <span class="tiny">elexon · demand &amp; forecasts · daily</span>
+</a>
+<a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none">
+  <div class="row between mb-8" style="align-items:flex-start">
+    <div class="row gap-8">
+      <span class="mono small" style="color:var(--ink-strong)">fuelhh</span>
+      <span class="chip" style="font-size:10px">30 min</span>
+    </div>
+    <span class="arrow">→</span>
+  </div>
+  <p class="small" style="margin:0 0 8px">Generation by fuel type, half-hourly. Look up fuel_type column to derive top-N BMU contribution to each fuel category.</p>
+  <span class="tiny">elexon · generation · 30 min</span>
+</a></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/charts.js"></script>
+<script src="../../assets/site.js"></script>
+<script>
+(function(){
+  const sections=document.querySelectorAll('section[id]');
+  const links=document.querySelectorAll('.sidebar a[href^="#"]');
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const m=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(m)m.classList.add('active');}});},{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(s=>obs.observe(s));
+})();
+function setTab(g,t,btn){
+  document.querySelectorAll('[data-tab-panel^="'+g+'-"]').forEach(p=>p.style.display='none');
+  const p=document.querySelector('[data-tab-panel="'+g+'-'+t+'"]');
+  if(p)p.style.display='block';
+  document.querySelectorAll('[data-tab-group="'+g+'"] button').forEach(b=>b.classList.remove('ink'));
+  if(btn)btn.classList.add('ink');
+}
+</script>
+</body>
+</html>
