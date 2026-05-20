@@ -18,9 +18,10 @@
 
 - [x] **Phase 7: Reconciliation** — Wrap the existing verifier as `gridflow-drift-check`; run Verification across all 6 Vendors; triage every Drift finding into `open` / `wontfix-v3` / `needs-info`+`defer-entitlement`; land Vault edits for the fixable bucket; commit the upstream Vault to a private GitHub repo (`EBentham/quant-vault`) per ADR-0002 *(gating for content phases 9 and 10; independent of Phase 8 per ADR-0001 D-03)* **[Complete 2026-05-19 — RECON-01..RECON-05 satisfied]**
 - [~] **Phase 8: Dataset-page formatting bug fix** — Attempted as locked-scope minimal CSS patch; **two iterations failed visual verification** at BUG-02 user-checkpoint; root cause turned out to be editorial-content gap in vault, not a rendering-layer bug *(closed as superseded 2026-05-19; see `phases/08-bug-fix-dataset-formatting/08-01-SUMMARY.md`)*
-- [x] **Phase 8B: Claude-Design hero rewrite (hybrid authored/templated)** — Adopt hand-authored pages for showcase datasets; add `authored-pages/<vendor>/<slug>.html` override path to `build.py` so authored pages bypass the template; long tail still vault-driven via Jinja2. Carries forward BUG-01/BUG-02/BUG-03 from Phase 8 with re-scoped acceptance *(gating for Phase 9 and Phase 10; replaces Phase 8 as the template-quality gate)* **[Complete 2026-05-20 — all 33 Elexon datasets ported under authored-pages/elexon/; BUG-01/BUG-02/BUG-03 satisfied; build.py override path wired]**
-- [ ] **Phase 9: ENTSO-E full coverage** — Vendor 48 new ENTSO-E `.md` files; extend `entsoe.json` to 49 datasets; render all 49 pages at `fuelhh` fidelity; upgrade hub from 1-dataset proof to 49-dataset catalog *(stress-tests the template at scale on a non-Elexon vendor — different schema vocabulary: codelists, PSR types, BIDDING_ZONE references; ENTSO-E entitlement choice — extend access vs skip-with-warn — lands in this phase's discuss-phase per Phase 7 D-06)*
-- [ ] **Phase 10: Four-vendor batch coverage + site-wide consistency** — Vendor and render ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6) = 81 new pages; move 4 vendor entries from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`; update site-wide count strings to 163; every vendor row on the catalog links to a real hub
+- [~] **Phase 8B: Claude-Design hero rewrite (AI-port output deprecated)** — Built the `authored-pages/<vendor>/<slug>.html` build-script override path (kept) and AI-ported all 33 Elexon pages (output deemed sub-optimal in editorial quality; archived to `.planning/archive/08B-ai-ports/elexon/` 2026-05-20). The two reference pages (fuelhh + system_prices) remain in `authored-pages/elexon/` as visual targets for the Claude-Design pivot *(milestone direction changed 2026-05-20 toward Option C — fully authored via Claude Design)*
+- [ ] **Phase 8C: Elexon content briefs (triangulated research for Claude Design)** — Produce 33 self-contained markdown content briefs at `content-briefs/elexon/<slug>.md`, one per Elexon dataset. Each brief triangulates vault + gridflow Pydantic schemas/transformers/connectors + live vendor docs; surfaces cross-source discrepancies in frontmatter for downstream triage; ready to paste into Claude Design alongside the visual reference (fuelhh.html / system_prices.html) *(replaces Phase 8B's AI-port path; gating for Phase 9 and Phase 10 which adopt the same brief → Claude Design pattern)*
+- [ ] **Phase 9: ENTSO-E full coverage** — Produce 49 content briefs for ENTSO-E datasets following the Phase 8C pattern; user Claude-Designs from briefs; drop output into `authored-pages/entsoe/<slug>.html`. Upgrade `/data-sources/entsoe.html` hub from 1-dataset proof to 49-dataset catalog. The ENTSO-E entitlement question (33 HTTP 401 datasets deferred from Phase 7 per D-06) is resolved in this phase's discuss-phase before brief production proceeds.
+- [ ] **Phase 10: Four-vendor batch coverage + site-wide consistency** — Produce 81 content briefs across ENTSO-G (33) + GIE (8) + NESO (34) + Open-Meteo (6); Claude-Design the output; move 4 vendor entries from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`; update site-wide count strings to 163; every vendor row on the catalog links to a real hub
 
 ## v2 Phase Details
 
@@ -118,9 +119,10 @@ v1 milestone (Phases 0–6) — Complete 2026-05-18
 | 6. CI validation | inline | Complete | 2026-05-18 (PR #9 + #10 + #11) |
 | 7. Reconciliation | 4/4 | Complete | 2026-05-19 |
 | 8. Dataset-page formatting bug fix | 1/1 (failed) | Closed/superseded by 8B | 2026-05-19 |
-| 8B. Claude-Design hero rewrite (hybrid) | 1/1 | Complete | 2026-05-20 |
-| 9. ENTSO-E full coverage | 0/? | Not started (blocked on 8B) | — |
-| 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started (blocked on 8B + 9) | — |
+| 8B. Claude-Design hero rewrite (build override kept; AI-ports archived) | 1/1 (output sub-optimal) | Partial — output archived 2026-05-20; superseded by 8C | 2026-05-20 |
+| 8C. Elexon content briefs (triangulated research) | 0/1 | Ready to execute (autonomous opus) | — |
+| 9. ENTSO-E full coverage | 0/? | Not started (blocked on 8C) | — |
+| 10. Four-vendor batch coverage + site-wide consistency | 0/? | Not started (blocked on 8C + 9) | — |
 
 v1 milestone complete · 50/50 REQ-IDs delivered. v2 milestone active · 8/31 REQ-IDs delivered (RECON-01..RECON-05 complete — Phase 7 done 2026-05-19; BUG-01/BUG-02/BUG-03 complete — Phase 8B done 2026-05-20).
 
