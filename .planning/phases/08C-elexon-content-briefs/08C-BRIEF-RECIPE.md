@@ -2,6 +2,13 @@
 
 **Purpose**: This is the per-dataset runbook the Phase 8C-01 executor follows for each of the 33 Elexon datasets. The output is a self-contained markdown document that Claude Design can render against the fuelhh.html / system_prices.html visual reference without needing additional research.
 
+> **2026-05-20 update (post-POC verbosity learning):** Brief format tightened after the 5-dataset POC batch (Phase 8D follow-on) showed Claude Design over-produces verbose Overview + Caveats sections from this recipe. The tightened format:
+> - **Lede:** 1 short sentence, ~15–25 words. "What it is + how you use it for modelling." No second sentence unless genuinely additive.
+> - **No `# Overview` section.** The lede + schema notes + sample-data caption already cover what the dataset is. The 3-paragraph Overview was being stripped from rendered pages as redundant with the hero lede.
+> - **Caveats:** Each item compresses to 1 short sentence (rarely 2) + source citation. Maximum 6 items. The body is research-record-quality, not user-facing prose — Claude Design no longer renders Caveats as a standalone HTML section.
+>
+> Phase 9 (ENTSO-E, 49 briefs) and Phase 10 (4-vendor batch, 80 briefs) inherit this tightened format. The structural-check `# Overview` row below is **suspended** (kept in legacy briefs that pre-date the tighten; new briefs MUST omit). See `content-briefs/elexon/fuelhh.md` for the canonical tightened brief.
+
 ## Sources (mandatory triangulation)
 
 For each dataset, the executor MUST consult:
@@ -53,7 +60,11 @@ checked_at: <ISO-8601 UTC>
   - fuelhh: `Generation by fuel type, half-hourly.` (accent: "half-hourly.")
   - system_prices: `GB imbalance prices, settled half-hourly.` (accent: "settled half-hourly.")
 
-- **Lede paragraph** (2–4 sentences): Editorial voice. Lead with what the dataset IS (one short sentence). Then say why it matters (canonical use). Optionally one more sentence on cadence or scope. Maximum 60 words.
+- **Lede** (1 short sentence, ~15–25 words — tightened 2026-05-20): One sentence that does both jobs: "what it is + how you use it for modelling." Pattern: `{short noun phrase} — the canonical {modelling use 1}, {modelling use 2}, and {modelling use 3}.` Examples:
+  - fuelhh: `Half-hourly GB generation by fuel type — the canonical observation series for generation mix, capacity factors, and emissions.`
+  - system_prices: `GB cash-out prices per settlement period — the canonical signal for short-term power-market value and BSC imbalance settlement.`
+
+  No second sentence unless it's genuinely additive (e.g. a defining cadence quirk the schema columns can't carry). Hard ceiling: 30 words.
 
 - **Last-verified line**: `Verified against vendor docs: {YYYY-MM-DD} · {Vendor BMRS · CODE}`. Vendor doc URL goes inline.
 
@@ -87,17 +98,18 @@ For Slot 3, identify what's notable about the dataset. Examples:
 
 A markdown list: 4-6 sibling slugs from the same group in `elexon.json` (semantically related). One slug per line.
 
-### # Overview (3 paragraphs)
+### # Overview — **REMOVED 2026-05-20**
 
-Three numbered paragraphs:
+This section is no longer required and MUST be omitted from new briefs.
 
-1. **Paragraph 1 — What it is**: Opens with `<code>` chip of slug + plain-English definition. Composed from vault Overview paragraph 1, condensed; cite any technical identifiers with `<code>` inline.
+**Why removed:** Empirical evidence from the 5-dataset POC batch (entsoe / entsog / gie / neso / openmeteo, 2026-05-20) showed the rendered HTML "What this dataset is" section was straight-up redundant with the hero lede — the user stripped it from all 5 pages. The 3-paragraph Overview cost research time and produced no incremental value over the lede + schema + sample data.
 
-2. **Paragraph 2 — How Gridflow fetches it**: Mentions the endpoint path with `<code>`, the transformer class with `<code>`, the schema class with `<code>`. Composed from vault Silver layer section + gridflow connector source.
+**Where the old paragraph content goes instead:**
+- Paragraph 1 ("what it is") → already in the **Lede**.
+- Paragraph 2 ("how Gridflow fetches it") → in the **# API & ingestion** section's Card 1 / Card 2 (endpoint + transformer + bronze path are already there).
+- Paragraph 3 ("cadence + provenance") → cadence is in the **# Hero metadata** table and **# Stats strip**; verification date is in frontmatter `last_verified`.
 
-3. **Paragraph 3 — Cadence + provenance**: Refresh frequency, why this data is useful, when it was verified. Composed from manifest + vault frontmatter.
-
-Use inline `<code class="mono">` (or just `<code>`) for every technical identifier.
+If a dataset has a genuinely load-bearing fact that doesn't fit anywhere else (rare — e.g. a complex bitemporal pattern), append it as a **2-sentence "Notable" callout** under the lede. Do NOT reintroduce a 3-paragraph block.
 
 ### # Sample chart
 
@@ -172,14 +184,23 @@ Then three code-example tabs:
 
 **Tab 3: Python · parquet** — 4-10 line polars snippet doing something dataset-appropriate (pivot fuel-mix wide, daily-mean-price, max-min spread, etc.)
 
-### # Caveats (3-6)
+### # Caveats (3-6) — **tightened 2026-05-20**
 
-Numbered list (01, 02, 03...). Per caveat:
-- **Title** (1 line, sentence case)
-- **Body** (1-2 short paragraphs, inline `<code>` for identifiers, links to internal references)
+Numbered list (01, 02, 03...). **Each caveat compresses to 1 short sentence (rarely 2) + source citation.** The brief is now a research record; Claude Design no longer renders Caveats as a standalone HTML section, so the body doesn't need to "read well" — it needs to be a terse, citable fact.
+
+Per caveat:
+- **Title** (1 line, sentence case — same as before)
+- **Body** (1 sentence, max 2 — tightened. Inline `<code>` for identifiers, no rhetorical setup)
 - **Source citation**: which vault Known-Issue, which gridflow Implementation-Delta, or "domain knowledge (BSC settlement / DST / API limits)"
 
-Sources, priority order:
+Example (fuelhh, tightened):
+```
+## 01 Settlement period range is 1..50
+
+DST days have 46 (spring) or 50 (autumn) settlement periods. Validator `ge=1, le=50`. *(Source: `schemas/elexon.py L83`.)*
+```
+
+Sources, priority order (unchanged):
 1. Vault Known Issues section
 2. Vault Implementation Delta section (non-cosmetic deltas)
 3. Vault Changelog (the V2-FIX-* fixes)
@@ -220,10 +241,12 @@ done
 sources_count=$(awk '/^sources_consulted:/{flag=1; next} /^[a-z_]+:/{flag=0} flag' "$FILE" | grep -c "^  -")
 [ "$sources_count" -ge 3 ] || echo "FAIL: < 3 sources cited ($sources_count)"
 
-# 5. All required sections present (in order)
-for section in "# Editorial layer" "# Hero metadata" "# Stats strip" "# Sidebar siblings" "# Overview" "# Sample chart" "# Schema" "# Sample data" "# API & ingestion" "# Caveats" "# Related datasets"; do
+# 5. All required sections present (in order — `# Overview` removed 2026-05-20)
+for section in "# Editorial layer" "# Hero metadata" "# Stats strip" "# Sidebar siblings" "# Sample chart" "# Schema" "# Sample data" "# API & ingestion" "# Caveats" "# Related datasets"; do
   grep -qF "$section" "$FILE" || echo "FAIL: missing section: $section"
 done
+# 5b. NEW (2026-05-20) — confirm legacy `# Overview` section is absent in new briefs
+grep -qF "# Overview" "$FILE" && echo "WARN: legacy '# Overview' section present — should be removed per tightened recipe"
 
 # 6. Schema has at least 3 rows (excluding header + separator) — check by counting | at row starts
 schema_rows=$(awk '/^# Schema/{flag=1; next} /^# /{flag=0} flag && /^\|/' "$FILE" | grep -v '^|--' | grep -v '^| Column' | wc -l)

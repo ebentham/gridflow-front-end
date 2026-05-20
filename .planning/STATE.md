@@ -56,6 +56,7 @@
 | 17 | neso regional_scotland transient DNS failure filed as open for re-verify in 07-03 | 07-02 execution 2026-05-19 |
 | 18 | entsoe finding count: 35 defer-entitlement + 2 wontfix-v3 + 36 open silver = 73 total (exceeds plan's minimum of 51); 36 open = 24 nullable mismatches + 10 no_silver_schema_table + 1 no_silver_section + 1 extra field | 07-02 execution 2026-05-19 |
 | 19 | gridflow package installed into front-end venv (Rule 3 deviation) to resolve typer transitive dependency not declared in [drift] extras | 07-02 execution 2026-05-19 |
+| 20 | **Brief format tightened post-POC** — Lede compressed to 1 sentence ~15-25 words; `# Overview` section removed entirely (was redundant with hero lede + stripped from rendered HTML); each `# Caveats` body compressed to 1 sentence. Applies to Phase 9 (49 ENTSO-E briefs) and Phase 10 (80 four-vendor briefs). 33 Elexon briefs back-tightened for consistency. See updated `08C-BRIEF-RECIPE.md` and `content-briefs/elexon/fuelhh.md` (gold standard). | 5-dataset POC review 2026-05-20 |
 
 ### Decisions Overridden (v2)
 
@@ -80,9 +81,9 @@ All Phase 7 open items resolved during execution:
 
 ## Session Continuity
 
-**Last action:** Phase 8D execution complete 2026-05-20. 5 vendor-hub briefs committed (entsoe 49/6, entsog 33/5, gie 8/2, neso 33/4, openmeteo 6/2); build.py override extended for vendor hubs; SUMMARY + ROADMAP updated. 8 `docs(08D):` + `fix(08D):` commits on branch `docs/v2-milestone-start`. BRIEF-LOG.md has one logged false positive (NESO Check 7 regex needs `[a-z0-9_]+` to handle numeric slug suffixes).
-**Next action:** Plan Phase 9 — ENTSO-E per-dataset briefs (49 datasets following the 8C pattern). Run `/gsd-plan-phase 9`.
-**Resume from:** Phase 9 plan (`/gsd-plan-phase 9`). ENTSO-E entitlement decision (33 HTTP 401 datasets deferred from Phase 7 per D-06) must be resolved in the discuss-phase before content build proceeds. Phase 10 also unblocked (4-vendor batch: 80 per-dataset briefs).
+**Last action:** Phase 8D execution complete 2026-05-20. 5 vendor-hub briefs committed (entsoe 49/6, entsog 33/5, gie 8/2, neso 33/4, openmeteo 6/2); build.py override extended for vendor hubs; SUMMARY + ROADMAP updated. 8 `docs(08D):` + `fix(08D):` commits on branch `docs/v2-milestone-start`. BRIEF-LOG.md has one logged false positive (NESO Check 7 regex needs `[a-z0-9_]+` to handle numeric slug suffixes). **2026-05-20 follow-on:** 5-dataset POC (entsoe/actual_generation + 4 cross-vendor) rendered through Claude Design; user reviewed and stripped `# Overview` + `# Caveats` sections as redundant/verbose. Brief format tightened to match (D-20). `build.py` extended with `copy_authored_dataset_pages_for_coming_soon()` so authored dataset HTML for COMING_SOON vendors lands at `data-sources/<vendor>/<slug>.html`. All 33 Elexon briefs back-tightened to the new format (Lede ≤25 words; no `# Overview`; terse Caveats).
+**Next action:** Plan Phase 9 — ENTSO-E per-dataset briefs (49 datasets following **tightened** 8C pattern, see D-20). Run `/gsd-plan-phase 9`.
+**Resume from:** Phase 9 plan (`/gsd-plan-phase 9`). Pre-plan reading: `08C-BRIEF-RECIPE.md` (updated 2026-05-20 with tightened Lede / no-Overview / terse-Caveats rules) and `content-briefs/elexon/fuelhh.md` (canonical tightened brief). ENTSO-E entitlement decision (33 HTTP 401 datasets deferred from Phase 7 per D-06) must still be resolved in the discuss-phase before content build proceeds. Phase 10 also unblocked (4-vendor batch: 80 per-dataset briefs, same tightened format).
 
 **Branch state as of Phase 8D completion (~88 commits ahead of main, NOT pushed):**
 - `content-briefs/elexon/` — 33 files (Phase 8C, committed)
