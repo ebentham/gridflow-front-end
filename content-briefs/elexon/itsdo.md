@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Transmission-system demand, <span class="italic fg-accent">embedded excluded.</span>
 
-**Lede:** ITSDO is the Initial Transmission System Demand Outturn — realised demand on the GB transmission network, per settlement period. Unlike `indo` (national total), ITSDO excludes embedded generation; the gap between the two is the canonical measurement of how much demand is offset by sub-transmission generation (small solar, embedded wind, CHP).
+**Lede:** Half-hourly GB transmission-system demand — the canonical outturn series for embedded-generation derivation, transmission imbalance, and TSDF forecast error.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · ITSDO](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/ITSDO)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - indod
 - tsdf
 - tsdfd
-
-# Overview
-
-1. <code>itsdo</code> is **Initial Transmission System Demand Outturn** — the demand actually measured on the GB transmission network per settlement period. The key distinction from `indo` is that ITSDO is transmission-only: embedded generation (sub-1 MW solar, distribution-connected wind, embedded CHP) is excluded. The implied embedded contribution is therefore <code>indo − itsdo</code>.
-
-2. Gridflow fetches it from <code>/datasets/ITSDO</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L190-194</code>). The <code>ITSDOTransformer</code> renames `demand` → `initial_transmission_system_demand_outturn_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication with ~5-minute lag at period close. Verified against the live API on 2026-05-08. ITSDO is what the transmission network operators actually had to balance; INDO is the broader measure that includes load served behind the meter. Pair with `indo` to track embedded generation over time, with `tsdf` for the forecast counterpart, and with `fuelhh` for transmission-side fuel-mix attribution.
 
 # Sample chart
 
@@ -165,23 +157,23 @@ print(embedded)
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like `indo`/`indod`, ITSDO has no dedicated Pydantic class. Silver shape is defined by `ITSDOTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no ITSDO class.)*
+No `ElexonITSDO` class; shape lives in `ITSDOTransformer.output_cols`. *(Source: `silver/elexon/itsdo.py`.)*
 
 ## 02 Transmission-only — embedded generation excluded
 
-ITSDO is what the transmission network metered. Embedded generation (small solar, distribution-connected wind, embedded CHP) appears as *reduced demand* in ITSDO but is added back in INDO. `indo − itsdo` is therefore the implied embedded contribution. The midday gap is dominated by embedded solar; the evening gap is mostly embedded wind + CHP. *(Source: vault Known Issues — "Transmission-only — does not include embedded generation. Embedded contribution = INDO − ITSDO".)*
+ITSDO is metered transmission demand; embedded generation appears as reduced demand. `indo − itsdo` = embedded contribution. *(Source: GB embedded-generation framework.)*
 
 ## 03 Column name is verbose by design
 
-The silver column is `initial_transmission_system_demand_outturn_mw` — long, but unambiguous. Aliasing to `itsdo_mw` or similar in downstream views is fine; just don't conflate it with `initial_demand_outturn_mw` (which is the INDO column). *(Source: `silver/elexon/itsdo.py L59` — column rename intentionally explicit.)*
+`initial_transmission_system_demand_outturn_mw` — alias downstream but don't conflate with INDO's `initial_demand_outturn_mw`. *(Source: `silver/elexon/itsdo.py L59`.)*
 
 ## 04 Initial estimate, revised through settlement
 
-Like INDO, ITSDO is the *initial* published outturn — D+1 publish, revised through BSC settlement reconciliation. For final reconciled transmission demand use settlement-run datasets. *(Source: vault Overview — "Initial National Demand Outturn".)*
+D+1 initial; BSC final-settlement values not exposed. *(Source: vault Overview.)*
 
 ## 05 Pair with `tsdf` / `tsdfd` for forecast-vs-outturn
 
-ITSDO is the realised transmission demand; `tsdf` is the same-day transmission forecast and `tsdfd` is the 2-14 day forecast. Compute forecast error by joining on (settlement_date, settlement_period). Note `tsdfd` is published days ahead with append-only revisions — use the latest-revision pattern documented in the FOU2T14D brief. *(Source: cross-reference with TSDF/TSDFD briefs; domain knowledge.)*
+`tsdf` (intra-day) and `tsdfd` (2-14 day) are forecast counterparts; `tsdfd` is append-only, latest-revision selection at read time. *(Source: cross-reference TSDF/TSDFD briefs.)*
 
 # Related datasets
 

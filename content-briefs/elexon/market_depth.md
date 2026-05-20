@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Per-period balancing summary, <span class="italic fg-accent">depth at a glance.</span>
 
-**Lede:** Market Depth is the settlement-period summary of GB balancing activity — the indicative imbalance, total bid and offer volumes, and accepted balancing volumes in a single row per period. It folds inputs from BOALF, DISBSAD, IMBALNGC, and BOD into a liquidity-and-headroom snapshot useful when you want one row instead of the underlying granular feeds.
+**Lede:** Per-period GB balancing market summary — the canonical liquidity-and-headroom snapshot for cash-out cost analysis, daily volume totals, and BSC cross-checks.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · Market Depth](https://bmrs.elexon.co.uk/api-documentation/endpoint/balancing/settlement/market-depth)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - disbsad
 - boal
 - imbalngc
-
-# Overview
-
-1. <code>market_depth</code> is **Settlement Market Depth** — a per-settlement-period summary that combines four upstream sources (IMBALNGC, BOD, DISEBSP, DISPTAV per the live API metadata) into one row carrying indicative imbalance and volume aggregates. Each row tells you how much liquidity (`offer_volume_mwh`, `bid_volume_mwh`) was available and how much was accepted (`total_accepted_offer_volume_mwh`, `total_accepted_bid_volume_mwh`) in a single period.
-
-2. Gridflow fetches it from <code>/balancing/settlement/market-depth/{settlementDate}</code> — a **DATE_PATH** style endpoint where the date is appended to the URL path rather than passed as a query parameter (connector entry at <code>connectors/elexon/endpoints.py L257-261</code>, same pattern as `system_prices`). The <code>MarketDepthTransformer</code> renames the six bid/offer aggregates plus the imbalance figure, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is one row per settlement period per day, published D+1. Verified against the live API on 2026-05-08. Use for one-shot per-period analytics — daily totals of accepted volume, intra-day liquidity profiles, fast cross-checks against BOAL aggregations. The bronze metadata block (`"metadata": {"datasets": ["IMBALNGC", "BOD", "DISEBSP", "DISPTAV"]}`) makes the upstream lineage explicit.
 
 # Sample chart
 
@@ -164,23 +156,23 @@ print(liquidity)
 
 ## 01 Aggregates BOALF / DISBSAD / IMBALNGC — don't double-count
 
-The bronze metadata explicitly lists `["IMBALNGC", "BOD", "DISEBSP", "DISPTAV"]` as source datasets. The volumes in market_depth are derived sums. If you join market_depth to BOAL or DISBSAD and then aggregate again, you'll double-count. Pick one layer of granularity per analysis. *(Source: vault Known Issues; vault Bronze Sample metadata.)*
+Volumes are derived sums of IMBALNGC/BOD/DISEBSP/DISPTAV. Joining to BOAL or DISBSAD and re-aggregating double-counts. *(Source: vault Bronze Sample metadata.)*
 
 ## 02 Bid volumes are signed negative by convention
 
-`bid_volume_mwh` and `total_accepted_bid_volume_mwh` are negative because bids are the SO selling power back (a withdrawal from the BM's offer side). Don't flip the sign; use `ABS()` when summing absolute traded volumes. *(Source: vault Bronze Sample — `bidVolume: -64830.0`.)*
+`bid_volume_mwh` and `total_accepted_bid_volume_mwh` are negative; use `ABS()` for absolute traded volume. *(Source: vault Bronze Sample.)*
 
 ## 03 DATE_PATH style — date in URL, not query
 
-Unlike most BMRS endpoints, market_depth uses `/balancing/settlement/market-depth/{date}` with the date appended to the URL path. The connector handles this via `ParamStyle.DATE_PATH` (same as `system_prices`). Hand-crafted URLs must include the date as the last path segment. *(Source: `connectors/elexon/endpoints.py L257-261`.)*
+Date is in the path (`/market-depth/{date}`), not query params; same as `system_prices`. *(Source: `connectors/elexon/endpoints.py L257-261`.)*
 
 ## 04 Adjustment columns are optional
 
-`total_adjustment_sell_volume_mwh` and `total_adjustment_buy_volume_mwh` are conditionally present in the silver output — when the API doesn't return the field, the column is omitted entirely from the parquet rather than null-filled. Check column existence (`df.columns`) before referencing them in production queries. *(Source: `silver/elexon/market_depth.py L86-88, L109-116` — column included only if present.)*
+`total_adjustment_sell_volume_mwh` and `total_adjustment_buy_volume_mwh` are omitted from parquet when the API doesn't return them. Check `df.columns`. *(Source: `silver/elexon/market_depth.py L86-88`.)*
 
 ## 05 No Pydantic schema
 
-Like other aggregate datasets, market_depth has no dedicated Pydantic class. Silver shape is defined by `MarketDepthTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no MarketDepth class.)*
+No `ElexonMarketDepth` class; shape lives in `MarketDepthTransformer.output_cols`. *(Source: `silver/elexon/market_depth.py`.)*
 
 # Related datasets
 

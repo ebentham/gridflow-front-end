@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB imbalance prices, <span class="italic fg-accent">settled half-hourly.</span>
 
-**Lede:** System Buy Price and System Sell Price — the cash-out prices that settle imbalance in the GB Balancing Mechanism. Together with the Net Imbalance Volume, the canonical signal for short-term GB power-market value and the basis of the imbalance price in BSC settlement.
+**Lede:** Half-hourly GB imbalance cash-out prices and net volume — the canonical signal for short-term power value, cash-out forecasting, and BSC settlement.
 
 **Verified line:** Verified against vendor docs: 2026-05-09 · [Elexon BMRS · DISEBSP](https://bmrs.elexon.co.uk/api-documentation/endpoint/balancing/settlement/system-prices/-settlementDate-)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - freq
 - fuelinst
 - mid
-
-# Overview
-
-1. <code>system_prices</code> holds the **System Buy Price (SBP)** and **System Sell Price (SSP)** — the cash-out prices used by the GB electricity Balancing Mechanism to settle imbalance. SBP is what generators pay (or are paid) for being short relative to their physical notifications; SSP is what suppliers pay for being long. Each row carries SBP, SSP, the Net Imbalance Volume (`net_imbalance_volume`, MWh), and a `price_derivation_code` describing how the price was derived.
-
-2. Gridflow fetches it from <code>/balancing/settlement/system-prices/{settlementDate}</code> — a **DATE_PATH** style endpoint where the date is appended to the URL path at request time (connector entry at <code>connectors/elexon/endpoints.py L59-63</code>). The <code>SystemPriceTransformer</code> renames camelCase to snake_case (including the V2-FIX-04 split of `priceDerivationCode` into its own column), derives `timestamp_utc`, and applies BSC run-type precedence (`II<SF<R1<R2<R3<RF<DF`) via `_resolve_runs` to keep the highest-rank run per period. Pydantic schema <code>ElexonSystemPrice</code> is declared.
-
-3. Cadence is half-hourly publication, but the lag stretches from hours (Initial Indicative) to weeks (Reconciliation Final) as BSC settlement progresses. Verified against the live API on 2026-05-09; the sample returned 48 rows for 2026-05-06 with `priceDerivationCode` values of `N` (normal) and the SBP equal to SSP throughout (single-price reform). Pair with `disbsad`/`netbsad` for cost attribution and with `mid` for wholesale-spread analysis.
 
 # Sample chart
 
@@ -166,23 +158,23 @@ print(daily.sort("settlement_date").tail())
 
 ## 01 Same key, different prices over time
 
-Same `(settlement_date, settlement_period)` reappears with different prices as BSC reconciliation progresses (`II → SF → R1 → R2 → R3 → RF → DF`). The transformer keeps the highest-rank run only via `_resolve_runs`. For point-in-time queries — "what did the trader see at 09:00 the next day?" — write a custom dedup or filter on the bronze layer's `ingested_at`. *(Source: vault Known Issues; `silver/elexon/system_prices.py L121-125, L144-156`.)*
+BSC reconciliation revises the same `(date, period)` (`II → SF → R1..R3 → RF → DF`); transformer keeps highest-rank run. PIT queries need bronze. *(Source: `silver/elexon/system_prices.py L121-125`.)*
 
 ## 02 SBP equals SSP under single-price reform
 
-Since November 2018, GB cash-out uses a single price — SBP and SSP are typically equal in any given period. The two columns are kept for backward compatibility and edge cases where they diverge (e.g. emergency instructions). Treat `system_buy_price` as "the" imbalance price for most analysis. *(Source: domain knowledge — GB single-price reform; vault sample shows SBP == SSP for every observed period.)*
+Post-Nov 2018 single-price reform — SBP usually equals SSP. Treat `system_buy_price` as the imbalance price. *(Source: GB single-price reform.)*
 
 ## 03 `price_derivation_code` ≠ `run_type` (V2-FIX-04)
 
-Earlier schema versions conflated `priceDerivationCode` with the BSC run type and applied a regex (`^(II|SF|R[1-3]|RF|DF)$`) that rejected the live values `N` and `P`. Resolved in V2 (V2-FIX-04, 2026-05-09): `price_derivation_code` is now a dedicated column with no regex; `run_type` is `Optional[str]`. Live silver from this endpoint leaves `run_type` null. *(Source: vault Implementation Delta + Changelog V2-FIX-04; `silver/elexon/system_prices.py L67-75`.)*
+V2-FIX-04 split `priceDerivationCode` into its own column (no regex); `run_type` is now `Optional[str]` and null from this endpoint. *(Source: `silver/elexon/system_prices.py L67-75`.)*
 
 ## 04 Settlement period range is 1..50
 
-On the autumn clock change, the day has 50 settlement periods (25 hours). On spring forward, it has 46 (23 hours). DST handling required when bucketing by day or hour — the silver layer normalises all timestamps to UTC, but `settlement_period` can reach 50 on DST days. *(Source: `schemas/elexon.py L43`; vault Known Issues.)*
+DST days have 46 (spring) or 50 (autumn) periods. Validator `ge=1, le=50`. *(Source: `schemas/elexon.py L43`.)*
 
 ## 05 NIV sign convention
 
-Negative `net_imbalance_volume` means the system was short — actual generation undershot demand, the System Operator had to buy power, SBP went up. Positive NIV means long — generation overshot, the SO had to sell power, SSP went down (or negative in oversupply). Sign convention is GB-specific; do not assume it matches other markets. *(Source: domain knowledge — GB cash-out semantics.)*
+Negative NIV = system short (SBP rises); positive = long. GB-specific. *(Source: GB cash-out semantics.)*
 
 # Related datasets
 

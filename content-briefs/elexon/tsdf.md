@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Transmission demand forecast, <span class="italic fg-accent">day-ahead.</span>
 
-**Lede:** TSDF is the Transmission System Demand Forecast — the published demand expectation restricted to the transmission network (excludes embedded generation). Same shape as `inddem` but transmission-only, and the forecast counterpart to `itsdo`. Used for transmission-side scheduling and as the demand input to the LOLPDRM derived-margin calculation.
+**Lede:** Half-hourly GB transmission-only demand forecast — the canonical day-ahead signal for transmission scheduling, ITSDO forecast error, and embedded-generation derivation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · TSDF](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/TSDF)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - ndfd
 - inddem
-
-# Overview
-
-1. <code>tsdf</code> is **Transmission System Demand Forecast** — published demand expectations restricted to the GB transmission system (excludes embedded generation). The transmission-only counterpart to `inddem` (national indicated demand) and the day-ahead forecast for `itsdo`. Each row carries `forecast_demand_mw` per settlement period, optionally split by `boundary` (`N` national, zonal codes like `B1`).
-
-2. Gridflow fetches it from <code>/datasets/TSDF</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L217-221</code>). The <code>TSDFTransformer</code> renames `demand` → `forecast_demand_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period, boundary)` so each boundary survives. No Pydantic class is declared.
-
-3. Cadence is daily publication, zero lag (day-ahead and intra-day). Verified against the live API on 2026-05-08; the sample returned `demand=195` for SP9 and SP10 on `boundary=B1` — zonal-boundary attributions matching the small-value semantics seen in `inddem`/`indgen`/`melngc`. For national-transmission forecasts use `boundary='N'` (when present). Pair with `itsdo` for forecast-error analysis on the transmission side.
 
 # Sample chart
 
@@ -170,23 +162,23 @@ print(err)
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like the rest of the indicated/forecast suite, TSDF has no dedicated Pydantic class. Silver shape is defined by `TSDFTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no TSDF class.)*
+No `ElexonTSDF` class; shape lives in `TSDFTransformer.output_cols`. *(Source: `silver/elexon/tsdf.py`.)*
 
 ## 02 Boundary semantics — small values are zonal deltas
 
-Same pattern as INDDEM/INDGEN/MELNGC: small `demand` values for zonal boundaries (`B1`, etc.) are zone-attributed contributions, not national totals. Filter on `boundary='N'` (when present) for national transmission demand. *(Source: vault Bronze Sample; cross-reference with INDDEM brief.)*
+Zonal boundaries emit small attributed deltas; filter `boundary='N'` for national totals. *(Source: vault Bronze Sample.)*
 
 ## 03 Transmission-only — excludes embedded
 
-TSDF mirrors ITSDO in scope: it forecasts demand visible on the transmission network only, excluding embedded generation offset. Compare to NDF (national, including embedded) to derive expected embedded-generation contribution at the forecast horizon. *(Source: vault Overview — "restricted to the transmission system (excludes embedded generation)".)*
+Forecasts only transmission-visible demand. `ndf − tsdf` (at `boundary='N'`) = expected embedded contribution. *(Source: vault Overview.)*
 
 ## 04 Forecast revisions collapse on dedup
 
-The transformer dedups on `(settlement_date, settlement_period, boundary)` keeping the latest. Multiple intra-day forecast publishes for the same period are collapsed; silver holds only the latest. For revision history, read bronze and preserve `published_at`. *(Source: `silver/elexon/tsdf.py L89-92`.)*
+Dedup `keep="last"` on `(date, period, boundary)` collapses intra-day revisions. *(Source: `silver/elexon/tsdf.py L89-92`.)*
 
 ## 05 Pair with `itsdo` for forecast-error analysis
 
-`tsdf.forecast_demand_mw - itsdo.initial_transmission_system_demand_outturn_mw` for the same (date, period) gives the transmission-side forecast error. Filter TSDF to `boundary='N'` first. Useful for diagnosing whether overall NDF forecast error is driven by transmission or embedded mis-estimation. *(Source: domain knowledge — GB demand-forecast benchmarking.)*
+`tsdf − itsdo` per period (boundary='N') gives transmission-side forecast error. *(Source: GB demand-forecast benchmarking.)*
 
 # Related datasets
 

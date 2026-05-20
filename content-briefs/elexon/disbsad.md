@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Non-BM balancing actions, <span class="italic fg-accent">action by action.</span>
 
-**Lede:** DISBSAD is the disaggregated component feed for Balancing Services Adjustment Data — each row a single non-BM action (STOR call-off, ancillary service, system-operator instruction outside BOALF) with its cost in GBP and volume in MWh. Pair with `netbsad` (the aggregate) to reconcile BSC settlement and attribute imbalance cost to its constituent actions.
+**Lede:** Disaggregated GB non-BM balancing actions — the canonical row-level feed for cost attribution, STOR analysis, and BSC settlement reconciliation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · DISBSAD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/DISBSAD)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - system_prices
 - pn
 - nonbm
-
-# Overview
-
-1. <code>disbsad</code> is **Disaggregated Balancing Services Adjustment Data** — the constituent rows that aggregate into NETBSAD. Each row captures a single non-BM balancing action: an `adjustment_action_id`, the cost (`cost` in GBP, not GBP/MWh) and volume (`volume` in MWh), plus flags marking whether the action was System Operator-issued (`so_flag`) or STOR-provider (`stor_flag`).
-
-2. Gridflow fetches it from <code>/datasets/DISBSAD</code> using <code>from</code>/<code>to</code> query params (connector entry at <code>connectors/elexon/endpoints.py L76-82</code>). The <code>DISBSADTransformer</code> renames camelCase to snake_case, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period, adjustment_action_id, component)` — the four-tuple is required because the same `adjustment_action_id` can appear with different components. Pydantic schema <code>ElexonDISBSAD</code> is declared.
-
-3. Cadence is daily with D+1 publication lag (BSC settlement timetable). Verified against the live API on 2026-05-08. Cost-attribution analytics typically `JOIN bmunits_reference` via `partyId` (raw bronze field) and aggregate by service category; the silver layer keeps the granular row so downstream views can attribute. Pair with `netbsad` to verify aggregation, with `boal` to combine BM and non-BM actions for total balancing cost.
 
 # Sample chart
 
@@ -166,23 +158,23 @@ print(stor)
 
 ## 01 `cost` is total GBP, not GBP/MWh
 
-`cost` is the absolute money for the action, not a unit price. Divide by `volume` to derive an implied £/MWh. For zero-volume rows (common — most periods have placeholder rows with `cost=0, volume=0`), the implied price is undefined; filter them out before averaging. *(Source: vault Known Issues; `schemas/elexon.py L256`.)*
+`cost` is absolute money for the action; divide by `volume` for implied £/MWh. Skip `volume=0` rows. *(Source: `schemas/elexon.py L256`.)*
 
 ## 02 DISBSAD aggregates into NETBSAD — don't double-count
 
-Sum of DISBSAD `volume` per (settlement_date, settlement_period) equals NETBSAD `total_net_bsad_volume` for the same period (per BSC reconciliation). If you join the two datasets, do not aggregate DISBSAD a second time — pick one as the source of truth depending on whether you need component attribution (DISBSAD) or just the net per period (NETBSAD). *(Source: vault Known Issues — "DISBSAD pairs with NETBSAD: NETBSAD is the aggregate of DISBSAD components for the same period".)*
+Sum of DISBSAD `volume` per period equals NETBSAD net volume; pick one source of truth (attribution vs net). *(Source: BSC reconciliation.)*
 
 ## 03 `component` vs `service` API drift
 
-The vault and silver column mapping use `component` but the live API on 2026-05-08 returned a `service` field instead; older bronze archives may have `component`. The transformer preserves whichever it finds (the column mapping only renames if present), which means the silver `component` column may be entirely null for fresh bronze. Cross-reference both bronze field names if you back-fill. *(Source: discrepancy noted in frontmatter; cross-reference vault Bronze Sample fields vs `silver/elexon/disbsad.py L61` column mapping.)*
+Live API now returns `service`; transformer's mapping only renames `component`. Silver `component` may be null for fresh bronze. *(Source: `silver/elexon/disbsad.py L61`.)*
 
 ## 04 `from`/`to` query params, not `publishDateTimeFrom/To`
 
-Like BOALF, DISBSAD uses `from`/`to` parameters (not `publishDateTimeFrom`/`To`). The connector overrides via `from_param="from", to_param="to"`. Wrong param names get silently ignored and the API returns the last ~24 hours. *(Source: `connectors/elexon/endpoints.py L80-81`.)*
+Connector overrides via `from_param="from", to_param="to"`. Wrong names return the default ~24h window. *(Source: `connectors/elexon/endpoints.py L80-81`.)*
 
 ## 05 Zero-cost placeholder rows are normal
 
-Most settlement periods have `cost=0, volume=0` placeholder rows (`adjustment_action_id=1` with `service=null`) representing "no balancing action this period". Filter out `cost=0 AND volume=0` for cost-attribution analytics — these aren't measurement gaps, they are real "nothing happened" markers. *(Source: vault Bronze Sample — SP8 and SP9 both showed the zero placeholder pattern on 2026-05-06.)*
+`(cost=0, volume=0)` rows with `adjustment_action_id=1` mark "no action" periods; filter for cost analytics. *(Source: vault Bronze Sample.)*
 
 # Related datasets
 

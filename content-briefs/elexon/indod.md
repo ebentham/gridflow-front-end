@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB demand outturn, <span class="italic fg-accent">rolled to days.</span>
 
-**Lede:** INDOD is the daily-aggregate companion to INDO — one row per settlement date carrying total demand in MWh. Useful when you need daily-resolution analytics (peak-day comparisons, monthly totals, year-on-year demand) without the overhead of summing 48 half-hourly INDO rows yourself.
+**Lede:** Daily GB demand outturn — the canonical aggregate for peak-day comparisons, monthly totals, and year-on-year demand trends.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · INDOD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/INDOD)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - atl
 - ndf
 - ndfd
-
-# Overview
-
-1. <code>indod</code> is **Initial National Demand Outturn — Daily** — the daily aggregate of `indo`. One record per settlement date carrying `initial_demand_outturn_mw` as a total MWh figure (the daily sum of the 48 per-period MW values × 0.5). Used for daily-resolution demand analytics where the per-period detail isn't needed.
-
-2. Gridflow fetches it from <code>/datasets/INDOD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L195-199</code>). The <code>INDODTransformer</code> renames `demand` → `initial_demand_outturn_mw`, derives `timestamp_utc` as midnight UTC of `settlement_date`, and dedups on `settlement_date` only — there's no `settlement_period` column because the dataset is daily by construction.
-
-3. Cadence is daily publication with D+1 lag. Verified against the live API on 2026-05-08; the sample returned one record per `settlementDate` (`2026-04-01`, demand=676741 MWh). Useful for monthly totals, year-on-year comparisons, and as a cheap cross-check on aggregated INDO. Pair with `atl` rollups when comparing ENTSO-E-aligned and BSC-aligned daily totals.
 
 # Sample chart
 
@@ -159,23 +151,23 @@ print(yoy.tail(10))
 
 ## 01 No Pydantic schema; daily dedup key
 
-Unlike `indo` (`(settlement_date, settlement_period)`), INDOD dedups on `settlement_date` only — there is no settlement_period column. Anything that joins INDOD to a half-hourly dataset must aggregate the half-hourly side first or it will fan out. *(Source: `schemas/elexon.py` absent; `silver/elexon/indod.py L81`.)*
+Dedup on `settlement_date` only; no `settlement_period` column. Joins to half-hourly data must aggregate the HH side first. *(Source: `silver/elexon/indod.py L81`.)*
 
 ## 02 `initial_demand_outturn_mw` is in MWh, not MW
 
-The column name carries the suffix `_mw` for consistency with the per-period silver column, but the value is a daily total in MWh. Multiplying by 0.5 to "convert from MW to MWh" double-counts; treat the column as energy and use the SQL pattern `SUM(initial_demand_outturn_mw)` for monthly totals. *(Source: schema row note inferred from vault Bronze Sample where `demand=676741` is implausibly large for a per-period MW value but reasonable as a daily MWh total.)*
+Column suffix is `_mw` for consistency but value is daily MWh. Don't multiply by 0.5. *(Source: vault Bronze Sample.)*
 
 ## 03 Sparse cadence — use ≥1-day windows
 
-INDOD publishes once per day. Querying with a 3-hour publishDateTimeFrom/To window often returns zero rows, even if INDO data exists for that period. Use a 1-day window minimum, or query several days ahead/behind the target date to find the publication. *(Source: vault Implementation Delta — "Sparse cadence — empty within 3-hour windows; V1 validation used a 1-day window".)*
+Sub-day publish windows often return zero rows. Use 1-day minimum. *(Source: vault Implementation Delta.)*
 
 ## 04 INDOD ≈ sum of INDO × 0.5
 
-The daily INDOD value should equal the sum of half-hourly INDO `initial_demand_outturn_mw` × 0.5 for the same date. Discrepancies of a few hundred MWh are normal (rounding, late corrections); discrepancies of thousands of MWh indicate a data issue. Use as a cheap cross-check on INDO completeness. *(Source: domain knowledge — daily-aggregate vs half-hourly summation arithmetic.)*
+Daily INDOD should equal `SUM(indo) × 0.5` for the date; >few-hundred MWh discrepancy signals data issue. *(Source: BSC settlement arithmetic.)*
 
 ## 05 Initial estimate, not final reconciled
 
-Like INDO, INDOD is the *initial* outturn — published D+1, revised through BSC settlement reconciliation. For final demand figures (used in annual capacity-margin reports etc.) use BSC settlement runs, not INDOD. *(Source: vault Overview — "INDOD is the daily-aggregated total of INDO. One record per settlement date".)*
+INDOD is D+1 initial; BSC final-settlement values are not exposed. *(Source: vault Overview.)*
 
 # Related datasets
 

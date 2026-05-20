@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Every accepted balancing instruction, <span class="italic fg-accent">unit by unit.</span>
 
-**Lede:** BOALF (Bid Offer Acceptance Level Flagged — the successor to deprecated BOAL) is the row-level record of every dispatch instruction the System Operator issues to a Balancing Mechanism Unit. Each row carries `level_from` / `level_to` MW, the acceptance time, and provenance flags (`so_flag`, `stor_flag`, `rr_flag`). It is the audit trail behind BSC settlement and the primary feature for BMU dispatch modelling.
+**Lede:** Per-BMU GB balancing-mechanism dispatch instructions — the canonical audit trail for BSC settlement, BMU dispatch modelling, and STOR analysis.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · BOALF](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/BOALF)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - disbsad
 - netbsad
 - system_prices
-
-# Overview
-
-1. <code>boal</code> (silver slug) is Gridflow's name for the BMRS **BOALF** endpoint — Bid Offer Acceptance Level Flagged. Each row describes one accepted bid or offer issued to a BMU within a settlement period: which unit (`bm_unit_id`), what level change (`bid_offer_level_from` → `bid_offer_level_to` in MW), when it was issued (`acceptance_time`), and what flags accompany it (`so_flag` for System Operator-issued, `stor_flag` for STOR, `rr_flag` for Replacement Reserve).
-
-2. Gridflow fetches it from <code>/datasets/BOALF</code> using <code>from</code>/<code>to</code> query params (NOT the standard `publishDateTimeFrom/To`) per the docs (connector entry at <code>connectors/elexon/endpoints.py L67-73</code>, <code>from_param="from"</code>, <code>to_param="to"</code>). The <code>BOALTransformer</code> renames camelCase to snake_case, derives `timestamp_utc` from the settlement period pair, and dedups on `(settlement_date, settlement_period, bm_unit_id, acceptance_number)`. Pydantic schema <code>ElexonBOAL</code> is declared.
-
-3. Cadence is near-real-time — acceptances are published hourly with roughly 10-minute lag as instructions are issued. Verified against the live API on 2026-05-08. Pair with `pn` to compare ex-post acceptances against ex-ante notifications (the spread is the BMU's flexibility expressed); pair with `system_prices` to correlate dispatch volume with cash-out price spikes.
 
 # Sample chart
 
@@ -170,27 +162,27 @@ print(stor)
 
 ## 01 Slug `boal` ≠ API path `BOALF`
 
-The Gridflow silver slug is `boal` (preserved for backward compatibility) but the API path is `/datasets/BOALF`. Elexon deprecated the original BOAL endpoint and replaced it with BOALF. The old `boal` is in `EXCLUDED_ENDPOINTS`. Don't construct URLs from the slug; use the connector's `path` attribute. *(Source: vault Implementation Delta; `connectors/elexon/endpoints.py L67-73`, `L44-48` for EXCLUDED_ENDPOINTS.)*
+Silver slug is `boal` for backward compat; API path is `/datasets/BOALF` (the old `boal` is in `EXCLUDED_ENDPOINTS`). Use the connector's `path`, not the slug. *(Source: `connectors/elexon/endpoints.py L67-73`.)*
 
 ## 02 Acceptances can span multiple settlement periods
 
-The API returns `settlementPeriodFrom` and `settlementPeriodTo`; an acceptance can cover multiple periods (e.g. a 1-hour SO instruction spans 2 SPs). The transformer collapses to `settlement_period = settlementPeriodFrom` and loses the span. Long acceptances may be deduped against shorter overlapping ones if the (date, period, bm_unit, acceptance_number) keys collide. For period-accurate accounting, parse the bronze JSON directly. *(Source: vault Known Issues; `silver/elexon/boal.py L57-59`.)*
+API returns `settlementPeriodFrom`/`To`; transformer keeps only `From` and loses the span. Period-accurate accounting needs bronze. *(Source: `silver/elexon/boal.py L57-59`.)*
 
 ## 03 `acceptance_number` is non-unique across (date, BM unit)
 
-The same `acceptance_number` integer can appear for the same (settlement_date, bm_unit_id) across periods because the API issues per-period rows for spanning acceptances. The dedup key is the four-tuple `(settlement_date, settlement_period, bm_unit_id, acceptance_number)`; do not assume `(bm_unit_id, acceptance_number)` is unique. *(Source: vault Known Issues; `silver/elexon/boal.py L102-105`.)*
+The same integer reappears across periods for spanning acceptances. Dedup key is the four-tuple; don't assume `(bm_unit_id, acceptance_number)` is unique. *(Source: `silver/elexon/boal.py L102-105`.)*
 
 ## 04 `from`/`to` query params, not `publishDateTimeFrom/To`
 
-Unlike most BMRS dataset endpoints, BOALF uses `from`/`to` parameters. The connector overrides via `from_param="from", to_param="to"`. If you hand-craft a URL with `publishDateTimeFrom`, the API silently ignores it and returns the last ~24 hours of acceptances. *(Source: `connectors/elexon/endpoints.py L70-72`.)*
+BOALF overrides the standard window pattern with `from_param="from", to_param="to"`. Hand-crafted `publishDateTimeFrom` URLs return the default ~24h window. *(Source: `connectors/elexon/endpoints.py L70-72`.)*
 
 ## 05 `bid_offer_acceptance_number` is declared but unpopulated
 
-`ElexonBOAL` declares both `acceptance_number` and `bid_offer_acceptance_number` (`schemas/elexon.py L106, L114`). The live transformer only writes `acceptance_number`; `bid_offer_acceptance_number` is reserved for future bid/offer-pair-level disaggregation. Querying for non-null `bid_offer_acceptance_number` today returns empty. *(Source: discrepancy noted in frontmatter; cross-reference `silver/elexon/boal.py output_cols` L113-119.)*
+Schema declares it (`schemas/elexon.py L114`) but transformer doesn't write it; reserved for future bid/offer-pair disaggregation. *(Source: frontmatter discrepancy.)*
 
 ## 06 `storProviderFlag` vs `storFlag` API drift
 
-The API has used both `storProviderFlag` and `storFlag` for the STOR boolean. The transformer's column mapping renames both to `stor_flag` (`silver/elexon/boal.py L65-66`). New bronze files use `storFlag`; older archived ones use `storProviderFlag`. The silver column is the same. *(Source: `silver/elexon/boal.py L65-66`.)*
+API has used both names; transformer renames both to `stor_flag`. Silver is uniform. *(Source: `silver/elexon/boal.py L65-66`.)*
 
 # Related datasets
 

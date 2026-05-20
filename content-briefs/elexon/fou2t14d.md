@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** 2-14 days ahead, fuel by fuel, <span class="italic fg-accent">availability declared.</span>
 
-**Lede:** FOU2T14D is the 2-14 day-ahead generation-availability forecast aggregated by fuel type. Issued daily, each row reports the usable MW for a future delivery date split by fuel category — what plant operators say they will offer over the next fortnight. Used for medium-term margin and capacity-factor projections.
+**Lede:** GB 2-14 day-ahead generation availability by fuel type — the canonical declaration for forward margin, fuel-mix projections, and outage-cycle tracking.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · FOU2T14D](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FOU2T14D)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - tsdfd
 - ndf
 - ndfd
-
-# Overview
-
-1. <code>fou2t14d</code> is **2-14 Day Ahead Generation Availability by Fuel Type** — a forward-looking declaration aggregated to fuel category (CCGT, NUCLEAR, WIND, BIOMASS, ...). Each row carries `output_usable_mw` — the MW each fuel category says it will be able to offer — for a future `settlement_date`. Note the silver `settlement_date` is the *forecast delivery date* (2-14 days ahead), not the publish date.
-
-2. Gridflow fetches it from <code>/datasets/FOU2T14D</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L145-149</code>). The <code>FOU2T14DTransformer</code> renames `forecastDate` → `settlement_date`, dedups on `(settlement_date[, settlement_period], fuel_type)`, and writes **append-only** silver files (`APPEND_ONLY=True`, `silver/elexon/fou2t14d.py L35`) — each daily run produces a run-suffixed parquet so revised forecasts coexist with prior runs.
-
-3. Cadence is daily publication with 0 lag (forecast is future-looking). Verified against the live API on 2026-05-08. The append-only silver layout means downstream consumers must select the latest run per `(event_time, fuel_type)` at read time. Used for medium-term margin (vs `melngc`), capacity-factor projections, and fuel-mix forward forecasting.
 
 # Sample chart
 
@@ -166,23 +158,23 @@ print(latest.head(20))
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like `agpt`/`agws`/`atl`, FOU2T14D has no dedicated Pydantic class. The silver-layer shape is defined by `FOU2T14DTransformer.output_cols` in `silver/elexon/fou2t14d.py L126-129`. Anything that imports `from gridflow.schemas.elexon import ElexonFOU2T14D` will fail. *(Source: gridflow Implementation Delta; `schemas/elexon.py` grep returns no FOU2T14D class.)*
+No `ElexonFOU2T14D` class; shape lives in `FOU2T14DTransformer.output_cols`. Importing will fail. *(Source: `silver/elexon/fou2t14d.py L126-129`.)*
 
 ## 02 `settlement_date` is the forecast delivery date, not the publish date
 
-The silver `settlement_date` column is the *future* date being forecast (2 to 14 days ahead of `published_at`). Don't filter `settlement_date >= current_date - INTERVAL 30 DAY` expecting "recent publishes" — that returns recent *deliveries*, which include forecasts published up to two weeks earlier. Use `ingested_at` or `published_at` to filter by publish time. *(Source: vault Known Issues; `silver/elexon/fou2t14d.py L71` — `forecastDate` is aliased to `settlement_date`.)*
+`settlement_date` is the 2-14-day-ahead delivery date. Filter on `ingested_at` or `published_at` for "recent publishes". *(Source: `silver/elexon/fou2t14d.py L71`.)*
 
 ## 03 Append-only silver: latest revision is a read-time concern
 
-The transformer sets `APPEND_ONLY=True` (`silver/elexon/fou2t14d.py L35`) — each daily run leaves prior parquet files in place. The same `(settlement_date, fuel_type)` can therefore appear in multiple files with different `output_usable_mw` values across forecast revisions. Latest-revision selection is the consumer's job — see the SQL example for the canonical pattern. Reference: ADR-019 in the gridflow_models repo. *(Source: docstring at `silver/elexon/fou2t14d.py L20-31`.)*
+`APPEND_ONLY=True`; same `(settlement_date, fuel_type)` appears across runs. Consumer must select latest by `ingested_at`. *(Source: `silver/elexon/fou2t14d.py L35`; ADR-019.)*
 
 ## 04 `settlement_period` is sometimes absent
 
-The transformer conditionally includes `settlement_period` only when present in bronze (`silver/elexon/fou2t14d.py L93-117`). Daily-aggregate forecast runs omit it; period-resolution runs (rarer) include it. Defensive consumers should `COALESCE(settlement_period, 0)` or filter `WHERE settlement_period IS NOT NULL` when joining to period-resolution datasets. *(Source: code at L93-117; bronze sample on 2026-05-08 carried `forecastDate` but no `settlementPeriod`.)*
+Daily-aggregate runs omit it; transformer conditionally includes the column. Filter `WHERE settlement_period IS NOT NULL` when joining to period-resolution data. *(Source: `silver/elexon/fou2t14d.py L93-117`.)*
 
 ## 05 `output_usable_mw` is declared, not realised
 
-This is a forward-looking declaration — what the plant operators say they will be able to offer, not what they end up generating. Compare against `fuelhh` (realised generation by fuel) to derive forecast error. Sustained over-declaration is a regulatory signal (overstated availability inflates the market's perceived margin). *(Source: domain knowledge — BSC Section Q forecasting framework.)*
+Forward declaration, not generation. Compare against `fuelhh` for forecast error. *(Source: BSC Section Q.)*
 
 # Related datasets
 

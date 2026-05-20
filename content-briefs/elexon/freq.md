@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** 50 Hz, sampled <span class="italic fg-accent">every second.</span>
 
-**Lede:** FREQ is the GB transmission system's frequency telemetry — instantaneous Hz samples, nominally 50, with a statutory operating range of 49.5 to 50.5. The dataset is the canonical input for frequency-response models, an ancillary-cost regressor, and the validation record for Frequency Response service delivery. Roughly 5,760 samples per 3-hour window.
+**Lede:** Second-by-second GB system frequency — the canonical telemetry for frequency-response models, RoCoF estimation, and ancillary-services validation.
 
 **Verified line:** Verified against vendor docs: 2026-05-09 · [Elexon BMRS · FREQ](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FREQ)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - disbsad
 - nonbm
 - fuelinst
-
-# Overview
-
-1. <code>freq</code> is the **GB system frequency** — instantaneous Hz samples at roughly 2-second cadence. Each row carries a single `frequency_hz` reading at a `timestamp_utc`. Nominal is 50 Hz; the statutory operating range is 49.5–50.5 Hz; Pydantic validates 49.0–51.0 Hz to admit transient excursions without rejection.
-
-2. Gridflow fetches it from <code>/datasets/FREQ</code> using <code>measurementDateTimeFrom</code> / <code>measurementDateTimeTo</code> query params — **not** the standard `publishDateTimeFrom`/`To`. The connector overrides via `from_param="measurementDateTimeFrom", to_param="measurementDateTimeTo"` (`connectors/elexon/endpoints.py L107-114`). Sending the wrong param names causes the API to silently return the latest ~5,761 samples regardless of window (this was V2-FIX-01, resolved 2026-05-09).
-
-3. Cadence is continuous sampling exposed as ~1-minute aggregates with low publication lag. Verified against the live API on 2026-05-09 (post-fix); a 1-hour window now correctly returns ~241 rows. Used for second-by-second frequency-response analytics, RoCoF (rate-of-change-of-frequency) estimation around system events, and ancillary-services validation. The Pydantic schema is <code>ElexonFrequency</code>.
 
 # Sample chart
 
@@ -155,23 +147,23 @@ print(roll.tail(20))
 
 ## 01 Use `measurementDateTimeFrom`/`To`, NOT `publishDateTimeFrom`/`To`
 
-This is the canonical FREQ landmine and the reason V2-FIX-01 (2026-05-09) exists. The Swagger spec declares `measurementDateTimeFrom`/`measurementDateTimeTo` for `/datasets/FREQ`. Sending the wrong param names (`publishDateTimeFrom`/`To`) causes the API to silently ignore the window and return the latest ~5,761 samples regardless of what you asked for. Connector now uses the correct names; hand-crafted URLs need the same. *(Source: vault Implementation Delta + Changelog V2-FIX-01; `connectors/elexon/endpoints.py L107-114`.)*
+`/datasets/FREQ` requires `measurementDateTime*` params; wrong names silently return the latest ~5,761 samples. *(Source: V2-FIX-01; `connectors/elexon/endpoints.py L107-114`.)*
 
 ## 02 Historical bronze may be mis-windowed
 
-Bronze files captured before V2-FIX-01 (pre-2026-05-09) hold the API's latest-N-samples fallback rather than the requested window. The bronze file timestamps will not span the date the file is filed under. Re-ingest historical FREQ to get correctly-windowed bronze; downstream analysis that assumed "this bronze file = this date's samples" will be wrong on pre-fix data. *(Source: vault Implementation Delta — "Historical bronze re-ingest required".)*
+Bronze captured pre-2026-05-09 holds the latest-N fallback, not the requested window. Re-ingest to repair. *(Source: V2-FIX-01.)*
 
 ## 03 Validation range admits transient excursions
 
-The Pydantic validator on `frequency_hz` is `ge=49.0, le=51.0`, deliberately wider than the statutory 49.5–50.5 operating range. This is so genuine system events (generator trips, demand swings) that legitimately push the frequency outside the operating band are not rejected as data errors. Don't tighten the bound without understanding which events you'll start filtering out. *(Source: `schemas/elexon.py L173`; domain knowledge — GB grid code statutory limits.)*
+Validator `ge=49.0, le=51.0` is deliberately wider than the statutory 49.5–50.5 band so real events aren't rejected. *(Source: `schemas/elexon.py L173`.)*
 
 ## 04 High-volume — partition tightly when querying long windows
 
-A 3-hour window returns ~5,760 samples. A month is ~2.6 million rows. The silver layer is partitioned by `(year, month)`; queries spanning a year scan ~30 million rows. Use `WHERE timestamp_utc BETWEEN ... AND ...` and let DuckDB's partition pruning skip irrelevant files, or fall back to bronze sampling if you only need approximate statistics. *(Source: vault Known Issues; manifest `rows: "2.6M / mo"`.)*
+~2.6M rows/month; queries must use `WHERE timestamp_utc BETWEEN ...` for partition pruning. *(Source: manifest `rows: "2.6M / mo"`.)*
 
 ## 05 Dedup on `timestamp_utc` only — duplicate-second samples lose precision
 
-The transformer dedups on `timestamp_utc` alone (`silver/elexon/freq.py L78`). Because the API timestamp is whole-second resolution but the underlying sample cadence is sub-second, two physical samples occasionally share the same timestamp string; only the last-arrived wins. For sub-second analysis (RoCoF computation) you would need bronze-level access. *(Source: `silver/elexon/freq.py L78`; bronze sample shows `measurementTime` is whole-second ISO-8601.)*
+API timestamps are whole-second; sub-second samples colliding on `timestamp_utc` are deduped to last-arrived. RoCoF needs bronze. *(Source: `silver/elexon/freq.py L78`.)*
 
 # Related datasets
 

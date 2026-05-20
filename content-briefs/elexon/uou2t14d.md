@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Per-BMU availability, <span class="italic fg-accent">2-14 days out.</span>
 
-**Lede:** UOU2T14D is the 2-14 day-ahead generation availability declared at BM unit level — the unit-resolved companion to `fou2t14d`. Each row is one BMU's `output_usable_mw` for one future delivery date. The most voluminous forward dataset in BMRS (~5.2M rows/month) and the granular source of capacity-margin and unit-availability analytics.
+**Lede:** Per-BMU GB 2-14 day-ahead availability — the canonical unit-level declaration for forward margin, outage planning, and FOU2T14D reconciliation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · UOU2T14D](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/UOU2T14D)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - pn
 - boal
 - ndfd
-
-# Overview
-
-1. <code>uou2t14d</code> is **2-14 Day Ahead Generation Availability by BM Unit** — every BMU's declared output usable per future delivery date. Each row carries `bm_unit_id` and `output_usable_mw` for a `settlement_date` 2-14 days ahead of publish. Aggregating UOU2T14D by `fuel_type` (via a `bmunits_reference` join) reproduces FOU2T14D.
-
-2. Gridflow fetches it from <code>/datasets/UOU2T14D</code> with a **strict 4-hour chunk cap** (`max_chunk_hours=4`, `connectors/elexon/endpoints.py L154`) — the vendor returns HTTP 400 for wider queries. The <code>UOU2T14DTransformer</code> renames `forecastDate` → `settlement_date` (mirrors FOU2T14D pattern), conditionally derives `timestamp_utc` from settlement-period pair if present (else midnight UTC of settlement_date), and dedups on `(settlement_date, [settlement_period,] bm_unit_id)`. No Pydantic class is declared. The transformer also renames `fuelType` and `nationalGridBmUnit` internally but drops them from silver output — use `bmunits_reference` for fuel attribution.
-
-3. Cadence is daily publication, zero lag. Verified against the live API on 2026-05-08; the sample returned per-BMU rows for forecast_date 2026-05-08 (`2__NSMAE001` biomass 36 MW; `T_DRAXX-1` biomass 660 MW). Volume is the highest in the Elexon set after PN (~5.2M rows/month) — partition pruning is essential for any historical analytics. Pair with FOU2T14D for the fuel-aggregate sanity check and with `bmunits_reference` for unit context.
 
 # Sample chart
 
@@ -168,27 +160,27 @@ print(by_fuel.head(20))
 
 ## 01 4-hour chunk cap (strict)
 
-The vendor returns HTTP 400 for queries spanning more than 4 hours. Connector sets `max_chunk_hours=4` (`connectors/elexon/endpoints.py L154`). A single 4-hour window can return hundreds of thousands of rows × 14 future delivery dates × ~2.5k BMUs. Backfills budget many calls per day. *(Source: vault Known Issues; `connectors/elexon/endpoints.py L150-155`.)*
+Vendor caps queries at 4 hours; `max_chunk_hours=4`. Backfills require many calls. *(Source: `connectors/elexon/endpoints.py L150-155`.)*
 
 ## 02 No Pydantic schema in `schemas/elexon.py`
 
-Like FOU2T14D and other forward-availability datasets, UOU2T14D has no dedicated Pydantic class. Silver shape is defined by `UOU2T14DTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no UOU2T14D class.)*
+No `ElexonUOU2T14D` class; shape lives in `UOU2T14DTransformer.output_cols`. *(Source: `silver/elexon/uou2t14d.py`.)*
 
 ## 03 `fuel_type` and `national_grid_bm_unit` dropped from silver
 
-The transformer renames `fuelType → fuel_type` and `nationalGridBmUnit → national_grid_bm_unit` internally (`silver/elexon/uou2t14d.py L63-65`), but neither appears in `output_cols`. To get fuel context for UOU2T14D rows, join to `bmunits_reference` on `bm_unit_id`. *(Source: discrepancy in frontmatter; `silver/elexon/uou2t14d.py L114-117`.)*
+Renamed internally but excluded from `output_cols`. Join `bmunits_reference` for fuel context. *(Source: `silver/elexon/uou2t14d.py L114-117`.)*
 
 ## 04 `settlement_period` is conditional
 
-UOU2T14D rows are daily-aggregate by default (no `settlementPeriod` in bronze), but the transformer supports period-resolution input if the vendor returns it. The `dedup_cols` list conditionally includes `settlement_period` when present (`silver/elexon/uou2t14d.py L104-106`). Defensive consumers should check column existence before joining. *(Source: `silver/elexon/uou2t14d.py L83-106`.)*
+Daily-aggregate by default; transformer includes the column only when bronze has it. Check `df.columns` before joining. *(Source: `silver/elexon/uou2t14d.py L83-106`.)*
 
 ## 05 Volume — 5.2M rows/month is real
 
-A single month is ~5.2 million rows; a year is ~63M. Silver is partitioned by month — query a single month at a time, or pre-aggregate to BMU-day rolls in a gold view if you need wider time spans. *(Source: vault Known Issues; manifest `rows: "5.2M / mo"`.)*
+~63M rows/year; partition pruning by month is essential. *(Source: manifest `rows: "5.2M / mo"`.)*
 
 ## 06 `output_usable_mw` is declared, not realised
 
-UOU2T14D is forward-looking — what the operator says the BMU will be able to offer. Compare to FUELHH (realised generation) or `pn` (actual physical notifications) for declared-vs-realised analysis. Persistent over-declaration is a regulatory signal. *(Source: domain knowledge — BSC forward-availability framework.)*
+Forward declaration vs realised generation. Compare to `fuelhh` or `pn` for declared-vs-realised. *(Source: BSC forward-availability framework.)*
 
 # Related datasets
 

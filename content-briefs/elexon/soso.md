@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Interconnector trades, <span class="italic fg-accent">TSO to TSO.</span>
 
-**Lede:** SOSO is SO-SO (System Operator to System Operator) prices — the trades between TSOs across GB interconnectors (Moyle, IFA, IFA2, BritNed, NSL, ElecLink, Greenlink, EWIC, Viking). Each row carries a contract identifier, sender/receiver TSO codes, trade direction, MW quantity, and price. The canonical interconnector-trading reference series.
+**Lede:** Per-trade GB interconnector SO-SO prices — the canonical reference for cross-border arbitrage, interconnector flow analysis, and TSO-trade cost attribution.
 
 **Verified line:** Verified against vendor docs: 2026-05-09 · [Elexon BMRS · SOSO](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/SOSO)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - netbsad
 - remit
 - fuelhh
-
-# Overview
-
-1. <code>soso</code> is **SO-SO Prices** — the TSO-to-TSO trade records across GB's interconnector portfolio. Each row carries a `contract_identification` MRID, `sender_identification` and `receiver_identification` (EIC codes for the two TSOs), `trade_direction` (`Bid` or `Offer`), `trade_quantity_mw`, and `trade_price` (GBP/MWh). The `trader_unit` field identifies the interconnector (`EWIC_NG` for East-West, `IFA_NG`, `BRITNED_NG`, etc.).
-
-2. Gridflow fetches it from <code>/datasets/SOSO</code> with the **23-hour chunk cap** (`max_chunk_hours=23`, same as REMIT — vendor enforces a max-1-day window). The <code>SOSOTransformer</code> renames camelCase to snake_case, derives `timestamp_utc` from settlement-period pair if present (else from `start_time` parse, else from `settlement_date` midnight UTC), and dedups on `(settlement_date, contract_identification, trade_direction)`. No Pydantic class is declared.
-
-3. Cadence is daily publication with 1-day lag. Verified against the live API on 2026-05-09; the sample returned two `Bid` trades on the EWIC interconnector (`traderUnit: EWIC_NG`) for delivery 2026-05-07. Pair with `system_prices` to compute interconnector trade margin (SOSO price vs SBP/SSP), with `remit` to spot interconnector outage impacts, and with `mid` to compare against wholesale-index pricing.
 
 # Sample chart
 
@@ -169,23 +161,23 @@ print(arbitrage.head())
 
 ## 01 23-hour chunk cap (V2-FIX-03, shared with REMIT)
 
-Same as REMIT — vendor enforces a max-1-day query window. Connector sets `max_chunk_hours=23` for DST safety. Boundary re-verified live 2026-05-09: 23h pass, 25h fail. Long backfills make many calls. *(Source: vault Implementation Delta + Changelog V2-FIX-03; `connectors/elexon/endpoints.py L249-254`.)*
+Vendor caps queries at ~1 day; `max_chunk_hours=23` for DST safety. 25h fails. *(Source: V2-FIX-03; `connectors/elexon/endpoints.py L249-254`.)*
 
 ## 02 No Pydantic schema in `schemas/elexon.py`
 
-Like REMIT and other wide aggregate datasets, SOSO has no dedicated Pydantic class. Silver shape is defined by `SOSOTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no SOSO class.)*
+No `ElexonSOSO` class; shape lives in `SOSOTransformer.output_cols`. *(Source: `silver/elexon/soso.py`.)*
 
 ## 03 `settlement_period` often missing
 
-SOSO trades are hour-based (1-hour granularity, not 30-min settlement period). The transformer conditionally derives `timestamp_utc` from `start_time` when `settlement_period` is absent (`silver/elexon/soso.py L96-102`). Joins to per-period datasets (system_prices, fuelhh) must cope with one-trade-spans-two-periods semantics. *(Source: `silver/elexon/soso.py L84-106`.)*
+Trades are hour-based; transformer derives `timestamp_utc` from `start_time` when period absent. Period-keyed joins must accept span semantics. *(Source: `silver/elexon/soso.py L84-106`.)*
 
 ## 04 `trade_direction` semantics from GB perspective
 
-`Bid` = GB importing (sender NESO is buying power from the receiver TSO). `Offer` = GB exporting (sender NESO is selling power to the receiver). This sign convention is GB-specific; on the EU side the direction labels may flip. Confirm direction against `sender_identification` / `receiver_identification` when uncertain. *(Source: domain knowledge — NESO SO-SO trading convention.)*
+`Bid` = GB importing; `Offer` = GB exporting. Confirm with `sender_identification`/`receiver_identification` when uncertain. *(Source: NESO SO-SO convention.)*
 
 ## 05 EIC codes, not friendly names, for TSOs
 
-`sender_identification` / `receiver_identification` are EIC codes (`10X1001A1001A515` = NESO, `10YFR-RTE------C` = RTE France, `10YNL----------L` = TenneT NL, `10YIE-1001A00010` = EirGrid, `10YNO-0--------C` = Statnett, `10YBE----------2` = Elia, etc.). Keep a TSO-EIC lookup table or filter on `trader_unit` for friendlier names. *(Source: sample data verbatim from vault Bronze; domain knowledge for EIC→TSO mapping.)*
+Sender/receiver are EICs (`10X1001A1001A515` = NESO, `10YFR-RTE------C` = RTE). Use `trader_unit` for readable names. *(Source: vault Bronze Sample.)*
 
 # Related datasets
 

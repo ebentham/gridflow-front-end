@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Outage messages, <span class="italic fg-accent">every UMM.</span>
 
-**Lede:** REMIT is the GB outage and unavailability feed mandated by EU Regulation 1227/2011 — every Urgent Market Message raised against generation, transmission, or demand-side assets. Each record carries start/end times, capacity affected, cause, and event status, with revision tracking via `revision_number`. This is the canonical source for "what's out and when".
+**Lede:** Per-asset GB outage and unavailability messages — the canonical revision-tracked record for what's offline, capacity at risk, and outage attribution.
 
 **Verified line:** Verified against vendor docs: 2026-05-09 · [Elexon BMRS · REMIT](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/REMIT)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - uou2t14d
 - nonbm
 - soso
-
-# Overview
-
-1. <code>remit</code> is the **REMIT Outage and Unavailability Messages** feed — published per EU Regulation 1227/2011, every UMM raised against a GB asset (`Production`, `Transmission`, `Consumption`) with `mrid` (Message MRID), `revision_number`, `event_type`, `unavailability_type` (Planned/Unplanned), `event_start_time`, `event_end_time`, `normal_capacity_mw`, `available_capacity_mw`, and a free-text `cause`. The 25-column silver schema makes it the widest dataset in the Elexon set.
-
-2. Gridflow fetches it from <code>/datasets/REMIT</code> with a **23-hour chunk cap** (`max_chunk_hours=23`, `connectors/elexon/endpoints.py L244`) — the vendor enforces a max-1-day query window. The <code>REMITTransformer</code> writes **append-only** silver files (`APPEND_ONLY=True`, `silver/elexon/remit.py L38`) so every revision of every UMM is preserved; latest-revision selection is a read-time concern. No Pydantic class is declared.
-
-3. Cadence is irregular — UMMs are raised as events occur and revised as estimates change. Verified against the live API on 2026-05-09; the sample showed a 147-revision message for `T_SOFOW-12` (Sofia offshore wind unit 12) marked "Active" with cause "Ambient Conditions" and an outage running from 2025-12-09 to 2026-05-22. The `outageProfile` (a per-timestep capacity array nested in the bronze JSON) is not flattened into silver.
 
 # Sample chart
 
@@ -183,27 +175,27 @@ print(by_fuel)
 
 ## 01 23-hour chunk cap (V2-FIX-03)
 
-The vendor enforces an undocumented max-1-day query window. Connector sets `max_chunk_hours=23` for DST safety. Live boundary re-verified 2026-05-09: 23h request → HTTP 200, 25h request → HTTP 400. Long backfills budget many calls. *(Source: vault Implementation Delta + Changelog V2-FIX-03; `connectors/elexon/endpoints.py L240-245`.)*
+Vendor caps queries at ~1 day; connector uses `max_chunk_hours=23` for DST safety. 25h request → HTTP 400. *(Source: V2-FIX-03; `connectors/elexon/endpoints.py L240-245`.)*
 
 ## 02 Append-only silver — latest revision is read-time
 
-`APPEND_ONLY=True` (`silver/elexon/remit.py L38`) means every revision of every UMM is preserved as a separate row, with the dedup key being implicit (`mrid` plus `revision_number`). The canonical state of a UMM is the row with the highest `revision_number` per `mrid`. Use the SQL window-function pattern above for "current active outages". Reference: F7 phase docs. *(Source: docstring at `silver/elexon/remit.py L19-34`.)*
+`APPEND_ONLY=True`; every revision preserved. Select latest by `MAX(revision_number) per mrid` at read time. *(Source: `silver/elexon/remit.py L38`.)*
 
 ## 03 No Pydantic schema; 25-column silver
 
-REMIT is the widest non-Pydantic schema in the Elexon set (25 columns). Adding a dedicated Pydantic class would ease consumption but is not currently done. Anything that imports `from gridflow.schemas.elexon import ElexonREMIT` will fail. *(Source: `schemas/elexon.py` grep returns no REMIT class.)*
+Widest non-Pydantic schema in the Elexon set. Importing `ElexonREMIT` will fail. *(Source: `silver/elexon/remit.py`.)*
 
 ## 04 `event_end_time` is an estimate, not a commitment
 
-`event_end_time` is the operator's best estimate at the time of publication; it shifts as the outage progresses. The vault sample's `relatedInformation` field — "Estimated End Date / Time changed to 22 May 2026 04:00 (GMT)" — explicitly notes this. For probability-of-return analytics, weight recent revisions more heavily or compute the distribution of revision deltas. *(Source: vault Bronze Sample `relatedInformation` field; `silver/elexon/remit.py L114-121`.)*
+Operator's best estimate at revision time; shifts as outage progresses. Weight recent revisions. *(Source: vault Bronze Sample.)*
 
 ## 05 `outageProfile` nested array not flattened into silver
 
-The bronze JSON includes a nested `outageProfile` array carrying per-timestep capacity values (so a single outage can have a complex partial-derating shape over time). The silver transformer does NOT flatten this — only the summary `available_capacity_mw` / `unavailable_capacity_mw` survives. For sub-period outage curves, parse the bronze directly. *(Source: vault Bronze Sample shows the array; `silver/elexon/remit.py` column mapping doesn't reference it.)*
+Per-timestep capacity curve lives in bronze only; silver keeps summary `available_capacity_mw` / `unavailable_capacity_mw`. *(Source: `silver/elexon/remit.py` column mapping.)*
 
 ## 06 `bidding_zone` is an EIC, not a friendly name
 
-GB is `10YGB----------A` (16 characters with the GB EIC prefix and dashes). Filtering on `bidding_zone == 'GB'` returns zero rows. Use the full EIC string or `LIKE '%GB%'`. *(Source: vault Bronze Sample.)*
+GB is `10YGB----------A`. Filter on the EIC, not `'GB'`. *(Source: vault Bronze Sample.)*
 
 # Related datasets
 

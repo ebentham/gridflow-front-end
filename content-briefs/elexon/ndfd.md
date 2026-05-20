@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB demand forecast, <span class="italic fg-accent">two weeks out.</span>
 
-**Lede:** NDFD is the 2-14 day-ahead National Demand Forecast — daily-issued, one row per future delivery date covering the next two weeks. It is the medium-horizon companion to NDF (day-ahead) and the primary signal for capacity-margin and spark-spread analytics that look beyond tomorrow.
+**Lede:** Daily-published 2-14 day GB demand forecast — the canonical medium-horizon signal for forward margin, spark-spread analytics, and capacity-adequacy planning.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · NDFD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NDFD)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - tsdfd
 - fou2t14d
 - uou2t14d
-
-# Overview
-
-1. <code>ndfd</code> is **National Demand Forecast (2-14 Days Ahead)** — a daily-publication forward demand outlook. Each row carries `national_demand_mw` for a future `settlement_date` (the *forecast delivery date*, 2-14 days from publish). Unlike NDF which is per settlement period, NDFD is one row per future delivery date with `settlement_period=1` as a placeholder.
-
-2. Gridflow fetches it from <code>/datasets/NDFD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L135-139</code>). The shared <code>DemandForecastTransformer</code> handles both NDF and NDFD; `NDFDTransformer` is a thin subclass that sets `dataset="ndfd"`, causing `forecast_type="2_14_day"` to populate. When the API omits `settlementPeriod` (the default for NDFD), the transformer maps `forecastDate → settlement_date` and fills `settlement_period=1` as a placeholder.
-
-3. Cadence is daily publication, zero lag. Verified against the live API on 2026-05-08; the sample returned forecasts for 2026-04-03 and 2026-04-04 with publishTime 2026-04-01T13:45:00Z. The Pydantic schema <code>ElexonDemandForecast</code> is shared with NDF. Pair with `tsdfd` for the transmission-only counterpart and with `fou2t14d` to derive forward margin (availability minus demand).
 
 # Sample chart
 
@@ -165,23 +157,23 @@ print(f"Latest NDFD issue ({latest_issue}) covers {coverage} delivery dates")
 
 ## 01 Settlement date is forecast delivery, not publish
 
-The silver `settlement_date` is the *future* date being forecast (2-14 days ahead). Filter by `issue_time` for "recent publishes"; `settlement_date` for "what delivery date this row predicts". Confusing them silently mis-times your forecast-vs-outturn join. *(Source: vault Known Issues; cross-reference with FOU2T14D where the same alias is used.)*
+`settlement_date` is the 2-14 day-ahead delivery date. Filter on `issue_time` for recent publishes. *(Source: vault Known Issues.)*
 
 ## 02 `settlement_period=1` is a placeholder, not a real period
 
-NDFD has no `settlementPeriod` in the API response. The transformer sets `settlement_period=lit(1)` for compatibility with the shared schema (`silver/elexon/demand_forecast.py L88`). Joins to half-hourly datasets on `(settlement_date, settlement_period)` will silently match only SP1 of the day. Workaround: join on `settlement_date` alone, or pre-multiply NDFD across all 50 periods if you need per-period rows. *(Source: discrepancy in frontmatter; vault Known Issues.)*
+NDFD has no `settlementPeriod`; transformer sets `lit(1)`. Joins on `(date, period)` to HH data match only SP1; join on `settlement_date` alone. *(Source: `silver/elexon/demand_forecast.py L88`.)*
 
 ## 03 Shared transformer / Pydantic with NDF
 
-`NDFDTransformer` is a thin subclass of `DemandForecastTransformer` (the same class NDF uses). Both write `ElexonDemandForecast`-shaped rows; `forecast_type` discriminates. The silver layouts are separate (`data/silver/elexon/ndf/` vs `data/silver/elexon/ndfd/`) so naive reads return the right slug. *(Source: `silver/elexon/demand_forecast.py L160-167`.)*
+`NDFDTransformer` is a thin subclass; rows share `ElexonDemandForecast`. Silver paths are separate. *(Source: `silver/elexon/demand_forecast.py L160-167`.)*
 
 ## 04 Forecast revisions preserved via `issue_time`
 
-Like NDF, NDFD's dedup key includes `issue_time` so revisions of the same `(settlement_date)` coexist. Use the SQL window-function pattern for "latest revision per delivery date" or aggregate across revisions for forecast-stability analytics. *(Source: `silver/elexon/demand_forecast.py L140-142`.)*
+Dedup includes `issue_time`, so revisions coexist; use window function for latest-issue. *(Source: `silver/elexon/demand_forecast.py L140-142`.)*
 
 ## 05 Lower row volume than NDF
 
-NDFD is ~20k rows/month vs NDF's ~1.4k/mo — because NDFD covers 14 future delivery dates per publish (one row per date), vs NDF's 48 settlement periods × 1 publish per day. Despite "fewer publications", row count is higher. Plan partitioning accordingly. *(Source: manifest `rows` field comparison: NDFD `20k / mo` vs NDF `1.4k / mo`.)*
+NDFD covers 14 future dates per publish; row count (~20k/mo) exceeds NDF (~1.4k/mo) despite less frequent publishes. *(Source: manifest comparison.)*
 
 # Related datasets
 

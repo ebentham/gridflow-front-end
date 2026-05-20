@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB wind forecast, <span class="italic fg-accent">per period.</span>
 
-**Lede:** WINDFOR is the GB wind generation forecast — published per settlement period with `initial_forecast_mw` (first issue) and `latest_forecast_mw` (most recent revision). Used as the wind-output forecast benchmark for forecast-error analysis (against `fuelhh` WIND or `agws` Wind Onshore/Offshore actuals) and as a regressor for short-term load-net-wind models.
+**Lede:** Per-period GB wind generation forecast — the canonical signal for forecast-error analysis, load-net-wind modelling, and intra-day revision tracking.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · WINDFOR](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/WINDFOR)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - agpt
 - fou2t14d
 - uou2t14d
-
-# Overview
-
-1. <code>windfor</code> is **Wind Generation Forecast** — Elexon's published GB-total wind output forecast per settlement period. Each row may carry `initial_forecast_mw` (the first issued forecast for that period) and `latest_forecast_mw` (the most recent revision). On the live API, only `generation` (mapped to `latest_forecast_mw`) is consistently populated; `initialForecast` appears in some payload variants.
-
-2. Gridflow fetches it from <code>/datasets/WINDFOR</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L156-160</code>). The <code>WindForecastTransformer</code> renames camelCase to snake_case, derives `timestamp_utc` from settlement-period pair preferentially (or from `startTime` if periods absent), parses `publishTime` → `issue_time`, and dedups on `(settlement_date, settlement_period, issue_time)` so revisions coexist. Pydantic schema <code>ElexonWindForecast</code> is declared with `settlement_date` and `settlement_period` both nullable.
-
-3. Cadence is multiple publishes per day with zero lag. Verified against the live API on 2026-05-08; the sample returned hourly-cadence `generation` values (2983 MW, 3046 MW) from a publishTime of 2026-05-05T23:30:00Z without `settlementDate`/`settlementPeriod` fields — the transformer falls back to `startTime` parsing for `timestamp_utc`. Pair with `fuelhh` (WIND) or `agws` (Wind Onshore + Offshore actuals) for forecast-error analysis.
 
 # Sample chart
 
@@ -172,23 +164,23 @@ print(revisions.tail(20))
 
 ## 01 Settlement date/period are nullable in the schema
 
-`ElexonWindForecast.settlement_date` and `settlement_period` are `Optional` (`schemas/elexon.py L209-210`) because some payload variants omit them. The transformer falls back to `start_time` for `timestamp_utc` when missing (`silver/elexon/wind_forecast.py L97-104`). Filter `WHERE settlement_date IS NOT NULL` when joining to per-period datasets. *(Source: vault Implementation Delta; `schemas/elexon.py L209-210`.)*
+Some payloads omit `settlementDate`/`settlementPeriod`; transformer falls back to `startTime` for `timestamp_utc`. Filter `WHERE settlement_date IS NOT NULL` for HH joins. *(Source: `schemas/elexon.py L209-210`.)*
 
 ## 02 Sparse cadence — empty within 3-hour windows
 
-Despite the `hourly` frequency tag, WINDFOR's actual publication pattern is irregular — multiple publishes per day but not strictly hourly. Use 1-day query windows minimum for backfills. *(Source: vault Implementation Delta — "Sparse publication cadence — empty within 3-hour windows; required at-least-1-day window in V1 validation".)*
+Publication is irregular; sub-day windows often empty. Use 1-day minimum. *(Source: vault Implementation Delta.)*
 
 ## 03 `latest_forecast_mw` vs `initial_forecast_mw`
 
-`latest_forecast_mw` is the most-recent revision; `initial_forecast_mw` is the first published value. Live API on 2026-05-08 returned only `generation` (which maps to `latest_forecast_mw`); `initialForecast` payload appears in older bronze. For pure "what the operator most recently thinks" analytics use `latest_forecast_mw`; for forecast-stability metrics compare initial vs latest. *(Source: vault Known Issues; `silver/elexon/wind_forecast.py L59-61`.)*
+Live API returns only `generation` (maps to `latest_forecast_mw`); `initialForecast` appears in older bronze. *(Source: `silver/elexon/wind_forecast.py L59-61`.)*
 
 ## 04 No onshore/offshore split — use `agws`
 
-WINDFOR is a single GB total. For the onshore/offshore split, use `agws` (Wind Onshore vs Wind Offshore PSR types). Wind forecast models that need technology splits should join WINDFOR (total) with `agws` ratios to reconstruct. *(Source: domain knowledge — Elexon's GB wind forecasting only emits aggregate; ENTSO-E B-series provides the split.)*
+Single GB total. Use `agws` ratios to derive the split. *(Source: ENTSO-E B-series taxonomy.)*
 
 ## 05 Forecast revisions preserved via `issue_time`
 
-The dedup key includes `issue_time`, so multiple revisions of the same period coexist. The latest-revision-per-period SQL pattern is the canonical "what's the operator's current view" query; older revisions are retained for forecast-stability analytics. *(Source: `silver/elexon/wind_forecast.py L118-123`.)*
+Dedup key includes `issue_time`; revisions coexist. Window function for latest-issue. *(Source: `silver/elexon/wind_forecast.py L118-123`.)*
 
 # Related datasets
 

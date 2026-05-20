@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Transmission demand, <span class="italic fg-accent">two weeks out.</span>
 
-**Lede:** TSDFD is the 2-14 day-ahead Transmission System Demand Forecast — daily-published forward demand for the GB transmission network. The medium-horizon companion to `tsdf` and the transmission-only counterpart to `ndfd`. Each row is one future delivery date with a single national `forecast_demand_mw` total.
+**Lede:** Daily-published 2-14 day GB transmission demand forecast — the canonical medium-horizon signal for forward margin, transmission planning, and embedded-generation projections.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · TSDFD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/TSDFD)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - fou2t14d
 - uou2t14d
-
-# Overview
-
-1. <code>tsdfd</code> is **2-14 Day Ahead Transmission System Demand Forecast** — one row per future delivery date carrying `forecast_demand_mw` (transmission-only, excludes embedded). The primary key is `forecast_date` rather than `settlement_date` because the data is daily-aggregate, not per-period.
-
-2. Gridflow fetches it from <code>/datasets/TSDFD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L222-226</code>). The <code>TSDFDTransformer</code> renames `forecastDate` → `forecast_date`, derives `timestamp_utc` as midnight UTC of forecast_date, parses `publishTime` → `published_at`, and dedups on `forecast_date`. No Pydantic class is declared.
-
-3. Cadence is daily publication, zero lag. Verified against the live API on 2026-05-08; the sample returned forecasts for 2026-04-03 (`demand=28450`) and 2026-04-04 (`demand=26750`) — note the higher values vs NDFD because TSDFD is transmission-only and TSDFD here happens to be larger than NDFD for the same dates (the bronze sample is from a different publication-time bucket; in normal operation NDFD ≥ TSDFD for the same date). Pair with `ndfd` to derive embedded-generation projections at the medium horizon.
 
 # Sample chart
 
@@ -157,23 +149,23 @@ print(latest.tail(14))
 
 ## 01 No Pydantic schema; uses `forecast_date` not `settlement_date`
 
-Unlike NDF/NDFD and other forecast siblings, TSDFD's primary key column is named `forecast_date` directly (no aliasing to `settlement_date`). Joins to other forecast/outturn datasets must match column names explicitly — use `t.forecast_date = n.settlement_date` for NDFD or similar. *(Source: `silver/elexon/tsdfd.py L55, L70, L89` — `forecast_date` consistently used.)*
+Key column is `forecast_date` (not aliased). Joins to NDFD need explicit `t.forecast_date = n.settlement_date`. *(Source: `silver/elexon/tsdfd.py L55, L70, L89`.)*
 
 ## 02 Sparse cadence — use ≥1-day query windows
 
-TSDFD publishes once per day. Querying with a 3-hour publishDateTimeFrom/To window often returns zero rows. Use a 1-day window minimum, or query several days ahead/behind the target date. *(Source: vault Implementation Delta — "Daily publication — empty within 3-hour windows".)*
+Sub-day publish windows often return zero rows. Use 1-day minimum. *(Source: vault Implementation Delta.)*
 
 ## 03 Forecast_date is delivery date, not publish date
 
-Same pattern as NDFD, FOU2T14D: `forecast_date` is the *future* date being forecast (2-14 days ahead). Use `published_at` (or `ingested_at`) to filter by publication time. *(Source: `silver/elexon/tsdfd.py L70, L74-79`.)*
+`forecast_date` is 2-14 days ahead. Use `published_at` to filter by publication time. *(Source: `silver/elexon/tsdfd.py L70`.)*
 
 ## 04 Forecast revisions collapse on dedup
 
-The transformer dedups on `forecast_date` keeping the latest. Multiple revisions of the same delivery date are collapsed; silver holds only the most recent. For revision history, read bronze. *(Source: `silver/elexon/tsdfd.py L89`.)*
+Dedup `keep="last"` on `forecast_date` collapses revisions. *(Source: `silver/elexon/tsdfd.py L89`.)*
 
 ## 05 Daily aggregate — no per-period detail
 
-TSDFD is one row per forecast_date. The TSDF dataset provides per-period granularity at day-ahead horizon but does not extend 2-14 days; for medium-horizon period-level analysis you must compute proxies (e.g. apply a typical daily-profile shape to the TSDFD daily total). *(Source: `silver/elexon/tsdfd.py L97-101` — no settlement_period in output.)*
+One row per date; no `settlement_period`. Medium-horizon per-period analysis requires applying a daily profile shape. *(Source: `silver/elexon/tsdfd.py L97-101`.)*
 
 # Related datasets
 

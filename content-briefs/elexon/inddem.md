@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Indicated demand, the day-ahead <span class="italic fg-accent">demand half.</span>
 
-**Lede:** INDDEM is the GB demand component of the NESO indicated-imbalance forecast — published alongside INDGEN, IMBALNGC, and MELNGC to convey the day-ahead and intra-day operational picture. Each row is the indicated demand (MW) for one settlement period, optionally split by boundary (`N` national, `Z` zonal codes like `B1`).
+**Lede:** Half-hourly GB indicated demand forecast — the canonical day-ahead demand signal for imbalance reconstruction, forecast-error analysis, and zonal attribution.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · INDDEM](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/INDDEM)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - melngc
 - ndf
 - ndfd
-
-# Overview
-
-1. <code>inddem</code> is **Day and Day-Ahead Indicated Demand** — NESO's forecast of GB demand per settlement period, published before the period happens. Together with `indgen` (generation), it factors into `imbalngc` (imbalance = indgen − inddem). Rows carry a `boundary` field (`N` for national, zonal codes like `B1`); the same period appears multiple times if multiple boundaries are returned.
-
-2. Gridflow fetches it from <code>/datasets/INDDEM</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L207-211</code>). The <code>INDDEMTransformer</code> renames `demand` → `indicated_demand_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period, boundary)` so each boundary survives. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication, zero lag (day-ahead). Verified against the live API on 2026-05-08; the live sample returned `demand=-46` and `demand=-64` for two adjacent periods on `boundary=B1` — those are zonal-boundary deltas, not national totals. For national-demand forecasting use `boundary='N'` (when surfaced) or sum across all boundaries. Pair with `ndf` (the longer-horizon equivalent) and `indo` (the outturn counterpart) for forecast-error analysis.
 
 # Sample chart
 
@@ -163,23 +155,23 @@ print(err.select(["settlement_date", "settlement_period", "forecast_error_mw"]).
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like the rest of the indicated-suite (`imbalngc`, `indgen`, `melngc`), INDDEM has no dedicated Pydantic class. Silver shape is defined by `INDDEMTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no INDDEM class.)*
+No `ElexonINDDEM` class; shape lives in `INDDEMTransformer.output_cols`. *(Source: `silver/elexon/inddem.py`.)*
 
 ## 02 Boundary semantics — small values are zonal deltas, not totals
 
-The live sample returned `demand=-46` and `demand=-64` for `boundary=B1`. These are not national-total demands; they are zonal-boundary attributed contributions. National totals appear under `boundary='N'` (or sum across all boundaries depending on the API response shape). Filtering blind on `indicated_demand_mw > 0` will silently drop these legitimate negative zonal rows; filter on `boundary` to get the slice you want. *(Source: discrepancy in frontmatter; vault Bronze Sample vs domain knowledge of GB transmission boundary reporting.)*
+Zonal boundaries (e.g. `B1`) emit small attributed deltas, not national demand. Filter `boundary='N'` for totals. *(Source: vault Bronze Sample.)*
 
 ## 03 Forecast revisions collapse on dedup
 
-The transformer dedups on `(settlement_date, settlement_period, boundary)` keeping the latest. Multiple intra-day forecast publishes for the same period are collapsed; silver holds only the most recent. For forecast-vs-outturn studies preserving the revision history, read bronze and dedup downstream. *(Source: vault Known Issues; `silver/elexon/inddem.py L89-92`.)*
+Dedup `keep="last"` on `(date, period, boundary)` collapses intra-day revisions. Forecast-error studies need bronze. *(Source: `silver/elexon/inddem.py L89-92`.)*
 
 ## 04 Pair with `indgen` to reproduce IMBALNGC
 
-`imbalngc.indicated_imbalance ≈ indgen.indicated_generation_mw − inddem.indicated_demand_mw` for the same period and boundary. If the math doesn't reconcile within a few MW, you're likely mixing zonal and national boundaries — filter both sides to `boundary='N'` before joining. *(Source: domain knowledge — NESO indicated-suite identity.)*
+`imbalngc ≈ indgen − inddem` per period and boundary. Filter both to `boundary='N'` before reconciling. *(Source: NESO indicated-suite identity.)*
 
 ## 05 Use `indo` (not INDDEM) for outturn
 
-INDDEM is a forecast. The realised post-period demand is `indo` (Initial National Demand Outturn). Don't use INDDEM as the actual demand series — its values are revised forward in time and represent expectations, not measurements. *(Source: vault Overview — "the GB demand component of the NESO indicated-imbalance forecast".)*
+INDDEM is forecast; `indo` is realised. Don't conflate. *(Source: NESO documentation.)*
 
 # Related datasets
 

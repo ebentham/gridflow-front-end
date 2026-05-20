@@ -25,7 +25,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB generation per PSR type, the European <span class="italic fg-accent">B1620 view.</span>
 
-**Lede:** AGPT is Actual Aggregated Generation Per Type — every ENTSO-E PSR (Production-Storage Resource) code's MW output per GB settlement period. It is the GB row of the pan-European generation-transparency feed and the canonical source for splitting wind into onshore versus offshore (a distinction `fuelhh` collapses into one bucket). Refreshed half-hourly with D+1 settlement lag.
+**Lede:** Half-hourly GB generation per ENTSO-E PSR type — the canonical source for the onshore/offshore wind split, capacity factors, and pan-European comparability.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · AGPT](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/AGPT)
 
@@ -56,14 +56,6 @@ checked_at: 2026-05-20T00:00:00Z
 - agws
 - windfor
 - nonbm
-
-# Overview
-
-1. <code>agpt</code> is Elexon's pass-through of the ENTSO-E **B1620 Actual Aggregated Generation Per Type** series for the GB bidding zone. Each row reports realised MW for one <code>psr_type</code> (e.g. <code>Wind Onshore</code>, <code>Wind Offshore</code>, <code>Nuclear</code>, <code>Fossil Gas</code>) in one settlement period — the same shape ENTSO-E exposes through its Transparency Platform, surfaced through Elexon's BMRS gateway.
-
-2. Gridflow fetches it from <code>/datasets/AGPT</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> window pattern (connector entry at <code>connectors/elexon/endpoints.py L168-172</code>). The raw JSON lands in bronze; the <code>AGPTTransformer</code> renames camelCase to snake_case, derives <code>timestamp_utc</code> from the settlement-period pair, and dedups on <code>(settlement_date, settlement_period, psr_type)</code>. No Pydantic class is declared — silver shape is enforced by the transformer's <code>output_cols</code> list.
-
-3. Cadence is half-hourly with roughly D+1 publication lag (ENTSO-E document revision timing). Verified against the live API on 2026-05-08; documents arrive with a <code>document_revision</code> counter and the latest revision wins on dedup. Useful for capacity-factor and emissions analytics that need an onshore/offshore wind split rather than the single <code>WIND</code> bucket in <code>fuelhh</code>.
 
 # Sample chart
 
@@ -170,23 +162,23 @@ print(mix.head())
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Unlike `fuelhh` (which has `ElexonFuelHH`) or `system_prices` (`ElexonSystemPrice`), AGPT has no dedicated Pydantic class. The silver-layer shape is defined by `AGPTTransformer.output_cols` in `silver/elexon/agpt.py L104-109`. Anything that imports `from gridflow.schemas.elexon import ElexonAGPT` will fail. *(Source: gridflow Implementation Delta in vault; cross-reference `schemas/elexon.py` grep returns no AGPT class.)*
+No `ElexonAGPT` class exists; shape lives in `AGPTTransformer.output_cols`. Importing `ElexonAGPT` will fail. *(Source: `silver/elexon/agpt.py L104-109`.)*
 
 ## 02 PSR types are human-readable strings, not B-codes
 
-The API returns labels like `Wind Onshore` and `Hydro Pumped Storage` rather than the ENTSO-E B-codes (`B19`, `B10`). String comparisons must be exact and case-sensitive. Map to friendly names or B-codes in a gold view rather than mutating the silver column. *(Source: vault Known Issues — "PSR types follow ENTSO-E codelist (B01-B25). Silver preserves codes".)*
+API returns labels like `Wind Onshore`, not `B19`. Joins must be exact and case-sensitive. *(Source: ENTSO-E A.11 codelist.)*
 
 ## 03 `document_revision` precedence on dedup
 
-Same `(settlement_date, settlement_period, psr_type)` can re-appear with a higher `document_revision` if ENTSO-E revises the document. The transformer's `unique(..., keep="last")` keeps whichever row arrived last in the bronze read — which usually but not always corresponds to the highest revision. For strict bitemporal queries, dedup explicitly on `document_revision desc`. *(Source: vault Known Issues; `silver/elexon/agpt.py L93-96`.)*
+ENTSO-E revisions reappear with higher `document_revision`; transformer's `unique(..., keep="last")` keeps last-read, not max-revision. For bitemporal correctness, dedup on `document_revision desc`. *(Source: `silver/elexon/agpt.py L93-96`.)*
 
 ## 04 Hydro Pumped Storage can be negative
 
-`generation_mw` for `Hydro Pumped Storage` is negative when the units are charging (consuming grid power) and positive when discharging. Sum-of-PSR ≠ total GB generation if you naïvely add it; either filter to `generation_mw > 0` or net it explicitly. *(Source: domain knowledge — GB pumped hydro convention.)*
+`Hydro Pumped Storage` goes negative when charging; naive SUM over `psr_type` misrepresents GB generation. *(Source: GB pumped-hydro sign convention.)*
 
 ## 05 D+1 lag, not real-time
 
-AGPT is published a day after settlement (ENTSO-E document revision cycle). For real-time monitoring use `fuelinst` (~5 min) or `fuelhh` (~5 min lag at SP close). AGPT is the right source for retrospective analysis where the onshore/offshore wind split matters. *(Source: vault frontmatter `last_verified: 2026-05-08`; manifest `lag: "1 day"`.)*
+Published a day after settlement (ENTSO-E document cycle). Use `fuelinst` or `fuelhh` for fresher views. *(Source: manifest `lag: "1 day"`.)*
 
 # Related datasets
 

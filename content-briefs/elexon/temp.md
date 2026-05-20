@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB ambient temperature, <span class="italic fg-accent">daily reference.</span>
 
-**Lede:** TEMP is the daily-published GB ambient temperature feed used by NESO in demand-forecast calibration. Each row carries the measured temperature plus three seasonal-climatology references (normal, low, high). The forecasting team's input — and a useful regressor for any GB demand model.
+**Lede:** Daily GB ambient temperature with seasonal climatology — the canonical reference for demand-vs-weather regression, forecast calibration, and deviation-from-normal framing.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · TEMP](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/TEMP)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - indo
 - inddem
 - bmunits_reference
-
-# Overview
-
-1. <code>temp</code> is the **GB ambient Temperature** reference series — daily publication of one measured value plus three seasonal climatology references. The four temperature columns let demand-forecast models compute deviation-from-normal as a regressor. Used by NESO's own demand-forecast calibration; useful for third-party temperature-vs-demand models too.
-
-2. Gridflow fetches it from <code>/datasets/TEMP</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L161-165</code>). The <code>TempTransformer</code> renames `publishDateTime`/`publishTime` → `timestamp_utc`, derives the UTC timestamp from the publication time, and dedups on `timestamp_utc`. No Pydantic class is declared. Note: the API also returns `measurementDate` but the transformer renames it internally and then drops it from output.
-
-3. Cadence is daily publication with 1-day lag. Verified against the live API on 2026-05-08; the sample returned one record for 2026-04-01 with `temperature=10.6` and `publishTime` of 15:45 UTC (no climatology fields populated in this sample). Pair with `ndf`/`ndfd` for forecast-vs-temperature analysis or with `indo` for outturn-vs-temperature regression.
 
 # Sample chart
 
@@ -166,23 +158,23 @@ print(daily.tail(20))
 
 ## 01 Sparse cadence — use ≥1-day query windows
 
-TEMP publishes once per day. Querying with a 3-hour publishDateTimeFrom/To window often returns zero rows. Use a 1-day window minimum, or query several days ahead/behind the target date to find the publication. *(Source: vault Implementation Delta — "Daily publication — empty within 3-hour windows".)*
+Sub-day publish windows often return zero rows. Use 1-day minimum. *(Source: vault Implementation Delta.)*
 
 ## 02 No Pydantic schema in `schemas/elexon.py`
 
-Like other small reference datasets (INDOD, NONBM), TEMP has no dedicated Pydantic class. Silver shape is defined by `TempTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no TEMP class.)*
+No `ElexonTEMP` class; shape lives in `TempTransformer.output_cols`. *(Source: `silver/elexon/temp.py`.)*
 
 ## 03 `measurement_date` dropped from silver
 
-The transformer renames `measurementDate → measurement_date` internally but does NOT include it in `output_cols`. If you need the original measurement date (vs the publication time the silver `timestamp_utc` carries), you must read bronze. *(Source: discrepancy in frontmatter; `silver/elexon/temp.py L57 vs L95-99`.)*
+Transformer renames `measurementDate` internally but excludes it from `output_cols`. Read bronze for measurement date. *(Source: `silver/elexon/temp.py L57 vs L95-99`.)*
 
 ## 04 Climatology references are not forecasts
 
-`normal_temperature`, `low_temperature`, `high_temperature` are seasonal-climatology figures (long-term averages by day-of-year), NOT forecasts. Don't compare them to `temperature` to derive forecast error — they are the historical normal envelope, useful for "today vs normal" framing. *(Source: vault Known Issues — "Reference temperatures (normal/low/high) are seasonal climatology, not forecasts".)*
+`normal`/`low`/`high` are seasonal averages by day-of-year, not predictions. Use for deviation framing only. *(Source: vault Known Issues.)*
 
 ## 05 Climatology fields may be null
 
-The vault sample shows the live API returning `temperature=10.6` with no `normal`/`low`/`high` values for 2026-04-01. Climatology fields are intermittently populated; defensive consumers should `COALESCE` or filter `WHERE normal_temperature IS NOT NULL` before joining. *(Source: vault Bronze Sample inspection.)*
+Fresh API returns `temperature` without climatology fields. Filter `WHERE normal_temperature IS NOT NULL` before joining. *(Source: vault Bronze Sample.)*
 
 # Related datasets
 

@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB generation mix, refreshed <span class="italic fg-accent">every five minutes.</span>
 
-**Lede:** FUELINST is the instantaneous companion to `fuelhh` — the same fuel-type breakdown at ~5-minute resolution rather than half-hourly aggregates. Each row is one fuel category's MW reading at a single `timestamp_utc`. Used for near-real-time stack-and-fuel monitoring; the half-hour aggregates flow into FUELHH downstream.
+**Lede:** Five-minute GB generation by fuel type — the canonical near-real-time series for live stack monitoring, intra-period dispatch, and FUELHH validation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · FUELINST](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - agws
 - windfor
 - freq
-
-# Overview
-
-1. <code>fuelinst</code> is **Instantaneous Generation Outturn by Fuel Type** — the 5-minute-resolution counterpart to `fuelhh`. Each row reports the MW for one `fuel_type` (CCGT, COAL, NUCLEAR, WIND, SOLAR, BIOMASS, NPSHYD, PS, OCGT, OIL, OTHER, INT*) at one `timestamp_utc`. Silver intentionally drops `settlement_date` and `settlement_period` — the data is sub-period and those columns are no longer the natural row identity.
-
-2. Gridflow fetches it from <code>/datasets/FUELINST</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L120-124</code>). The <code>FuelInstTransformer</code> renames camelCase to snake_case, derives `timestamp_utc` from `publishTime` or `startTime`, and dedups on `(timestamp_utc, fuel_type)`. No Pydantic class is declared — `ElexonGenerationByFuel` is shaped for half-hourly data and is not used here.
-
-3. Cadence is ~5-minute sampling with roughly 1-minute publication lag — the freshest fuel-mix signal in the BMRS feed. Verified against the live API on 2026-05-08. Volume is high (~8.6M rows/month, six times FUELHH). Use for live dashboards and intra-period dispatch tracking; aggregate to half-hourly and compare against `fuelhh` to validate the rollup.
 
 # Sample chart
 
@@ -155,23 +147,23 @@ print(hh.head(20))
 
 ## 01 Silver drops `settlement_date` and `settlement_period`
 
-Unlike `fuelhh`, the silver output of `fuelinst` is `(timestamp_utc, fuel_type, generation_mw, data_provider, ingested_at)` — settlement date and period are intentionally absent. The data is sub-period and the column would lose information (which 5-minute sample of SP8 are we looking at?). Joins to period-keyed datasets need to truncate `timestamp_utc` first. *(Source: vault Implementation Delta; `silver/elexon/fuelinst.py L104-107`.)*
+Data is sub-period; silver keeps only `timestamp_utc`. Joins to period-keyed datasets must truncate first. *(Source: `silver/elexon/fuelinst.py L104-107`.)*
 
 ## 02 No Pydantic schema in `schemas/elexon.py`
 
-`schemas/elexon.py` has `ElexonGenerationByFuel` (L61-76) which looks superficially relevant but is shaped for half-hourly data (includes `settlement_date`, `settlement_period`). The fuelinst transformer does NOT use it. Anything that imports `from gridflow.schemas.elexon import ElexonFuelInst` will fail. *(Source: vault Implementation Delta; `schemas/elexon.py` grep returns no `FuelInst` class.)*
+No `ElexonFuelInst`; `ElexonGenerationByFuel` (L61-76) is shaped for half-hourly data and is not used here. Importing will fail. *(Source: `silver/elexon/fuelinst.py`.)*
 
 ## 03 Aggregate carefully when comparing to `fuelhh`
 
-The half-hourly aggregate of `fuelinst` *should* equal `fuelhh` for the same (date, period, fuel) but small differences arise because fuelinst is sampled at irregular ~5-minute intervals while fuelhh uses Elexon's official period-averaging logic. Don't treat them as interchangeable — use fuelhh for settlement-aligned analysis, fuelinst for live monitoring. *(Source: domain knowledge — BMRS fuel-mix data flow.)*
+Half-hourly rollup of fuelinst diverges from `fuelhh` (irregular cadence vs official period-averaging). Don't treat as interchangeable. *(Source: BMRS fuel-mix data flow.)*
 
 ## 04 High volume — 8.6M rows/month
 
-A single month's silver is ~8.6 million rows; a year is ~100M. Partition pruning by year+month is essential. For seasonal-pattern analytics, downsample to hourly first or query `fuelhh` instead. *(Source: vault Known Issues; manifest `rows: "8.6M / mo"`.)*
+A year is ~100M rows; partition pruning by year+month is essential, or downsample first. *(Source: manifest `rows: "8.6M / mo"`.)*
 
 ## 05 `period_start` rename for `startTime`
 
-The transformer renames `startTimeOfHalfHrPeriod` and `startTime` both to `period_start` (internal staging), then derives `timestamp_utc` from `publishTime` preferentially or `period_start` as fallback (`silver/elexon/fuelinst.py L77-94`). Bronze files arriving via different API versions may carry different field names — the transformer absorbs the variation but if you inspect raw bronze be aware of the dual mapping. *(Source: `silver/elexon/fuelinst.py L54-61`.)*
+Transformer renames `startTimeOfHalfHrPeriod` and `startTime` both to `period_start`; `timestamp_utc` prefers `publishTime` then falls back. *(Source: `silver/elexon/fuelinst.py L54-94`.)*
 
 # Related datasets
 

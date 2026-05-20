@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Indicated generation, the day-ahead <span class="italic fg-accent">generation half.</span>
 
-**Lede:** INDGEN is the GB generation component of the NESO indicated-imbalance forecast — the symmetric counterpart to `inddem`. Each row reports the expected generation (MW) for one settlement period, optionally split by boundary. Together with INDDEM it produces IMBALNGC (`imbalngc ≈ indgen − inddem`).
+**Lede:** Half-hourly GB indicated generation forecast — the canonical day-ahead generation signal for imbalance reconstruction, forecast-error analysis, and zonal attribution.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · INDGEN](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/INDGEN)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - melngc
 - fou2t14d
 - uou2t14d
-
-# Overview
-
-1. <code>indgen</code> is **Day and Day-Ahead Indicated Generation** — NESO's forecast of GB generation per settlement period. Each row carries `indicated_generation_mw` and a `boundary` discriminator (`N` for national, zonal codes like `B1`). It is the generation half of the indicated-suite identity (`imbalngc ≈ indgen − inddem`).
-
-2. Gridflow fetches it from <code>/datasets/INDGEN</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L212-216</code>). The <code>INDGENTransformer</code> renames `generation` → `indicated_generation_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period, boundary)`. Structurally identical to `inddem` apart from the column name. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication, zero lag (day-ahead and intra-day). Verified against the live API on 2026-05-08; the live sample returned small `generation=272` and `generation=261` values on `boundary=B1` — these are zonal-attributed contributions, not national totals. National generation forecast appears under `boundary='N'` (when present). Pair with `inddem` to reproduce IMBALNGC and with `fuelhh` for forecast-vs-outturn analysis.
 
 # Sample chart
 
@@ -163,23 +155,23 @@ print(joined.tail())
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like the rest of the indicated-suite, INDGEN has no dedicated Pydantic class. Silver shape is defined by `INDGENTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no INDGEN class.)*
+No `ElexonINDGEN` class; shape lives in `INDGENTransformer.output_cols`. *(Source: `silver/elexon/indgen.py`.)*
 
 ## 02 Boundary semantics — small values are zonal deltas
 
-Same as INDDEM: the small `generation` values returned for `boundary=B1` (e.g. 272, 261) are zonal-boundary attributed contributions, not national totals. National generation appears under `boundary='N'`. Filter by boundary before aggregating. *(Source: vault Bronze Sample; matches INDDEM boundary structure.)*
+Zonal boundaries (e.g. `B1`) emit small attributed deltas, not national generation. Filter `boundary='N'` for totals. *(Source: vault Bronze Sample.)*
 
 ## 03 Forecast revisions collapse on dedup
 
-The transformer dedups on `(settlement_date, settlement_period, boundary)` keeping the latest. Multiple intra-day forecast publishes for the same period are collapsed. For forecast-vs-outturn studies preserving revision history, read bronze. *(Source: vault Known Issues; `silver/elexon/indgen.py L89-92`.)*
+Dedup `keep="last"` on `(date, period, boundary)` collapses intra-day revisions. Forecast-error studies need bronze. *(Source: `silver/elexon/indgen.py L89-92`.)*
 
 ## 04 The indicated-suite identity
 
-`imbalngc.indicated_imbalance ≈ indgen.indicated_generation_mw − inddem.indicated_demand_mw` at the same boundary. Useful sanity check — if your INDGEN/INDDEM/IMBALNGC parquets don't reconcile, you've likely mixed boundaries or have stale data in one but not the other. *(Source: domain knowledge — NESO indicated-suite arithmetic.)*
+`imbalngc ≈ indgen − inddem` at the same boundary. Failure to reconcile means mixed boundaries or stale data. *(Source: NESO indicated-suite arithmetic.)*
 
 ## 05 Outturn counterpart is `fuelhh` or the sum of `agpt`
 
-INDGEN is a forecast. Realised generation comes from `fuelhh` (sum of `generation_mw` across fuels per period). For forecast-error analysis: forecast_error = `indgen.indicated_generation_mw − sum(fuelhh.generation_mw)`. Filter `fuelhh` to exclude interconnector imports if you want pure GB-internal generation. *(Source: domain knowledge — GB generation reporting hierarchy.)*
+INDGEN is forecast; `fuelhh` is realised. Forecast error = `indgen − sum(fuelhh)`; exclude `INT*` for GB-internal only. *(Source: GB generation reporting hierarchy.)*
 
 # Related datasets
 

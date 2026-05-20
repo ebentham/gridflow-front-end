@@ -19,7 +19,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Physical notifications, <span class="italic fg-accent">every BM unit.</span>
 
-**Lede:** PN is Physical Notifications — each BM unit's declared MW intent for each settlement period, submitted around gate closure. PN is the per-BMU baseline against which BOAL acceptances are deviations, the foundation of any BM-unit dispatch model, and the most voluminous per-unit dataset in BMRS (~2,500 rows per period, ~5.4M per month).
+**Lede:** Per-BMU GB physical notifications — the canonical pre-gate-closure baseline for dispatch modelling, redispatched-MW derivation, and PN-vs-outturn validation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · PN](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/PN)
 
@@ -50,14 +50,6 @@ checked_at: 2026-05-20T00:00:00Z
 - disbsad
 - fuelhh
 - system_prices
-
-# Overview
-
-1. <code>pn</code> is **Physical Notifications** — every BM unit's pre-gate-closure declared MW level for each settlement period, with `level_from` (start-of-period MW) and `level_to` (end-of-period MW). PN is the dispatch baseline that the Balancing Mechanism deviates from when issuing BOALF acceptances. Each (settlement_date, settlement_period) typically carries ~2,500 rows — one per active BM unit.
-
-2. Gridflow fetches it from <code>/datasets/PN</code> using <code>settlementDate</code> + <code>settlementPeriod</code> path/query params — the **SETTLEMENT_DATE_PERIOD** style (connector entry at <code>connectors/elexon/endpoints.py L97-101</code>). The connector iterates periods 1..50 per date (DST-safe), with stop-on-empty optimisation for short DST days. The <code>PNTransformer</code> renames `bmUnit` → `bm_unit_id`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period, bm_unit_id)`. Pydantic schema <code>ElexonPN</code> is declared.
-
-3. Cadence is hourly publication with ~10-minute lag. Verified against the live API on 2026-05-08; the sample for 2026-05-06 SP24 returned per-BMU level changes (`levelFrom`/`levelTo` pairs). Pair with `bmunits_reference` to attach friendly names and fuel types, with `boal` to compute redispatched MW (`boal.level_from - pn.level_from`), and with `fuelhh` to validate that aggregated PN matches the actual generation outturn.
 
 # Sample chart
 
@@ -155,23 +147,23 @@ print(redispatch.head(20))
 
 ## 01 Connector iterates periods 1..50 per date
 
-The connector's `SETTLEMENT_DATE_PERIOD` style means each PN backfill makes 48-50 calls per date (one per period). Use stop-on-empty optimisation to break early when the API returns no rows for a period — DST short days have only 46 active periods. Budget API calls accordingly for long backfills (a year ≈ 18,000 calls). *(Source: vault Known Issues; `connectors/elexon/endpoints.py L97-101`.)*
+`SETTLEMENT_DATE_PERIOD` style → 48-50 calls per date. Use stop-on-empty for short DST days; budget ~18k calls/year for full backfill. *(Source: `connectors/elexon/endpoints.py L97-101`.)*
 
 ## 02 Very high row volume — ~2,500 rows per period
 
-PN emits roughly one row per active BM unit per period — about 2,500 rows for a typical period, 5.4M per month. Silver parquet is partitioned by month — query a single month at a time when possible. For multi-month analytics, downsample to BMU-day aggregates first. *(Source: vault Known Issues; manifest `rows: "5.4M / mo"`.)*
+~5.4M rows/month. Query one month at a time; downsample to BMU-day for multi-month work. *(Source: manifest `rows: "5.4M / mo"`.)*
 
 ## 03 `bm_unit_id` casing preserved
 
-Same as BOAL and bmunits_reference: PN returns prefixed IDs like `T_DRAXX-1`, `E_BROFB-1`, `2__FFSEN007`. The transformer preserves casing; downstream joins to bmunits_reference and BOAL must use the same form. *(Source: `silver/elexon/pn.py L75`.)*
+Prefixed IDs (`T_DRAXX-1`, `E_BROFB-1`, `2__FFSEN007`) preserved as-is for joins to BOAL/bmunits_reference. *(Source: `silver/elexon/pn.py L75`.)*
 
 ## 04 `level_from` and `level_to` capture intra-period ramp
 
-A BMU can declare different MW levels at start vs end of period — these are linear-ramp intents. `level_to - level_from` is the intra-period change. For mid-period MW estimates, linearly interpolate; for energy-summed analytics use `(level_from + level_to) / 2 * 0.5` as the period MWh. *(Source: domain knowledge — BMU PN ramp semantics.)*
+Linear-ramp intent: `(level_from + level_to)/2 × 0.5` = period MWh. *(Source: BMU PN ramp semantics.)*
 
 ## 05 Pair with BOAL for redispatched-MW model features
 
-The canonical pattern for BM-unit dispatch modelling is to join PN (declared) with BOAL (accepted) on `(settlement_date, settlement_period, bm_unit_id)` and compute `boal.bid_offer_level_from − pn.level_from` as the SO-issued redispatch. This is the most common feature in BMU flexibility models — pre-build a gold view if you'll be reading it often. *(Source: domain knowledge — BMU dispatch modelling.)*
+Redispatched MW = `boal.bid_offer_level_from − pn.level_from`; canonical feature for BMU flexibility models. *(Source: BMU dispatch modelling.)*
 
 # Related datasets
 

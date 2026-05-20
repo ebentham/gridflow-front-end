@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Every registered BM unit, the <span class="italic fg-accent">join key.</span>
 
-**Lede:** A static snapshot of every Balancing Mechanism Unit registered with the GB Settlement system — IDs, fuel type, lead party, GSP group, registered capacity. This is the lookup table that every per-unit dataset (`boal`, `pn`, `uou2t14d`) joins against to attach human-readable context. Refreshed weekly; ~3,000 rows in one snapshot.
+**Lede:** GB BM-unit registry — the canonical lookup for unit metadata in every per-BMU dataset (`boal`, `pn`, `uou2t14d`).
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · BMUNITS](https://bmrs.elexon.co.uk/api-documentation/endpoint/reference/bmunits/all)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - uou2t14d
 - fuelhh
 - agpt
-
-# Overview
-
-1. <code>bmunits_reference</code> is the **master reference table** for every Balancing Mechanism Unit registered with Elexon under the GB Settlement system. Each row carries the canonical BM Unit ID (`bm_unit_id` — e.g. `T_DRAXX-1`, `E_ABERDARE`), the human-readable `bm_unit_name`, fuel type, lead party, GSP group, and registered capacity. It is the lookup table every other per-unit dataset joins against.
-
-2. Gridflow fetches it from <code>/reference/bmunits/all</code> as a single un-paginated snapshot (connector entry at <code>connectors/elexon/endpoints.py L266-271</code>, <code>param_style=NO_PARAMS</code>, <code>supports_pagination=False</code>). The response is a JSON array (no `{data: [...]}` envelope) which the `BMUnitsTransformer` handles via its `data.get("data", []) if isinstance(data, dict) else data` fallback. Output dedups on `bm_unit_id` and writes a single non-partitioned parquet file at `data/silver/elexon/bmunits_reference/bmunits_reference.parquet`.
-
-3. The data changes slowly — handful of registrations/de-registrations per week. Verified against the live API on 2026-05-08. Pydantic schema <code>ElexonBMUnit</code> is declared at <code>schemas/elexon.py L269-280</code>. Every dataset with a `bm_unit_id` column (BOAL, PN, UOU2T14D, DISBSAD on occasion) should `LEFT JOIN bmunits_reference USING (bm_unit_id)` to attach a friendly name, fuel type, or lead party for filtering.
 
 # Sample chart
 
@@ -175,23 +167,23 @@ print(enriched.head())
 
 ## 01 Snapshot semantics — no history
 
-`bmunits_reference` is a point-in-time snapshot; each refresh overwrites the previous file (single non-partitioned parquet at `bmunits_reference.parquet`). Historical registration/de-registration is NOT preserved. For point-in-time queries (e.g. "which BMUs were registered on 2024-03-15?") you must back-fetch from your own bronze archive or accept the latest-only view. *(Source: `silver/elexon/bmunits.py L105-113` — `_write_silver` override writes a single file.)*
+Each refresh overwrites the single parquet at `bmunits_reference.parquet`; registration history is not preserved. For PIT queries, archive bronze. *(Source: `silver/elexon/bmunits.py L105-113`.)*
 
 ## 02 Response is a bare JSON array, not `{data: [...]}`
 
-Unlike most Elexon BMRS endpoints which wrap records in `{"data": [...]}`, `/reference/bmunits/all` may return a bare array. The transformer handles both via `data.get("data", []) if isinstance(data, dict) else data`. If you write a custom consumer, do not assume the envelope. *(Source: vault Implementation Delta; `silver/elexon/bmunits.py L47`.)*
+`/reference/bmunits/all` returns a bare array; transformer handles both via `data.get("data", []) if isinstance(data, dict) else data`. *(Source: `silver/elexon/bmunits.py L47`.)*
 
 ## 03 No pagination — single 3000-row snapshot per call
 
-The connector sets `supports_pagination=False`. The endpoint returns the entire BM-unit register in one response. Memory footprint is small (~3000 rows × ~20 fields), but the call is rate-sensitive — fetch weekly, not per-job. *(Source: `connectors/elexon/endpoints.py L268-271`.)*
+Connector sets `supports_pagination=False`; the entire register returns in one call. Fetch weekly, not per-job. *(Source: `connectors/elexon/endpoints.py L268-271`.)*
 
 ## 04 `bm_unit_id` casing must be preserved
 
-API returns prefixed casing like `T_DRAXX-1`, `E_ABERDARE`, `2__DUKPR008`. The transformer casts to `Utf8` without normalising. Lower-casing or stripping the prefix will break joins to BOAL, PN, UOU2T14D — every per-unit dataset stores the same prefixed form. *(Source: vault Known Issues; `silver/elexon/bmunits.py L83`.)*
+Prefixed identifiers (`T_DRAXX-1`, `E_ABERDARE`, `2__DUKPR008`) are cast to `Utf8` without normalisation. Lower-casing breaks joins. *(Source: `silver/elexon/bmunits.py L83`.)*
 
 ## 05 `registered_capacity_mw` source preference
 
-The transformer maps both `registeredCapacity` and `generationCapacity` to the same silver column (`silver/elexon/bmunits.py L68-69`). The live API returns `generationCapacity` (and a separate `demandCapacity` that is NOT folded in). If you need demand-side capacity (e.g. for storage BMUs that consume), it is not in the silver layer — extract from the bronze JSON. *(Source: cross-reference vault Bronze Sample fields vs `silver/elexon/bmunits.py` column mapping.)*
+Maps `registeredCapacity` and `generationCapacity` to the same column; the parallel `demandCapacity` field is dropped. Demand-side capacity needs bronze. *(Source: `silver/elexon/bmunits.py L68-69`.)*
 
 # Related datasets
 

@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Generation by fuel type, <span class="italic fg-accent">half-hourly.</span>
 
-**Lede:** Half-hourly generation outturn aggregated by fuel type — the realised MWh in each GB settlement period split by fuel category (CCGT, coal, nuclear, wind, solar, biomass). The canonical observation series for GB generation mix and the foundation for capacity-factor and emissions analytics.
+**Lede:** Half-hourly GB generation by fuel type — the canonical observation series for generation mix, capacity factors, and emissions.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · FUELHH](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - agws
 - windfor
 - nonbm
-
-# Overview
-
-1. <code>fuelhh</code> is the **half-hourly generation outturn aggregated by fuel type** (FUELHH). Each row reports the average MW for one `fuel_type` (CCGT, COAL, NUCLEAR, WIND, SOLAR, BIOMASS, NPSHYD, PS, OCGT, OIL, OTHER, INTFR, INTIRL, INTNED, INTEW, INTEM) in one settlement period. It is the canonical observation series for GB generation mix and underpins capacity-factor analytics, emissions reporting, and forecast-error studies.
-
-2. Gridflow fetches it from <code>/datasets/FUELHH</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L115-119</code>). The <code>FuelHHTransformer</code> renames camelCase to snake_case, derives `timestamp_utc` from the settlement period pair, and dedups on `(settlement_date, settlement_period, fuel_type)`. Pydantic schema <code>ElexonFuelHH</code> is declared at <code>schemas/elexon.py L79-96</code>.
-
-3. Cadence is half-hourly publication with roughly 5-minute lag at settlement period close. Verified against the live API on 2026-05-08. Pair with `fuelinst` for ~5-minute resolution, with `agpt`/`agws` to split `WIND` into onshore/offshore, and with `nonbm` to add embedded STOR generation not captured here.
 
 # Sample chart
 
@@ -172,27 +164,27 @@ print(mix.head())
 
 ## 01 Settlement period range is 1..50
 
-On the autumn clock change, the day has 50 settlement periods (25 hours). On spring forward, it has 46 (23 hours). DST handling required when bucketing by day or hour. The silver layer normalises all timestamps to UTC; the `settlement_period` column can reach 50 on DST days. Field validator: `ge=1, le=50`. *(Source: vault Known Issues; `schemas/elexon.py L83`.)*
+DST days have 46 (spring) or 50 (autumn) settlement periods. Validator `ge=1, le=50`. *(Source: `schemas/elexon.py L83`.)*
 
-## 02 `fuelType` casing — uppercase preserved
+## 02 `fuelType` casing preserved
 
-API returns uppercase fuel codes (`CCGT`, `COAL`, `NUCLEAR`...). The transformer preserves the casing (`silver/elexon/fuelhh.py L78`); don't lowercase in joins or you'll silently drop rows. *(Source: vault Known Issues; `silver/elexon/fuelhh.py L78`.)*
+Codes stay uppercase (`CCGT`, `COAL`, …); don't lowercase in joins. *(Source: `silver/elexon/fuelhh.py L78`.)*
 
-## 03 Embedded generation is excluded
+## 03 Embedded generation excluded
 
-FUELHH only covers BM-registered (metered) units. Sub-1 MW solar, small wind, and embedded CHP are not included — they appear as reduced demand, not as generation. Use NESO embedded estimates to add them back when calculating total GB generation. *(Source: domain knowledge — GB embedded-generation reporting framework.)*
+BM-registered only. Sub-MW solar / small wind / embedded CHP show up as reduced demand. *(Source: GB embedded-generation framework.)*
 
 ## 04 `WIND` is onshore + offshore combined
 
-The single `WIND` fuel type aggregates all metered wind regardless of technology. For an onshore/offshore split, use `agpt` (PSR types `Wind Onshore` / `Wind Offshore`) or `agws`. Note those are D+1 settled, not live. *(Source: vault Known Issues + cross-vendor knowledge.)*
+For the split, use `agpt` (PSR `Wind Onshore` / `Wind Offshore`) or `agws` — both D+1, not live. *(Source: vault Known Issues.)*
 
 ## 05 Interconnectors can be negative
 
-When GB is exporting to France, `generation_mw` for `INTFR` will be negative. Decide whether to include or exclude interconnectors when summing to total generation, based on your use case — for "GB generation" exclude them; for "GB power balance" include them. *(Source: domain knowledge — GB interconnector sign convention.)*
+`INT*` rows go negative when GB exports. Include / exclude depending on whether you want "GB generation" or "GB balance". *(Source: GB sign convention.)*
 
-## 06 `published_at` schema field is declared but not emitted
+## 06 `published_at` declared but not emitted
 
-`ElexonFuelHH.published_at` is declared (`schemas/elexon.py L87`) and the column mapping renames `publishTime` → `published_at` (`silver/elexon/fuelhh.py L61`). However the transformer's `output_cols` list does NOT include it (`silver/elexon/fuelhh.py L103-106`). Silver rows therefore have no `published_at` column today. Code that imports `ElexonFuelHH` and accesses `.published_at` from a parsed row will receive `None`. *(Source: frontmatter discrepancy; cross-reference schema vs transformer.)*
+Schema declares `published_at` (`schemas/elexon.py L87`) but transformer omits it from `output_cols` (`silver/elexon/fuelhh.py L103-106`). Silver rows carry no `published_at`. *(Source: frontmatter discrepancy.)*
 
 # Related datasets
 

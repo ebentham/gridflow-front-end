@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB demand outturn, <span class="italic fg-accent">first published.</span>
 
-**Lede:** INDO is the Initial National Demand Outturn — the first published estimate of realised national demand per settlement period, issued shortly after each period closes. It is the headline GB demand outturn series and the canonical reference for forecast-error studies (forecast vs INDO) and demand-profile analytics.
+**Lede:** Half-hourly GB realised demand — the canonical outturn series for forecast-error studies, demand profiling, and embedded-generation derivation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · INDO](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/INDO)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - atl
 - inddem
 - ndf
-
-# Overview
-
-1. <code>indo</code> is **Initial National Demand Outturn** — the realised GB total demand for each settlement period, published shortly after the period closes. It is the headline outturn series for GB demand and the value most analytics treat as "the" demand for retrospective work. Each row carries one `initial_demand_outturn_mw` value at one (settlement_date, settlement_period).
-
-2. Gridflow fetches it from <code>/datasets/INDO</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L185-189</code>). The <code>INDOTransformer</code> renames `demand` → `initial_demand_outturn_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication with ~5-minute lag at period close. Verified against the live API on 2026-05-08. INDO is the *first* published estimate; final reconciled demand comes through BSC settlement runs and is not exposed by this endpoint. Pair with `itsdo` (transmission-only) to derive embedded generation contribution, with `inddem` for forecast-error analysis, and with `atl` for the ENTSO-E-aligned equivalent.
 
 # Sample chart
 
@@ -159,23 +151,23 @@ print(embedded.tail(20))
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like the other outturn datasets (`itsdo`, `indod`), INDO has no dedicated Pydantic class. Silver shape is defined by `INDOTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no INDO class.)*
+No `ElexonINDO` class; shape lives in `INDOTransformer.output_cols`. *(Source: `silver/elexon/indo.py`.)*
 
 ## 02 Initial estimate, revised through settlement
 
-INDO is the *first* published demand estimate, issued ~5 minutes after the period. BSC final settlement produces revised demand numbers that are not exposed by this endpoint. For final reconciled demand use settlement-run datasets. *(Source: vault Known Issues — "INDO is published before final settlement and is revised over time".)*
+INDO is the first estimate, ~5 min after period close; BSC final settlement values are not exposed here. *(Source: vault Known Issues.)*
 
 ## 03 INDO − ITSDO = embedded generation
 
-INDO is total national demand; ITSDO is transmission-only demand (excludes embedded generation). Their difference is the implied contribution of embedded generation in that period — useful for tracking embedded solar/wind/CHP growth over time. The two datasets share `(settlement_date, settlement_period)` as the join key. *(Source: vault Known Issues + domain knowledge — GB embedded-generation reporting.)*
+INDO is total demand; ITSDO is transmission-only. Difference = embedded generation per period. *(Source: GB embedded-generation reporting.)*
 
 ## 04 INDO ≠ ATL — same concept, different lineage
 
-INDO is the BSC-aligned outturn; `atl` (Actual Total Load) is the ENTSO-E-aligned version of the same idea. Values are usually within ~50 MW but can diverge during demand-disconnection events. Pick one as your demand source of truth depending on whether you need BSC-aligned (INDO) or ENTSO-E-aligned (ATL) numbers. *(Source: domain knowledge — GB demand reporting genealogy.)*
+INDO is BSC-lineage, `atl` is ENTSO-E-lineage; usually within ~50 MW. Pick one source of truth. *(Source: GB demand reporting genealogy.)*
 
 ## 05 Use `inddem` for the day-ahead forecast counterpart
 
-`inddem` is the day-ahead/intra-day forecast of demand; INDO is the realised outturn. Forecast error = `inddem.indicated_demand_mw − indo.initial_demand_outturn_mw` for the same (date, period). Filter INDDEM to `boundary='N'` first or the math will be confounded by zonal-boundary attributions. *(Source: cross-reference with INDDEM brief; domain knowledge.)*
+Forecast error = `inddem − indo` per period. Filter `inddem` to `boundary='N'` before joining. *(Source: NESO indicated-suite identity.)*
 
 # Related datasets
 

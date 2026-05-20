@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB capacity margin, the <span class="italic fg-accent">non-de-rated view.</span>
 
-**Lede:** MELNGC is the GB indicated margin — capacity above expected demand per settlement period — published day-ahead and intra-day. It is the short-horizon, **non-de-rated** counterpart to LOLPDRM's de-rated margin: raw available capacity minus indicated demand, with no de-rating of intermittent sources.
+**Lede:** Half-hourly GB indicated margin — the canonical day-ahead headroom signal for capacity adequacy, de-rating comparison, and stress-period detection.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · MELNGC](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/MELNGC)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - inddem
 - indgen
 - fou2t14d
-
-# Overview
-
-1. <code>melngc</code> is **Day and Day-Ahead Indicated Margin** — the published capacity margin (MW above expected demand) for each settlement period. Unlike `lolpdrm.derated_margin_mw`, MELNGC is **not** de-rated for intermittent capacity — it is the indicative, raw margin headroom. Together with IMBALNGC and INDDEM/INDGEN, it forms the indicated-suite of NESO day-ahead operational signals.
-
-2. Gridflow fetches it from <code>/datasets/MELNGC</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L140-144</code>). The <code>MelNGCTransformer</code> renames `margin` / `indicatedMargin` → `indicated_margin`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared; the transformer also drops the `boundary` column despite the API emitting it — an internal inconsistency with `inddem`/`indgen` which preserve boundary.
-
-3. Cadence is half-hourly publication, zero lag. Verified against the live API on 2026-05-08; the sample returned `margin=-3309` for SP9 — a *negative* indicated margin is the kind of signal capacity-margin alerts are designed to surface. Pair with `lolpdrm` to compare raw vs de-rated views and with `imbalngc` for the imbalance-side complement.
 
 # Sample chart
 
@@ -163,23 +155,23 @@ print(compare.tail(20))
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like other indicated-suite datasets, MELNGC has no dedicated Pydantic class. Silver shape is defined by `MelNGCTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no MELNGC class.)*
+No `ElexonMELNGC` class; shape lives in `MelNGCTransformer.output_cols`. *(Source: `silver/elexon/melngc.py`.)*
 
 ## 02 MELNGC is indicative; LOLPDRM is de-rated
 
-MELNGC reports the indicative margin (raw available capacity minus indicated demand, no de-rating). LOLPDRM's `derated_margin_mw` applies NESO's de-rating factors to wind and solar capacity. Expect MELNGC > LOLPDRM by several GW when wind/solar capacity is significant. The gap is the de-rating haircut. *(Source: vault Known Issues; LOLPDRM-cross-reference in brief sample.)*
+MELNGC is raw margin, no de-rating. Expect MELNGC > `lolpdrm.derated_margin_mw` by several GW; the gap is the de-rating haircut. *(Source: NESO de-rating methodology.)*
 
 ## 03 `boundary` column is dropped from silver
 
-The API emits `boundary` (e.g. `B1`, `N`) but `MelNGCTransformer.output_cols` (`silver/elexon/melngc.py L98-101`) does not include it. INDDEM and INDGEN both preserve boundary in their silver output — MELNGC's drop is an internal inconsistency that means the silver layer cannot distinguish national vs zonal rows. Effectively, the dedup on `(settlement_date, settlement_period)` keeps whichever boundary's row arrived last in bronze. *(Source: discrepancy in frontmatter; cross-reference with INDDEM/INDGEN transformers.)*
+API emits `boundary` but transformer doesn't surface it; dedup `keep="last"` mixes zonal and national rows. Inconsistent with INDDEM/INDGEN. *(Source: `silver/elexon/melngc.py L98-101`.)*
 
 ## 04 Negative values are zonal-boundary attributions
 
-The vault sample shows `margin=-3309` for SP9 with `boundary=B1`. These zonal-attributed negatives are not "GB is in capacity deficit" signals — they are zonal deltas. For national margin use `boundary='N'` rows (when present) or the unfiltered API call if you accept the boundary-mixing caveat. *(Source: vault Bronze Sample; analogous to INDDEM/INDGEN boundary semantics.)*
+Negative `indicated_margin` (e.g. -3309) is a `boundary=B1` zonal delta, not a national deficit signal. *(Source: vault Bronze Sample.)*
 
 ## 05 Forecast revisions collapse on dedup
 
-The transformer dedups on `(settlement_date, settlement_period)` with `keep="last"`. Multiple intra-day forecast publishes are collapsed; silver holds only the latest-arrived. For forecast-vs-outturn studies preserving revisions, read bronze and preserve `published_at`. *(Source: vault Known Issues; `silver/elexon/melngc.py L90`.)*
+Dedup `keep="last"` on `(date, period)` collapses intra-day revisions. *(Source: `silver/elexon/melngc.py L90`.)*
 
 # Related datasets
 

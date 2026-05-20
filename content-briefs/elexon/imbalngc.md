@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** National Grid's indicated imbalance, <span class="italic fg-accent">half-hour by half-hour.</span>
 
-**Lede:** IMBALNGC is the National Grid Control Centre's indicated imbalance forecast — the published expectation of system imbalance (generation minus demand, in MWh) used to inform balancing decisions. It is part of the indicated-suite (alongside INDDEM, INDGEN, MELNGC) and the day/day-ahead view that BMRS publishes before settlement.
+**Lede:** Half-hourly GB indicated imbalance forecast — the canonical day-ahead signal for gate-closure trading, forecast-error analysis, and cash-out attribution.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · IMBALNGC](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/IMBALNGC)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - indgen
 - ndf
 - system_prices
-
-# Overview
-
-1. <code>imbalngc</code> is **Indicated Imbalance (Day & Day-Ahead)** — the National Grid Control Centre's forecast of expected system imbalance per settlement period. Imbalance is generation minus demand; a positive `indicated_imbalance` means the system is expected to be long (oversupplied), a negative value means short. The number is published for day-ahead and intra-day decision-making and is one of the inputs to short-term power-market trading.
-
-2. Gridflow fetches it from <code>/datasets/IMBALNGC</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L125-129</code>). The <code>ImbalNGCTransformer</code> renames `imbalance` / `indicatedImbalance` → `indicated_imbalance`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)` keeping the latest-arrived. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication, zero lag (day-ahead and intra-day publishes). Verified against the live API on 2026-05-08. The same period can be published multiple times as the forecast is updated; silver keeps the latest. For forecast-vs-outturn analysis, preserve `published_at` upstream of the silver dedup or read bronze. Pair with `melngc` (margin), `inddem`/`indgen` (demand/generation forecasts), and `system_prices` (cash-out outturn).
 
 # Sample chart
 
@@ -159,23 +151,23 @@ print(short)
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like other indicated-suite datasets (`melngc`, `inddem`, `indgen`), IMBALNGC has no dedicated Pydantic class. The silver-layer shape is defined by `ImbalNGCTransformer.output_cols` in `silver/elexon/imbalngc.py L98-101`. Anything that imports `from gridflow.schemas.elexon import ElexonIMBALNGC` will fail. *(Source: `schemas/elexon.py` grep returns no IMBALNGC class.)*
+No `ElexonIMBALNGC` class; shape lives in `ImbalNGCTransformer.output_cols`. Importing will fail. *(Source: `silver/elexon/imbalngc.py L98-101`.)*
 
 ## 02 Sign convention — positive = long, negative = short
 
-`indicated_imbalance` is generation minus demand; positive means the system is forecast to be long (oversupplied, SSP usually falls), negative means short (undersupplied, SBP usually rises). This matches the NIV convention in `system_prices` after settlement. Don't flip the sign in joins. *(Source: domain knowledge — GB imbalance settlement framework.)*
+`indicated_imbalance = generation − demand`; positive = long (SSP falls), negative = short (SBP rises). Matches the NIV convention in `system_prices`. *(Source: GB imbalance settlement framework.)*
 
 ## 03 Forecast revisions are not preserved
 
-The same `(settlement_date, settlement_period)` is published multiple times as the day-ahead and intra-day forecasts are revised. The transformer dedups on the key with `keep="last"`, so silver holds only the latest-arrived value. For forecast-vs-outturn studies (forecast error per revision) you must read bronze and preserve `published_at`. The silver layer is fit-for-purpose only when "latest forecast" is what you want. *(Source: vault Known Issues; `silver/elexon/imbalngc.py L90`.)*
+Silver dedup `keep="last"` collapses revisions to latest. Forecast-error studies need bronze with `published_at`. *(Source: `silver/elexon/imbalngc.py L90`.)*
 
 ## 04 `boundary` filter is supported by API but not used by connector
 
-The vendor API accepts a `boundary` parameter (e.g. `N` for the national boundary) to filter to specific transmission boundaries. The Gridflow connector does not send this — the call returns all boundary records, and silver dedup collapses them by (date, period) with no boundary discriminator. If you need boundary-specific imbalance, extend the connector. *(Source: discrepancy in frontmatter; vault API endpoint table vs `connectors/elexon/endpoints.py L125-129`.)*
+Connector omits the `boundary` param; all boundaries collapse in silver dedup. Extend the connector for boundary-specific imbalance. *(Source: `connectors/elexon/endpoints.py L125-129`.)*
 
 ## 05 Pair with `melngc` for the full margin picture
 
-Indicated imbalance (IMBALNGC) is generation minus demand; indicated margin (MELNGC) is the headroom above the highest plausible demand. They are complementary day-ahead signals — IMBALNGC for the expected balance, MELNGC for the available cushion. Models that ignore one tend to miss capacity-tight periods where the imbalance is small but the margin is also small. *(Source: domain knowledge — GB capacity-margin framework.)*
+IMBALNGC is generation−demand; MELNGC is headroom above peak demand. Models need both to catch tight-margin periods with small imbalance. *(Source: GB capacity-margin framework.)*
 
 # Related datasets
 

@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB renewables, the <span class="italic fg-accent">B1630 cut.</span>
 
-**Lede:** AGWS is Actual or Estimated Wind and Solar Power Generation — the same ENTSO-E PSR taxonomy as `agpt` but filtered to renewable categories (`Wind Onshore`, `Wind Offshore`, `Solar`). Where AGPT covers all PSR types, AGWS isolates the renewables of analytic interest and folds in `Estimated` values where metered data is unavailable (notably for embedded solar). Refreshed half-hourly with D+1 lag.
+**Lede:** Half-hourly GB wind and solar generation — the canonical renewables-only series for forecast-error analysis, capacity factors, and embedded-solar attribution.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · AGWS](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/AGWS)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - windfor
 - fuelinst
 - nonbm
-
-# Overview
-
-1. <code>agws</code> is Elexon's pass-through of the ENTSO-E **B1630 Actual or Estimated Wind and Solar Power Generation** series for the GB bidding zone. Each row reports MW for one renewable <code>psr_type</code> (<code>Wind Onshore</code>, <code>Wind Offshore</code>, <code>Solar</code>) per settlement period. `businessType` of <code>Wind generation</code> or <code>Solar generation</code> marks metered values; values for embedded solar can carry an `Estimated` business type.
-
-2. Gridflow fetches it from <code>/datasets/AGWS</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> window pattern (connector entry at <code>connectors/elexon/endpoints.py L173-177</code>). The <code>AGWSTransformer</code> mirrors <code>AGPTTransformer</code> field-for-field — same renames, same dedup key <code>(settlement_date, settlement_period, psr_type)</code>, same `output_cols`. No Pydantic class is declared.
-
-3. Cadence is half-hourly with roughly D+1 publication lag (ENTSO-E document revision cycle). Verified against the live API on 2026-05-08; output volume is roughly a quarter of AGPT's because only renewable PSR types are emitted. Pair with <code>fuelhh</code> (single <code>WIND</code> bucket) when you need totals; pair with <code>agpt</code> when you need the embedded-solar `Estimated` flag explicitly.
 
 # Sample chart
 
@@ -157,23 +149,23 @@ print(wind)
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like `agpt`, AGWS has no dedicated Pydantic class. The silver-layer shape is defined by `AGWSTransformer.output_cols` in `silver/elexon/agws.py L104-109`. Anything that imports `from gridflow.schemas.elexon import ElexonAGWS` will fail. *(Source: gridflow Implementation Delta; cross-reference `schemas/elexon.py` grep returns no AGWS class.)*
+No `ElexonAGWS` class; shape lives in `AGWSTransformer.output_cols`. Importing `ElexonAGWS` will fail. *(Source: `silver/elexon/agws.py L104-109`.)*
 
 ## 02 `Solar` is an estimate, not a meter
 
-Embedded solar is not metered at the unit level; AGWS uses NESO's embedded-solar estimate model. Expect `business_type` of `Estimated` on some Solar rows — treat these as model output, not observation. *(Source: domain knowledge — GB solar is dominated by sub-1 MW embedded sites; NESO publishes the estimation methodology.)*
+Embedded solar isn't metered at unit level; rows can carry `business_type=Estimated` from NESO's model. Treat as model output, not observation. *(Source: GB embedded-solar framework.)*
 
 ## 03 `document_revision` precedence on dedup
 
-Same `(settlement_date, settlement_period, psr_type)` can re-appear with a higher `document_revision` if ENTSO-E revises the document. The transformer's `unique(..., keep="last")` keeps whichever row arrived last in the bronze read. For strict bitemporal queries, dedup explicitly on `document_revision desc`. *(Source: `silver/elexon/agws.py L93-96`; same caveat as agpt.)*
+ENTSO-E revisions reappear with higher `document_revision`; transformer's `unique(..., keep="last")` keeps last-read, not max-revision. *(Source: `silver/elexon/agws.py L93-96`.)*
 
 ## 04 Decimal precision is higher than `fuelhh`
 
-AGWS reports values to three decimal places (`1238.414`) where `fuelhh` rounds to integer. Float comparisons across the two datasets will not be exact; use a tolerance or round consistently before joining. *(Source: vault Bronze Sample inspection.)*
+AGWS emits three-decimal floats (`1238.414`); `fuelhh` rounds to integer. Use tolerance when joining. *(Source: vault Bronze Sample.)*
 
 ## 05 D+1 lag, not real-time
 
-AGWS is published a day after settlement (ENTSO-E revision cycle). For live wind monitoring use `windfor` (forecast) + `fuelinst` (real-time metered). AGWS is for retrospective wind/solar attribution and forecast-error analysis. *(Source: vault frontmatter `last_verified: 2026-05-08`; manifest `lag: "1 day"`.)*
+Published a day after settlement (ENTSO-E revision cycle). Use `windfor` + `fuelinst` for real-time. *(Source: manifest `lag: "1 day"`.)*
 
 # Related datasets
 

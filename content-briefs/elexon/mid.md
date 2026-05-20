@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Wholesale price anchor, <span class="italic fg-accent">market-index data.</span>
 
-**Lede:** MID is Elexon's Market Index Data feed — accredited exchange prices and volumes used by the BSC to derive the Power Exchange Reference Price. Each row carries a per-MIDP (Market Index Data Provider — APXMIDP for EPEX, N2EXMIDP for Nord Pool) price (£/MWh) and traded volume (MWh) per settlement period. MID is the wholesale-market anchor that ties Balancing Mechanism cash-out to traded GB power prices.
+**Lede:** Per-period GB market index prices and volumes — the canonical wholesale anchor for imbalance-premium analysis, cash-out reconciliation, and APX/N2EX liquidity comparison.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · MID](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/MID)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - disbsad
 - boal
 - pn
-
-# Overview
-
-1. <code>mid</code> is **Market Index Data** — published reference prices and volumes from accredited Market Index Data Providers (MIDPs). Two providers report into MID for GB: `APXMIDP` (EPEX-derived) and `N2EXMIDP` (Nord Pool-derived). The BSC uses MID values to derive the Power Exchange Reference Price, which in turn feeds the imbalance cash-out logic.
-
-2. Gridflow fetches it from <code>/datasets/MID</code> using <code>from</code>/<code>to</code> query params (NOT `publishDateTimeFrom`/`To`) per the docs (connector entry at <code>connectors/elexon/endpoints.py L83-89</code>, `from_param="from", to_param="to"`). The <code>MIDTransformer</code> renames camelCase to snake_case, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period, data_provider_id)` so both MIDPs survive per period. Pydantic schema <code>ElexonMID</code> is declared.
-
-3. Cadence is hourly with ~10-minute lag at period close. Verified against the live API on 2026-05-08; the sample returned two providers per period (`APXMIDP` with positive price/volume; `N2EXMIDP` with zero values). Worth noting: the live API field names (`dataProvider`, `price`) do not match the transformer's column mapping (`dataProviderId`, `midPrice`) — so `data_provider_id` and `market_index_price` are silent-null in fresh bronze until the mapping is updated.
 
 # Sample chart
 
@@ -170,23 +162,23 @@ print(spread.tail(10))
 
 ## 01 Column-mapping drift vs live API
 
-The transformer maps `dataProviderId → data_provider_id` and `midPrice → market_index_price`, but the live API on 2026-05-08 returned `dataProvider` and `price` instead. Fresh bronze runs through the current code produce silver rows where both columns are null. Two fixes: extend the column mapping to also handle `dataProvider` / `price`, or document the gap and accept null until a fix lands. *(Source: discrepancies in frontmatter; cross-reference vault Bronze Sample field names vs `silver/elexon/mid.py L55-61`.)*
+Transformer maps `dataProviderId`/`midPrice` but live API now returns `dataProvider`/`price`. Fresh bronze yields null `data_provider_id` and `market_index_price`. *(Source: `silver/elexon/mid.py L55-61`.)*
 
 ## 02 Two MIDP providers per period — preserve in dedup
 
-The dedup key includes `data_provider_id` so both `APXMIDP` and `N2EXMIDP` rows survive per (date, period). Don't dedup on (date, period) alone or you'll lose one provider. For the "BSC reference price" use APXMIDP (primary GB liquidity); for cross-validation use both. *(Source: vault Known Issues — "Multiple data providers per period"; `silver/elexon/mid.py L93-95`.)*
+Dedup includes `data_provider_id` so both `APXMIDP` and `N2EXMIDP` survive. Don't dedup on `(date, period)` alone. *(Source: `silver/elexon/mid.py L93-95`.)*
 
 ## 03 `from`/`to` query params, not `publishDateTimeFrom`/`To`
 
-Like BOALF and DISBSAD, MID uses `from`/`to` parameters. The connector overrides via `from_param="from", to_param="to"`. Wrong param names get silently ignored and the API returns the last ~24 hours. *(Source: `connectors/elexon/endpoints.py L86-87`.)*
+Connector overrides via `from_param="from"`. Wrong names return the default ~24h window. *(Source: `connectors/elexon/endpoints.py L86-87`.)*
 
 ## 04 N2EXMIDP typically zero post-2024
 
-Nord Pool wound down significant GB MIDP operations; expect most N2EXMIDP rows to carry `price=0.0, volume=0.0`. This isn't a data error — it's the actual reported value. Filter on `market_index_volume > 0` for liquidity-weighted analytics. *(Source: domain knowledge — GB MIDP landscape circa 2024-2026.)*
+Nord Pool wound down GB MIDP; most `N2EXMIDP` rows carry `price=0.0`. Filter `market_index_volume > 0` for liquidity-weighted views. *(Source: GB MIDP landscape.)*
 
 ## 05 MID is half-hourly indexed despite "hourly" cadence
 
-The manifest lists `freq: hourly` because publication arrives roughly hourly, but the rows themselves are per settlement period (half-hourly). Don't confuse "row cadence" with "publication cadence" when aligning to other datasets. *(Source: cross-reference manifest `elexon.json` `freq: hourly` vs `settlement_period` schema column.)*
+Manifest `freq: hourly` refers to publication, not row spacing — rows are per settlement period. *(Source: manifest vs schema.)*
 
 # Related datasets
 

@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB demand forecast, <span class="italic fg-accent">one day ahead.</span>
 
-**Lede:** NDF is the National Demand Forecast for day-ahead delivery — the published GB demand expectation per settlement period for the next operational day. It is the headline load-forecasting benchmark and the day-ahead counterpart to NDFD's 2-14 day view. Same transformer, same schema; `forecast_type='day_ahead'` discriminates the rows.
+**Lede:** Daily-published day-ahead GB demand forecast — the canonical load-forecasting benchmark for forecast-error analysis, bitemporal revision tracking, and ramp planning.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · NDF](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NDF)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - tsdfd
 - inddem
 - indo
-
-# Overview
-
-1. <code>ndf</code> is **National Demand Forecast (Day-Ahead)** — the GB total-demand expectation per settlement period for the next operational day. Each row carries `national_demand_mw` and optionally `transmission_demand_mw`. The publication time (`issue_time`) is preserved so multiple intra-day revisions of the same period coexist in silver.
-
-2. Gridflow fetches it from <code>/datasets/NDF</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L130-134</code>). The shared <code>DemandForecastTransformer</code> handles both NDF and NDFD; the `forecast_type` column (`day_ahead` vs `2_14_day`) is set from `self.dataset` (`silver/elexon/demand_forecast.py L137`). Pydantic schema <code>ElexonDemandForecast</code> is shared between the two slugs. Dedup key includes `issue_time` so revision history is preserved (unlike most indicated-suite siblings).
-
-3. Cadence is daily publication, zero lag (day-ahead). Verified against the live API on 2026-05-08; the sample returned `demand=21200` and `demand=21177` for SP9 and SP10 with `boundary=N`. NDF is the principal forecast against which `indo` (outturn) is compared for forecast-error analysis. Pair with `tsdf` for the transmission-only counterpart.
 
 # Sample chart
 
@@ -173,23 +165,23 @@ print(err.tail(20))
 
 ## 01 Shared transformer with NDFD
 
-Both `ndf` and `ndfd` go through `DemandForecastTransformer`. The `forecast_type` column (`day_ahead` for NDF, `2_14_day` for NDFD) is set at transform time from `self.dataset`. Reading the silver parquet for either slug requires filtering on `forecast_type` if you want to be explicit, but the silver layout is split per slug so naive `pl.read_parquet("data/silver/elexon/ndf/...")` already returns only NDF rows. *(Source: vault Implementation Delta; `silver/elexon/demand_forecast.py L137, L160-167`.)*
+`DemandForecastTransformer` serves both; `forecast_type` is set from `self.dataset` (`day_ahead` vs `2_14_day`). Silver path splits per slug. *(Source: `silver/elexon/demand_forecast.py L137`.)*
 
 ## 02 Forecast revisions preserved via `issue_time`
 
-Unlike most indicated-suite datasets, NDF's dedup key includes `issue_time` (`silver/elexon/demand_forecast.py L140-142`), so multiple revisions of the same period coexist in silver. For "latest forecast only" queries, use the SQL window-function pattern; for forecast-error studies that need to know "what did we forecast 12h ago", the issue_time column has you covered. *(Source: vault Known Issues; `silver/elexon/demand_forecast.py L140-142`.)*
+Dedup key includes `issue_time`, so revisions coexist; use a window function for latest-issue selection. *(Source: `silver/elexon/demand_forecast.py L140-142`.)*
 
 ## 03 `transmission_demand_mw` is conditional
 
-The transformer adds `transmission_demand_mw` to silver only if `transmissionSystemDemand` is present in bronze (`silver/elexon/demand_forecast.py L106-107`). NDF bronze typically lacks this field — the `tsdf` endpoint is the dedicated source. Check column existence before referencing in queries. *(Source: `silver/elexon/demand_forecast.py L106-107`.)*
+Column appears only if `transmissionSystemDemand` is in bronze; NDF usually lacks it (use `tsdf` instead). Check `df.columns`. *(Source: `silver/elexon/demand_forecast.py L106-107`.)*
 
 ## 04 `issue_time` may be null if `publishTime` is absent in bronze
 
-The transformer derives `issue_time` from `publishTime` (`silver/elexon/demand_forecast.py L109-115`). If a bronze row lacks `publishTime`, `issue_time` is null and dedup falls back to `(settlement_date, settlement_period, forecast_type)` keeping the last-arrived row. Trust this rarely matters in practice but worth knowing for forecast-revision audits. *(Source: code at `silver/elexon/demand_forecast.py L109-115, L141-142`.)*
+When null, dedup falls back to `(date, period, forecast_type)` last-arrived. Relevant for revision audits. *(Source: `silver/elexon/demand_forecast.py L109-115`.)*
 
 ## 05 Pair with `indo` for forecast-error series
 
-`indo.initial_demand_outturn_mw − ndf.national_demand_mw` (with NDF latest-issue) is the canonical day-ahead demand forecast error. Aggregate by hour-of-day to expose systematic forecast bias. *(Source: domain knowledge — GB demand-forecast benchmarking framework.)*
+`indo − ndf` (latest-issue) is the canonical day-ahead demand forecast error. *(Source: GB demand-forecast benchmarking.)*
 
 # Related datasets
 

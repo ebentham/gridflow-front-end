@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Non-BM STOR generation, <span class="italic fg-accent">the reserve fleet.</span>
 
-**Lede:** NONBM is the Non-BM Short-Term Operating Reserve generation feed — MW output from STOR providers that operate outside the Balancing Mechanism. These are the units that supplement BM dispatch during system stress; tracking NONBM is how you measure how much reserve is being called and when.
+**Lede:** Half-hourly GB non-BM STOR generation — the canonical reserve-fleet observation for stress-period detection, frequency-response attribution, and STOR cost analysis.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · NONBM](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NONBM)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - disbsad
 - system_prices
 - freq
-
-# Overview
-
-1. <code>nonbm</code> is **Non-BM STOR Generation** — output from Short-Term Operating Reserve providers that sit outside the Balancing Mechanism. STOR is one of NESO's ancillary services; non-BM STOR providers are typically diesel gensets, embedded gas peakers, and battery storage on contracts that pay availability and utilisation but don't expose them through BOALF. NONBM is the canonical observation series for this fleet.
-
-2. Gridflow fetches it from <code>/datasets/NONBM</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (connector entry at <code>connectors/elexon/endpoints.py L200-204</code>). The vault notes a doc-vs-code mismatch (`from`/`to` in docs, default param names in code), but the live API accepts the default. The <code>NONBMTransformer</code> renames `generation` → `generation_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication with 1-day lag. Verified against the live API on 2026-05-08; the sample returned `generation=0` for SP22 on 2026-04-01 — typical for off-peak periods. Most NONBM rows are zero; non-zero values cluster around morning and evening peaks and during system-stress events. Pair with `disbsad` STOR-flagged rows to attribute the call-off, with `freq` to correlate dispatch to frequency excursions.
 
 # Sample chart
 
@@ -161,23 +153,23 @@ print(profile)
 
 ## 01 STOR-only — not total non-BM generation
 
-NONBM captures only Short-Term Operating Reserve providers operating outside the BM. It does not include other non-BM dispatch (sub-1 MW embedded units that aren't STOR, interconnector imports, ancillary-service providers under different contracts). For "total non-BM generation" you need additional sources. *(Source: vault Known Issues; vault Overview — "captures only STOR providers operating outside the BM".)*
+Covers only Non-BM STOR providers; excludes other non-BM dispatch (interconnectors, embedded non-STOR, ancillary contracts). *(Source: vault Overview.)*
 
 ## 02 No Pydantic schema in `schemas/elexon.py`
 
-Like other simple generation datasets without dedicated schemas (FUELINST, AGPT, etc.), NONBM has no Pydantic class. Silver shape is defined by `NONBMTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no NONBM class.)*
+No `ElexonNONBM` class; shape lives in `NONBMTransformer.output_cols`. *(Source: `silver/elexon/nonbm.py`.)*
 
 ## 03 Most rows are zero
 
-NONBM dispatch is event-driven — most settlement periods see zero non-BM STOR generation because the BM fleet covers normal operation. Filter `generation_mw > 0` for "active periods" analytics, or use rolling sums for cumulative call-off measures. *(Source: vault Bronze Sample shows `generation=0` for the sampled period; domain knowledge — STOR is a peak/stress fleet.)*
+Dispatch is event-driven; most periods are zero. Filter `generation_mw > 0` for active periods. *(Source: vault Bronze Sample.)*
 
 ## 04 Param-style doc-vs-code mismatch
 
-The vault notes that the docs declare `from`/`to` but the connector uses default `publishDateTimeFrom`/`To`. Live testing on 2026-05-08 confirmed both work. This is a soft inconsistency — likely the API accepts both — but worth fixing for consistency with REMIT/SOSO patterns where docs and code align. *(Source: discrepancy in frontmatter; vault Implementation Delta.)*
+Docs declare `from`/`to`; connector uses default `publishDateTimeFrom`/`To`. API accepts both in practice. *(Source: vault Implementation Delta.)*
 
 ## 05 Pair with `disbsad` STOR rows for attribution
 
-NONBM tells you "how much non-BM STOR generation happened"; `disbsad` STOR-flagged rows (`stor_flag=true`) tell you "which STOR call-offs cost what". Joining the two on (settlement_date, settlement_period) lets you derive implied £/MWh for STOR utilisation — a useful cost-effectiveness metric for the ancillary-services portfolio. *(Source: domain knowledge — STOR settlement chain.)*
+NONBM = volume; DISBSAD `stor_flag=true` = cost. Join on `(date, period)` for implied £/MWh. *(Source: STOR settlement chain.)*
 
 # Related datasets
 

@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Net BSAD, <span class="italic fg-accent">price + volume.</span>
 
-**Lede:** NETBSAD is the Net Balancing Services Adjustment Data — the netted per-period price and volume adjustments applied to SBP/SSP so cash-out prices reflect the cost of balancing actions beyond direct energy dispatch. Computed at the API level from the disaggregated DISBSAD components and the canonical source for net BSAD attribution.
+**Lede:** Per-period netted GB BSAD adjustments — the canonical aggregate for SBP/SSP attribution, BSC settlement reconciliation, and DISBSAD validation.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · NETBSAD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NETBSAD)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - boal
 - market_depth
 - mid
-
-# Overview
-
-1. <code>netbsad</code> is **Net Balancing Services Adjustment Data** — the per-settlement-period netted view of BSAD price and volume adjustments that feed into SBP/SSP derivation. Where `disbsad` is the disaggregated record, NETBSAD is the aggregate already netted. Use it when you want one row per (date, period) carrying the net contribution to the imbalance price; use DISBSAD when you need component-level attribution.
-
-2. Gridflow fetches it from <code>/datasets/NETBSAD</code> using <code>from</code>/<code>to</code> query params (NOT `publishDateTimeFrom`/`To`) per the docs (connector entry at <code>connectors/elexon/endpoints.py L90-96</code>, `from_param="from", to_param="to"`). The <code>NETBSADTransformer</code> derives `timestamp_utc` and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is daily publication with 1-day lag (BSC settlement timetable). Verified against the live API on 2026-05-08; the sample returned the eight finer-grained API fields (`netBuyPriceCostAdjustmentEnergy`, etc.) — note that the transformer's current 4-column rename mapping does NOT cover these names, so fresh bronze produces silver with the four adjustment columns null. This is documented as a Phase-7 mini-recon candidate in the frontmatter.
 
 # Sample chart
 
@@ -163,23 +155,23 @@ print(combo.tail(10))
 
 ## 01 Column-mapping incomplete vs live API
 
-The transformer renames `netBuyPriceAdjustment` / `netSellPriceAdjustment` / `netBuyVolumeAdjustment` / `netSellVolumeAdjustment`, but the live API on 2026-05-08 returns finer-grained fields (`netBuyPriceCostAdjustmentEnergy`, `netBuyPriceVolumeAdjustmentEnergy`, etc.). Fresh bronze produces silver with all four NETBSAD columns null. This is documented as a Phase-7 mini-recon candidate. *(Source: discrepancy in frontmatter; vault Bronze Sample vs `silver/elexon/netbsad.py L55-62`.)*
+Transformer renames four `net*Adjustment` fields; live API now returns eight finer-grained (`netBuyPriceCostAdjustmentEnergy`, etc.). Fresh bronze silver has nulls. *(Source: `silver/elexon/netbsad.py L55-62`.)*
 
 ## 02 No Pydantic schema in `schemas/elexon.py`
 
-Like DISBSAD and the other indicated/aggregate datasets, NETBSAD has no dedicated Pydantic class. Silver shape is defined by `NETBSADTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no NETBSAD class.)*
+No `ElexonNETBSAD` class; shape lives in `NETBSADTransformer.output_cols`. *(Source: `silver/elexon/netbsad.py`.)*
 
 ## 03 Sum of DISBSAD = NETBSAD
 
-By construction, `disbsad.volume` summed per `(settlement_date, settlement_period)` equals the NETBSAD net volume for the same period. Don't sum NETBSAD across components by joining to DISBSAD — you'll double-count. *(Source: vault Known Issues; vault Overview — "Computed from the disaggregated DISBSAD components".)*
+DISBSAD `volume` summed per `(date, period)` equals NETBSAD net volume. Joining adds double-counting. *(Source: BSC reconciliation.)*
 
 ## 04 `from`/`to` query params, not `publishDateTimeFrom`/`To`
 
-Like DISBSAD, BOALF, and MID, NETBSAD uses `from`/`to` parameters. Connector overrides via `from_param="from", to_param="to"`. Wrong param names get silently ignored. *(Source: `connectors/elexon/endpoints.py L94-95`.)*
+Connector overrides via `from_param="from"`. Wrong names return the default ~24h window. *(Source: `connectors/elexon/endpoints.py L94-95`.)*
 
 ## 05 Sell adjustments are negative by convention
 
-When non-null, `net_sell_price_adjustment` and `net_sell_volume_adjustment` are negative because they represent the SO selling power back. Don't take absolute values without thinking about which direction the adjustment is from. *(Source: cross-reference with DISBSAD sign convention.)*
+`net_sell_*_adjustment` columns are negative (SO selling). Don't take absolute values without direction awareness. *(Source: BSAD sign convention.)*
 
 # Related datasets
 

@@ -29,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** GB reliability metrics, <span class="italic fg-accent">day-ahead.</span>
 
-**Lede:** LOLPDRM publishes two reliability signals per settlement period: Loss of Load Probability (LOLP, dimensionless 0..1) — the probability that demand exceeds available generation — and De-Rated Margin (DRM, MW) — the MW headroom above expected demand after de-rating intermittent capacity. Together they are the canonical day-ahead reliability signals for GB capacity-adequacy work.
+**Lede:** Half-hourly GB loss-of-load probability and de-rated margin — the canonical day-ahead signals for capacity adequacy, reliability alerts, and stress-period analysis.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · LOLPDRM](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/LOLPDRM)
 
@@ -60,14 +60,6 @@ checked_at: 2026-05-20T00:00:00Z
 - fou2t14d
 - uou2t14d
 - inddem
-
-# Overview
-
-1. <code>lolpdrm</code> is **Loss of Load Probability and De-rated Margin** — two reliability metrics published per settlement period for day-ahead delivery. `loss_of_load_probability` is the probability (0..1) that demand exceeds available generation. `derated_margin_mw` is the MW headroom above expected demand after de-rating intermittent capacity (wind, solar) using NESO's de-rating factors.
-
-2. Gridflow fetches it from <code>/datasets/LOLPDRM</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern with a **strict 1-hour chunk cap** (`max_chunk_hours=1`, `connectors/elexon/endpoints.py L233`) — the vendor rejects larger windows. The <code>LOLPDRMTransformer</code> renames `lossOfLoadProbability` → `loss_of_load_probability`, `deratedMargin` → `derated_margin_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is half-hourly publication, day-ahead. Verified against the live API on 2026-05-08; the sample returned `lossOfLoadProbability=0.0` for two adjacent periods — typical under healthy margin conditions. Pair with `melngc` (intra-day margin) and `fou2t14d` (medium-horizon availability) for the full reliability picture. The notable signal is non-zero LOLP, which historically clusters in winter evening peaks during low-wind events.
 
 # Sample chart
 
@@ -162,23 +154,23 @@ print(worst.tail(30))
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like other reliability/indicated datasets, LOLPDRM has no dedicated Pydantic class. Silver shape is defined by `LOLPDRMTransformer.output_cols`. *(Source: `schemas/elexon.py` grep returns no LOLPDRM class.)*
+No `ElexonLOLPDRM` class; shape lives in `LOLPDRMTransformer.output_cols`. *(Source: `silver/elexon/lolpdrm.py`.)*
 
 ## 02 1-hour chunk cap on the API
 
-The connector sets `max_chunk_hours=1` (`connectors/elexon/endpoints.py L233`) because the vendor rejects larger windows for LOLPDRM. Backfills of long ranges therefore make many calls; budget accordingly. Hand-crafted requests with >1-hour ranges may return HTTP 400 or empty data. *(Source: `connectors/elexon/endpoints.py L229-234`.)*
+Connector sets `max_chunk_hours=1`; vendor rejects larger windows. Backfills require many calls. *(Source: `connectors/elexon/endpoints.py L229-234`.)*
 
 ## 03 LOLP is dimensionless 0..1, not a percentage
 
-`loss_of_load_probability` is a probability between 0 and 1, not a percent. A value of `0.01` means 1% chance of demand exceeding generation — already a notable signal in GB context. Don't multiply by 100 before storing. *(Source: vault Known Issues — "LOLP unit: probability (dimensionless 0..1)".)*
+`0.01` = 1% chance, not 1%. Don't multiply by 100. *(Source: vault Known Issues.)*
 
 ## 04 De-rated margin uses NESO's de-rating factors
 
-`derated_margin_mw` is post-derating: wind capacity is scaled down by a wind de-rating factor (typically ~15-20% credit), solar by close to 0% in winter evenings. The number is NESO's published view of effective margin, not raw nameplate. Use it directly; don't try to recompute from `fuelhh` / capacity registers without the same de-rating methodology. *(Source: vault Known Issues — "De-rated margin is post-derating intermittent capacity"; domain knowledge — NESO de-rating publication.)*
+Wind scaled ~15-20%, solar near-zero in winter evenings. Don't recompute from `fuelhh` without matching methodology. *(Source: NESO de-rating publication.)*
 
 ## 05 Vendor dataset header inconsistency
 
-The live API echoes `"dataset": "LOLPDM"` (no trailing R) in record headers while the path is `/datasets/LOLPDRM`. The `dataset` field in bronze is metadata only — the path is what matters. Don't filter bronze on `dataset == "LOLPDRM"`; you'll find zero rows. *(Source: discrepancy in frontmatter; vault Bronze Sample.)*
+API echoes `"dataset": "LOLPDM"` (no trailing R); the path is `LOLPDRM`. Don't filter bronze on `dataset == "LOLPDRM"`. *(Source: vault Bronze Sample.)*
 
 # Related datasets
 

@@ -24,7 +24,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Tagline:** Total GB load, the <span class="italic fg-accent">European view.</span>
 
-**Lede:** ATL is Actual Total Load Per Bidding Zone — one MW number per settlement period covering the entire GB bidding zone, served via the ENTSO-E B0610 series. Used by the EU Transparency Platform as the GB demand input and useful when you need a single load figure stripped of transmission/distribution detail.
+**Lede:** Half-hourly GB total load — the canonical demand series for European comparability, load profiling, and forecast-error analysis.
 
 **Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · ATL](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/ATL)
 
@@ -55,14 +55,6 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - inddem
 - tsdf
-
-# Overview
-
-1. <code>atl</code> is the GB row of the ENTSO-E **B0610 Actual Total Load Per Bidding Zone** series. Each row is one settlement period's realised total load (`total_load_mw`) for the entire GB bidding zone — a single national-scale demand figure with no PSR or geography breakdown. This is what populates the GB cell of pan-European load dashboards.
-
-2. Gridflow fetches it from <code>/datasets/ATL</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> window pattern (connector entry at <code>connectors/elexon/endpoints.py L178-182</code>). The <code>ATLTransformer</code> renames `quantity` → `total_load_mw`, derives `timestamp_utc`, and dedups on `(settlement_date, settlement_period)`. No Pydantic class is declared.
-
-3. Cadence is half-hourly with roughly D+1 publication lag (ENTSO-E revision cycle). Verified against the live API on 2026-05-08. Conceptually overlaps with <code>indo</code> (Initial National Demand Outturn) but ATL is the ENTSO-E-aligned view — same number, different lineage and slightly different timing.
 
 # Sample chart
 
@@ -158,19 +150,19 @@ print(profile)
 
 ## 01 No Pydantic schema in `schemas/elexon.py`
 
-Like `agpt`/`agws`, ATL has no dedicated Pydantic class. The silver-layer shape is defined by `ATLTransformer.output_cols` in `silver/elexon/atl.py L99-103`. Anything that imports `from gridflow.schemas.elexon import ElexonATL` will fail. *(Source: gridflow Implementation Delta; `schemas/elexon.py` grep returns no ATL class.)*
+No `ElexonATL` class; shape lives in `ATLTransformer.output_cols`. Importing `ElexonATL` will fail. *(Source: `silver/elexon/atl.py L99-103`.)*
 
 ## 02 ATL overlaps with `indo` but isn't identical
 
-Both ATL and `indo` (Initial National Demand Outturn) report GB total load per settlement period. ATL is the ENTSO-E-aligned series with its own document revision lineage; `indo` is the BSC-aligned counterpart. Values are usually within ~50 MW but can diverge during demand-disconnection events. Pick one; do not naïvely sum or average them. *(Source: domain knowledge — GB demand reporting genealogy.)*
+ATL is ENTSO-E-lineage, `indo` is BSC-lineage; usually within ~50 MW but can diverge during disconnection events. Pick one. *(Source: GB demand reporting genealogy.)*
 
 ## 03 `document_revision` precedence on dedup
 
-Same `(settlement_date, settlement_period)` can re-appear with a higher `document_revision` if ENTSO-E revises the document. The transformer's `unique(..., keep="last")` keeps whichever row arrived last in the bronze read. For strict bitemporal queries, dedup explicitly on `document_revision desc`. *(Source: `silver/elexon/atl.py L91`; same caveat shape as agpt/agws.)*
+ENTSO-E revisions reappear with higher `document_revision`; transformer's `unique(..., keep="last")` keeps last-read, not max-revision. *(Source: `silver/elexon/atl.py L91`.)*
 
 ## 04 D+1 lag, not real-time
 
-ATL is published a day after settlement. For real-time demand monitoring use `indo` (~5 min lag), `itsdo` (transmission-only), or `inddem` (indicated, day-ahead). ATL is for retrospective demand analysis where ENTSO-E alignment matters. *(Source: vault frontmatter `last_verified: 2026-05-08`; manifest `lag: "1 day"`.)*
+Published a day after settlement. Use `indo` / `itsdo` for fresher views. *(Source: manifest `lag: "1 day"`.)*
 
 # Related datasets
 
