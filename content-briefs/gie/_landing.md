@@ -10,7 +10,7 @@ sources_consulted:
   - gridflow/src/gridflow/connectors/gie/endpoints.py (AGSI_COUNTRIES L14, ALSI_COUNTRIES L17, GIE_MAX_CALLS_PER_MINUTE L24, ENDPOINTS dict L124–179)
   - gridflow/src/gridflow/connectors/gie/client.py (GieConnector — x-key header auth, dual source_name gie_agsi/gie_alsi, retry policy)
   - gridflow/src/gridflow/schemas/gie.py (2 Pydantic classes: GasStorage, LNGTerminal)
-  - "gridflow/src/gridflow/silver/gie/ (2 transformers: agsi.py — 5 classes: GasStorageTransformer, StorageReportsTransformer, AboutListingTransformer, AboutSummaryTransformer, NewsTransformer, NewsItemTransformer, UnavailabilityTransformer; alsi.py — LNGTerminalTransformer)"
+  - "gridflow/src/gridflow/silver/gie/ (2 transformers: agsi.py — 7 classes: GasStorageTransformer, StorageReportsTransformer, AboutListingTransformer, AboutSummaryTransformer, NewsTransformer, NewsItemTransformer, UnavailabilityTransformer; alsi.py — LNGTerminalTransformer)"
   - gridflow-front-end/src/gridflow_front_end/build.py COMING_SOON_VENDORS (two stubs: gie_agsi L134 and gie_alsi L148 — split by sub-product, not yet promoted to REAL_VENDORS)
   - https://agsi.gie.eu (fetched 2026-05-20 — landing page accessible but no machine-readable API docs; vault canonical fallback applied)
   - https://alsi.gie.eu/about (fetched — 404 Not Found; vault canonical fallback applied)
