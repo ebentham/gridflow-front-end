@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - inddem
 - tsdf
 
+# Overview
+
+1. <code>atl</code> is the half-hourly GB total load — Elexon's ENTSO-E-aligned consumption series for the whole transmission system. It underpins demand profiling, day-of-week and weather-correction work, and forecast-error analyses that pair it with <code>ndf</code> or <code>tsdf</code>.
+
+2. Gridflow fetches it from <code>/datasets/ATL</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>ATLTransformer</code> — no Pydantic class; shape is enforced by the transformer's <code>output_cols</code>.
+
+3. Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "GB total load · 7-day snapshot"
 - **Subtitle:** "Sparkline · MW · UTC · week of 6 May 2026"
-- **Seed:** 13
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 42000, "trough": 26000, "noise": 0.04, "seed": 13}`
 - **Toggles:** `24h` / `7d` (active) / `30d`
 
 # Schema

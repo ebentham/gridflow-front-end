@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - fou2t14d
 - uou2t14d
 
+# Overview
+
+1. <code>indgen</code> is the half-hourly day-ahead GB indicated-generation forecast — boundary-attributed and the supply-side companion to <code>inddem</code>. It is the canonical signal for imbalance reconstruction, forecast-error analysis, and zonal attribution.
+
+2. Gridflow fetches it from <code>/datasets/INDGEN</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>INDGENTransformer</code> — no Pydantic class; mirrors <code>inddem</code> precisely except for the column name.
+
+3. Refreshed every 30 minutes with 0 publication lag (day-ahead). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Indicated generation · 24-hour forecast"
 - **Subtitle:** "Sparkline · MW · UTC · forecast for 6 May 2026"
-- **Seed:** 28
+- **Shape:** `flat-baseload`
+- **Params:** `{"mean": 34000, "noise": 0.08, "seed": 28}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

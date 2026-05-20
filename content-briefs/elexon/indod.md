@@ -61,11 +61,20 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - ndfd
 
+# Overview
+
+1. <code>indod</code> is the daily-aggregate GB demand outturn — daily-rolled version of <code>indo</code> for peak-day comparisons, monthly totals, and year-on-year demand trends. One row per <code>settlement_date</code>; no <code>settlement_period</code>.
+
+2. Gridflow fetches it from <code>/datasets/INDOD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>INDODTransformer</code> — no Pydantic class; cadence is genuinely daily-only.
+
+3. Refreshed daily with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Daily GB demand · last 30 days"
 - **Subtitle:** "Horizontal bars · MWh · UTC · April 2026"
+- **Items:** plausible 30-day daily peak-MW bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 14
 - **Toggles:** `30d` (active) / `90d` / `12mo`
 

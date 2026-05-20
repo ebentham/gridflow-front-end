@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - fuelinst
 - mid
 
+# Overview
+
+1. <code>system_prices</code> is the half-hourly GB imbalance cash-out prices (SBP/SSP) and net imbalance volume — settled over a 7-run reconciliation cycle (II → SF → R1 → R2 → R3 → RF → DF). It is the canonical signal for short-term power value, cash-out forecasting, and BSC settlement.
+
+2. Gridflow fetches it from <code>/balancing/settlement/system-prices/{date}</code> using the DATE-path style (date appended at request time). The raw JSON lands in bronze, is validated against <code>ElexonSystemPrice</code>, and written to silver via <code>SystemPriceTransformer</code> — <code>run_type</code> carries reconciliation-run precedence and serves as the PIT field.
+
+3. Refreshed every 30 minutes with hours-to-weeks publication lag (reconciliation-run dependent). Verified against vendor docs on 2026-05-09.
+
 # Sample chart
 
 - **Type:** `priceLadder`
 - **Title:** "SBP & SSP · 24-hour snapshot"
 - **Subtitle:** "Price ladder · £/MWh · UTC · 6 May 2026"
+- **Shape:** (legacy hardcoded — this brief is the gold standard for the default priceLadder path)
 - **Seed:** 7
 - **Toggles:** `24h` (active) / `7d` / `30d`
 

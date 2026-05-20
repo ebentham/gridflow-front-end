@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - fuelinst
 - nonbm
 
+# Overview
+
+1. <code>agws</code> is the half-hourly GB wind and solar generation — the renewables-only B1630 cut, with wind split into onshore and offshore and solar reported separately. It is the canonical source for renewable-only forecast-error analysis, capacity-factor work, and embedded-solar attribution.
+
+2. Gridflow fetches it from <code>/datasets/AGWS</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>AGWSTransformer</code> — same shape as <code>agpt</code> (no Pydantic class) but restricted to wind and solar PSR types.
+
+3. Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `stackedArea`
 - **Title:** "Wind onshore + offshore + solar · 24-hour snapshot"
 - **Subtitle:** "Stacked area · MW · UTC · 6 May 2026"
-- **Seed:** 21
+- **Shape:** `series` (3 explicit renewable layers — wind + solar only)
+- **Series:** `[{"name":"Wind Onshore","color":"#3b6b4b","shape":"diurnal-wind","params":{"mean":3500,"volatility":1200,"persistence":0.75,"seed":21}}, {"name":"Wind Offshore","color":"#5a8aa6","shape":"diurnal-wind","params":{"mean":5200,"volatility":1500,"persistence":0.78,"seed":22}}, {"name":"Solar","color":"#d4a73a","shape":"diurnal-solar","params":{"peak":3800,"peak_hour":12.5,"half_width":5}}]`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

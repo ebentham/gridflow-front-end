@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - inddem
 - ndf
 
+# Overview
+
+1. <code>indo</code> is the half-hourly GB realised demand — Elexon's BSC-aligned initial-demand-outturn signal published shortly after each settlement period closes. It is the canonical outturn series for forecast-error studies, demand profiling, and embedded-generation derivation when paired with <code>itsdo</code>.
+
+2. Gridflow fetches it from <code>/datasets/INDO</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>INDOTransformer</code> — no Pydantic class; shape is enforced by the transformer's <code>output_cols</code>.
+
+3. Refreshed every 30 minutes with ~5 minute publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "GB demand outturn · 24-hour profile"
 - **Subtitle:** "Sparkline · MW · UTC · 6 May 2026"
-- **Seed:** 11
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 42000, "trough": 26000, "noise": 0.04, "seed": 11}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

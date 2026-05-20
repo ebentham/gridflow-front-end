@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - nonbm
 - fuelinst
 
+# Overview
+
+1. <code>freq</code> is the second-by-second GB system frequency — the high-resolution telemetry for frequency-response models, RoCoF estimation, and ancillary-services validation. Statutory band is 49.5–50.5 Hz; the schema admits 49.0–51.0 to preserve genuine events.
+
+2. Gridflow fetches it from <code>/datasets/FREQ</code> using the <code>measurementDateTimeFrom</code> / <code>measurementDateTimeTo</code> pattern (post V2-FIX-01 — earlier bronze captured "latest 5761 samples" from the buggy publish-window). The raw JSON lands in bronze, is validated against <code>ElexonFrequency</code>, and written to silver via <code>FreqTransformer</code>.
+
+3. Published hourly with ~1 min lag (sample interval ~2 s). Verified against vendor docs on 2026-05-09.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "System frequency · 24-hour snapshot"
 - **Subtitle:** "Sparkline · Hz · UTC · 6 May 2026"
-- **Seed:** 50
+- **Shape:** `frequency`
+- **Params:** `{"mean": 50, "amplitude": 0.15, "noise": 0.03, "seed": 50}`
 - **Toggles:** `1h` / `24h` (active) / `7d`
 
 # Schema

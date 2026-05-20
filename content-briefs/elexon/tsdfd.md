@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - fou2t14d
 - uou2t14d
 
+# Overview
+
+1. <code>tsdfd</code> is the daily-published 2-to-14-day-ahead GB transmission demand forecast — the medium-horizon companion to <code>tsdf</code> for forward transmission margin, transmission planning, and embedded-generation projections. Daily-aggregate granularity, no settlement-period concept.
+
+2. Gridflow fetches it from <code>/datasets/TSDFD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>TSDFDTransformer</code> — keyed on <code>forecast_date</code> rather than settlement-date because the horizon is daily, not per-period.
+
+3. Refreshed daily with 12-day horizon and 0 publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Transmission demand forecast · 14-day horizon"
 - **Subtitle:** "Sparkline · MW · UTC · forecast delivery dates · published 1 Apr 2026"
-- **Seed:** 30
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 38500, "trough": 22500, "noise": 0.03, "seed": 30}`
 - **Toggles:** `daily forecast` (active) / `vs NDFD spread`
 
 # Schema

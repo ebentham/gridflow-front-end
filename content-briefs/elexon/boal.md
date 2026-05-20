@@ -61,11 +61,20 @@ checked_at: 2026-05-20T00:00:00Z
 - netbsad
 - system_prices
 
+# Overview
+
+1. <code>boal</code> is the per-BMU GB balancing-mechanism acceptance feed — every accepted bid or offer instruction, keyed on <code>(settlement_date, settlement_period, bm_unit_id, acceptance_number)</code>. It is the canonical audit trail for BSC settlement, BMU dispatch modelling, and STOR analysis. The Elexon API now serves it as <code>BOALF</code>; gridflow keeps the legacy slug.
+
+2. Gridflow fetches it from <code>/datasets/BOALF</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonBOAL</code>, and written to silver via <code>BOALTransformer</code>.
+
+3. Refreshed hourly with ~10 minute publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Top 10 BMUs by acceptance volume · last 24 hours"
 - **Subtitle:** "Horizontal bars · |MW| accepted · UTC · 6 May 2026"
+- **Items:** plausible top-10 BMUs by accepted MW — see Commit 3 inline JSON in the rendered page
 - **Seed:** 8
 - **Toggles:** `24h` (active) / `7d` / `30d`
 

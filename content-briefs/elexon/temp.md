@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - inddem
 - bmunits_reference
 
+# Overview
+
+1. <code>temp</code> is the daily GB ambient temperature alongside seasonal climatology references — published daily by Elexon. It is the canonical input for demand-vs-weather regression, forecast calibration, and deviation-from-normal framing of load.
+
+2. Gridflow fetches it from <code>/datasets/TEMP</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>TempTransformer</code> — no Pydantic class; the API's <code>measurementDate</code> is internally renamed but not surfaced in silver output (<code>timestamp_utc</code> is the canonical time key).
+
+3. Refreshed daily with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "GB ambient temperature · last 90 days"
 - **Subtitle:** "Sparkline · degrees C · UTC · April–May 2026"
-- **Seed:** 15
+- **Shape:** `diurnal-temp`
+- **Params:** `{"peak": 18, "trough": 6, "noise": 0.5, "seed": 15}`
 - **Toggles:** `30d` / `90d` (active) / `12mo`
 
 # Schema

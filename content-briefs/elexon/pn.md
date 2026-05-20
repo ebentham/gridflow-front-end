@@ -51,11 +51,20 @@ checked_at: 2026-05-20T00:00:00Z
 - fuelhh
 - system_prices
 
+# Overview
+
+1. <code>pn</code> is the per-BMU GB physical notifications feed — every unit's declared output profile per settlement period, submitted pre-gate-closure. It is the canonical baseline for dispatch modelling, redispatched-MW derivation (PN vs <code>boal</code>), and PN-vs-outturn validation.
+
+2. Gridflow fetches it from <code>/datasets/PN</code> using the SETTLEMENT-DATE-PERIOD style (period-iterating fetch). The raw JSON lands in bronze, is validated against <code>ElexonPN</code>, and written to silver via <code>PNTransformer</code> — about 2.5k rows per period.
+
+3. Refreshed hourly with ~10 minute publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Top 15 BMUs by absolute PN delta · last 24h"
 - **Subtitle:** "Horizontal bars · |level_to − level_from| MW · UTC · 6 May 2026"
+- **Items:** plausible top BMUs by |PN delta| — see Commit 3 inline JSON in the rendered page
 - **Seed:** 9
 - **Toggles:** `24h` (active) / `7d` / `30d`
 

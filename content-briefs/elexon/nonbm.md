@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - system_prices
 - freq
 
+# Overview
+
+1. <code>nonbm</code> is the half-hourly GB non-BM STOR generation — the reserve fleet's contribution outside the BM mechanism. It is the canonical observation series for stress-period detection, frequency-response attribution, and STOR cost analysis.
+
+2. Gridflow fetches it from <code>/datasets/NONBM</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>NONBMTransformer</code> — no Pydantic class.
+
+3. Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Non-BM STOR generation · last 30 days"
 - **Subtitle:** "Sparkline · MW · UTC · April 2026"
-- **Seed:** 26
+- **Shape:** `volatile-spikes`
+- **Params:** `{"base": 40, "spike_prob": 0.04, "spike_height": 350, "noise": 0.1, "seed": 26}`
 - **Toggles:** `24h` / `7d` / `30d` (active)
 
 # Schema

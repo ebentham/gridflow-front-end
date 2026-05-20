@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - fou2t14d
 - uou2t14d
 
+# Overview
+
+1. <code>windfor</code> is the per-period GB wind generation forecast — published hourly with both initial and latest revisions per delivery period. It is the canonical signal for forecast-error analysis (paired with the WIND row of <code>fuelhh</code>), load-net-wind modelling, and intra-day revision tracking.
+
+2. Gridflow fetches it from <code>/datasets/WINDFOR</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonWindForecast</code>, and written to silver via <code>WindForecastTransformer</code> — <code>issue_time</code> (UTC-cast <code>publishTime</code>) is the bitemporal PIT field.
+
+3. Refreshed hourly with 0 publication lag (forward-looking). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "GB wind forecast vs actual · 24-hour overlay"
 - **Subtitle:** "Sparkline · MW · UTC · forecast for 6 May 2026"
-- **Seed:** 24
+- **Shape:** `diurnal-wind`
+- **Params:** `{"mean": 9500, "volatility": 2200, "persistence": 0.85, "seed": 24}`
 - **Toggles:** `latest` (active) / `initial`
 
 # Schema

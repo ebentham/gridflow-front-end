@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - tsdf
 - tsdfd
 
+# Overview
+
+1. <code>itsdo</code> is the half-hourly GB transmission-system demand outturn — <code>indo</code>'s transmission-only counterpart that excludes embedded generation. It is the canonical outturn for transmission imbalance, embedded-generation derivation (as <code>indo</code> − <code>itsdo</code>), and TSDF forecast-error analysis.
+
+2. Gridflow fetches it from <code>/datasets/ITSDO</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>ITSDOTransformer</code> — no Pydantic class; same shape gap as <code>indo</code>.
+
+3. Refreshed every 30 minutes with ~5 minute publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Transmission demand · 24-hour profile"
 - **Subtitle:** "Sparkline · MW · UTC · 6 May 2026"
-- **Seed:** 19
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 38000, "trough": 22000, "noise": 0.04, "seed": 19}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

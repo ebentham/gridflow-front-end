@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - uou2t14d
 - inddem
 
+# Overview
+
+1. <code>lolpdrm</code> is the half-hourly GB loss-of-load probability and de-rated margin — paired reliability metrics published day-ahead. It is the canonical day-ahead signal for capacity-adequacy reliability alerts and stress-period analysis; the de-rated companion to <code>melngc</code>.
+
+2. Gridflow fetches it from <code>/datasets/LOLPDRM</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (max chunk = 1 hour). The raw JSON lands in bronze and is written to the silver parquet partition via <code>LOLPDRMTransformer</code> — no Pydantic class.
+
+3. Refreshed every 30 minutes with 0 publication lag (day-ahead). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "De-rated margin · 7-day day-ahead view"
 - **Subtitle:** "Sparkline · MW · UTC · week of 6 May 2026"
-- **Seed:** 23
+- **Shape:** `flat-baseload`
+- **Params:** `{"mean": 6800, "noise": 0.18, "seed": 23}`
 - **Toggles:** `24h` / `7d` (active) / `30d`
 
 # Schema

@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - fou2t14d
 - uou2t14d
 
+# Overview
+
+1. <code>ndfd</code> is the daily-published 2-to-14-day-ahead GB demand forecast — the medium-horizon companion to <code>ndf</code> for forward margin, spark-spread analytics, and capacity-adequacy planning.
+
+2. Gridflow fetches it from <code>/datasets/NDFD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonDemandForecast</code> (shared schema with NDF), and written to silver via the same <code>DemandForecastTransformer</code> — NDFD payloads lack <code>settlementPeriod</code>, so the transformer fills with placeholder <code>1</code>.
+
+3. Refreshed daily with 12-day horizon and 0 publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "GB demand forecast · 14-day horizon"
 - **Subtitle:** "Sparkline · MW · UTC · forecast delivery dates · published 1 Apr 2026"
-- **Seed:** 32
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 42000, "trough": 27000, "noise": 0.03, "seed": 32}`
 - **Toggles:** `daily peak` (active) / `daily mean`
 
 # Schema

@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - windfor
 - nonbm
 
+# Overview
+
+1. <code>fuelhh</code> is the half-hourly GB generation outturn aggregated by fuel type — the realised MWh in each settlement period split by fuel category (CCGT, coal, nuclear, wind, solar, biomass, interconnectors). It is the canonical observation series for the GB generation mix and underpins capacity-factor analytics and emissions reporting.
+
+2. Gridflow fetches it from <code>/datasets/FUELHH</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against the <code>ElexonFuelHH</code> Pydantic schema, and written to the silver parquet partition via <code>FuelHHTransformer</code>.
+
+3. Refreshed every 30 minutes with ~5 minute publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `stackedArea`
 - **Title:** "GB generation mix · 24-hour snapshot"
 - **Subtitle:** "Stacked area · MW · UTC · 6 May 2026"
+- **Shape:** (legacy hardcoded GB fuel mix — no params; this brief is the gold standard for the default stackedArea path)
 - **Seed:** 42
 - **Toggles:** `24h` (active) / `7d` / `30d`
 

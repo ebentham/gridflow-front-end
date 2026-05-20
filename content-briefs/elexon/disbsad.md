@@ -61,11 +61,20 @@ checked_at: 2026-05-20T00:00:00Z
 - pn
 - nonbm
 
+# Overview
+
+1. <code>disbsad</code> is the disaggregated GB non-BM balancing-services adjustment feed — one row per action, capturing volumes and costs for ESO services outside the BM. It is the canonical row-level reference for cost attribution, STOR analysis, and BSC settlement reconciliation.
+
+2. Gridflow fetches it from <code>/datasets/DISBSAD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonDISBSAD</code>, and written to silver via <code>DISBSADTransformer</code> — the vendor's renamed <code>service</code> field is not yet mapped (vault refers to <code>component</code>).
+
+3. Refreshed daily with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Daily DISBSAD cost by component · last 30 days"
 - **Subtitle:** "Horizontal bars · GBP · UTC · April 2026"
+- **Items:** plausible daily cost-by-component bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 17
 - **Toggles:** `cost` (active) / `volume (MWh)`
 

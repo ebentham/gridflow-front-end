@@ -61,11 +61,20 @@ checked_at: 2026-05-20T00:00:00Z
 - boal
 - ndfd
 
+# Overview
+
+1. <code>uou2t14d</code> is the daily-published per-BMU 2-to-14-day-ahead availability — the canonical unit-level declaration that aggregates to <code>fou2t14d</code> when summed by fuel. It is used for outage-impact analysis, redispatch modelling, and reconciliation with the BMU reference list.
+
+2. Gridflow fetches it from <code>/datasets/UOU2T14D</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (max chunk = 4 hours). The raw JSON lands in bronze and is written to the silver parquet partition via <code>UOU2T14DTransformer</code> — fuel_type is dropped from silver output, so fuel context must come from <code>bmunits_reference</code>.
+
+3. Refreshed daily with 0 publication lag (forward-looking). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `stackedArea`
 - **Title:** "BMU availability by fuel · 14-day forward"
 - **Subtitle:** "Stacked area · MW · forecast delivery date · published 6 May 2026"
+- **Shape:** (legacy hardcoded GB fuel mix — illustrative when BMU rows are aggregated to fuel)
 - **Seed:** 35
 - **Toggles:** `14d` (active) / `7d` / `2d`
 

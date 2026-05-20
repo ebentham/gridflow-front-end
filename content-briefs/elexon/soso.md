@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - remit
 - fuelhh
 
+# Overview
+
+1. <code>soso</code> is the per-trade GB interconnector SO-SO price feed — every TSO-to-TSO transaction (UK + 8 cross-border interconnectors). It is the canonical reference for cross-border arbitrage, interconnector flow analysis, and TSO-trade cost attribution.
+
+2. Gridflow fetches it from <code>/datasets/SOSO</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (max chunk = 23 hours). The raw JSON lands in bronze and is written to the silver parquet partition via <code>SOSOTransformer</code> — no Pydantic class; output is 15 columns covering contract, trader, TSO identification, and trade volumes.
+
+3. Refreshed daily with 1 day publication lag. Verified against vendor docs on 2026-05-09.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "SOSO trade volume by interconnector · last 30 days"
 - **Subtitle:** "Horizontal bars · MW × trades · UTC · April 2026"
+- **Items:** plausible MW-trades-per-interconnector bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 22
 - **Toggles:** `imports` (active) / `exports`
 

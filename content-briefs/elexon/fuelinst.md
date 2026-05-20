@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - windfor
 - freq
 
+# Overview
+
+1. <code>fuelinst</code> is the five-minute GB generation outturn by fuel type — the near-real-time companion to <code>fuelhh</code>'s half-hourly aggregate. It is the canonical signal for live stack monitoring, intra-period dispatch analysis, and validation of the FUELHH roll-up.
+
+2. Gridflow fetches it from <code>/datasets/FUELINST</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>FuelInstTransformer</code> — keyed on <code>(timestamp_utc, fuel_type)</code> rather than settlement-period, reflecting its 5-minute cadence.
+
+3. Refreshed every ~5 minutes with ~1 minute publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `stackedArea`
 - **Title:** "GB generation mix · 5-minute resolution"
 - **Subtitle:** "Stacked area · MW · UTC · last 24h"
+- **Shape:** (legacy hardcoded GB fuel mix — same template as fuelhh; suits 5-minute series)
 - **Seed:** 60
 - **Toggles:** `1h` / `24h` (active) / `7d`
 

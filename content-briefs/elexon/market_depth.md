@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - boal
 - imbalngc
 
+# Overview
+
+1. <code>market_depth</code> is the per-period GB balancing-market summary — Elexon's <code>/balancing/settlement/market-depth/{date}</code> aggregate that folds four datasets into one liquidity-and-headroom snapshot. It is the canonical reference for cash-out cost analysis, daily volume totals, and BSC cross-checks.
+
+2. Gridflow fetches it via DATE-path style (date appended to URL). The raw JSON lands in bronze and is written to the silver parquet partition via <code>MarketDepthTransformer</code> — no Pydantic class; output is 12 columns including four volume aggregates.
+
+3. Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Daily accepted bid + offer volume · last 30 days"
 - **Subtitle:** "Horizontal bars · MWh · UTC · April 2026"
+- **Items:** plausible daily accepted-bid+offer bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 16
 - **Toggles:** `accepted` (active) / `total bid/offer`
 

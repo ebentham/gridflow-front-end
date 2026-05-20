@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - nonbm
 - soso
 
+# Overview
+
+1. <code>remit</code> is the per-asset GB outage and unavailability messages feed — REMIT Urgent Market Messages (UMMs) with full revision tracking. It is the canonical record for what's offline, capacity at risk, and outage attribution by fuel category.
+
+2. Gridflow fetches it from <code>/datasets/REMIT</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern (max chunk = 23 hours). The raw JSON lands in bronze and is written to the silver parquet partition via <code>REMITTransformer</code> in <strong>append-only</strong> mode — 25 columns; every revision is preserved.
+
+3. Refreshed as messages publish; PIT field is <code>revision_number</code>. Verified against vendor docs on 2026-05-09.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Active REMIT outages by fuel type · current snapshot"
 - **Subtitle:** "Horizontal bars · unavailable MW · UTC · 2026-05-08"
+- **Items:** plausible unavailable-MW-by-fuel bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 36
 - **Toggles:** `active` (active) / `planned upcoming`
 

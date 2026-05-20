@@ -61,11 +61,20 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - ndfd
 
+# Overview
+
+1. <code>fou2t14d</code> is the daily-published 2-to-14-day-ahead GB generation availability by fuel type — the canonical forward declaration for forward margin work, fuel-mix projections, and outage-cycle tracking on a weekly horizon.
+
+2. Gridflow fetches it from <code>/datasets/FOU2T14D</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>FOU2T14DTransformer</code> (no Pydantic class) in <strong>append-only</strong> mode — every revision is preserved.
+
+3. Refreshed daily (each publish replays the full 14-day window). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `stackedArea`
 - **Title:** "2-14 day availability by fuel · forward snapshot"
 - **Subtitle:** "Stacked area · MW · forecast delivery date · published 6 May 2026"
+- **Shape:** (legacy hardcoded GB fuel mix — default suits forward-availability mix)
 - **Seed:** 33
 - **Toggles:** `14d` (active) / `7d` / `2d`
 

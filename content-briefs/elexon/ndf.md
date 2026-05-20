@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - inddem
 - indo
 
+# Overview
+
+1. <code>ndf</code> is the daily-published day-ahead GB national demand forecast — the canonical load-forecasting benchmark for forecast-error analysis (paired with <code>indo</code> or <code>atl</code>), bitemporal revision tracking, and ramp planning.
+
+2. Gridflow fetches it from <code>/datasets/NDF</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonDemandForecast</code>, and written to silver via <code>DemandForecastTransformer</code> — <code>issue_time</code> (derived from <code>publishTime</code>) is the bitemporal PIT field.
+
+3. Refreshed daily with 0 publication lag (forward-looking). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "GB national demand forecast · day-ahead 24-hour"
 - **Subtitle:** "Sparkline · MW · UTC · forecast for 7 May 2026"
-- **Seed:** 31
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 42500, "trough": 26500, "noise": 0.03, "seed": 31}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

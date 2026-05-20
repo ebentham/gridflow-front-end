@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - boal
 - pn
 
+# Overview
+
+1. <code>mid</code> is the per-period GB market index prices and volumes — published hourly by data providers (APX, N2EX). It is the canonical wholesale anchor for imbalance-premium analysis, cash-out reconciliation, and APX/N2EX liquidity comparison.
+
+2. Gridflow fetches it from <code>/datasets/MID</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze, is validated against <code>ElexonMID</code>, and written to silver via <code>MIDTransformer</code> — vendor field renames mean <code>data_provider_id</code> and <code>market_index_price</code> currently null in fresh bronze; remap pending.
+
+3. Refreshed hourly with ~10 minute lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "APX market index price · 7-day snapshot"
 - **Subtitle:** "Sparkline · £/MWh · UTC · week of 6 May 2026"
-- **Seed:** 12
+- **Shape:** `diurnal-price`
+- **Params:** `{"base": 80, "morning_peak": 95, "evening_peak": 125, "trough": 50, "noise": 0.05, "seed": 12}`
 - **Toggles:** `24h` / `7d` (active) / `30d`
 
 # Schema

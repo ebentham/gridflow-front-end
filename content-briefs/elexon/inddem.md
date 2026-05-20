@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - ndfd
 
+# Overview
+
+1. <code>inddem</code> is the half-hourly day-ahead GB indicated-demand forecast — boundary-attributed (one row per zonal boundary) for imbalance reconstruction, forecast-error analysis, and zonal accounting. The companion to <code>indgen</code> on the supply side.
+
+2. Gridflow fetches it from <code>/datasets/INDDEM</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>INDDEMTransformer</code> — no Pydantic class; <code>boundary</code> column carries zonal attribution.
+
+3. Refreshed every 30 minutes with 0 publication lag (day-ahead). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Indicated demand · 24-hour forecast"
 - **Subtitle:** "Sparkline · MW · UTC · forecast for 6 May 2026"
-- **Seed:** 27
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 42000, "trough": 26000, "noise": 0.04, "seed": 27}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

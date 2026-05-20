@@ -56,11 +56,20 @@ checked_at: 2026-05-20T00:00:00Z
 - fuelhh
 - agpt
 
+# Overview
+
+1. <code>bmunits_reference</code> is the GB BM-unit registry — the canonical lookup for unit metadata (lead party, fuel type, registered capacity, NGC code) referenced by every per-BMU dataset like <code>boal</code>, <code>pn</code>, and <code>uou2t14d</code>.
+
+2. Gridflow fetches it from <code>/reference/bmunits/all</code> using the NO-PARAMS style (single full-snapshot pull, no pagination). The raw JSON lands in bronze, is validated against <code>ElexonBMUnit</code>, and written to silver via <code>BMUnitsTransformer</code> — single non-partitioned reference file.
+
+3. Refreshed weekly with 0 publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "BM units by fuel type · current snapshot"
 - **Subtitle:** "Horizontal bars · count of registered units · 2026-05-08"
+- **Items:** plausible BMU-count-by-fuel bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 5
 - **Toggles:** `count` (active) / `capacity (MW)`
 

@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - ndf
 - system_prices
 
+# Overview
+
+1. <code>imbalngc</code> is the half-hourly GB indicated imbalance — National Grid's forward view of supply-demand mismatch for each settlement period. It is the canonical day-ahead signal for gate-closure trading, forecast-error analysis, and cash-out attribution.
+
+2. Gridflow fetches it from <code>/datasets/IMBALNGC</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>ImbalNGCTransformer</code> — no Pydantic class; same gap as the rest of the indicated suite.
+
+3. Refreshed every 30 minutes with 0 publication lag (day-ahead). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Indicated imbalance · 24-hour forecast"
 - **Subtitle:** "Sparkline · MWh · UTC · forecast for 6 May 2026"
-- **Seed:** 41
+- **Shape:** `volatile-spikes`
+- **Params:** `{"base": 80, "spike_prob": 0.06, "spike_height": 600, "noise": 0.15, "seed": 41}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

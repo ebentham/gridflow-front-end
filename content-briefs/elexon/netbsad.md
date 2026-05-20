@@ -61,11 +61,20 @@ checked_at: 2026-05-20T00:00:00Z
 - market_depth
 - mid
 
+# Overview
+
+1. <code>netbsad</code> is the per-period netted GB BSAD adjustments — buy and sell price/volume aggregates that feed cash-out price formation. It is the canonical reference for SBP/SSP attribution, BSC settlement reconciliation, and DISBSAD totals validation.
+
+2. Gridflow fetches it from <code>/datasets/NETBSAD</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>NETBSADTransformer</code> — no Pydantic class; the live API now returns 8 finer-grained fields where the transformer maps only 4, so fresh bronze will produce silver with the 4 mapped columns null until remapping.
+
+3. Refreshed daily with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `barsH`
 - **Title:** "Daily NETBSAD price adjustment · last 30 days"
 - **Subtitle:** "Horizontal bars · £/MWh · UTC · April 2026"
+- **Items:** plausible daily price-adjustment bars — see Commit 3 inline JSON in the rendered page
 - **Seed:** 18
 - **Toggles:** `buy adjustment` (active) / `sell adjustment`
 

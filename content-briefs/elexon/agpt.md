@@ -57,12 +57,21 @@ checked_at: 2026-05-20T00:00:00Z
 - windfor
 - nonbm
 
+# Overview
+
+1. <code>agpt</code> is the half-hourly GB generation by ENTSO-E Production-Source-of-Resource (PSR) type — the European B1620 cut that splits Wind into onshore and offshore, separates pumped storage from non-pumped hydro, and pulls each fuel into its own row. It is the canonical source for capacity factors and pan-European comparability.
+
+2. Gridflow fetches it from <code>/datasets/AGPT</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>AGPTTransformer</code> — no Pydantic class; shape is enforced by the transformer's <code>output_cols</code> (~25 PSR types per period).
+
+3. Refreshed every 30 minutes with 1 day publication lag. Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `stackedArea`
 - **Title:** "Generation per PSR type · 24-hour snapshot"
 - **Subtitle:** "Stacked area · MW · UTC · 6 May 2026"
-- **Seed:** 42
+- **Shape:** `series` (explicit PSR layers, not the default GB fuel mix)
+- **Series:** `[{"name":"Wind Onshore","color":"#3b6b4b","shape":"diurnal-wind","params":{"mean":3500,"volatility":1200,"persistence":0.75,"seed":42}}, {"name":"Wind Offshore","color":"#5a8aa6","shape":"diurnal-wind","params":{"mean":5200,"volatility":1500,"persistence":0.78,"seed":43}}, {"name":"Solar","color":"#d4a73a","shape":"diurnal-solar","params":{"peak":3800,"peak_hour":12.5,"half_width":5}}, {"name":"Biomass","color":"#c9a96e","shape":"flat-baseload","params":{"mean":2200,"noise":0.04}}, {"name":"Pumped Storage","color":"#86627d","shape":"bipolar-flow","params":{"amplitude":900,"period":12,"noise":0.2}}]`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

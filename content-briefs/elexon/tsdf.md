@@ -56,12 +56,21 @@ checked_at: 2026-05-20T00:00:00Z
 - ndfd
 - inddem
 
+# Overview
+
+1. <code>tsdf</code> is the half-hourly day-ahead GB transmission-only demand forecast — the transmission-system counterpart to <code>ndf</code>, used for transmission scheduling, ITSDO forecast-error analysis, and embedded-generation derivation.
+
+2. Gridflow fetches it from <code>/datasets/TSDF</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>TSDFTransformer</code> — no Pydantic class; <code>boundary</code> column carries zonal attribution.
+
+3. Refreshed daily with 0 publication lag (forward-looking, per-period). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Transmission demand forecast · 24-hour day-ahead"
 - **Subtitle:** "Sparkline · MW · UTC · forecast for 6 May 2026"
-- **Seed:** 29
+- **Shape:** `diurnal-load`
+- **Params:** `{"peak": 38000, "trough": 22000, "noise": 0.03, "seed": 29}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema

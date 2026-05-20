@@ -61,12 +61,21 @@ checked_at: 2026-05-20T00:00:00Z
 - indgen
 - fou2t14d
 
+# Overview
+
+1. <code>melngc</code> is the half-hourly GB indicated margin — the non-de-rated headroom signal published day-ahead. It is the canonical capacity-adequacy series for stress-period detection and the unreserved counterpart to <code>lolpdrm</code>'s de-rated margin.
+
+2. Gridflow fetches it from <code>/datasets/MELNGC</code> using the <code>publishDateTimeFrom</code> / <code>publishDateTimeTo</code> pattern. The raw JSON lands in bronze and is written to the silver parquet partition via <code>MelNGCTransformer</code> — no Pydantic class; the API's optional <code>boundary</code> param is not currently surfaced.
+
+3. Refreshed every 30 minutes with 0 publication lag (day-ahead). Verified against vendor docs on 2026-05-08.
+
 # Sample chart
 
 - **Type:** `sparkline`
 - **Title:** "Indicated margin · 24-hour day-ahead view"
 - **Subtitle:** "Sparkline · MW · UTC · forecast for 6 May 2026"
-- **Seed:** 39
+- **Shape:** `flat-baseload`
+- **Params:** `{"mean": 8500, "noise": 0.12, "seed": 39}`
 - **Toggles:** `24h` (active) / `7d` / `30d`
 
 # Schema
