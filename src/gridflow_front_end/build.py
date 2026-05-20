@@ -49,6 +49,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = REPO_ROOT / "templates"
 SITE_DIR = REPO_ROOT / "site" / "hifi"
 DEFAULT_VAULT = REPO_ROOT / "vault"
+AUTHORED_DIR = REPO_ROOT / "authored-pages"
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -760,11 +761,16 @@ def build_vendor(env: Environment, vendor_id: str, vault_path: Path, out_root: P
 
     n_pages = 0
     for _path, doc in docs:
-        html = render_dataset(env, doc, manifest)
         out_path = out_dataset_dir / f"{doc.slug}.html"
-        out_path.write_text(html, encoding="utf-8")
+        authored = AUTHORED_DIR / vendor_id / f"{doc.slug}.html"
+        if authored.exists():
+            shutil.copy(authored, out_path)
+            print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html (authored)")
+        else:
+            html = render_dataset(env, doc, manifest)
+            out_path.write_text(html, encoding="utf-8")
+            print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html")
         n_pages += 1
-        print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html")
 
     hub_html = render_vendor_hub(env, manifest, vendor_id, vendor_label, vendor_cfg["vendor_meta"])
     hub_path = out_root / "data-sources" / f"{vendor_id}.html"
