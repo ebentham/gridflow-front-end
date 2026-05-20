@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../../assets/theme.css" />
   <style>
     /* ── schema table ── */
-    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
     .schema-table thead th {
       text-align: left;
       font-family: var(--sans);
@@ -22,16 +22,14 @@
       padding: 10px 12px;
       border-top: 1px solid var(--ink);
       border-bottom: 1px solid var(--ink);
-      background: var(--paper-deep);
-    }
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
     .schema-table td {
       padding: 12px 12px;
       border-bottom: 1px solid var(--rule);
       vertical-align: top;
-      font-size: 13px;
-    }
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
     .schema-table tr:hover td { background: var(--paper-card); }
-    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
     .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
     .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
     .schema-table .pk-badge  {
@@ -73,7 +71,7 @@
     /* ── sidebar nav ── */
     .page-layout {
       display: grid;
-      grid-template-columns: 220px 1fr;
+      grid-template-columns: 220px minmax(0, 1fr);
       gap: 0;
       align-items: start;
     }
