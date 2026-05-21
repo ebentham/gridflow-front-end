@@ -2,8 +2,17 @@
 source: elexon
 dataset_key: netbsad
 vendor: Elexon BMRS
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 layer_coverage: bronze, silver
+v2_fix_history:
+  - date: 2026-05-20
+    phase: gridflow-G5-W1.1
+    pr: https://github.com/EBentham/gridflow/pull/7
+    change: silver transformer now emits 8 finer-grained adjustment columns
+  - date: 2026-05-20
+    phase: gridflow-G5-W4
+    pr: https://github.com/EBentham/gridflow/pull/7
+    change: ElexonNETBSAD Pydantic schema declared
 ---
 
 # Elexon - Net Balancing Services Adjustment Data (`NETBSAD`)
@@ -104,21 +113,34 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/netbsad/year=YYYY/month=MM/netbsad_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.netbsad.NETBSADTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonNETBSAD` (added 2026-05-20, gridflow G5-W4).
 **Dedup key**: `(settlement_date, settlement_period)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
 ### Silver schema
+
+The transformer emits **both** the legacy 4 columns (populated when historical
+pre-2026 bronze is processed) and the current 8 columns (populated when fresh
+bronze captured from the live API 2026-05+ is processed). Schema declarations
+mark all 12 as `Optional` — exactly one set is populated per row.
 
 | Field | Python type | Nullable | Source field | Notes |
 |-------|-------------|----------|--------------|-------|
 | `settlement_date` | `date` | No | `settlementDate` | Settlement date (BST/GMT calendar). |
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
-| `net_buy_price_adjustment` | `float` | Yes | `netBuyPriceAdjustment` | GBP/MWh adjustment to BSP. |
-| `net_sell_price_adjustment` | `float` | Yes | `netSellPriceAdjustment` | GBP/MWh adjustment to SSP. |
-| `net_buy_volume_adjustment` | `float` | Yes | `netBuyVolumeAdjustment` | MWh. |
-| `net_sell_volume_adjustment` | `float` | Yes | `netSellVolumeAdjustment` | MWh. |
+| `net_buy_price_adjustment` | `float \| None` | Yes | `netBuyPriceAdjustment` | _Legacy (pre-2026 bronze)._ GBP/MWh adjustment to BSP. |
+| `net_sell_price_adjustment` | `float \| None` | Yes | `netSellPriceAdjustment` | _Legacy (pre-2026 bronze)._ GBP/MWh adjustment to SSP. |
+| `net_buy_volume_adjustment` | `float \| None` | Yes | `netBuyVolumeAdjustment` | _Legacy (pre-2026 bronze)._ MWh. |
+| `net_sell_volume_adjustment` | `float \| None` | Yes | `netSellVolumeAdjustment` | _Legacy (pre-2026 bronze)._ MWh. |
+| `net_buy_price_cost_adjustment_energy` | `float \| None` | Yes | `netBuyPriceCostAdjustmentEnergy` | Cost adjustment to net buy price, energy axis. |
+| `net_buy_price_volume_adjustment_energy` | `float \| None` | Yes | `netBuyPriceVolumeAdjustmentEnergy` | Volume adjustment to net buy price, energy axis. |
+| `net_buy_price_volume_adjustment_system` | `float \| None` | Yes | `netBuyPriceVolumeAdjustmentSystem` | Volume adjustment to net buy price, system axis. |
+| `buy_price_price_adjustment` | `float \| None` | Yes | `buyPricePriceAdjustment` | Price-on-price adjustment to net buy price. |
+| `net_sell_price_cost_adjustment_energy` | `float \| None` | Yes | `netSellPriceCostAdjustmentEnergy` | Cost adjustment to net sell price, energy axis. |
+| `net_sell_price_volume_adjustment_energy` | `float \| None` | Yes | `netSellPriceVolumeAdjustmentEnergy` | Volume adjustment to net sell price, energy axis. |
+| `net_sell_price_volume_adjustment_system` | `float \| None` | Yes | `netSellPriceVolumeAdjustmentSystem` | Volume adjustment to net sell price, system axis. |
+| `sell_price_price_adjustment` | `float \| None` | Yes | `sellPricePriceAdjustment` | Price-on-price adjustment to net sell price. |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 
@@ -157,7 +179,22 @@ None implemented.
 ## Implementation delta
 
 - **Param style**: docs require `from`/`to`; code matches.
-- **No Pydantic schema** in `schemas/elexon.py`; silver transformer enforces shape.
+- **Pydantic schema declared** as of gridflow G5-W4 (2026-05-20):
+  `ElexonNETBSAD` in `schemas/elexon.py`.
+
+### V2-FIX changelog
+
+- **2026-05-20 — gridflow G5-W1.1 (PR #7)**: live Elexon API now returns 8
+  finer-grained adjustment columns (cost vs volume × energy vs system × buy
+  vs sell) rather than the legacy 4. Silver transformer extended to rename
+  both shapes; pre-G5 silver carried `null` on every adjustment column
+  because the live bronze didn't match the original rename map (W1.1 was a
+  P1 silent-null bug). Pre-2026 bronze still produces the legacy 4.
+- **2026-05-20 — gridflow G5-W4 (PR #7)**: `ElexonNETBSAD` Pydantic class
+  added to `schemas/elexon.py` — declares all 12 adjustment columns +
+  bitemporal fields. Parametrised acceptance test in
+  `tests/contracts/test_elexon_schema_alignment.py` pins schema-vs-
+  transformer alignment.
 
 ---
 

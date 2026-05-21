@@ -3,26 +3,21 @@ slug: netbsad
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: NETBSAD
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/netbsad.md
-  - gridflow/src/gridflow/schemas/elexon.py (absent — no ElexonNETBSAD class; silver transformer enforces shape directly)
-  - gridflow/src/gridflow/silver/elexon/netbsad.py::NETBSADTransformer (lines 19-114)
+  - vault/elexon/netbsad.md (refreshed 2026-05-21 from quant-vault for G5-W1.1 + G5-W4)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonNETBSAD (declared 2026-05-20 in gridflow PR #7 / G5-W4)
+  - gridflow/src/gridflow/silver/elexon/netbsad.py::NETBSADTransformer (lines 19-154; G5-W1.1 extends rename map to 12 columns)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 90-96, PUBLISH_DATETIME with from/to params)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NETBSAD (fetched 2026-05-20 — javascript-rendered, no extractable content)
-discrepancies_found:
-  - source_a: "gridflow schemas/elexon.py"
-    source_a_says: "No ElexonNETBSAD class declared"
-    source_b: "gridflow silver/elexon/netbsad.py L19-114"
-    source_b_says: "NETBSADTransformer outputs 9 columns with 4 net adjustment values"
-    orchestrator_recommendation: "trust silver transformer; same shape gap as DISBSAD/MARKET_DEPTH"
-  - source_a: "vault Silver schema: 4 columns (net_buy_price_adjustment, net_sell_price_adjustment, net_buy_volume_adjustment, net_sell_volume_adjustment)"
-    source_a_says: "Transformer renames `netBuyPriceAdjustment`/`netSellPriceAdjustment`/`netBuyVolumeAdjustment`/`netSellVolumeAdjustment`"
-    source_b: "Live API 2026-05-08 returns: `netBuyPriceCostAdjustmentEnergy`, `netBuyPriceVolumeAdjustmentEnergy`, `netBuyPriceVolumeAdjustmentSystem`, `buyPricePriceAdjustment`, `netSellPriceCostAdjustmentEnergy`, `netSellPriceVolumeAdjustmentEnergy`, `netSellPriceVolumeAdjustmentSystem`, `sellPricePriceAdjustment`"
-    source_b_says: "8 fields with finer-grained energy/system split, not the 4 the transformer expects"
-    orchestrator_recommendation: "Phase-7 mini-recon — the transformer's 4-column mapping is incomplete vs current vendor API; fresh bronze will produce silver with all 4 columns null. Update mapping to cover the 8 actual fields, or document the gap explicitly."
+discrepancies_found: []
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W1.1 + G5-W4, merged 2026-05-20):
+      Resolves "schema/transformer column-count mismatch" — ElexonNETBSAD
+      Pydantic class added (G5-W4) and silver transformer extended to emit
+      8 finer-grained adjustment columns alongside the legacy 4 (G5-W1.1).
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -31,7 +26,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Per-period netted GB BSAD adjustments — the canonical aggregate for SBP/SSP attribution, BSC settlement reconciliation, and DISBSAD validation.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · NETBSAD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NETBSAD)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · NETBSAD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/NETBSAD)
 
 # Hero metadata
 
@@ -50,8 +45,8 @@ checked_at: 2026-05-20T00:00:00Z
 |---|---|---|
 | 1 | daily | Publication frequency |
 | 2 | 1 day | Publication lag |
-| 3 | 4 / 8 | Mapped / actual API fields |
-| 4 | 9 | Schema columns |
+| 3 | 12 / 12 | Mapped / actual API fields |
+| 4 | 16 | Schema columns |
 
 # Sidebar siblings
 
