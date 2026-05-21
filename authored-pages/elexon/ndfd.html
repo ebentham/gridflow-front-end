@@ -102,7 +102,7 @@ ORDER BY settlement_date;</pre></div></div>
 ndfd = pl.read_parquet(<span class="s">"data/silver/elexon/ndfd/**/*.parquet"</span>).filter(
     pl.col(<span class="s">"forecast_type"</span>) == <span class="s">"2_14_day"</span>
 )
-<span class=<span class="s">"c"</span>># Forecast horizon coverage per latest publish</span>
+<span class="c"># Forecast horizon coverage per latest publish</span>
 latest_issue = ndfd.select(<span class="s">"issue_time"</span>).max().item()
 coverage = (
     ndfd.filter(pl.col(<span class="s">"issue_time"</span>) == latest_issue)

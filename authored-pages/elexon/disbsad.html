@@ -98,7 +98,7 @@ ORDER BY 1 DESC, daily_cost_gbp DESC;</pre></div></div>
           <div data-tab-panel="disbsad-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/disbsad/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Top STOR call-offs by cost</span>
+<span class="c"># Top STOR call-offs by cost</span>
 stor = (
     df.filter(pl.col(<span class="s">"stor_flag"</span>) &amp; (pl.col(<span class="s">"cost"</span>) &gt; 0))
       .sort(<span class="s">"cost"</span>, descending=True)

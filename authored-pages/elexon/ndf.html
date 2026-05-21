@@ -102,7 +102,7 @@ ndf = pl.read_parquet(<span class="s">"data/silver/elexon/ndf/**/*.parquet"</spa
     pl.col(<span class="s">"forecast_type"</span>) == <span class="s">"day_ahead"</span>
 )
 indo = pl.read_parquet(<span class="s">"data/silver/elexon/indo/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Day-ahead forecast error (NDF latest-issue vs INDO outturn)</span>
+<span class="c"># Day-ahead forecast error (NDF latest-issue vs INDO outturn)</span>
 latest_ndf = (
     ndf.sort(<span class="s">"issue_time"</span>, descending=True)
        .group_by([<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>])
