@@ -308,7 +308,7 @@ ORDER BY units DESC;</pre></div></div>
           <div data-tab-panel="bmunits_reference-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 bmu = pl.read_parquet(<span class="s">"data/silver/elexon/bmunits_reference/bmunits_reference.parquet"</span>)
-<span class=<span class="s">"c"</span>># Join example: attach fuel_type + name to a BOAL extract</span>
+<span class="c"># Join example: attach fuel_type + name to a BOAL extract</span>
 boal = pl.read_parquet(<span class="s">"data/silver/elexon/boal/**/*.parquet"</span>)
 enriched = boal.join(
     bmu.select([<span class="s">"bm_unit_id"</span>, <span class="s">"bm_unit_name"</span>, <span class="s">"fuel_type"</span>]),

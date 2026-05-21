@@ -98,7 +98,7 @@ ORDER BY 1;</pre></div></div>
           <div data-tab-panel="freq-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/freq/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Rolling 1-minute mean + max deviation from 50 Hz</span>
+<span class="c"># Rolling 1-minute mean + max deviation from 50 Hz</span>
 roll = (
     df.sort(<span class="s">"timestamp_utc"</span>)
       .with_columns(

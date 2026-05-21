@@ -94,7 +94,7 @@ GROUP BY 1 ORDER BY 1;</pre></div></div>
 
 melngc = pl.read_parquet(<span class="s">"data/silver/elexon/melngc/**/*.parquet"</span>)
 lolpdrm = pl.read_parquet(<span class="s">"data/silver/elexon/lolpdrm/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Compare indicative vs de-rated margin per period</span>
+<span class="c"># Compare indicative vs de-rated margin per period</span>
 compare = (
     melngc.join(lolpdrm, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>], how=<span class="s">"inner"</span>)
           .with_columns(

@@ -101,7 +101,7 @@ ORDER BY settlement_date, fuel_type;</pre></div></div>
           <div data-tab-panel="fou2t14d-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/fou2t14d/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Latest-revision selection per (settlement_date, fuel_type)</span>
+<span class="c"># Latest-revision selection per (settlement_date, fuel_type)</span>
 latest = (
     df.sort(<span class="s">"ingested_at"</span>, descending=True)
       .group_by([<span class="s">"settlement_date"</span>, <span class="s">"fuel_type"</span>])

@@ -98,7 +98,7 @@ ORDER BY t.forecast_date;</pre></div></div>
           <div data-tab-panel="tsdfd-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 tsdfd = pl.read_parquet(<span class="s">"data/silver/elexon/tsdfd/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Latest-revision forecast per forecast_date</span>
+<span class="c"># Latest-revision forecast per forecast_date</span>
 latest = (
     tsdfd.sort(<span class="s">"published_at"</span>, descending=True)
          .group_by(<span class="s">"forecast_date"</span>)

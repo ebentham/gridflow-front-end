@@ -107,7 +107,7 @@ mid = pl.read_parquet(<span class="s">"data/silver/elexon/mid/**/*.parquet"</spa
     pl.col(<span class="s">"data_provider_id"</span>) == <span class="s">"APXMIDP"</span>
 )
 sp = pl.read_parquet(<span class="s">"data/silver/elexon/system_prices/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Spread: imbalance SBP minus wholesale APX MID</span>
+<span class="c"># Spread: imbalance SBP minus wholesale APX MID</span>
 spread = (
     mid.join(sp, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>], how=<span class="s">"inner"</span>)
        .with_columns(

@@ -305,7 +305,7 @@ ORDER BY settlement_date, settlement_period;</pre></div></div>
           <div data-tab-panel="agpt-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/agpt/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Pivot PSR-type to columns for wind onshore/offshore share</span>
+<span class="c"># Pivot PSR-type to columns for wind onshore/offshore share</span>
 mix = df.pivot(
     index=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>],
     on=<span class="s">"psr_type"</span>,

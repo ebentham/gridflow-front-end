@@ -93,7 +93,7 @@ GROUP BY 1 ORDER BY 1;</pre></div></div>
           <div data-tab-panel="imbalngc-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/imbalngc/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Periods forecast to be short, sorted by depth</span>
+<span class="c"># Periods forecast to be short, sorted by depth</span>
 short = (
     df.filter(pl.col(<span class="s">"indicated_imbalance"</span>) &lt; 0)
       .sort(<span class="s">"indicated_imbalance"</span>)

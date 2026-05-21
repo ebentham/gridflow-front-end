@@ -97,7 +97,7 @@ LIMIT 20;</pre></div></div>
           <div data-tab-panel="boal-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/boal/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># STOR-flagged acceptances by hour-of-day</span>
+<span class="c"># STOR-flagged acceptances by hour-of-day</span>
 stor = (
     df.filter(pl.col(<span class="s">"stor_flag"</span>))
       .with_columns(pl.col(<span class="s">"timestamp_utc"</span>).dt.hour().alias(<span class="s">"hour"</span>))

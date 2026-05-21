@@ -108,7 +108,7 @@ ORDER BY l.settlement_date, l.settlement_period;</pre></div></div>
           <div data-tab-panel="windfor-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 wf = pl.read_parquet(<span class="s">"data/silver/elexon/windfor/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Forecast revision delta per period</span>
+<span class="c"># Forecast revision delta per period</span>
 revisions = (
     wf.filter(pl.col(<span class="s">"settlement_date"</span>).is_not_null())
       .sort([<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>, <span class="s">"issue_time"</span>])

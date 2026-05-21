@@ -96,7 +96,7 @@ ORDER BY settlement_date;</pre></div></div>
 
 indo = pl.read_parquet(<span class="s">"data/silver/elexon/indo/**/*.parquet"</span>)
 itsdo = pl.read_parquet(<span class="s">"data/silver/elexon/itsdo/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Implied embedded generation = INDO − ITSDO</span>
+<span class="c"># Implied embedded generation = INDO − ITSDO</span>
 embedded = (
     indo.join(itsdo, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>], how=<span class="s">"inner"</span>)
         .with_columns(
