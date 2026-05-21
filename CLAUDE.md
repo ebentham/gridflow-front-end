@@ -6,21 +6,22 @@ Documentation static site for the [gridflow](https://github.com/EBentham/gridflo
 
 All workflow context lives under `.planning/`:
 
+- **`CONTROL.md` — read this first.** Orchestrator brief: current phase, skill routing guide, open decisions, locked decisions, cold-start reading order. Updated after every significant decision or phase transition.
 - `PROJECT.md` — project context, core value, SoT hierarchy, key decisions
-- `REQUIREMENTS.md` — 50 REQ-IDs across 11 categories with traceability to phases
-- `ROADMAP.md` — 7 phases, dependencies, per-phase success criteria
-- `STATE.md` — current workflow state
+- `REQUIREMENTS.md` — REQ-IDs across 11 categories with traceability to phases
+- `ROADMAP.md` — v2 phases (7 → 8B → 9 → 10), dependencies, per-phase success criteria
+- `STATE.md` — current workflow state, locked decisions, session continuity note
 - `config.json` — workflow preferences (interactive, standard granularity, parallel)
 - `research/` — STACK / FEATURES / ARCHITECTURE / PITFALLS / SUMMARY (read SUMMARY first)
 - `codebase/` — STRUCTURE / ARCHITECTURE / STACK / CONCERNS / CONVENTIONS / INTEGRATIONS / TESTING
 
-Before suggesting changes that span multiple files, read at minimum `PROJECT.md` + `ROADMAP.md` + `research/SUMMARY.md`.
+**Start here:** read `.planning/CONTROL.md` → `STATE.md` → `ROADMAP.md` before doing anything else. `CONTROL.md` tells you where you are and what to read next.
 
 ## Working agreements
 
 - **Conventional commits** — `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`. One concern per commit. Never commit to `main` — feature branches only.
 - **Never auto-commit** unless the user asks.
-- **Phase 0 is gating** — there are 26 uncommitted modified files from an in-flight refactor. They must be split into 4 logical commits (typography sweep · pillar-status removal · fuelhh honesty edits · remaining tweaks) before any structural work. See `research/PITFALLS.md § Pitfall 0`.
+- **Phase 0 is complete** — the in-flight refactor was committed in v1. Working tree is clean entering v2.
 
 ## Tech stack (current — pre-build-script)
 
@@ -74,7 +75,7 @@ CI will need both vault and gridflow checkouts available when running `gridflow-
 - Fake live indicators (timestamps, "X min ago", "Shipping" status badges on unfinished work)
 - Performance metrics / KPIs / uptime badges
 - Adopting Node/Go SSGs (11ty, Astro, Hugo) — rejected for Python-first portfolio alignment
-- Hand-authored dataset pages bypassing the build script (post-Phase-3)
+- Hand-authored dataset pages that bypass the build script entirely (Phase 8B adopts a hybrid: `authored-pages/<vendor>/<slug>.html` overrides for showcase pages; long tail stays template-driven)
 - Author photos / testimonials / hire-me CTAs
 
 ## Conventions
@@ -86,9 +87,12 @@ CI will need both vault and gridflow checkouts available when running `gridflow-
 
 ## Slash commands
 
-- `/gsd-plan-phase <n>` — decompose a phase into executable plans (next: `/gsd-plan-phase 0`)
+- `/gsd-plan-phase <n>` — decompose a phase into executable plans (next: `/gsd-plan-phase 8B`)
 - `/gsd-execute-phase <n>` — execute all plans in a phase
+- `/gsd-discuss-phase <n>` — clarify scope before planning (interactive)
+- `/gsd-manager` — milestone dashboard: shows D/P/E status per phase, dispatches subagents
 - `/gsd-progress` — check progress / advance workflow
+- `/grill-with-docs` — Socratic interview to flush out design decisions (use before discuss when scope is unclear)
 
 The full GSD command catalogue is in `~/.claude/get-shit-done/`.
 
