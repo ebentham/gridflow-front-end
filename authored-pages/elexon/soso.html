@@ -97,7 +97,7 @@ GROUP BY 1, 2 ORDER BY 1, 2;</pre></div></div>
 
 soso = pl.read_parquet(<span class="s">"data/silver/elexon/soso/**/*.parquet"</span>)
 sp = pl.read_parquet(<span class="s">"data/silver/elexon/system_prices/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># SOSO price vs same-period SBP -- implied imbalance premium</span>
+<span class="c"># SOSO price vs same-period SBP -- implied imbalance premium</span>
 arbitrage = (
     soso.join(sp, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>], how=<span class="s">"inner"</span>)
         .with_columns(

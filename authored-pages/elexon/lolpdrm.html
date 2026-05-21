@@ -94,7 +94,7 @@ LIMIT 50;</pre></div></div>
           <div data-tab-panel="lolpdrm-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/lolpdrm/**/*.parquet"</span>)
-<span class=<span class="s">"c"</span>># Daily minimum de-rated margin (worst-margin period each day)</span>
+<span class="c"># Daily minimum de-rated margin (worst-margin period each day)</span>
 worst = (
     df.group_by(<span class="s">"settlement_date"</span>)
       .agg(
