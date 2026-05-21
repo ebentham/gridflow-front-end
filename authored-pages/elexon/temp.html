@@ -96,7 +96,7 @@ ORDER BY day;</pre></div></div>
 
 t = pl.read_parquet(<span class="s">"data/silver/elexon/temp/**/*.parquet"</span>)
 indo = pl.read_parquet(<span class="s">"data/silver/elexon/indo/**/*.parquet"</span>)
-<span class="c"># Daily peak demand vs temperature</span>
+<span class=<span class="s">"c"</span>># Daily peak demand vs temperature</span>
 daily = (
     indo.with_columns(pl.col(<span class="s">"settlement_date"</span>).alias(<span class="s">"day"</span>))
         .group_by(<span class="s">"day"</span>)

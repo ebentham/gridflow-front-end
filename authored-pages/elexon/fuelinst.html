@@ -97,7 +97,7 @@ ORDER BY 1, mean_mw DESC;</pre></div></div>
           <div data-tab-panel="fuelinst-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/fuelinst/**/*.parquet"</span>)
-<span class="c"># Rollup to half-hourly to validate against fuelhh</span>
+<span class=<span class="s">"c"</span>># Rollup to half-hourly to validate against fuelhh</span>
 hh = (
     df.with_columns(
         pl.col(<span class="s">"timestamp_utc"</span>).dt.truncate(<span class="s">"30m"</span>).alias(<span class="s">"period_utc"</span>)

@@ -94,7 +94,7 @@ GROUP BY 1 ORDER BY 1;</pre></div></div>
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/inddem/**/*.parquet"</span>)
 indo = pl.read_parquet(<span class="s">"data/silver/elexon/indo/**/*.parquet"</span>)
-<span class="c"># Forecast vs outturn</span>
+<span class=<span class="s">"c"</span>># Forecast vs outturn</span>
 err = (
     df.filter(pl.col(<span class="s">"boundary"</span>) == <span class="s">"N"</span>)
       .join(indo, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>], how=<span class="s">"inner"</span>)

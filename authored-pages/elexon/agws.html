@@ -287,7 +287,7 @@ ORDER BY settlement_date;</pre></div></div>
           <div data-tab-panel="agws-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/agws/**/*.parquet"</span>)
-<span class="c"># Wind capacity-factor proxy: GB onshore vs offshore</span>
+<span class=<span class="s">"c"</span>># Wind capacity-factor proxy: GB onshore vs offshore</span>
 wind = (
     df.filter(pl.col(<span class="s">"psr_type"</span>).str.starts_with(<span class="s">"Wind"</span>))
       .group_by(<span class="s">"psr_type"</span>)

@@ -95,7 +95,7 @@ ORDER BY 1, 2;</pre></div></div>
 
 pn = pl.read_parquet(<span class="s">"data/silver/elexon/pn/**/*.parquet"</span>)
 boal = pl.read_parquet(<span class="s">"data/silver/elexon/boal/**/*.parquet"</span>)
-<span class="c"># Redispatched MW = BOAL accepted level - PN declared level</span>
+<span class=<span class="s">"c"</span>># Redispatched MW = BOAL accepted level - PN declared level</span>
 redispatch = (
     pn.join(boal, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>, <span class="s">"bm_unit_id"</span>], how=<span class="s">"inner"</span>)
       .with_columns(

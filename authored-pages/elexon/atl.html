@@ -282,7 +282,7 @@ ORDER BY settlement_date;</pre></div></div>
           <div data-tab-panel="atl-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 df = pl.read_parquet(<span class="s">"data/silver/elexon/atl/**/*.parquet"</span>)
-<span class="c"># Hour-of-day mean load profile</span>
+<span class=<span class="s">"c"</span>># Hour-of-day mean load profile</span>
 profile = (
     df.with_columns(pl.col(<span class="s">"timestamp_utc"</span>).dt.hour().alias(<span class="s">"hour"</span>))
       .group_by(<span class="s">"hour"</span>)

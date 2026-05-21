@@ -94,7 +94,7 @@ GROUP BY 1 ORDER BY 1;</pre></div></div>
           <div data-tab-panel="market_depth-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 md = pl.read_parquet(<span class="s">"data/silver/elexon/market_depth/**/*.parquet"</span>)
-<span class="c"># Liquidity proxy: total available volume per hour-of-day</span>
+<span class=<span class="s">"c"</span>># Liquidity proxy: total available volume per hour-of-day</span>
 liquidity = (
     md.with_columns(
         (pl.col(<span class="s">"offer_volume_mwh"</span>) + pl.col(<span class="s">"bid_volume_mwh"</span>).abs())

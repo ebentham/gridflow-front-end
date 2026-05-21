@@ -103,7 +103,7 @@ LIMIT 30;</pre></div></div>
 
 u = pl.read_parquet(<span class="s">"data/silver/elexon/uou2t14d/**/*.parquet"</span>)
 bmu = pl.read_parquet(<span class="s">"data/silver/elexon/bmunits_reference/bmunits_reference.parquet"</span>)
-<span class="c"># Aggregate UOU2T14D by fuel -- should reconcile with FOU2T14D</span>
+<span class=<span class="s">"c"</span>># Aggregate UOU2T14D by fuel -- should reconcile with FOU2T14D</span>
 by_fuel = (
     u.join(bmu.select([<span class="s">"bm_unit_id"</span>, <span class="s">"fuel_type"</span>]), on=<span class="s">"bm_unit_id"</span>, how=<span class="s">"left"</span>)
      .group_by([<span class="s">"settlement_date"</span>, <span class="s">"fuel_type"</span>])

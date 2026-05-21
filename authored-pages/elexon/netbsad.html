@@ -95,7 +95,7 @@ GROUP BY 1 ORDER BY 1;</pre></div></div>
 
 nb = pl.read_parquet(<span class="s">"data/silver/elexon/netbsad/**/*.parquet"</span>)
 sp = pl.read_parquet(<span class="s">"data/silver/elexon/system_prices/**/*.parquet"</span>)
-<span class="c"># Net BSAD share of cash-out price</span>
+<span class=<span class="s">"c"</span>># Net BSAD share of cash-out price</span>
 combo = nb.join(sp, on=[<span class="s">"settlement_date"</span>, <span class="s">"settlement_period"</span>], how=<span class="s">"inner"</span>)
 combo = combo.with_columns(
     (pl.col(<span class="s">"net_buy_price_adjustment"</span>) / pl.col(<span class="s">"system_buy_price"</span>))

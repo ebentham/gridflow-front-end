@@ -93,7 +93,7 @@ GROUP BY 1 ORDER BY 1;</pre></div></div>
           <div data-tab-panel="indod-py" style="display:none"><div class="code-wrap"><pre class="code dark" style="padding:18px 22px;overflow-x:auto">import polars as pl
 
 indod = pl.read_parquet(<span class="s">"data/silver/elexon/indod/**/*.parquet"</span>)
-<span class="c"># Year-on-year change in daily demand</span>
+<span class=<span class="s">"c"</span>># Year-on-year change in daily demand</span>
 yoy = (
     indod.with_columns([
         pl.col(<span class="s">"settlement_date"</span>).dt.year().alias(<span class="s">"year"</span>),
