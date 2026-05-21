@@ -100,7 +100,46 @@
     </div>
   </div>
 
-  
+
+  <section class="block" id="about" style="padding: 56px 0 48px;">
+    <div class="container">
+      <div class="eyebrow mb-8">About the BMRS</div>
+      <h2 class="display-3 mb-16">Elexon-wide caveats.</h2>
+      <p class="small mb-32" style="max-width: 620px;">Quirks that cut across the 33 datasets below — settlement-period arithmetic, the seven-run revision cadence, BM unit identification, and the open vocabulary of fuel codes. Per-dataset gotchas live on the individual pages.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 64px; max-width: 1080px;">
+        <div class="caveat-item">
+          <div class="caveat-num">01</div>
+          <div>
+            <div style="font-weight: 500; margin-bottom: 6px;">Settlement periods are 1–50, not 1–48</div>
+            <p class="small" style="margin: 0;">UK settlement uses half-hour buckets indexed from <code class="mono">SP&nbsp;1</code> at local midnight. DST days carry 46 (spring forward) or 50 (autumn back) periods. Code that hard-codes <code class="mono">range(1, 49)</code> loses data twice a year.</p>
+          </div>
+        </div>
+        <div class="caveat-item">
+          <div class="caveat-num">02</div>
+          <div>
+            <div style="font-weight: 500; margin-bottom: 6px;">Seven settlement runs — II is provisional, DF is final</div>
+            <p class="small" style="margin: 0;">Most data publishes across an II → SF → R1 → R2 → R3 → RF → DF cadence; early runs are provisional and later ones land weeks to months later. Point-in-time joins need the <code class="mono">settlement_run</code> dimension — a naïve <code class="mono">SELECT MAX</code> silently mixes vintages.</p>
+          </div>
+        </div>
+        <div class="caveat-item">
+          <div class="caveat-num">03</div>
+          <div>
+            <div style="font-weight: 500; margin-bottom: 6px;">BM unit IDs are their own namespace</div>
+            <p class="small" style="margin: 0;">A single plant can carry a BMU ID (<code class="mono">T_DRAXX-1</code>), one or more NGC asset IDs, and a separate metering-system ID. Joins across BMRS endpoints work; joining to NESO regional data or to ENTSO-E PSR types needs an external crosswalk. <a href="bmunits_reference.html" class="link">bmunits_reference</a> is the authoritative BMU metadata table.</p>
+          </div>
+        </div>
+        <div class="caveat-item">
+          <div class="caveat-num">04</div>
+          <div>
+            <div style="font-weight: 500; margin-bottom: 6px;">Fuel-type codes are open-vocabulary</div>
+            <p class="small" style="margin: 0;">BMRS publishes whatever uppercase token a unit declares — <code class="mono">CCGT</code>, <code class="mono">COAL</code>, <code class="mono">NUCLEAR</code>, <code class="mono">INTFR</code>, <code class="mono">INTIRL</code>, plus occasional new entries (battery storage arrived without ceremony). Treat the column as a string, not an enum.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
     <div class="container">
       <div class="row between mb-32" style="align-items: end;">
