@@ -1,0 +1,63 @@
+{# Per-dataset coming-soon stub: site/hifi/data-sources/<vendor>/<slug>.html — depth-2 path.
+   Sibling to vendor-coming-soon.html.j2 (which renders a vendor hub at depth-1).
+   Used by build.py to fill the gap when a vendor landing links to a dataset
+   that has no authored HTML and no vault content yet. (Blocker #3, PR #15 revert.) #}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ slug }} · {{ vendor_label }} · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Dataset · {{ vendor_label }} · {{ slug }} · planned">
+<main>
+
+  <section class="block" style="padding: 64px 0 80px;">
+    <div class="container">
+      <div class="crumbs mb-32">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../{{ vendor_id }}.html">{{ vendor_label }}</a>
+        <span class="sep">/</span>
+        <span class="here"><code class="mono">{{ slug }}</code></span>
+      </div>
+
+      <div class="row gap-8 mb-16" style="align-items:center;">
+        <span class="eyebrow">Dataset · {{ vendor_label }}</span>
+        <span class="chip accent" style="font-size: 11px;">Planned</span>
+      </div>
+
+      <h1 class="display-2" style="margin-bottom: 18px; max-width: 760px;">
+        <code class="mono" style="font-size: 0.6em; vertical-align: 0.15em;">{{ slug }}</code> <span class="italic">— planned.</span>
+      </h1>
+
+      <p class="lede" style="max-width: 620px;">
+        This dataset is in scope for a later milestone of this site. The gridflow
+        ETL pipeline {% if connector_state == "shipping" %}already ingests it; the per-dataset documentation page
+        — overview, schema, API reference, sample, and caveats — is{% else %}has not yet wired this dataset in; the
+        connector and the documentation layer are both{% endif %} scheduled under the {{ vendor_label }} batch.
+      </p>
+
+      <div class="row gap-16 mt-32">
+        <a href="../{{ vendor_id }}.html" class="btn primary">← Back to {{ vendor_label }}</a>
+        {% if vendor_docs_url %}<a href="{{ vendor_docs_url }}" target="_blank" rel="noopener" class="btn ghost">Vendor docs ↗</a>{% endif %}
+      </div>
+
+      <p class="tiny mt-48" style="max-width:720px; color:var(--ink-faint);">
+        The <a href="../elexon/fuelhh.html" class="link">fuelhh page</a> is the
+        per-dataset template — when this dataset lands at full fidelity, its page
+        will look like that one, not like this stub.
+      </p>
+    </div>
+  </section>
+
+</main>
+<script src="../../assets/site.js"></script>
+</body>
+</html>
