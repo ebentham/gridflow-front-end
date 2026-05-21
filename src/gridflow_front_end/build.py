@@ -813,6 +813,19 @@ def build_coming_soon_stubs(env: Environment, out_root: Path) -> int:
             out_path.write_text(html, encoding="utf-8")
             n += 1
             print(f"  wrote: data-sources/{vendor_id}.html (stub)")
+
+    # COMING_SOON_VENDORS splits GIE into gie_agsi / gie_alsi, but the user-facing
+    # vendor folder is the unified ``gie`` (per Phase 8D). Per-dataset HTML under
+    # data-sources/gie/<slug>.html links back to ../gie.html — so a unified hub
+    # must also be served at that path. Sourced from the same authored landing
+    # that already drives gie_agsi.html and gie_alsi.html (see gie_parent_hub
+    # fallback above), keeping the three hub copies content-identical.
+    gie_parent_hub = AUTHORED_DIR / "gie" / "_landing.html"
+    if gie_parent_hub.exists():
+        gie_out_path = out_root / "data-sources" / "gie.html"
+        shutil.copy(gie_parent_hub, gie_out_path)
+        n += 1
+        print("  wrote: data-sources/gie.html (authored unified hub via gie)")
     return n
 
 
