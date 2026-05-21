@@ -3,11 +3,11 @@ slug: boal
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: BOALF
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/boal.md
-  - gridflow/src/gridflow/schemas/elexon.py::ElexonBOAL (lines 99-123)
-  - gridflow/src/gridflow/silver/elexon/boal.py::BOALTransformer (lines 19-125)
+  - vault/elexon/boal.md (refreshed 2026-05-21 from quant-vault for G5-W2.1)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonBOAL (G5-W2.1: bid_offer_acceptance_number removed; was a stale duplicate)
+  - gridflow/src/gridflow/silver/elexon/boal.py::BOALTransformer (G5-W2.1: acceptance_time now cast str→UTC datetime)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 67-73, PUBLISH_DATETIME style with from/to params)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/BOALF (fetched 2026-05-20 — javascript-rendered, no extractable content)
 discrepancies_found:
@@ -16,13 +16,15 @@ discrepancies_found:
     source_b: "gridflow connectors/elexon/endpoints.py L67-73"
     source_b_says: "ENDPOINTS['boal'] uses path='/datasets/BOALF'; old BOAL also in EXCLUDED_ENDPOINTS"
     orchestrator_recommendation: "documented and consistent — Gridflow slug retains `boal` for backward compat while the API path tracks BOALF; flag in editorial layer so users aren't confused"
-  - source_a: "vault Silver schema includes `bid_offer_acceptance_number` as a distinct column"
-    source_a_says: "Field is present and aliased to acceptance_number"
-    source_b: "gridflow schemas/elexon.py L114"
-    source_b_says: "ElexonBOAL has both `acceptance_number` (L106) and `bid_offer_acceptance_number` (L114) as separate Optional[int] fields"
-    orchestrator_recommendation: "trust gridflow — both fields exist on the schema but the silver transformer only writes acceptance_number; bid_offer_acceptance_number is reserved for a future per-pair column and not populated today"
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W2.1, merged 2026-05-20):
+      Resolves the `bid_offer_acceptance_number` duplicate-field
+      discrepancy — the field was dropped from ElexonBOAL because it was
+      a stale duplicate of acceptance_number. Same commit also added the
+      str→UTC datetime cast on acceptance_time, caught by the
+      parametrised schema-alignment acceptance test.
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -31,7 +33,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Per-BMU GB balancing-mechanism dispatch instructions — the canonical audit trail for BSC settlement, BMU dispatch modelling, and STOR analysis.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · BOALF](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/BOALF)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · BOALF](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/BOALF)
 
 # Hero metadata
 

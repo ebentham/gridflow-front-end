@@ -3,21 +3,22 @@ slug: fuelhh
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: FUELHH
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/fuelhh.md
-  - gridflow/src/gridflow/schemas/elexon.py::ElexonFuelHH (lines 79-96)
-  - gridflow/src/gridflow/silver/elexon/fuelhh.py::FuelHHTransformer (lines 19-111)
+  - vault/elexon/fuelhh.md (refreshed 2026-05-21 from quant-vault for G5-W2.2)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonFuelHH
+  - gridflow/src/gridflow/silver/elexon/fuelhh.py::FuelHHTransformer (G5-W2.2 casts published_at to UTC datetime and includes it in output_cols)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 115-119, PUBLISH_DATETIME style)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH (fetched 2026-05-20 — javascript-rendered, no extractable content)
-discrepancies_found:
-  - source_a: "schemas/elexon.py L79-96 (ElexonFuelHH)"
-    source_a_says: "ElexonFuelHH includes `published_at: Optional[datetime] = None`"
-    source_b: "gridflow silver/elexon/fuelhh.py L103-106"
-    source_b_says: "Transformer output_cols list does NOT include published_at"
-    orchestrator_recommendation: "trust gridflow silver — published_at is declared on the schema but the transformer drops it from output; either remove the schema field or add to output_cols. The reference page (authored-pages/elexon/fuelhh.html) treats published_at as the documented PIT field even though silver does not surface it."
+discrepancies_found: []
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W2.2, merged 2026-05-20):
+      Resolves "published_at declared on schema but missing from silver".
+      Transformer now casts published_at to UTC datetime and includes
+      it in output_cols; acceptance test
+      `test_published_at_emitted_when_bronze_carries_it` pins the fix.
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -26,7 +27,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Half-hourly GB generation by fuel type — the canonical observation series for generation mix, capacity factors, and emissions.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · FUELHH](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · FUELHH](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH)
 
 # Hero metadata
 

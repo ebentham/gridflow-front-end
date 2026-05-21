@@ -3,26 +3,20 @@ slug: temp
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: TEMP
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/temp.md
-  - gridflow/src/gridflow/schemas/elexon.py (absent — no ElexonTEMP class; silver transformer enforces shape directly)
-  - gridflow/src/gridflow/silver/elexon/temp.py::TempTransformer (lines 18-104)
+  - vault/elexon/temp.md (refreshed 2026-05-21 from quant-vault for G5-W1.4 + G5-W4)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonTemp (declared 2026-05-20 in gridflow PR #7 / G5-W4)
+  - gridflow/src/gridflow/silver/elexon/temp.py::TempTransformer (G5-W1.4 includes measurement_date in output_cols)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 161-165, PUBLISH_DATETIME style)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/TEMP (fetched 2026-05-20 — javascript-rendered, no extractable content)
-discrepancies_found:
-  - source_a: "vault Implementation Delta"
-    source_a_says: "API field `measurementDate` is not currently mapped to a silver field — temp.py mapping renames publishDateTime → timestamp_utc"
-    source_b: "gridflow silver/elexon/temp.py L55-62"
-    source_b_says: "Column mapping includes `measurementDate → measurement_date` (L57) but output_cols (L95-99) does NOT include measurement_date"
-    orchestrator_recommendation: "trust gridflow — measurement_date is renamed internally but dropped from silver output; only timestamp_utc (derived from publishTime preferentially) is kept. If measurement-date attribution matters, extend output_cols."
-  - source_a: "gridflow schemas/elexon.py"
-    source_a_says: "No ElexonTEMP class declared"
-    source_b: "gridflow silver/elexon/temp.py L18-104"
-    source_b_says: "TempTransformer outputs 7 columns including temperature plus seasonal reference values"
-    orchestrator_recommendation: "trust silver transformer"
+discrepancies_found: []
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W1.4 + G5-W4, merged 2026-05-20):
+      Resolves "measurement_date dropped before write" (now in output_cols)
+      and "no ElexonTEMP class" (declared as ElexonTemp).
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -31,7 +25,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Daily GB ambient temperature with seasonal climatology — the canonical reference for demand-vs-weather regression, forecast calibration, and deviation-from-normal framing.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · TEMP](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/TEMP)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · TEMP](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/TEMP)
 
 # Hero metadata
 

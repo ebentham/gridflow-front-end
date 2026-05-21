@@ -3,11 +3,11 @@ slug: disbsad
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: DISBSAD
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/disbsad.md
-  - gridflow/src/gridflow/schemas/elexon.py::ElexonDISBSAD (lines 246-266)
-  - gridflow/src/gridflow/silver/elexon/disbsad.py::DISBSADTransformer (lines 19-118)
+  - vault/elexon/disbsad.md (refreshed 2026-05-21 from quant-vault for G5-W1.3)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonDISBSAD
+  - gridflow/src/gridflow/silver/elexon/disbsad.py::DISBSADTransformer (G5-W1.3 adds `service` rename alongside legacy `component`)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 76-82, PUBLISH_DATETIME style with from/to params)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/DISBSAD (fetched 2026-05-20 — javascript-rendered, no extractable content)
 discrepancies_found:
@@ -16,13 +16,13 @@ discrepancies_found:
     source_b: "gridflow schemas/elexon.py L253"
     source_b_says: "stor_flag is `bool = False` (default), not a string"
     orchestrator_recommendation: "trust gridflow — vault sample is a placeholder; real value is a bool"
-  - source_a: "vault Silver schema 'component' source field"
-    source_a_says: "Field `component` mapped from `component`"
-    source_b: "gridflow silver/elexon/disbsad.py L61"
-    source_b_says: "Column mapping has `component: component` but live API returns `service` for the same semantic field; `component` not present in 2026-05-08 sample"
-    orchestrator_recommendation: "trust gridflow — `component` is preserved if present but the live API actually emits `service` (renamed in vendor API but vault not yet updated)"
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W1.3, merged 2026-05-20):
+      Resolves the `component` vs `service` field-rename discrepancy.
+      Silver transformer now renames both shapes; fresh bronze produces
+      non-null `component` in silver.
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -31,7 +31,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Disaggregated GB non-BM balancing actions — the canonical row-level feed for cost attribution, STOR analysis, and BSC settlement reconciliation.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · DISBSAD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/DISBSAD)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · DISBSAD](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/DISBSAD)
 
 # Hero metadata
 

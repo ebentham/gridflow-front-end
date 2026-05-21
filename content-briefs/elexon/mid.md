@@ -3,26 +3,22 @@ slug: mid
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: MID
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/mid.md
-  - gridflow/src/gridflow/schemas/elexon.py::ElexonMID (lines 149-166)
-  - gridflow/src/gridflow/silver/elexon/mid.py::MIDTransformer (lines 19-113)
+  - vault/elexon/mid.md (refreshed 2026-05-21 from quant-vault for G5-W1.2)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonMID
+  - gridflow/src/gridflow/silver/elexon/mid.py::MIDTransformer (G5-W1.2 adds dataProvider/price renames alongside legacy)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 83-89, PUBLISH_DATETIME style with from/to params)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/MID (fetched 2026-05-20 — javascript-rendered, no extractable content)
-discrepancies_found:
-  - source_a: "vault Silver schema 'data_provider_id' source field"
-    source_a_says: "Source field is `dataProviderId`"
-    source_b: "gridflow silver/elexon/mid.py L58"
-    source_b_says: "Column mapping is `dataProviderId → data_provider_id`, but the live API on 2026-05-08 returned `dataProvider` not `dataProviderId`"
-    orchestrator_recommendation: "trust gridflow as currently coded — but the column mapping does not match the live API field name; data_provider_id will be null in bronze captured from the current API. Phase-7 mini-recon candidate."
-  - source_a: "vault Silver schema 'market_index_price' source field"
-    source_a_says: "Source field is `midPrice`"
-    source_b: "gridflow silver/elexon/mid.py L59 + live API 2026-05-08"
-    source_b_says: "Mapping is `midPrice → market_index_price`, but live API returns `price` not `midPrice`"
-    orchestrator_recommendation: "documented vendor API rename; transformer column mapping needs updating to also handle `price` field. Currently `market_index_price` is silent-null in fresh bronze."
+discrepancies_found: []
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W1.2, merged 2026-05-20):
+      Resolves the two `dataProviderId → dataProvider` and `midPrice → price`
+      field-rename discrepancies. The silver transformer now accepts both
+      shapes via the rename map, so fresh bronze captured from the current
+      live API produces non-null `data_provider_id` and `market_index_price`.
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -31,7 +27,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Per-period GB market index prices and volumes — the canonical wholesale anchor for imbalance-premium analysis, cash-out reconciliation, and APX/N2EX liquidity comparison.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · MID](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/MID)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · MID](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/MID)
 
 # Hero metadata
 

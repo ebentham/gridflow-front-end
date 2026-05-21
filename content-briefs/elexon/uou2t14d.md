@@ -3,26 +3,24 @@ slug: uou2t14d
 vendor: elexon
 vendor_label: Elexon BMRS
 api_code: UOU2T14D
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 sources_consulted:
-  - vault/elexon/uou2t14d.md
-  - gridflow/src/gridflow/schemas/elexon.py (absent — no ElexonUOU2T14D class; silver transformer enforces shape directly)
-  - gridflow/src/gridflow/silver/elexon/uou2t14d.py::UOU2T14DTransformer (lines 19-122)
+  - vault/elexon/uou2t14d.md (refreshed 2026-05-21 from quant-vault for G5-W2.3 + G5-W4)
+  - gridflow/src/gridflow/schemas/elexon.py::ElexonUOU2T14D (declared 2026-05-20 in gridflow PR #7 / G5-W4)
+  - gridflow/src/gridflow/silver/elexon/uou2t14d.py::UOU2T14DTransformer (G5-W2.3 self-describing — fuel_type, national_grid_bm_unit, published_at restored to output_cols)
   - gridflow/src/gridflow/connectors/elexon/endpoints.py (lines 150-155, PUBLISH_DATETIME style with max_chunk_hours=4)
   - https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/UOU2T14D (fetched 2026-05-20 — javascript-rendered, no extractable content)
-discrepancies_found:
-  - source_a: "gridflow schemas/elexon.py"
-    source_a_says: "No ElexonUOU2T14D class declared"
-    source_b: "gridflow silver/elexon/uou2t14d.py L19-122"
-    source_b_says: "UOU2T14DTransformer outputs settlement_date, settlement_period, timestamp_utc, bm_unit_id, output_usable_mw, data_provider, ingested_at"
-    orchestrator_recommendation: "trust silver transformer; matches FOU2T14D shape gap"
-  - source_a: "vault Silver schema lists 7 columns"
-    source_a_says: "Schema documents 7 columns including bm_unit_id and output_usable_mw"
-    source_b: "gridflow silver/elexon/uou2t14d.py L114-117"
-    source_b_says: "Transformer also renames fuelType → fuel_type and nationalGridBmUnit → national_grid_bm_unit (L63-65) but output_cols does NOT include them"
-    orchestrator_recommendation: "trust gridflow output_cols — fuel_type and national_grid_bm_unit are dropped from silver. Joins for fuel context must use bmunits_reference, not UOU2T14D's own fuel_type."
+discrepancies_found: []
+discrepancies_resolved_in:
+  - gridflow PR #7 (G5-W2.3 + G5-W4, merged 2026-05-20):
+      Resolves "no ElexonUOU2T14D class" (declared) and "fuel_type +
+      national_grid_bm_unit dropped from silver" (restored to output_cols
+      via the W2.3 self-describing fix). Silver now includes 11 columns
+      (settlement_date, settlement_period, timestamp_utc, bm_unit_id,
+      fuel_type, national_grid_bm_unit, output_usable_mw, published_at,
+      data_provider, ingested_at, bitemporal fields).
 ready_for_claude_design: true
-checked_at: 2026-05-20T00:00:00Z
+checked_at: 2026-05-21T00:00:00Z
 ---
 
 # Editorial layer
@@ -31,7 +29,7 @@ checked_at: 2026-05-20T00:00:00Z
 
 **Lede:** Per-BMU GB 2-14 day-ahead availability — the canonical unit-level declaration for forward margin, outage planning, and FOU2T14D reconciliation.
 
-**Verified line:** Verified against vendor docs: 2026-05-08 · [Elexon BMRS · UOU2T14D](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/UOU2T14D)
+**Verified line:** Verified against vendor docs: 2026-05-21 · [Elexon BMRS · UOU2T14D](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/UOU2T14D)
 
 # Hero metadata
 
