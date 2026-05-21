@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>fou2t14d · Elexon BMRS · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);
+    }
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .null { color: #6b6358; font-style: italic; }
+    /* ── settlement-run pills (system_prices analogue of fuel pills) ── */
+    .run-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .run-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-family: var(--mono); font-size: 12px;
+      color: var(--ink-strong);
+    }
+    .run-pill .swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Dataset · fou2t14d">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../elexon.html">Elexon BMRS</a>
+        <span class="sep">/</span>
+        <span class="here">fou2t14d</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · Elexon · Demand &amp; Forecasts</span>
+            <span class="chip" style="font-size:11px;">daily · 0</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">fou2t14d</span><br/>
+            2–14 day generation availability, <span class="italic fg-accent">by fuel type.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            2–14 day-ahead generation availability aggregated by fuel type (FOU2T14D) — issued daily, giving a fuel-resolved view of MW availability for each delivery date in the next two weeks.
+            Used for medium-term margin and capacity-factor projections in operational planning.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FOU2T14D" class="link" target="_blank" rel="noopener">Elexon BMRS · FOU2T14D ↗</a>
+          </p>
+        </div>
+        <!-- key metrics -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.fou2t14d</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">/datasets/FOU2T14D</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">daily</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">0</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">440k / mo</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">inline in transformer<br/>(see fou2t14d.py)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">daily</div>
+        <div class="stat-l">Publication cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">2–14</div>
+        <div class="stat-l">Day-ahead horizon</div>
+      </div>
+      <div>
+        <div class="stat-n">440k</div>
+        <div class="stat-l">Rows / month</div>
+      </div>
+      <div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#live-chart">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">Elexon BMRS</div>
+          <a href="../elexon.html">← All datasets</a>
+          <a href="fou2t14d.html" class="active">fou2t14d</a>
+          <a href="uou2t14d.html" style="color:var(--ink-faint);">uou2t14d</a>
+          <a href="melngc.html" style="color:var(--ink-faint);">melngc</a>
+          <a href="lolpdrm.html" style="color:var(--ink-faint);">lolpdrm</a>
+          <a href="ndfd.html" style="color:var(--ink-faint);">ndfd</a>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">fou2t14d</code>
+            holds 2–14 day-ahead generation availability aggregated by fuel type — a daily forward view of usable MW capacity for each fuel category across the next two weeks.
+            The dataset is published once daily and covers each future delivery date separately.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the BMRS Insights API at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/datasets/FOU2T14D</code>
+            and processed by <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">FOU2T14DTransformer</code>.
+            Silver files are append-only (revision-preserving).
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            FOU2T14D is used for medium-term margin and capacity-factor projections. The <code class="mono">settlement_date</code> in silver is the future delivery date, not the publish date.
+            Verified against vendor docs on 2026-05-08.
+          </p>
+        </section>
+
+        <!-- ── Sample chart ── -->
+        <section id="live-chart" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Usable availability by fuel · <span class="italic fg-accent">14-day sparkline.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">fou2t14d · silver layer · usable MW by fuel type</div>
+                <div class="small">Sparkline · MW · forecast horizon · May 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">14d</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":71}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 560px;">
+            Defined in <code class="mono">gridflow/silver/elexon/fou2t14d.py · FOU2T14DTransformer</code>.
+            No Pydantic schema in <code class="mono">schemas/elexon.py</code>. Silver files are append-only.
+            Dedup key: inline in transformer.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">settlement_date <span class="pk-badge">PK</span></td>
+                <td class="col-type">date</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Future delivery date (mapped from <code class="mono">forecastDate</code>). Partition key.</td>
+              </tr>
+              <tr>
+                <td class="col-name">settlement_period <span class="pk-badge">PK</span></td>
+                <td class="col-type">int</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">1..50 — settlement period within the delivery date.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fuel_type <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Fuel category (CCGT, COAL, NUCLEAR, WIND, BIOMASS, etc.).</td>
+              </tr>
+              <tr>
+                <td class="col-name">timestamp_utc</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Derived from (settlement_date, settlement_period).</td>
+              </tr>
+              <tr>
+                <td class="col-name">output_usable_mw</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Usable generation availability in MW for this fuel type on the delivery date.</td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Default <code class="mono">"elexon"</code>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">Time ingested into bronze.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/elexon/fou2t14d/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">settlement_date (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">inline in transformer</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>settlement_date</th>
+                  <th>fuel_type</th>
+                  <th>output_usable_mw</th>
+                  <th>ingested_at</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-08</td><td class="str">BIOMASS</td><td class="num">2931</td><td class="date">2026-05-08T12:00:00Z</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-08</td><td class="str">CCGT</td><td class="num">22274</td><td class="date">2026-05-08T12:00:00Z</td></tr>
+                <tr><td class="date">2026-05-08</td><td class="str">NUCLEAR</td><td class="num">5840</td><td class="date">2026-05-08T12:00:00Z</td></tr>
+                <tr><td class="date">2026-05-08</td><td class="str">WIND</td><td class="num">14200</td><td class="date">2026-05-08T12:00:00Z</td></tr>
+                <tr><td class="date">2026-05-09</td><td class="str">CCGT</td><td class="num">21980</td><td class="date">2026-05-08T12:00:00Z</td></tr>
+                <tr><td class="date">2026-05-09</td><td class="str">WIND</td><td class="num">13650</td><td class="date">2026-05-08T12:00:00Z</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12">Fuel-type availability rows for delivery dates 8–9 May 2026, published 8 May 2026. The CCGT row for 8 May (highlighted) at 22,274 MW represents the largest single fuel category in usable availability. All rows in a single publish have the same <code class="mono">ingested_at</code> timestamp.</div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data.elexon.co.uk/bmrs/api/v1<br/>/datasets/FOU2T14D</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None required for tested endpoints (2026-05-08). Some endpoints accept an <code class="mono">apikey</code> header (env <code class="mono">ELEXON_API_KEY</code>); register at <a href="https://www.elexonportal.co.uk/" class="link" target="_blank" rel="noopener">elexonportal.co.uk ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/elexon/fou2t14d/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.elexon.fou2t14d.<br/>FOU2T14DTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="fou2t14d">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('fou2t14d','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('fou2t14d','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('fou2t14d','py',this)" style="cursor:pointer;">Python · parquet</button>
+            </div>
+            <div data-tab-panel="fou2t14d-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://data.elexon.co.uk/bmrs/api/v1/datasets/FOU2T14D<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">publishDateTimeFrom</span>=2026-05-08T00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">publishDateTimeTo</span>=2026-05-09T00:00Z<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">format</span>=json</pre>
+          </div></div>
+            <div data-tab-panel="fou2t14d-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Forward availability by fuel for next 14 days</span>
+<span class="k">SELECT</span> settlement_date, fuel_type,
+       output_usable_mw
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/elexon/fou2t14d/**/*.parquet'</span>)
+<span class="k">WHERE</span> settlement_date <span class="k">BETWEEN</span> current_date <span class="k">AND</span> current_date + <span class="k">INTERVAL</span> 14 <span class="k">DAY</span>
+<span class="k">ORDER BY</span> settlement_date, fuel_type;</pre>
+          </div></div>
+            <div data-tab-panel="fou2t14d-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+<span class="k">from</span> datetime <span class="k">import</span> date, timedelta
+
+df = pl.read_parquet(
+    <span class="s">"data/silver/elexon/fou2t14d/**/*.parquet"</span>,
+)
+today = date.today()
+fwd = df.filter(
+    pl.col(<span class="s">"settlement_date"</span>).is_between(today, today + timedelta(days=14))
+).pivot(
+    values=<span class="s">"output_usable_mw"</span>,
+    index=<span class="s">"settlement_date"</span>,
+    columns=<span class="s">"fuel_type"</span>,
+    aggregate_function=<span class="s">"sum"</span>,
+)
+print(fwd.sort(<span class="s">"settlement_date"</span>))</pre>
+          </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to fou2t14d. Also read the <a href="../elexon.html#about" class="link">Elexon-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">settlement_date is the future delivery date, not the publish date</div>
+                <p class="small" style="margin: 0;">The API uses <code class="mono">forecastDate</code> for the future delivery date; silver renames this to <code class="mono">settlement_date</code> to match the canonical schema column. Be careful not to confuse the delivery date with the publish date when filtering — use <code class="mono">ingested_at</code> to identify which publish produced a row.</p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Silver files are append-only (revision-preserving)</div>
+                <p class="small" style="margin: 0;">Unlike most Elexon datasets, FOU2T14D silver uses <code class="mono">APPEND_ONLY = True</code>. Each daily publish appends a new revision rather than overwriting. To get the latest forecast for a delivery date, filter to the most recent <code class="mono">ingested_at</code> for that date.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related datasets ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside fou2t14d.</h2>
+
+          <div class="related-grid">
+            <a href="uou2t14d.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">uou2t14d</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">2–14 day unit-level availability. More granular companion to FOU2T14D — per BM-unit availability for the same horizon.</p>
+              <span class="tiny">elexon · demand &amp; forecasts · daily</span>
+            </a>
+
+            <a href="ndf.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">ndf</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">National Demand Forecast. Pair with FOU2T14D to compute implied surplus margin (availability minus forecast demand).</p>
+              <span class="tiny">elexon · demand &amp; forecasts · daily</span>
+            </a>
+
+            <a href="ndfd.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">ndfd</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">National Demand Forecast (day-ahead detail). More granular demand forecast for the same 2–14 day horizon.</p>
+              <span class="tiny">elexon · demand &amp; forecasts · daily</span>
+            </a>
+
+            <a href="lolpdrm.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">lolpdrm</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Loss of Load Probability and De-rated Margin. The forward capacity risk signal derived from availability data like FOU2T14D.</p>
+              <span class="tiny">elexon · system &amp; reference · 30 min</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

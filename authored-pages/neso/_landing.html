@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>NESO Carbon Intensity · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    body { min-width: 0; }
+    .meta-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); }
+    .meta-grid > div { padding: 18px 20px; border-bottom: 1px solid var(--rule); }
+    .meta-grid > div:nth-child(odd) { border-right: 1px solid var(--rule); }
+    .meta-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .meta-grid .mono { word-break: break-all; }
+    .ds-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card.ds-card { border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block; }
+    .card.ds-card h4 { font-family: var(--serif); font-size: 18px; margin: 0; }
+    .card.ds-card .mono.small { min-width: 0; }
+    .ds-meta { color: var(--ink-soft); }
+    .group-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 16px; }
+    .group-head h3 { font-family: var(--serif); font-size: 24px; font-weight: 400; margin: 0; }
+    .footer { margin-top: 0; }
+
+    @media (max-width: 1080px) {
+      .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
+      .stats-strip > div:nth-child(2) { border-right: 0; }
+      .stats-strip > div:nth-child(1), .stats-strip > div:nth-child(2) { border-bottom: 1px solid var(--rule); }
+      .ds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .meta-grid { grid-template-columns: 1fr; }
+      .meta-grid > div { border-right: 0 !important; border-bottom: 1px solid var(--rule); }
+      .meta-grid > div:last-child { border-bottom: 0; }
+      .ds-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page="vendor" data-root="../../" data-screen-label="Vendor · NESO Carbon Intensity">
+<main>
+
+  <!-- hero -->
+  <section class="block" style="padding: 48px 0 40px;">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <span class="here" aria-current="page">NESO Carbon Intensity</span>
+      </nav>
+
+      <div class="hero-grid" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-16" style="align-items:center;">
+            <span class="eyebrow">NESO &middot; United Kingdom &middot; Carbon</span>
+            <span class="chip" style="font-size: 11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            NESO <span class="italic">Carbon.</span>
+          </h1>
+          <p class="lede" style="max-width: 580px;">The National Energy System Operator's public Carbon Intensity API for Great Britain. Half-hourly forecast and actual grid carbon intensity in gCO&#8322;/kWh, generation mix by fuel type, regional intensity by DNO zone and postcode, and 48-hour forward forecasts &mdash; all without authentication. 33 endpoint surfaces covering national, regional, and reference data.</p>
+          <div class="row gap-16 mt-32">
+            <a href="#datasets" class="btn primary">Browse 33 datasets &darr;</a>
+            <a href="https://carbonintensity.org.uk/" target="_blank" rel="noopener" class="btn ghost">Vendor docs &nearr;</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="meta-grid">
+            <div>
+              <div class="tiny mb-8">BASE URL</div>
+              <div class="mono small">api.carbonintensity.org.uk</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Public &middot; no key required</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">RATE LIMIT</div>
+              <div class="small">10 req/s &middot; project default<br/><span style="color:var(--ink-faint);">vendor undocumented</span></div>
+            </div>
+            <div>
+              <div class="tiny mb-8">FORMAT</div>
+              <div class="small">JSON &middot; ISO-8601 &middot; UTC</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">EARLIEST</div>
+              <div class="small">Not documented<br/><span style="color:var(--ink-faint);">max 14 days / request</span></div>
+            </div>
+            <div>
+              <div class="tiny mb-8">TIMEZONE</div>
+              <div class="small">UTC &middot; 30-min SP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- stats strip -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">33</div>
+        <div class="stat-l">Datasets</div>
+      </div>
+      <div>
+        <div class="stat-n">4</div>
+        <div class="stat-l">Categories</div>
+      </div>
+      <div>
+        <div class="stat-n">48h</div>
+        <div class="stat-l">Forecast horizon</div>
+      </div>
+      <div>
+        <div class="stat-n">gCO&#8322;</div>
+        <div class="stat-l">Reporting unit &middot; /kWh</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- dataset catalog -->
+  <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">33 datasets &middot; 4 categories</div>
+          <h2 class="display-3">The catalog.</h2>
+        </div>
+      </div>
+
+      <!-- Group: Carbon Intensity National -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Carbon Intensity &middot; National</h3>
+          <span class="small">10 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Half-hourly national grid carbon intensity &mdash; actuals, forecasts, and windowed range queries.</p>
+
+        <div class="ds-grid">
+          <a href="neso/carbon_intensity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">carbon_intensity</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; national &middot; date range</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">48 / day</span></span></div>
+          </a>
+          <a href="neso/intensity_current.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_current</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; current half-hour</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/intensity_today.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_today</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; today all periods</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">48 / day</span></span></div>
+          </a>
+          <a href="neso/intensity_date.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_date</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; single date</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">48 / date</span></span></div>
+          </a>
+          <a href="neso/intensity_period.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_period</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; single settlement period</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/intensity_at.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_at</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; at datetime</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/intensity_fw24h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_fw24h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; forecast 24h ahead</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">~48</span></span></div>
+          </a>
+          <a href="neso/intensity_fw48h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_fw48h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; forecast 48h ahead</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">~96</span></span></div>
+          </a>
+          <a href="neso/intensity_pt24h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_pt24h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity &middot; prior 24h</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~48</span></span></div>
+          </a>
+          <a href="neso/intensity_factors.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_factors</span><span class="chip" style="font-size:10px;">static</span></div>
+                <h4>Emission factors &middot; per fuel type</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">static</span></span><span>Lag <span class="mono">on change</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Group: Statistics National -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Statistics &middot; National</h3>
+          <span class="small">2 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Aggregated carbon intensity statistics over windowed ranges &mdash; max, min, mean, and hour-block splits.</p>
+
+        <div class="ds-grid">
+          <a href="neso/intensity_stats.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_stats</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity statistics &middot; windowed range</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 / window</span></span></div>
+          </a>
+          <a href="neso/intensity_stats_block.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">intensity_stats_block</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Carbon intensity statistics &middot; 24h block splits</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Group: Generation Mix National -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Generation Mix &middot; National <span class="small" style="margin-left:8px;color:var(--ink-faint);">beta</span></h3>
+          <span class="small">3 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Per-fuel generation mix percentage breakdown &mdash; current run, prior 24h, and date range.</p>
+
+        <div class="ds-grid">
+          <a href="neso/generation.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">generation</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Generation mix &middot; national &middot; date range</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">48 &times; N fuels</span></span></div>
+          </a>
+          <a href="neso/generation_current.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">generation_current</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Generation mix &middot; current half-hour</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">N snapshot</span></span></div>
+          </a>
+          <a href="neso/generation_pt24h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">generation_pt24h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Generation mix &middot; prior 24h</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~48 &times; N</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Group: Carbon Intensity Regional -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Carbon Intensity &middot; Regional <span class="small" style="margin-left:8px;color:var(--ink-faint);">beta</span></h3>
+          <span class="small">18 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Regional carbon intensity by GB DNO zone, country, and postcode &mdash; current, fw24h, fw48h, and pt24h.</p>
+
+        <div class="ds-grid">
+          <a href="neso/regional_current.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_current</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; all GB regions</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~17</span></span></div>
+          </a>
+          <a href="neso/regional_england.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_england</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; England</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/regional_scotland.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_scotland</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; Scotland</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/regional_wales.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_wales</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; Wales</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/regional_postcode.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_postcode</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; by postcode</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/regional_regionid.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_regionid</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; by region ID</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">1 snapshot</span></span></div>
+          </a>
+          <a href="neso/regional_intensity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; all regions &middot; range</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">17 &times; 48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_fw24h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_fw24h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; all regions &middot; fw24h</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">17 &times; 48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_fw24h_postcode.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_fw24h_postcode</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity fw24h &middot; by postcode</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">~48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_fw24h_regionid.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_fw24h_regionid</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity fw24h &middot; by region ID</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">~48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_fw48h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_fw48h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; all regions &middot; fw48h</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">17 &times; 96</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_fw48h_postcode.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_fw48h_postcode</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity fw48h &middot; by postcode</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">~96</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_fw48h_regionid.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_fw48h_regionid</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity fw48h &middot; by region ID</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">forecast</span></span><span><span class="mono">~96</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_pt24h.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_pt24h</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; all regions &middot; pt24h</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">17 &times; 48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_pt24h_postcode.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_pt24h_postcode</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity pt24h &middot; by postcode</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_pt24h_regionid.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_pt24h_regionid</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity pt24h &middot; by region ID</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~48</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_postcode.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_postcode</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; by postcode &middot; range</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~48 / win</span></span></div>
+          </a>
+          <a href="neso/regional_intensity_regionid.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">regional_intensity_regionid</span><span class="chip" style="font-size:10px;">30 min</span></div>
+                <h4>Regional intensity &middot; by region ID &middot; range</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">30 min</span></span><span>Lag <span class="mono">~0</span></span><span><span class="mono">~48 / win</span></span></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="../../assets/charts.js"></script>
+<script src="../../assets/site.js"></script>
+</body>
+</html>

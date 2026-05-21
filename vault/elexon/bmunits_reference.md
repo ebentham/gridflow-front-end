@@ -132,7 +132,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/referenc
 |-------|-------------|----------|--------------|-------|
 | `bm_unit_id` | `str` | No | `bmUnit` or `elexonBmUnit` | BM Unit identifier — preserve raw casing. |
 | `bm_unit_name` | `str` | Yes | `name` or `bmUnitName` | Friendly name of the BM Unit. |
-| `fuel_type` | `str` | No | `fuelType` | Fuel category (CCGT, COAL, NUCLEAR, WIND, etc.). |
+| `fuel_type` | `str` | Yes | `fuelType` | Fuel category (CCGT, COAL, NUCLEAR, WIND, etc.). Nullable per ElexonBMUnit. |
 | `registered_capacity_mw` | `float` | Yes | `registeredCapacity` or `generationCapacity` | MW. |
 | `company_name` | `str` | Yes | `companyName` or `leadPartyName` | Lead party (operator) name. |
 | `gsp_group_id` | `str` | Yes | `gspGroupId` | GSP group identifier. |

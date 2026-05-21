@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Open-Meteo Weather · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* page-specific tweaks — kept minimal */
+    /* the shared theme sets body{min-width:1280px}; vendor hub pages are mobile-functional, so we override */
+    body { min-width: 0; }
+    .meta-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); }
+    .meta-grid > div { padding: 18px 20px; border-bottom: 1px solid var(--rule); }
+    .meta-grid > div:nth-child(odd) { border-right: 1px solid var(--rule); }
+    .meta-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .meta-grid .mono { word-break: break-all; }
+    .ds-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    /* let the last paper-deep section flow into the footer (also paper-deep) */
+    .footer { margin-top: 0; }
+    .card.ds-card { border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block; }
+    .card.ds-card h4 { font-family: var(--serif); font-size: 18px; margin: 0; }
+    .card.ds-card .mono.small { min-width: 0; }
+    .ds-meta { color: var(--ink-soft); }
+    .group-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 16px; }
+    .group-head h3 { font-family: var(--serif); font-size: 24px; font-weight: 400; margin: 0; }
+
+    @media (max-width: 1080px) {
+      .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
+      .stats-strip > div:nth-child(2) { border-right: 0; }
+      .stats-strip > div:nth-child(1), .stats-strip > div:nth-child(2) { border-bottom: 1px solid var(--rule); }
+      .ds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .meta-grid { grid-template-columns: 1fr; }
+      .meta-grid > div { border-right: 0 !important; border-bottom: 1px solid var(--rule); }
+      .meta-grid > div:last-child { border-bottom: 0; }
+      .ds-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page="vendor" data-root="../../" data-screen-label="Vendor · Open-Meteo Weather">
+<main>
+
+  <!-- hero -->
+  <section class="block" style="padding: 48px 0 40px;">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <span class="here" aria-current="page">Open-Meteo Weather</span>
+      </nav>
+
+      <div class="hero-grid" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-16" style="align-items:center;">
+            <span class="eyebrow">Open-Meteo &middot; Great Britain &middot; Weather</span>
+            <span class="chip" style="font-size: 11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            Open-Meteo <span class="italic">Weather.</span>
+          </h1>
+          <p class="lede" style="max-width: 580px;">An open-source weather API aggregating ECMWF, GFS, and ERA5 reanalysis into a single columnar JSON interface. No authentication required for non-commercial use. Six datasets covering hourly temperature, wind, and solar irradiance across GB population centres and capacity-weighted generation sites &mdash; 1&ndash;16-day forecasts and ERA5-backed archive to 1940.</p>
+          <div class="row gap-16 mt-32">
+            <a href="#datasets" class="btn primary">Browse 6 datasets &darr;</a>
+            <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener" class="btn ghost">Vendor docs &nearr;</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="meta-grid">
+            <div>
+              <div class="tiny mb-8">BASE URL &middot; FORECAST</div>
+              <div class="mono small">api.open-meteo.com/v1</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">BASE URL &middot; ARCHIVE</div>
+              <div class="mono small">archive-api.open-meteo.com/v1</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Public &middot; no key required</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">FORMAT</div>
+              <div class="small">JSON &middot; ISO-8601 &middot; UTC</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">RATE LIMIT</div>
+              <div class="small">5 req/s &middot; project default<br/><span style="color:var(--ink-faint);">~10 000 req/day free tier</span></div>
+            </div>
+            <div>
+              <div class="tiny mb-8">EARLIEST</div>
+              <div class="small">1940-01-01 &middot; ERA5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- stats strip -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">6</div>
+        <div class="stat-l">Datasets</div>
+      </div>
+      <div>
+        <div class="stat-n">2</div>
+        <div class="stat-l">Categories &middot; forecast + historical</div>
+      </div>
+      <div>
+        <div class="stat-n">1940</div>
+        <div class="stat-l">ERA5 archive depth</div>
+      </div>
+      <div>
+        <div class="stat-n">25</div>
+        <div class="stat-l">GB sites &middot; demand + wind + solar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- dataset catalog -->
+  <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">6 datasets &middot; 2 categories</div>
+          <h2 class="display-3">The catalog.</h2>
+        </div>
+      </div>
+
+      <!-- Group: Forecast -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Forecast</h3>
+          <span class="small">3 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Hourly NWP model output, 1&ndash;16 days ahead, at GB demand centres and generation sites. Refreshed approximately every hour as the upstream model completes a new run.</p>
+
+        <div class="ds-grid">
+          <a href="openmeteo/forecast_demand.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">forecast_demand</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <h4>Forecast demand weather &middot; population centres</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">hourly</span></span>
+              <span>Lag <span class="mono">~1 hr</span></span>
+              <span><span class="mono">1.2k / run</span></span>
+            </div>
+          </a>
+
+          <a href="openmeteo/forecast_wind.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">forecast_wind</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <h4>Forecast wind weather &middot; capacity-weighted sites</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">hourly</span></span>
+              <span>Lag <span class="mono">~1 hr</span></span>
+              <span><span class="mono">2.0k / run</span></span>
+            </div>
+          </a>
+
+          <a href="openmeteo/forecast_solar.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">forecast_solar</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <h4>Forecast solar irradiance &middot; capacity-weighted sites</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">hourly</span></span>
+              <span>Lag <span class="mono">~1 hr</span></span>
+              <span><span class="mono">1.0k / run</span></span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Group: Historical -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Historical</h3>
+          <span class="small">3 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">ERA5 reanalysis archive from 1940, approximately five days behind real time, at the same GB sites.</p>
+
+        <div class="ds-grid">
+          <a href="openmeteo/historical_demand.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">historical_demand</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <h4>Historical demand weather &middot; ERA5 archive</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">hourly</span></span>
+              <span>Lag <span class="mono">~5 days</span></span>
+              <span><span class="mono">168 / day</span></span>
+            </div>
+          </a>
+
+          <a href="openmeteo/historical_wind.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">historical_wind</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <h4>Historical wind weather &middot; ERA5 archive</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">hourly</span></span>
+              <span>Lag <span class="mono">~5 days</span></span>
+              <span><span class="mono">288 / day</span></span>
+            </div>
+          </a>
+
+          <a href="openmeteo/historical_solar.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">historical_solar</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <h4>Historical solar irradiance &middot; ERA5 archive</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">hourly</span></span>
+              <span>Lag <span class="mono">~5 days</span></span>
+              <span><span class="mono">144 / day</span></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="../../assets/charts.js"></script>
+<script src="../../assets/site.js"></script>
+</body>
+</html>

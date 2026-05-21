@@ -2,8 +2,13 @@
 source: elexon
 dataset_key: mid
 vendor: Elexon BMRS
-last_verified: 2026-05-08
+last_verified: 2026-05-21
 layer_coverage: bronze, silver
+v2_fix_history:
+  - date: 2026-05-20
+    phase: gridflow-G5-W1.2
+    pr: https://github.com/EBentham/gridflow/pull/7
+    change: silver transformer now also recognises current-API field names (dataProvider, price) alongside legacy (dataProviderId, midPrice)
 ---
 
 # Elexon - Market Index Data (`MID`)
@@ -108,8 +113,8 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `settlement_date` | `date` | No | `settlementDate` | Settlement date (BST/GMT calendar). |
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
-| `data_provider_id` | `str` | Yes | `dataProviderId` | MIDP code (e.g. APXMIDP). |
-| `market_index_price` | `float` | Yes | `midPrice` | GBP/MWh. |
+| `data_provider_id` | `str` | Yes | `dataProviderId` (legacy) / `dataProvider` (current) | MIDP code (e.g. APXMIDP). G5-W1.2: live API renamed to `dataProvider` 2026-05; transformer renames both. |
+| `market_index_price` | `float` | Yes | `midPrice` (legacy) / `price` (current) | GBP/MWh. G5-W1.2: live API renamed to `price` 2026-05; transformer renames both. |
 | `market_index_volume` | `float` | Yes | `volume` | MWh. |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
@@ -148,6 +153,15 @@ None implemented.
 ## Implementation delta
 
 - **Param style**: docs require `from`/`to`; code matches.
+
+### V2-FIX changelog
+
+- **2026-05-20 — gridflow G5-W1.2 (PR #7)**: live Elexon API now returns
+  `dataProvider` / `price` rather than the original `dataProviderId` /
+  `midPrice`. Silver transformer extended to rename both shapes; pre-G5
+  silver carried `null` on `data_provider_id` and `market_index_price`
+  because the live bronze didn't match the original rename map (P1
+  silent-null bug).
 
 ---
 

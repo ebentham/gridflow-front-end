@@ -96,12 +96,12 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 | Field | Python type | Nullable | Source field | Notes |
 |-------|-------------|----------|--------------|-------|
-| `settlement_date` | `date` | No | `settlementDate` | Settlement date (BST/GMT calendar). |
-| `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
+| `settlement_date` | `date` | Yes | `settlementDate` | Settlement date (BST/GMT calendar). Nullable per ElexonWindForecast. |
+| `settlement_period` | `int` | Yes | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). Nullable per ElexonWindForecast. |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `initial_forecast_mw` | `float` | Yes | `initialForecast` | MW. |
 | `latest_forecast_mw` | `float` | Yes | `latestForecast` or `generation` | MW. |
-| `issue_time` | `datetime[UTC]` | Yes | _TODO_ | Forecast issue time. |
+| `published_at` | `datetime` | Yes | `publishTime` | Publication time of the forecast (Canonical: ElexonWindForecast.published_at). |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 

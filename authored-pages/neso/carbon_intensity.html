@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>carbon_intensity · NESO · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; text-align: right; }
+    /* intensity bucket bar */
+    .intensity-bar { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    .intensity-bar > div { padding: 18px 20px; border-right: 1px solid var(--rule); }
+    .intensity-bar > div:last-child { border-right: 0; }
+    .intensity-bar .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; margin-bottom: 8px; text-transform: uppercase; }
+    .intensity-bar .rng { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--ink); margin-bottom: 6px; line-height: 1; }
+    .intensity-bar .rng .unit { font-size: 11px; color: var(--ink-faint); font-family: var(--mono); }
+    .intensity-bar .desc { font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+    .intensity-bar .vlow .lbl { color: #3b6b4b; }
+    .intensity-bar .low  .lbl { color: #5a8aa6; }
+    .intensity-bar .mod  .lbl { color: #c9a96e; }
+    .intensity-bar .hi   .lbl { color: #c45a3a; }
+    .intensity-bar .vhi  .lbl { color: #86627d; }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="NESO · carbon_intensity">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="_landing.html">NESO</a>
+        <span class="sep">/</span>
+        <span class="here">carbon_intensity</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · NESO · Carbon</span>
+            <span class="chip" style="font-size:11px;">30 min · forecast + actual</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">carbon_intensity</span><br/>
+            GB carbon intensity, <span class="italic fg-accent">half-hourly.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            The canonical National Grid carbon-intensity series — gCO2 per
+            kWh of GB electricity consumed, published per settlement period as
+            both forecast and post-period actual. The reference dataset for
+            carbon-aware scheduling, MEF (Marginal Emissions Factor)
+            modelling, and "is it a clean hour to charge?" consumer
+            applications across the UK.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://carbon-intensity.github.io/api-definitions/" class="link" target="_blank" rel="noopener">NESO Carbon Intensity API · /intensity ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.carbon_intensity</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small">/intensity/{from}/{to}</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">30 min · SP</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">forecast ahead · actual after each SP</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">48 / day · ~1.4k / mo</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small">(timestamp_utc)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">30<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">min</span></div>
+        <div class="stat-l">Settlement period cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">14<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">d</span></div>
+        <div class="stat-l">Max range per request</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 30px;">gCO2/kWh</div>
+        <div class="stat-l">Reporting unit</div>
+      </div>
+      <div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#snapshot" class="active">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#intensity-index">Intensity index</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">NESO</div>
+          <a href="_landing.html">← All datasets</a>
+          <a href="carbon_intensity.html" class="active">carbon_intensity</a>
+          <a href="#" style="color:var(--ink-faint);">intensity_current</a>
+          <a href="#" style="color:var(--ink-faint);">intensity_factors</a>
+          <a href="#" style="color:var(--ink-faint);">intensity_at</a>
+          <a href="#" style="color:var(--ink-faint);">intensity_date</a>
+          <a href="#" style="color:var(--ink-faint);">intensity_fw24h</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">GB carbon intensity · forecast vs <span class="italic fg-accent">actual.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">carbon_intensity · silver layer · 24h</div>
+                <div class="small">Sparkline · gCO2/kWh · 30 min SP · UTC · 6 May 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div style="padding: 24px 0;">
+              <div class="row" style="align-items: baseline; gap: 32px; margin-bottom: 16px;">
+                <div>
+                  <div class="tiny mb-4">forecast · current SP</div>
+                  <div style="font-family: var(--serif); font-size: 48px; line-height: 1; color: var(--ink); font-weight: 400;">198<span style="font-size: 16px; color: var(--ink-soft); margin-left: 4px;">gCO2/kWh</span></div>
+                </div>
+                <div>
+                  <div class="tiny mb-4">actual · previous SP</div>
+                  <div style="font-family: var(--serif); font-size: 48px; line-height: 1; color: var(--accent); font-weight: 400;">64<span style="font-size: 16px; color: var(--ink-soft); margin-left: 4px;">gCO2/kWh</span></div>
+                </div>
+                <div>
+                  <div class="tiny mb-4">index</div>
+                  <div class="mono" style="font-size: 13px; color: var(--accent); letter-spacing: 0.06em;">VERY LOW</div>
+                </div>
+              </div>
+              <div data-chart="sparkline" data-opts='{"width":860,"height":80,"seed":23,"n":48}'></div>
+              <div class="row" style="justify-content: space-between; margin-top: 6px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint);">
+                <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+              </div>
+            </div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/neso.py · CarbonIntensity</code>
+            (line 31, subclass of <code class="mono">_TimestampedNesoBase</code>)
+            and <code class="mono">gridflow/silver/neso/carbon_intensity.py · CarbonIntensityTransformer</code>
+            (line 103). Partitioned by <code class="mono">timestamp_utc</code>
+            (year + month). Point-in-time field: <code class="mono">timestamp_utc</code>
+            (no separate revision timestamp — actuals are post-period
+            estimates, not revised once published).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr><th style="width: 24%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Half-hour period START. Period END is <code class="mono">period_end_utc</code>. UTC always (vendor sends <code class="mono">Z</code> suffix). Source: <code class="mono">from</code>.<span class="cite">schemas/neso.py L31 · inherits _TimestampedNesoBase</span></td></tr>
+              <tr><td class="col-name">period_end_utc</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Half-hour period end (<code class="mono">timestamp_utc + 30 min</code>). Source: <code class="mono">to</code>.<span class="cite">schemas/neso.py L31+</span></td></tr>
+              <tr><td class="col-name">forecast_gco2_kwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Forecast carbon intensity in gCO2/kWh. Populated ahead of the period. Source: <code class="mono">intensity.forecast</code>.<span class="cite">schemas/neso.py L34</span></td></tr>
+              <tr><td class="col-name">actual_gco2_kwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Post-period estimated actual; <strong>often null before actuals publish</strong>. Treat null as "actual not yet available" not "zero carbon". Source: <code class="mono">intensity.actual</code>.<span class="cite">schemas/neso.py L35</span></td></tr>
+              <tr><td class="col-name">intensity_index</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Categorical: <code class="mono">very low</code> / <code class="mono">low</code> / <code class="mono">moderate</code> / <code class="mono">high</code> / <code class="mono">very high</code>. Vendor-managed value list; no regex constraint. Source: <code class="mono">intensity.index</code>.<span class="cite">schemas/neso.py L36</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"neso"</code>.<span class="cite">schemas/neso.py · derived</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Silver transform timestamp.<span class="cite">schemas/neso.py · derived</span></td></tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/neso/carbon_intensity/year=YYYY/month=MM/</div></div>
+            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">timestamp_utc (year + month)</div></div>
+            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(timestamp_utc) — keep last (forecast → actual)</div></div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>timestamp_utc</th>
+                  <th>period_end_utc</th>
+                  <th>forecast_gco2_kwh</th>
+                  <th>actual_gco2_kwh</th>
+                  <th>intensity_index</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="date">2026-05-06T00:30:00+00:00</td><td class="num">245.0</td><td class="num">239.0</td><td class="str">moderate</td></tr>
+                <tr><td class="date">2026-05-06T00:30:00+00:00</td><td class="date">2026-05-06T01:00:00+00:00</td><td class="num">250.0</td><td class="num">248.0</td><td class="str">moderate</td></tr>
+                <tr><td class="date">2026-05-06T11:00:00+00:00</td><td class="date">2026-05-06T11:30:00+00:00</td><td class="num">92.0</td><td class="num">88.0</td><td class="str">low</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T12:00:00+00:00</td><td class="date">2026-05-06T12:30:00+00:00</td><td class="num">68.0</td><td class="num">64.0</td><td class="str">very low</td></tr>
+                <tr><td class="date">2026-05-06T13:00:00+00:00</td><td class="date">2026-05-06T13:30:00+00:00</td><td class="num">71.0</td><td class="num">70.0</td><td class="str">very low</td></tr>
+                <tr><td class="date">2026-05-06T18:00:00+00:00</td><td class="date">2026-05-06T18:30:00+00:00</td><td class="num">218.0</td><td class="num">224.0</td><td class="str">moderate</td></tr>
+                <tr><td class="date">2026-05-06T19:00:00+00:00</td><td class="date">2026-05-06T19:30:00+00:00</td><td class="num">285.0</td><td class="num">293.0</td><td class="str">high</td></tr>
+                <tr><td class="date">2026-05-06T23:30:00+00:00</td><td class="date">2026-05-07T00:00:00+00:00</td><td class="num">198.0</td><td class="nul">null</td><td class="str">moderate</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            First two rows from vault Silver sample (live 2026-05-08); subsequent rows synthesised respecting the published 24-hour arc on a sunny May day — solar peak at midday drives intensity into "very low" (highlighted row at 12:00, 64 gCO2/kWh — the lowest-emissions hour of the day, dominated by solar + wind), then ramps up through evening peak (19:00, 285 forecast / 293 actual, "high"), with overnight settling around moderate. The final row (23:30) shows the publication lag pattern: forecast is present but actual is null because the post-period estimate hasn't been published yet at the moment of query.
+          </div>
+        </section>
+
+        <!-- ── Intensity index ── -->
+        <section id="intensity-index" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Intensity index</div>
+          <h2 class="display-3 mb-8">Categorical codelist.</h2>
+          <p class="small mb-24" style="max-width: 600px;">The <code class="mono">intensity_index</code> column is NESO's qualitative carbon-intensity bucket. Bucket boundaries shift over time as the GB grid decarbonises (the 2024 "moderate" threshold is lower than 2018's); the categorical is more stable than the gCO2/kWh value for user-facing displays.</p>
+          <div class="intensity-bar">
+            <div class="vlow">
+              <div class="lbl">VERY LOW</div>
+              <div class="rng">&lt; 90<span class="unit"> gCO2/kWh</span></div>
+              <div class="desc">Optimal for delayed loads (EV charging, water heaters)</div>
+            </div>
+            <div class="low">
+              <div class="lbl">LOW</div>
+              <div class="rng">90–130<span class="unit"> gCO2/kWh</span></div>
+              <div class="desc">Good window</div>
+            </div>
+            <div class="mod">
+              <div class="lbl">MODERATE</div>
+              <div class="rng">130–230<span class="unit"> gCO2/kWh</span></div>
+              <div class="desc">Default state</div>
+            </div>
+            <div class="hi">
+              <div class="lbl">HIGH</div>
+              <div class="rng">230–330<span class="unit"> gCO2/kWh</span></div>
+              <div class="desc">Defer flexible loads if possible</div>
+            </div>
+            <div class="vhi">
+              <div class="lbl">VERY HIGH</div>
+              <div class="rng">&gt; 330<span class="unit"> gCO2/kWh</span></div>
+              <div class="desc">Peak fossil dispatch (oil / OCGT)</div>
+            </div>
+          </div>
+          <p class="tiny mt-16" style="max-width: 700px;">Typical 2026 ranges shown. Bucket boundaries are vendor-managed and revised as the GB grid decarbonises — do not hard-code thresholds.</p>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">api.carbonintensity.org.uk<br/>/intensity/{from}/{to}<br/><br/><span style="color:var(--ink-faint);"># path segments, NOT query params<br/># max 14-day range</span></div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public). Send <code class="mono">Accept: application/json</code>. Rate limit not vendor-documented; gridflow throttles to 10 req/s.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/neso/carbon_intensity/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/<br/>raw_&lt;timestamp&gt;_&lt;hash&gt;.json<br/><span style="color:var(--ink-faint);"># + .meta.json sidecar</span></div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.neso.carbon_intensity.<br/>CarbonIntensityTransformer<br/>(registered · L118)</div>
+            </div>
+          </div>
+
+          <div data-tab-group="ci">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('ci','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('ci','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('ci','py',this)" style="cursor:pointer;">Python · parquet</button>
+            </div>
+            <div data-tab-panel="ci-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;"><span class="c"># Header: Accept: application/json</span>
+https://api.carbonintensity.org.uk/intensity/2026-05-06T00:00Z/2026-05-07T00:00Z</pre>
+            </div></div>
+            <div data-tab-panel="ci-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Cleanest hours per day (lowest actual carbon intensity) last 30 days</span>
+<span class="k">SELECT</span> date_trunc(<span class="s">'day'</span>, timestamp_utc) <span class="k">AS</span> day,
+       min(actual_gco2_kwh) <span class="k">AS</span> min_actual,
+       arg_min(timestamp_utc, actual_gco2_kwh) <span class="k">AS</span> cleanest_sp
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/neso/carbon_intensity/**/*.parquet'</span>)
+<span class="k">WHERE</span> actual_gco2_kwh <span class="k">IS NOT NULL</span>
+  <span class="k">AND</span> timestamp_utc &gt;= current_date - <span class="k">INTERVAL</span> 30 <span class="k">DAY</span>
+<span class="k">GROUP BY</span> 1
+<span class="k">ORDER BY</span> 1 <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="ci-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(
+    <span class="s">"data/silver/neso/carbon_intensity/**/*.parquet"</span>,
+)
+<span class="c"># Forecast skill: mean absolute error between forecast and actual</span>
+skill = (
+    df.filter(pl.col(<span class="s">"actual_gco2_kwh"</span>).is_not_null())
+      .with_columns(
+          (pl.col(<span class="s">"forecast_gco2_kwh"</span>) - pl.col(<span class="s">"actual_gco2_kwh"</span>)).abs().alias(<span class="s">"abs_err"</span>)
+      )
+      .group_by(pl.col(<span class="s">"timestamp_utc"</span>).dt.date().alias(<span class="s">"day"</span>))
+      .agg(pl.col(<span class="s">"abs_err"</span>).mean().alias(<span class="s">"mae_gco2_kwh"</span>))
+      .sort(<span class="s">"day"</span>)
+)
+print(skill.tail(<span class="num">7</span>))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside carbon_intensity.</h2>
+
+          <div class="related-grid">
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">intensity_current</span>
+                  <span class="chip" style="font-size:10px;">current</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Single-record current carbon intensity — companion to this dataset for live displays. Same schema (<code class="mono">CarbonIntensity</code>), different query semantics (no-arg vs range).</p>
+              <span class="tiny">neso · carbon · current</span>
+            </a>
+
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">intensity_factors</span>
+                  <span class="chip" style="font-size:10px;">static</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-fuel emissions factors used to compute the intensity — the underlying gCO2/kWh per fuel type that, when weighted by fuelhh-style fuel mix, produces this dataset's value. Use for MEF attribution.</p>
+              <span class="tiny">neso · carbon · static</span>
+            </a>
+
+            <a href="../elexon/fuelhh.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">fuelhh</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">GB generation by fuel type at 30-min resolution. Standard MEF derivation: <code class="mono">sum(generation_mw[fuel] × intensity_factor[fuel]) / sum(generation_mw)</code>.</p>
+              <span class="tiny">elexon · generation · 30 min</span>
+            </a>
+
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">system_prices</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">GB cash-out prices per settlement period — the most-load-bearing downstream join. Gold view <code class="mono">uk_imbalance_context</code> joins these two datasets on <code class="mono">timestamp_utc</code> for carbon-aware price analysis.</p>
+              <span class="tiny">elexon · prices · 30 min</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => b.classList.remove('ink'));
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

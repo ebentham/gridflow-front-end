@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GIE Storage · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    body { min-width: 0; }
+    .meta-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); }
+    .meta-grid > div { padding: 18px 20px; border-bottom: 1px solid var(--rule); }
+    .meta-grid > div:nth-child(odd) { border-right: 1px solid var(--rule); }
+    .meta-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .meta-grid .mono { word-break: break-all; }
+    .ds-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card.ds-card { border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block; }
+    .card.ds-card h4 { font-family: var(--serif); font-size: 18px; margin: 0; }
+    .card.ds-card .mono.small { min-width: 0; }
+    .ds-meta { color: var(--ink-soft); }
+    .group-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 16px; }
+    .group-head h3 { font-family: var(--serif); font-size: 24px; font-weight: 400; margin: 0; }
+    .footer { margin-top: 0; }
+
+    @media (max-width: 1080px) {
+      .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
+      .stats-strip > div:nth-child(2) { border-right: 0; }
+      .stats-strip > div:nth-child(1), .stats-strip > div:nth-child(2) { border-bottom: 1px solid var(--rule); }
+      .ds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .meta-grid { grid-template-columns: 1fr; }
+      .meta-grid > div { border-right: 0 !important; border-bottom: 1px solid var(--rule); }
+      .meta-grid > div:last-child { border-bottom: 0; }
+      .ds-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page="vendor" data-root="../../" data-screen-label="Vendor · GIE Storage">
+<main>
+
+  <!-- hero -->
+  <section class="block" style="padding: 48px 0 40px;">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <span class="here" aria-current="page">GIE Storage</span>
+      </nav>
+
+      <div class="hero-grid" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-16" style="align-items:center;">
+            <span class="eyebrow">GIE &middot; European Union &middot; Gas</span>
+            <span class="chip" style="font-size: 11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            GIE <span class="italic">Storage.</span>
+          </h1>
+          <p class="lede" style="max-width: 580px;">Gas Infrastructure Europe &mdash; the trade association for European gas storage and LNG operators. AGSI+ publishes daily underground storage levels by country and facility from 2011; ALSI publishes daily LNG terminal inventories and send-out across the same European footprint. Both sub-products share a single <span class="mono" style="font-size:14px;">x-key</span> authentication model on separate hosts.</p>
+          <div class="row gap-16 mt-32">
+            <a href="#datasets" class="btn primary">Browse 8 datasets &darr;</a>
+            <a href="https://agsi.gie.eu" target="_blank" rel="noopener" class="btn ghost">Vendor docs &nearr;</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="meta-grid">
+            <div>
+              <div class="tiny mb-8">BASE URL &middot; AGSI+</div>
+              <div class="mono small">agsi.gie.eu</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">BASE URL &middot; ALSI</div>
+              <div class="mono small">alsi.gie.eu</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">API key &middot; <span class="mono">x-key</span> header</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">FORMAT</div>
+              <div class="small">JSON &middot; ISO-8601 &middot; gas day</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">RATE LIMIT</div>
+              <div class="small">1 req/s &middot; project default<br/><span style="color:var(--ink-faint);">60 req/min vendor cap</span></div>
+            </div>
+            <div>
+              <div class="tiny mb-8">EARLIEST</div>
+              <div class="small">2011-01-01 &middot; AGSI</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- stats strip -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">8</div>
+        <div class="stat-l">Datasets</div>
+      </div>
+      <div>
+        <div class="stat-n">2</div>
+        <div class="stat-l">Sub-products &middot; AGSI+ &middot; ALSI</div>
+      </div>
+      <div>
+        <div class="stat-n">9</div>
+        <div class="stat-l">AGSI countries</div>
+      </div>
+      <div>
+        <div class="stat-n">2011</div>
+        <div class="stat-l">Storage depth &middot; first record</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- dataset catalog -->
+  <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">8 datasets &middot; 2 sub-products</div>
+          <h2 class="display-3">The catalog.</h2>
+        </div>
+      </div>
+
+      <!-- Group: AGSI+ Storage -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Storage &middot; AGSI+</h3>
+          <span class="small">7 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Daily underground gas storage levels, facility inventory, outages, and operator reference data.</p>
+
+        <div class="ds-grid">
+          <a href="gie/storage.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <h4>Gas storage levels &middot; country &middot; daily</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">daily</span></span>
+              <span>Lag <span class="mono">~16:00 CET</span></span>
+              <span><span class="mono">9 / day</span></span>
+            </div>
+          </a>
+
+          <a href="gie/storage_reports.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage_reports</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <h4>Storage reports &middot; aggregate / country / company / facility</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">daily</span></span>
+              <span>Lag <span class="mono">~16:00 CET</span></span>
+              <span><span class="mono">varies</span></span>
+            </div>
+          </a>
+
+          <a href="gie/unavailability.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">unavailability</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <h4>Storage unavailability &middot; outage reports</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">as published</span></span>
+              <span>Lag <span class="mono">real-time</span></span>
+              <span><span class="mono">varies</span></span>
+            </div>
+          </a>
+
+          <a href="gie/about_listing.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">about_listing</span>
+                  <span class="chip" style="font-size:10px;">snapshot</span>
+                </div>
+                <h4>Operator and facility inventory &middot; flat listing</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">snapshot</span></span>
+              <span>Lag <span class="mono">on change</span></span>
+              <span><span class="mono">1 snapshot</span></span>
+            </div>
+          </a>
+
+          <a href="gie/about_summary.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">about_summary</span>
+                  <span class="chip" style="font-size:10px;">snapshot</span>
+                </div>
+                <h4>Operator and facility reference &middot; hierarchical</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">snapshot</span></span>
+              <span>Lag <span class="mono">on change</span></span>
+              <span><span class="mono">1 snapshot</span></span>
+            </div>
+          </a>
+
+          <a href="gie/news.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">news</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <h4>Service announcements &middot; news listing</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">as published</span></span>
+              <span>Lag <span class="mono">real-time</span></span>
+              <span><span class="mono">~2&ndash;3 yr</span></span>
+            </div>
+          </a>
+
+          <a href="gie/news_item.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">news_item</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <h4>Announcement detail &middot; by ID</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">as published</span></span>
+              <span>Lag <span class="mono">real-time</span></span>
+              <span><span class="mono">1 / ID</span></span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Group: ALSI LNG -->
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>LNG &middot; ALSI</h3>
+          <span class="small">1 dataset</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Daily LNG terminal inventory, send-out, and injection by country across EU import terminals.</p>
+
+        <div class="ds-grid">
+          <a href="gie/lng.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8">
+                  <span class="mono small" style="color:var(--ink-strong);">lng</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <h4>LNG terminal levels &middot; country &middot; daily</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta">
+              <span><span class="mono">daily</span></span>
+              <span>Lag <span class="mono">daily</span></span>
+              <span><span class="mono">8 / day</span></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="../../assets/charts.js"></script>
+<script src="../../assets/site.js"></script>
+</body>
+</html>
