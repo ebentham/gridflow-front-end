@@ -2,13 +2,8 @@
 source: elexon
 dataset_key: fuelhh
 vendor: Elexon BMRS
-last_verified: 2026-05-21
+last_verified: 2026-05-08
 layer_coverage: bronze, silver
-v2_fix_history:
-  - date: 2026-05-20
-    phase: gridflow-G5-W2.2
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: silver transformer now casts `published_at` to UTC datetime and includes it in output_cols (previously renamed but silently dropped before write)
 ---
 
 # Elexon - Half-Hourly Generation Outturn by Fuel Type (`FUELHH`)
@@ -116,7 +111,6 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `fuel_type` | `str` | No | `fuelType` | Fuel category (CCGT, COAL, NUCLEAR, WIND, etc.). |
 | `generation_mw` | `float` | No | `generation` | MW. |
-| `published_at` | `datetime[UTC]` | Yes | `publishDateTime` (also `publishTime`) | Publication time. G5-W2.2: now cast to UTC-aware datetime and included in `output_cols`; previously the rename produced the column but it was dropped before write. |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 
@@ -155,16 +149,6 @@ None implemented.
 
 - **No documented `from_param`/`to_param` override** needed — connector uses default `publishDateTimeFrom/To` which docs accept (alongside `settlementDateFrom/To`).
 - **Schema**: `ElexonFuelHH` declared and matches silver output.
-
-### V2-FIX changelog
-
-- **2026-05-20 — gridflow G5-W2.2 (PR #7)**: silver transformer now casts
-  `published_at` (renamed from `publishDateTime`) to a UTC-aware datetime
-  and includes it in `output_cols`. Previously the column was renamed but
-  the `select(output_cols)` step dropped it before write — schema declared
-  `published_at: datetime | None` but Parquet never carried it (W2.2
-  schema-vs-output silent-drop pattern). Acceptance test
-  `test_published_at_emitted_when_bronze_carries_it` pins the fix.
 
 ---
 

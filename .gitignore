@@ -8,10 +8,6 @@ build/
 .claude/
 .codex-assessment-shots/
 
-# Agent harness state (local skills/lock files — not project source).
-.agents/
-skills-lock.json
-
 # Generated vendor pages and dataset pages (rendered by gridflow-build).
 # The source of truth is vault/<vendor>/<slug>.md + site/hifi/data/<vendor>.json
 # for real vendors, and the COMING_SOON_VENDORS config in build.py for stubs.
@@ -19,12 +15,8 @@ site/hifi/data-sources/elexon/*.html
 site/hifi/data-sources/elexon.html
 site/hifi/data-sources/entsoe/*.html
 site/hifi/data-sources/entsoe.html
-site/hifi/data-sources/entsog/*.html
 site/hifi/data-sources/entsog.html
-site/hifi/data-sources/gie/*.html
 site/hifi/data-sources/gie_agsi.html
 site/hifi/data-sources/gie_alsi.html
-site/hifi/data-sources/neso/*.html
-site/hifi/data-sources/neso.html
-site/hifi/data-sources/openmeteo/*.html
 site/hifi/data-sources/openmeteo.html
+site/hifi/data-sources/neso.html

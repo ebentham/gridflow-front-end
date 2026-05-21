@@ -29,149 +29,6 @@
     };
   }
 
-  // ── SHAPES: deterministic domain-shape generators ───────────
-  // Each returns an array of length N. All accept opts (including seed).
-  // Inputs index i in [0, N), so a sample index maps to time-of-day via i/N * 24.
-  const SHAPES = {
-    // Sinusoidal demand curve, peak afternoon (~17:30).
-    "diurnal-load": (N, opts = {}) => {
-      const peakHour = opts.peak_hour != null ? opts.peak_hour : 17.5;
-      const peak = opts.peak != null ? opts.peak : 1.0;
-      const trough = opts.trough != null ? opts.trough : 0.6;
-      const noise = opts.noise != null ? opts.noise : 0.04;
-      const mid = (peak + trough) / 2;
-      const amp = (peak - trough) / 2;
-      const r = rng(opts.seed || 11);
-      return Array.from({ length: N }, (_, i) => {
-        const hour = (i / N) * 24;
-        // cosine bowl: trough at peakHour - 12, peak at peakHour
-        const phase = ((hour - peakHour) / 24) * 2 * Math.PI;
-        const base = mid - amp * Math.cos(phase);
-        return base + (r() - 0.5) * 2 * noise * amp;
-      });
-    },
-    // Bell curve, zero outside daylight window.
-    "diurnal-solar": (N, opts = {}) => {
-      const peakHour = opts.peak_hour != null ? opts.peak_hour : 12.5;
-      const halfWidth = opts.half_width != null ? opts.half_width : 5;
-      const peak = opts.peak != null ? opts.peak : 1.0;
-      const noise = opts.noise != null ? opts.noise : 0.05;
-      const r = rng(opts.seed || 13);
-      return Array.from({ length: N }, (_, i) => {
-        const hour = (i / N) * 24;
-        const dt = hour - peakHour;
-        const g = peak * Math.exp(-(dt * dt) / (2 * halfWidth * halfWidth / 4));
-        const wob = (r() - 0.5) * 2 * noise * peak;
-        return Math.max(0, g + wob);
-      });
-    },
-    // Variable, weather-driven via AR(1) with persistence.
-    "diurnal-wind": (N, opts = {}) => {
-      const mean = opts.mean != null ? opts.mean : 0.5;
-      const vol = opts.volatility != null ? opts.volatility : 0.3;
-      const persistence = opts.persistence != null ? opts.persistence : 0.7;
-      const r = rng(opts.seed || 17);
-      const out = new Array(N);
-      let prev = mean;
-      for (let i = 0; i < N; i++) {
-        const innov = (r() - 0.5) * 2 * vol;
-        prev = mean + persistence * (prev - mean) + innov;
-        // clamp soft to [0, 2*mean]
-        out[i] = Math.max(0, Math.min(2 * mean, prev));
-      }
-      return out;
-    },
-    // Twin peaks: morning + evening, deeper trough in early hours.
-    "diurnal-price": (N, opts = {}) => {
-      const base = opts.base != null ? opts.base : 80;
-      const morningPeak = opts.morning_peak != null ? opts.morning_peak : 110;
-      const eveningPeak = opts.evening_peak != null ? opts.evening_peak : 140;
-      const morningH = opts.morning_h != null ? opts.morning_h : 8;
-      const eveningH = opts.evening_h != null ? opts.evening_h : 18;
-      const trough = opts.trough != null ? opts.trough : 50;
-      const noise = opts.noise != null ? opts.noise : 0.05;
-      const sigma = 1.8; // peak half-width in hours
-      const r = rng(opts.seed || 23);
-      return Array.from({ length: N }, (_, i) => {
-        const hour = (i / N) * 24;
-        const dm = hour - morningH;
-        const de = hour - eveningH;
-        const m = (morningPeak - base) * Math.exp(-(dm * dm) / (2 * sigma * sigma));
-        const e = (eveningPeak - base) * Math.exp(-(de * de) / (2 * sigma * sigma));
-        // deep low between midnight and 5am
-        const lowDip = (base - trough) * Math.max(0, Math.cos(((hour - 3) / 24) * 2 * Math.PI));
-        const v = base + m + e - lowDip * 0.6;
-        return v + (r() - 0.5) * 2 * noise * base;
-      });
-    },
-    // Smooth daily temperature curve.
-    "diurnal-temp": (N, opts = {}) => {
-      const peakHour = opts.peak_hour != null ? opts.peak_hour : 15;
-      const peak = opts.peak != null ? opts.peak : 18;
-      const trough = opts.trough != null ? opts.trough : 6;
-      const noise = opts.noise != null ? opts.noise : 0.5;
-      const mid = (peak + trough) / 2;
-      const amp = (peak - trough) / 2;
-      const r = rng(opts.seed || 29);
-      return Array.from({ length: N }, (_, i) => {
-        const hour = (i / N) * 24;
-        const phase = ((hour - peakHour) / 24) * 2 * Math.PI;
-        return mid - amp * Math.cos(phase) + (r() - 0.5) * 2 * noise;
-      });
-    },
-    // Mostly flat with small noise (baseload / nuclear / capacity-bounded).
-    "flat-baseload": (N, opts = {}) => {
-      const mean = opts.mean != null ? opts.mean : 1.0;
-      const noise = opts.noise != null ? opts.noise : 0.02;
-      const r = rng(opts.seed || 31);
-      return Array.from({ length: N }, () => mean + (r() - 0.5) * 2 * noise);
-    },
-    // Tight oscillation around midpoint (grid frequency style).
-    "frequency": (N, opts = {}) => {
-      const mean = opts.mean != null ? opts.mean : 50;
-      const amplitude = opts.amplitude != null ? opts.amplitude : 0.15;
-      const noise = opts.noise != null ? opts.noise : 0.03;
-      const r = rng(opts.seed || 37);
-      let prev = mean;
-      const out = new Array(N);
-      for (let i = 0; i < N; i++) {
-        // slow wander + tight oscillation
-        const slow = Math.sin((i / N) * 2 * Math.PI * 3) * amplitude * 0.6;
-        const innov = (r() - 0.5) * 2 * noise;
-        prev = mean * 0.05 + prev * 0.95 + innov;
-        out[i] = mean + slow + (prev - mean) * 0.4 + (r() - 0.5) * 2 * noise;
-      }
-      return out;
-    },
-    // Back-and-forth around zero (interconnector net flow style).
-    "bipolar-flow": (N, opts = {}) => {
-      const amplitude = opts.amplitude != null ? opts.amplitude : 1.0;
-      const period = opts.period != null ? opts.period : 8;
-      const noise = opts.noise != null ? opts.noise : 0.2;
-      const r = rng(opts.seed || 41);
-      return Array.from({ length: N }, (_, i) => {
-        const t = (i / N) * 24;
-        return amplitude * Math.sin((t / period) * 2 * Math.PI) + (r() - 0.5) * 2 * noise * amplitude;
-      });
-    },
-    // Mostly low with occasional spikes (imbalance / scarcity / LOLP).
-    "volatile-spikes": (N, opts = {}) => {
-      const base = opts.base != null ? opts.base : 0.1;
-      const spikeProb = opts.spike_prob != null ? opts.spike_prob : 0.05;
-      const spikeHeight = opts.spike_height != null ? opts.spike_height : 1.0;
-      const noise = opts.noise != null ? opts.noise : 0.04;
-      const r = rng(opts.seed || 43);
-      return Array.from({ length: N }, () => {
-        const wob = (r() - 0.5) * 2 * noise * base;
-        if (r() < spikeProb) {
-          const k = 0.4 + r(); // 0.4-1.4 of nominal spike
-          return base + spikeHeight * k + wob;
-        }
-        return Math.max(0, base + wob);
-      });
-    },
-  };
-
   // ── 24h stacked area, GB generation by fuel ──────────────────
   function stackedArea(el, opts = {}) {
     const W = opts.width || 880;
@@ -180,81 +37,6 @@
     const innerW = W - padL - padR;
     const innerH = H - padT - padB;
 
-    // Path A: explicit series — accept [{name, color, shape, params?}, ...]
-    if (Array.isArray(opts.series) && opts.series.length > 0) {
-      const N = opts.n || 48;
-      const labels = opts.series.map((s) => s.name);
-      const colors = opts.series.map((s, i) => s.color || [PALETTE.rust, PALETTE.forest, PALETTE.plum, PALETTE.sky, PALETTE.sand, "#d4a73a", "#5a8aa6", PALETTE.slate][i % 8]);
-      // generate each layer's raw series
-      const series = opts.series.map((s, i) => {
-        const params = Object.assign({ seed: 7 + i * 13 }, s.params || {});
-        const gen = SHAPES[s.shape];
-        if (!gen) return new Array(N).fill(0);
-        return gen(N, params);
-      });
-      // build per-i stacks
-      const stacks = Array.from({ length: N }, (_, i) => {
-        let acc = 0;
-        const layers = series.map((sv) => {
-          const v = Math.max(0, sv[i]);
-          const out = [acc, acc + v];
-          acc += v;
-          return out;
-        });
-        return { layers, total: acc };
-      });
-      const totalMax = Math.max(...stacks.map((s) => s.total));
-      const yMax = Math.max(totalMax * 1.08, 1e-6);
-      // dynamic y-tick spacing
-      const niceStep = (() => {
-        const raw = yMax / 4;
-        const mag = Math.pow(10, Math.floor(Math.log10(raw)));
-        const norm = raw / mag;
-        const step = norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10;
-        return step * mag;
-      })();
-      const yTicks = [];
-      for (let v = 0; v <= yMax; v += niceStep) yTicks.push(v);
-      const xTickHours = [0, 6, 12, 18, 24];
-      const yLabel = opts.yLabel || "";
-      const x = (i) => padL + (i / (N - 1)) * innerW;
-      const y = (v) => padT + innerH - (v / yMax) * innerH;
-      const paths = labels.map((_, layerIdx) => {
-        const top = stacks.map((s, i) => `${x(i)},${y(s.layers[layerIdx][1])}`);
-        const bot = stacks.map((s, i) => `${x(i)},${y(s.layers[layerIdx][0])}`).reverse();
-        return `M${top.join(" L")} L${bot.join(" L")} Z`;
-      });
-      let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" font-family="Inter, sans-serif" font-size="11">`;
-      svg += `<g stroke="${PALETTE.rule}" stroke-width="1">`;
-      yTicks.forEach((v) => {
-        const yy = y(v);
-        svg += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke-dasharray="${v === 0 ? "" : "2 4"}"/>`;
-      });
-      svg += `</g>`;
-      svg += `<g fill="${PALETTE.inkSoft}" text-anchor="end">`;
-      yTicks.forEach((v) => svg += `<text x="${padL - 8}" y="${y(v) + 3}">${niceStep < 1 ? v.toFixed(1) : Math.round(v)}${yLabel ? " " + yLabel : ""}</text>`);
-      svg += `</g>`;
-      svg += `<g fill="${PALETTE.inkSoft}" text-anchor="middle">`;
-      xTickHours.forEach((h) => {
-        const xx = padL + (h / 24) * innerW;
-        svg += `<text x="${xx}" y="${H - padB + 18}">${String(h).padStart(2, "0")}:00</text>`;
-      });
-      svg += `</g>`;
-      paths.forEach((p, i) => {
-        svg += `<path d="${p}" fill="${colors[i]}" fill-opacity="0.85" stroke="${colors[i]}" stroke-width="0.5"/>`;
-      });
-      svg += `</svg>`;
-      el.innerHTML = svg;
-      if (opts.legend !== false) {
-        const legendEl = document.createElement("div");
-        legendEl.className = "chart-legend";
-        legendEl.innerHTML = labels.map((l, i) => `<span><i style="background:${colors[i]}"></i>${l}</span>`).join("");
-        el.appendChild(legendEl);
-      }
-      return;
-    }
-
-    // Path B: legacy hardcoded GB fuel mix (byte-identical to pre-D-22 output)
     const labels = ["Gas", "Wind", "Nuclear", "Imports", "Biomass", "Solar", "Hydro", "Coal"];
     const colors = [PALETTE.rust, PALETTE.forest, PALETTE.plum, PALETTE.sky, PALETTE.sand, "#d4a73a", "#5a8aa6", PALETTE.slate];
 
@@ -345,20 +127,11 @@
     const H = opts.height || 40;
     const seed = opts.seed || 1;
     const N = opts.n || 48;
-    // Data source precedence: explicit values > shape generator > legacy seed-based.
-    let data;
-    if (Array.isArray(opts.values) && opts.values.length > 0) {
-      data = opts.values.slice();
-    } else if (opts.shape && SHAPES[opts.shape]) {
-      const params = Object.assign({ seed }, opts.params || {});
-      data = SHAPES[opts.shape](N, params);
-    } else {
-      const r = rng(seed);
-      data = Array.from({ length: N }, (_, i) => {
-        const t = i / (N - 1);
-        return 0.5 + 0.4 * Math.sin(t * 4 + seed) + r() * 0.15 - 0.075;
-      });
-    }
+    const r = rng(seed);
+    const data = Array.from({ length: N }, (_, i) => {
+      const t = i / (N - 1);
+      return 0.5 + 0.4 * Math.sin(t * 4 + seed) + r() * 0.15 - 0.075;
+    });
     const min = Math.min(...data), max = Math.max(...data);
     const x = (i) => (i / (N - 1)) * W;
     const y = (v) => H - 4 - ((v - min) / (max - min || 1)) * (H - 8);
@@ -429,25 +202,15 @@
   // ── price ladder (system price last 48 SP) ─────────────────
   function priceLadder(el, opts = {}) {
     const W = opts.width || 280, H = opts.height || 110;
-    const N = opts.n || 48;
-    const seed = opts.seed || 3;
-    // Data source precedence: explicit values > shape generator > legacy seed-based.
-    let data;
-    if (Array.isArray(opts.values) && opts.values.length > 0) {
-      data = opts.values.slice();
-    } else if (opts.shape && SHAPES[opts.shape]) {
-      const params = Object.assign({ seed }, opts.params || {});
-      data = SHAPES[opts.shape](N, params);
-    } else {
-      const r = rng(seed);
-      data = Array.from({ length: N }, (_, i) => {
-        const t = i / N;
-        return 70 + 28 * Math.sin(t * 6) + r() * 18 - 9;
-      });
-    }
+    const N = 48;
+    const r = rng(opts.seed || 3);
+    const data = Array.from({ length: N }, (_, i) => {
+      const t = i / N;
+      return 70 + 28 * Math.sin(t * 6) + r() * 18 - 9;
+    });
     const min = Math.min(...data), max = Math.max(...data);
     const x = (i) => 4 + (i / (N - 1)) * (W - 8);
-    const y = (v) => 8 + (1 - (v - min) / (max - min || 1)) * (H - 16);
+    const y = (v) => 8 + (1 - (v - min) / (max - min)) * (H - 16);
     const pts = data.map((v, i) => `${x(i)},${y(v)}`);
     let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
     svg += `<polyline points="${pts.join(" ")}" fill="none" stroke="${PALETTE.ink}" stroke-width="1.4"/>`;
@@ -485,7 +248,7 @@
   }
 
   // dispatch
-  window.GFCharts = { stackedArea, sparkline, barsH, heatmap, priceLadder, donut, PALETTE, SHAPES };
+  window.GFCharts = { stackedArea, sparkline, barsH, heatmap, priceLadder, donut, PALETTE };
 
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-chart]").forEach((el) => {

@@ -2,13 +2,8 @@
 source: elexon
 dataset_key: boal
 vendor: Elexon BMRS
-last_verified: 2026-05-21
+last_verified: 2026-05-08
 layer_coverage: bronze, silver
-v2_fix_history:
-  - date: 2026-05-20
-    phase: gridflow-G5-W2.1
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: silver transformer now casts `acceptance_time` from str to UTC datetime; `bid_offer_acceptance_number` dropped from ElexonBOAL schema (duplicated `acceptance_number`)
 ---
 
 # Elexon - Bid Offer Acceptance Level Flagged (`BOALF`)
@@ -135,7 +130,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `bm_unit_id` | `str` | No | `bmUnit` | BM Unit identifier — preserve raw casing. |
 | `acceptance_number` | `int` | Yes | `acceptanceNumber` | Acceptance instruction number. |
-| `acceptance_time` | `datetime[UTC]` | Yes | `acceptanceTime` | Time the acceptance was issued. G5-W2.1: now cast str→UTC datetime in the transformer; previously emitted as raw string and the acceptance-test caught the schema drift. |
+| `acceptance_time` | `datetime[UTC]` | Yes | `acceptanceTime` | Time the acceptance was issued. |
 | `deem_flag` | `bool` | No | `deemedBoFlag` | Deemed-bid/offer flag. |
 | `so_flag` | `bool` | No | `soFlag` | System Operator flag. |
 | `stor_flag` | `bool` | No | `storProviderFlag` or `storFlag` | STOR flag. |
@@ -188,16 +183,6 @@ None implemented.
 
 - **Path rename**: vault `endpoints.md` (pre-V1) listed path as `/datasets/BOAL`; docs and code use `/datasets/BOALF` (vendor renamed BOAL → BOALF). Vault page now corrected. Old `bod` and the original `boal` are in `EXCLUDED_ENDPOINTS`.
 - **Param style**: docs require `from`/`to` (NOT `publishDateTimeFrom/To`); code uses `from_param="from", to_param="to"` — matches docs.
-
-### V2-FIX changelog
-
-- **2026-05-20 — gridflow G5-W2.1 (PR #7)**: silver transformer now casts
-  `acceptance_time` from the raw string the API returns into a UTC-aware
-  datetime so the column matches the schema's `datetime[UTC] | None`
-  declaration. Pre-G5 the parametrised schema-alignment acceptance test
-  caught the type drift. Same commit also dropped the duplicate
-  `bid_offer_acceptance_number` field from `ElexonBOAL`
-  (was a stale duplicate of `acceptance_number`).
 
 ---
 

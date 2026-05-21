@@ -1,198 +1,178 @@
 # Requirements
 
+Scope: **v1 cleanup milestone** — credibility-recovery pass on the gridflow-front-end portfolio site. Aligns the site to gridflow connector + vault reality (33 active Elexon datasets), introduces a Python+Jinja2 build script over vault content, kills fake-liveness framing, and ships an ENTSO-E cross-vendor proof.
+
 REQ-IDs are stable references used by `ROADMAP.md` traceability.
 
-This file holds the **v1 cleanup milestone** (complete, 50/50 delivered) and the **v2 full-vendor-coverage milestone** (active). v1 items stay here as a historical record so future contributors can trace what each REQ-ID maps to.
-
----
-
-## v2 Requirements (Active)
-
-Scope: **v2 full-vendor-coverage** — first reconcile the Vault layer so all six Vendors carry verified content (per ADR-0001 / Phase 7), then ship the remaining 129 dataset pages at `fuelhh` fidelity across ENTSO-E (48 new), ENTSO-G (33), GIE (8), NESO (34), and Open-Meteo (6). Bring the site catalogue from 34 to 163 datasets. Every vendor on the site moves from "coming soon" to a complete dataset catalog.
-
-### Reconciliation (RECON) — Phase 7, gating for content phases 9 and 10
-- [x] **RECON-01** — `gridflow-drift-check` exists as a console script on path (renamed from `quant-vault/30-vendors/scripts/verify_curl_and_silver_schema.py` → `gridflow_drift_check.py`); portable to Linux CI — both Windows-specific blockers (the `args[0] = "curl.exe"` line at L180 and the hardcoded `C:\Users\Bobbo\...` default at L20-26) are parameterised; a `[drift]` extra is declared in the appropriate `pyproject.toml` (Q-DD-16 default lean: `quant-vault` if it has one, else `gridflow-front-end`) *(completed 07-01, 2026-05-19)*
-- [x] **RECON-02** — Verification runs across all 6 Vendors and produces JSON + markdown reports; every Vendor under `.planning/reconciliation/<vendor>/` has a finding file (`<NN>-<slug>.md`) for every Drift instance Verification surfaces; each finding carries a `status:` (`open` | `wontfix` | `needs-info`) and where applicable a `reason:` (`v3-candidate` | `defer-entitlement`); the load-bearing findings from `DRIFT-SURFACES.md` §§ 4.1 (ndf/ndfd), 4.2 (fuelhh), 4.4 (33 ENTSO-E 401s), 4.5 (4 ENTSO-G 404s), 4.6 (`physical_flows` 35-field mismatch) are all surfaced (acceptance gate) *(completed 07-02, 2026-05-19)*
-- [ ] **RECON-03** — The `open` bucket is closed: Vault edits land in the upstream `quant-vault` and re-vendored into `gridflow-front-end/vault/<vendor>/`; the vendored snapshot matches the reconciled upstream Vault byte-equivalently; re-running `gridflow-drift-check` returns "no new Drift" (or only documented `wontfix-v3` / `needs-info` Drift); specific fixes include `published_at` added to `ndf.md` / `ndfd.md` / `fuelhh.md` schema tables, 18 ENTSO-E `resolution` field nullability flags added, 4 ENTSO-G 404 endpoints handled (delete or mark `removed:`), `physical_flows.md` schema table rewritten to match Pydantic shape (`flow_gwh_per_day`, `timestamp_utc`)
-- [ ] **RECON-04** — The upstream Vault is committed to a new private GitHub repo `EBentham/quant-vault` per ADR-0002; no GitHub App auth configured (cross-repo automated drift CI explicitly deferred); the v1 vendoring pattern (`gridflow-front-end/vault/<vendor>/` as a snapshot) is preserved
-- [ ] **RECON-05** — v1 CI gates remain green on `gridflow-front-end` after Reconciliation: `htmlhint`, `lychee --offline --include-fragments`, and `gridflow-build --check` idempotence all pass on the regenerated set (Phase 7 changes only the Vault content the build consumes, not the deploy contract)
-
-### Dataset-page formatting bug (BUG) — Phase 8 (parallel-eligible with Phase 7), gating for content phases 9 and 10
-- [ ] **BUG-01** — The dataset-page top-of-page formatting bug (confirmed on `fuelhh.html`) is root-caused; the offending location is named (Jinja2 template / shared `theme.css` rules / vault `.md` frontmatter / build-script transform) and a fix path is chosen
-- [ ] **BUG-02** — Fix applied; `gridflow-build` re-renders all 34 existing pages with the top-of-page section visually correct on `fuelhh.html` plus one randomly-spot-checked page (user-verified)
-- [ ] **BUG-03** — v1 CI gates stay green on the post-fix output: `htmlhint`, `lychee --offline --include-fragments`, and `gridflow-build --check` idempotence all pass
-
-### ENTSO-E full coverage (ENTSOE) — Phase 9
-- [ ] **ENTSOE-01** — All 48 new ENTSO-E vault `.md` files vendored from the reconciled upstream `quant-vault/30-vendors/entsoe/datasets/` into this repo's `vault/entsoe/`; final count: 49 `.md` files (1 existing + 48 new); ENTSO-E entitlement decision (extend access vs `skip-with-warn`) documented in this phase's CONTEXT.md per Phase 7 D-06
-- [ ] **ENTSOE-02** — `site/hifi/data/entsoe.json` manifest contains all 49 ENTSO-E datasets, grouped into ENTSO-E categories (generation / load / transmission / outages / capacity / prices, or whatever taxonomy the vault carries)
-- [ ] **ENTSOE-03** — All 49 ENTSO-E dataset pages render at `fuelhh` fidelity: 6-anchor sidebar (`#overview`, `#schema`, `#sample`, `#api`, `#caveats`, `#related`) resolves to real `<section id>` elements; `verified-against-vendor-docs: YYYY-MM-DD` micro-line present; ENTSO-E codelist / PSR-type vocabulary handled cleanly; schema reference present (or `requires additional entitlement` caveat where applicable per the entitlement decision)
-- [ ] **ENTSOE-04** — `/data-sources/entsoe.html` hub upgraded from 1-dataset proof to a 49-dataset catalog, built from the expanded manifest via `vendor-hub.html.j2`
-- [ ] **ENTSOE-05** — `gridflow-build --check` idempotence stays green on the expanded ENTSO-E set; `htmlhint` + `lychee` gates stay green; no new dead anchors or structural HTML breakage
-
-### ENTSO-G coverage (ENTSOG) — Phase 10
-- [ ] **ENTSOG-01** — All 33 ENTSO-G vault `.md` files vendored from upstream into `vault/entsog/`
-- [ ] **ENTSOG-02** — `site/hifi/data/entsog.json` manifest authored with 33 datasets, grouped into ENTSO-G categories
-- [ ] **ENTSOG-03** — All 33 ENTSO-G dataset pages render at `fuelhh` fidelity (6-anchor sidebar resolves; `verified-against-vendor-docs` micro-line; schema ref or drift-flag)
-- [ ] **ENTSOG-04** — `/data-sources/entsog.html` upgraded from coming-soon stub to a real vendor hub rendered from `vendor-hub.html.j2`; `entsog` entry moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `src/gridflow_front_end/build.py`
-
-### GIE coverage (GIE) — Phase 10
-- [ ] **GIE-01** — All 8 GIE vault `.md` files vendored from upstream into `vault/gie/` (or `vault/gie_agsi/` + `vault/gie_alsi/` if the AGSI/ALSI split stays — Phase 9 plan decides)
-- [ ] **GIE-02** — `site/hifi/data/gie.json` manifest (or split `gie_agsi.json` + `gie_alsi.json`) listing all 8 datasets
-- [ ] **GIE-03** — All 8 GIE dataset pages render at `fuelhh` fidelity
-- [ ] **GIE-04** — GIE has at least one real vendor hub (either one consolidated `/data-sources/gie.html` or two hubs at `gie_agsi.html` + `gie_alsi.html`); v1's coming-soon stubs are replaced; `build.py` GIE entries moved from `COMING_SOON_VENDORS` to `REAL_VENDORS`
-
-### NESO Carbon Intensity coverage (NESO) — Phase 10
-- [ ] **NESO-01** — All 34 NESO vault `.md` files vendored from upstream into `vault/neso/`
-- [ ] **NESO-02** — `site/hifi/data/neso.json` manifest authored with 34 datasets
-- [ ] **NESO-03** — All 34 NESO dataset pages render at `fuelhh` fidelity
-- [ ] **NESO-04** — `/data-sources/neso.html` upgraded from coming-soon stub to a real vendor hub; `neso` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`
-
-### Open-Meteo coverage (METEO) — Phase 10
-- [ ] **METEO-01** — All 6 Open-Meteo vault `.md` files vendored from upstream into `vault/openmeteo/`
-- [ ] **METEO-02** — `site/hifi/data/openmeteo.json` manifest authored with 6 datasets
-- [ ] **METEO-03** — All 6 Open-Meteo dataset pages render at `fuelhh` fidelity
-- [ ] **METEO-04** — `/data-sources/openmeteo.html` upgraded from coming-soon stub to a real vendor hub; `openmeteo` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`
-
-### Site-wide consistency (SITE) — Phase 10
-- [ ] **SITE-01** — Site-wide dataset count strings are consistent and reflect the v2 total of 163 datasets across 6 vendors: `site/hifi/index.html` stat strip, footer-line in `site/hifi/assets/site.js`, and `site/hifi/data-sources.html` catalog header all align; `grep "33 Elexon"` or other stale partial counts return zero off-purpose hits
-- [ ] **SITE-02** — `site/hifi/data-sources.html` catalog: every vendor row links to a real vendor hub; zero coming-soon stub links remain in the catalog table
-
----
-
-## v1 Requirements (Complete — historical record)
-
-All 50 v1 REQ-IDs delivered on 2026-05-18. Site deployed at https://ebentham.github.io/gridflow-front-end/. Full success-criteria audit in [`MILESTONE-COMPLETE.md`](./MILESTONE-COMPLETE.md).
+## v1 Requirements
 
 ### Repo hygiene (HYG)
-- [x] **HYG-01** · **HYG-02** — In-flight refactor split into 4 logical commits; `.gitattributes` with `text eol=lf` rules committed
+- [ ] **HYG-01** — The 26-file in-flight refactor is split into 4 logical commits and pushed (typography sweep · pillar-status removal · fuelhh honesty edits · remaining tweaks)
+- [ ] **HYG-02** — `.gitattributes` committed at repo root with `*.html text eol=lf` plus the same rule for `*.css`, `*.js`, `*.json`, `*.py` (stops CRLF churn between Windows-edits and Linux-CI deploys)
 
 ### Main pages (PAGE)
-- [x] **PAGE-01** · **PAGE-02** · **PAGE-03** · **PAGE-04** — Home / architecture / data-sources hub polished; mobile-functional; honest framing
+- [ ] **PAGE-01** — Home page (`site/hifi/index.html`) reads as editorial/quiet, uses honest framing throughout (no fake live indicators, no fake "shipping" badges), correctly states 33 Elexon datasets in its stat strip
+- [ ] **PAGE-02** — Architecture page (`site/hifi/architecture.html`) passes a polish pass on its writing + diagrams; structure stays from the recent redesign
+- [ ] **PAGE-03** — Data-sources hub (`site/hifi/data-sources.html`) has zero dead `<a href="#">` placeholder links; every vendor card resolves to a real vendor page or a coming-soon stub page
+- [ ] **PAGE-04** — All three main pages render mobile-functional at ≤480px (no horizontal scroll, no overflow, mobile menu reachable)
 
 ### Build mechanism (BUILD)
-- [x] **BUILD-01** through **BUILD-08** — `gridflow-build` CLI; `[build]` extras; dataset/vendor-hub/coming-soon templates; idempotent CI build; generated HTML gitignored; 6 originally-complete pages regenerated (with documented `BUILD-DIFFS.md`)
+- [ ] **BUILD-01** — `gridflow-build` console script (Python 3.11+ + Jinja2 3.1.x) exists, exposed in `pyproject.toml`
+- [ ] **BUILD-02** — Jinja2 lives only in a `[build]` extras group in `pyproject.toml`; `gridflow-serve` runtime stays Python-stdlib-only
+- [ ] **BUILD-03** — `dataset.html.j2` template captures the 7-section dataset-page anatomy (hero · metadata grid · stats strip · sticky sidebar · overview · snapshot chart · schema table · sample table · API tabs · numbered caveats · related cards)
+- [ ] **BUILD-04** — `vendor-hub.html.j2` template captures the vendor-hub structure (hero · vendor metadata · category card grids · stats strip)
+- [ ] **BUILD-05** — `vendor-coming-soon.html.j2` template captures the visually-distinct coming-soon layout (no sidebar, no chart container, single-screen, "Planned · F<n>" stage chip)
+- [ ] **BUILD-06** — Build is idempotent: running `gridflow-build` twice produces no diff in the output directory
+- [ ] **BUILD-07** — Generated HTML is gitignored under `site/hifi/data-sources/*/` (or equivalent); `.github/workflows/deploy.yml` runs `gridflow-build` before `actions/upload-pages-artifact@v3`
+- [ ] **BUILD-08** — Build regenerates the 6 currently-complete pages (fuelhh, fuelinst, agpt, agws, nonbm, windfor) to byte-equivalent state vs the current files — validates the template captures existing fidelity before any new content lands
 
 ### Vault integration (VAULT)
-- [x] **VAULT-01** through **VAULT-04** — Build reads vault `.md` files; vault path configurable; `--check` flag surfaces missing sections; vault→site mapping documented in `README.md`
+- [ ] **VAULT-01** — Build script reads per-dataset content from the Obsidian Vault (`<vault>/30-vendors/<vendor>/datasets/*.md`) using the existing frontmatter + body convention
+- [ ] **VAULT-02** — Vault path is configurable (env var `GRIDFLOW_VAULT_PATH` or build-time CLI flag) so CI can checkout both repos and the local dev loop can point at the developer's vault checkout
+- [ ] **VAULT-03** — Per-dataset content audit pass: missing/stale sections in a dataset's vault `.md` are surfaced by the build (`gridflow-build --check`) before render; the build fails if a dataset declared in-scope for v1 lacks required sections
+- [ ] **VAULT-04** — The vault → site mapping is documented in `README.md` (which vault sections feed which template sections), so a future contributor can edit either side without breaking the contract
 
-### Elexon dataset depth (ELX) — 33 datasets at `fuelhh` fidelity
-- [x] **ELX-01** through **ELX-08** — 6 complete pages regenerated; 16 broken stubs completed; 3 manifest-only datasets shipped; 8 vault-only datasets added; count of 33 propagated site-wide; 6 sidebar anchors resolve; verified-against-vendor-docs micro-line; Pydantic schema reference or drift-surface flag
+### Elexon dataset depth (ELX) — 33 datasets at fuelhh fidelity
+- [ ] **ELX-01** — All 6 existing complete dataset pages (`fuelhh`, `fuelinst`, `agpt`, `agws`, `nonbm`, `windfor`) regenerate from the new template + vault content with byte-equivalent (or better-with-rationale) output
+- [ ] **ELX-02** — All 16 broken dataset stubs (`boal`, `disbsad`, `fou2t14d`, `freq`, `indo`, `indod`, `itsdo`, `mid`, `ndf`, `ndfd`, `netbsad`, `pn`, `system_prices`, `temp`, `tsdf`, `uou2t14d`) ship at fuelhh fidelity, populated from vault content
+- [ ] **ELX-03** — The 3 manifest-only datasets (`remit`, `bmunits_reference`, `soso`) ship as full dataset pages, populated from vault content
+- [ ] **ELX-04** — The 8 vault-only datasets (`atl`, `imbalngc`, `inddem`, `indgen`, `lolpdrm`, `market_depth`, `melngc`, `tsdfd`) are added to `data/elexon.json` AND ship as full dataset pages
+- [ ] **ELX-05** — `data/elexon.json` lists 33 datasets, grouped into the existing 4 categories (generation / prices-balancing / demand-forecasts / system-reference); footer/index/catalog-UI all show 33 (no other count appears anywhere)
+- [ ] **ELX-06** — Every dataset page's sidebar anchors (`#overview`, `#schema`, `#sample`, `#api`, `#caveats`, `#related`) resolve to existing `<section id>` elements in the rendered HTML (no phantom-coverage anchors)
+- [ ] **ELX-07** — Every dataset page shows a `verified-against-vendor-docs: YYYY-MM-DD` micro-line linking to the specific Elexon BMRS doc page for that dataset (drives the recruiter spot-check confidence)
+- [ ] **ELX-08** — Every dataset page shows the matching Pydantic schema class name (`gridflow/schemas/elexon.py · ElexonFuelHH` etc.) as an inline `<code>` reference, bridging the site to the gridflow source
 
 ### Cross-vendor proof (VEND)
-- [x] **VEND-01** through **VEND-05** + **PAGE-03** — ENTSO-E hub + `actual_generation` (A75/A16) at `fuelhh` fidelity; 5 visually-distinct coming-soon vendor stubs; zero `href="#"` placeholders
+- [ ] **VEND-01** — ENTSO-E vendor hub page exists at `site/hifi/data-sources/entsoe.html`, rendered via `vendor-hub.html.j2`
+- [ ] **VEND-02** — ENTSO-E "Generation by PSR type" dataset page exists at `site/hifi/data-sources/entsoe/<slug>.html` at fuelhh fidelity, with vault-sourced content, demonstrating the template handles quarter-hour settlement + PSR-type taxonomy
+- [ ] **VEND-03** — `site/hifi/data/entsoe.json` manifest exists with at least the one shipped dataset entry
+- [ ] **VEND-04** — 5 coming-soon vendor stub pages exist for ENTSO-G, GIE AGSI, GIE ALSI, Open-Meteo, NESO Carbon Intensity — each rendered from `vendor-coming-soon.html.j2`, visually distinct from real vendor hubs (no sidebar, no chart, single-screen layout, "Planned · F<n>" stage chip)
+- [ ] **VEND-05** — Every `<a href="#">` placeholder vendor row on `data-sources.html` is replaced with a real link to a vendor hub page or a coming-soon stub page
 
 ### Honesty sweep (HON)
-- [x] **HON-01** through **HON-04** — All 6 "live"-framing surfaces removed; charts carry "Illustrative snapshot" chips; footer build-version replaced; MIT license at repo root with aligned strings
+- [ ] **HON-01** — All 6 "live"-framing surfaces removed in one atomic pass with a `grep` checklist producing zero hits in `site/hifi/`: (a) hero `<span class="chip live">` badges, (b) hero `LAST FETCH · N min ago` stat-card text, (c) footer `last sync` string in `site.js`, (d) time-window tab pills on snapshot charts (which don't actually switch anything), (e) related-card live chips, (f) hardcoded build-version footer string
+- [ ] **HON-02** — Charts and numbers carry an explicit "Illustrative snapshot" chip (per chart, not page-level banner) — the framing makes it confidently honest, not apologetic
+- [ ] **HON-03** — Footer build-version string removed; replaced with a static "Documentation site · cream paper · last updated YYYY-MM-DD" line tied to last actual edit (acceptable to be hand-updated each milestone)
+- [ ] **HON-04** — License contradiction resolved: one license chosen (MIT vs Apache-2.0), `LICENSE` file at repo root, all inline strings in HTML/JS reference the chosen license consistently
 
 ### Accessibility minimums (A11Y)
-- [x] **A11Y-01** through **A11Y-06** — `<main>` landmark; `aria-current` on active nav; `aria-hidden` on decorative icons; distinguishing `aria-label`s on dual `<nav>`; sidebar hover affordance; `rel="noopener"` on external links
+- [ ] **A11Y-01** — Every page wraps its primary content in a `<main>` landmark
+- [ ] **A11Y-02** — `aria-current="page"` on the active top-nav link; `aria-current="location"` (or `="true"`) on the active sidebar link
+- [ ] **A11Y-03** — Decorative icons (arrows `→`, dots `•`, hamburger SVG, chip dots) carry `aria-hidden="true"`
+- [ ] **A11Y-04** — Both `<nav>` elements on dataset pages have distinguishing `aria-label`s (e.g. `aria-label="Site"` for the injected top-nav, `aria-label="On this page"` for the sidebar)
+- [ ] **A11Y-05** — Sidebar inactive items' hover affordance works (the inline `color:var(--ink-faint)` replaced with a CSS class so `:hover` can override)
+- [ ] **A11Y-06** — Both external `target="_blank"` links currently missing `rel="noopener"` get it added (`architecture.html` line ~1156, `data-sources/elexon.html` line ~41)
 
 ### Mobile / responsive (MOB)
-- [x] **MOB-01** through **MOB-03** — Viewport meta fixed on 23 pages; responsive CSS for ≤480px and ≤720px in `theme.css`; mobile menu reachable
+- [ ] **MOB-01** — Viewport meta tag fixed on all 23 currently-broken pages: `<meta name="viewport" content="width=device-width, initial-scale=1">`
+- [ ] **MOB-02** — Dataset-page CSS adds proper responsive rules in `theme.css` for `@media (max-width: 720px)` and `@media (max-width: 480px)` blocks — sidebar collapses, hero stacks vertically, stats strip reflows, no fixed `min-width` values that cause horizontal scroll
+- [ ] **MOB-03** — Mobile menu toggle (`site.js`) reaches every page (the `width=1280` viewport bug previously prevented it from triggering)
 
 ### Structural refactor (REF)
-- [x] **REF-01** through **REF-03** — Duplicated dataset `<style>` block moved to `theme.css`; scroll-spy consolidated; `[data-tabs]` convention site-wide
+- [ ] **REF-01** — The ~30-line `<style>` block duplicated in all 22 Elexon dataset HTML files is moved to `site/hifi/assets/theme.css`; no dataset page has an inline `<style>` block (except for truly page-specific rules like `.fuel-grid` on fuelhh)
+- [ ] **REF-02** — The two scroll-spy IIFE variants (minified + un-minified) consolidated into a single helper in `site.js`, gated by `data-page="dataset"` or by presence of `.sidebar`
+- [ ] **REF-03** — The per-page global `setTab(group, tab, btn)` declarations and inline `onclick="setTab(...)"` handlers replaced with the existing `[data-tabs]` convention already used on `index.html`
 
 ### CI / validation (CI)
-- [x] **CI-01** · **CI-02** · **CI-03** — `htmlhint` + `lychee --offline --include-fragments` + `gridflow-build --check` idempotence gates in `.github/workflows/deploy.yml`
+- [ ] **CI-01** — `htmlhint` (or equivalent) runs on `site/hifi/**/*.html` (or build output) in `.github/workflows/deploy.yml` before `upload-pages-artifact` — catches structural HTML breakage of the broken-stub class
+- [ ] **CI-02** — `lychee` (or equivalent link checker) runs on the built site before deploy — catches dead-link regressions
+- [ ] **CI-03** — Build-script idempotence smoke test: CI runs `gridflow-build` twice and fails if `git diff` of the output directory is non-empty
 
----
+## v2 Requirements (Deferred)
 
-## v3 Requirements (Deferred)
+These were explicitly considered and deferred to a later milestone:
 
-Considered for v2 and explicitly deferred to keep v2 focused on full-vendor-coverage. These were on the v1-MILESTONE-COMPLETE deferred list and remain deferred:
-
-- **Pydantic schema drift closure** — 22 of 33 Elexon datasets render with "no dedicated Pydantic class declared yet — drift-surface flagged" rather than blocking the build. Closing the gap means declaring `ElexonAGPT`, `ElexonAGWS`, `ElexonFOU2T14D`, etc. in `gridflow.schemas.elexon` (cross-repo work) and re-running build
-- **Per-dataset related-card blurbs** — `fuelhh.html`'s hand-curated "Pair with X to do Y" related-card copy was retired by the shared template. Restoring via a `related_blurbs:` vault frontmatter field
-- **`fuelhh` fuel-pill grid** — 16-pill fuel-type colour swatch retired by the shared template. Restoring via a `fuel_types: [...]` vault frontmatter field
-- **Drift-detection automation** — Research package lives at `.planning/research/post-v1/drift-detection/`. Post-v2 work
-- **More model case studies** — SRMC, wind, solar, fundamentals SMP. `demand-forecast.html` is the v1 reference for the model-case-study anatomy
-- **Real API wiring / nightly snapshot regeneration** — Illustrative-snapshot framing stays; live wiring is a separate, scoped milestone
-- **GitHub Actions Node 24 migration** — Workflow currently uses Node 20 actions (deprecate Sep 2026); trivial upgrade when needed
-- **Search UI / dark mode / blog index** — Aesthetic discipline; not v3-priority
-
----
+- More model case studies: SRMC, full power-stack, wind forecast, solar forecast, fundamentals SMP
+- Real Elexon API wiring — nightly snapshot regeneration via GitHub Actions, page renders the regenerated snapshot ("Shipping" status for one dataset)
+- ENTSO-E dataset coverage beyond "Generation by PSR type" (full vendor depth)
+- ENTSO-G / GIE / Open-Meteo / NESO at dataset depth (each becomes its own per-vendor milestone)
+- Search UI / dark mode / blog index
+- Auto-generation of dataset-page schema rows from gridflow Pydantic schemas (cross-repo schema-as-source-of-truth wiring — would eliminate schema drift structurally)
+- Self-hosting Google Fonts (cold-load TTI optimisation; current preconnect+font-display swap is acceptable)
 
 ## Out of Scope
 
-Explicit boundaries — included with reasoning to prevent re-adding:
+These are explicit boundaries — included with reasoning to prevent re-adding:
 
-- **Adopting a Node/Go SSG (11ty / Astro / Hugo)** — Rejected after v1 research; introduces a non-Python toolchain to a Python-first portfolio for negligible benefit. v1+v2 use Python + Jinja2
+- **Adopting a Node/Go SSG (11ty / Astro / Hugo)** — Rejected after research; introduces a non-Python toolchain to a Python-first portfolio for negligible benefit at ~50-page scale. v1 uses a small Python + Jinja2 build script (the "middle path") instead
 - **Live performance metrics, uptime badges, dashboard-y elements** — Anti-goal per PROJECT.md; would imply the site is a SaaS product, not a portfolio documentation site
-- **Real-time data fetches from the browser** — Deploy artifact stays pure-static; any "live" semantics would go through a build-time regeneration mechanism in a future milestone
-- **New visual identity / design system rebuild** — Cream/forest/Fraunces aesthetic stays; revisit only if evidence demands it
-- **Hand-authored dataset pages bypassing the build script** — Every dataset page MUST be generated from vault + manifest; otherwise the single-source-of-truth claim breaks
+- **Real-time data fetches from the browser** — Deploy artifact stays pure-static; any "live" semantics goes through a build-time regeneration mechanism in a future milestone
+- **New visual identity / design system rebuild** — Current cream/forest/Fraunces aesthetic stays; revisit only if evidence demands it
+- **Hand-authored dataset pages bypassing the build script** — Once Option B lands, every dataset page MUST be generated from vault + manifest. No exceptions; otherwise the single-source-of-truth claim breaks
 - **Author photos, testimonials, hire-me CTAs, blog index** — Editorial-quiet aesthetic; not a personal brand site
-- **Cross-repo schema-as-source-of-truth auto-wiring** — Considered for v2, deferred to v3 candidates; would eliminate Pydantic drift structurally but requires committing to a cross-repo build dependency
 
----
+## Traceability
 
-## Traceability — v2 (Active)
-
-Every v2 REQ-ID maps to exactly one v2 phase in `ROADMAP.md`. 31/31 coverage; no orphans. (5 RECON-* REQ-IDs added 2026-05-19 with the Phase 7 Reconciliation rescope per ADR-0001; existing BUG/ENTSOE/ENTSOG/GIE/NESO/METEO/SITE rows renumbered to phases 8/9/10.)
+Every REQ-ID maps to exactly one phase in `ROADMAP.md`. 50/50 coverage; no orphans.
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| RECON-01 | Phase 7 — Reconciliation | Delivered (07-01, 2026-05-19) |
-| RECON-02 | Phase 7 — Reconciliation | Delivered (07-02, 2026-05-19) |
-| RECON-03 | Phase 7 — Reconciliation | Pending |
-| RECON-04 | Phase 7 — Reconciliation | Pending |
-| RECON-05 | Phase 7 — Reconciliation | Pending |
-| BUG-01 | Phase 8 — Dataset-page formatting bug fix | Pending |
-| BUG-02 | Phase 8 — Dataset-page formatting bug fix | Pending |
-| BUG-03 | Phase 8 — Dataset-page formatting bug fix | Pending |
-| ENTSOE-01 | Phase 9 — ENTSO-E full coverage | Pending |
-| ENTSOE-02 | Phase 9 — ENTSO-E full coverage | Pending |
-| ENTSOE-03 | Phase 9 — ENTSO-E full coverage | Pending |
-| ENTSOE-04 | Phase 9 — ENTSO-E full coverage | Pending |
-| ENTSOE-05 | Phase 9 — ENTSO-E full coverage | Pending |
-| ENTSOG-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| ENTSOG-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| ENTSOG-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| ENTSOG-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| SITE-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| SITE-02 | Phase 10 — Four-vendor batch coverage | Pending |
+| HYG-01 | Phase 0 — Commit in-flight refactor | Pending |
+| HYG-02 | Phase 0 — Commit in-flight refactor | Pending |
+| MOB-01 | Phase 1 — Trivial bug fixes | Pending |
+| HON-04 | Phase 1 — Trivial bug fixes | Pending |
+| A11Y-06 | Phase 1 — Trivial bug fixes | Pending |
+| REF-01 | Phase 2 — Shared CSS/JS extraction | Pending |
+| REF-02 | Phase 2 — Shared CSS/JS extraction | Pending |
+| REF-03 | Phase 2 — Shared CSS/JS extraction | Pending |
+| A11Y-05 | Phase 2 — Shared CSS/JS extraction | Pending |
+| BUILD-01 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-02 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-03 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-04 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-05 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-06 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-07 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| BUILD-08 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-01 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-02 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-03 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VAULT-04 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-01 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-02 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-03 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-04 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-05 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-06 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-07 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| ELX-08 | Phase 3 — Build mechanism + Elexon dataset depth | Pending |
+| VEND-01 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-02 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-03 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-04 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| VEND-05 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| PAGE-03 | Phase 4 — Cross-vendor proof + dead-link real fix | Pending |
+| HON-01 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| HON-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| HON-03 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| MOB-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| MOB-03 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-01 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-03 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| A11Y-04 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| PAGE-01 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| PAGE-02 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| PAGE-04 | Phase 5 — Honesty + a11y + mobile + main-page polish | Pending |
+| CI-01 | Phase 6 — CI validation | Pending |
+| CI-02 | Phase 6 — CI validation | Pending |
+| CI-03 | Phase 6 — CI validation | Pending |
 
-**Coverage check:** 31 v2 REQ-IDs mapped to 4 v2 phases. Each REQ-ID appears exactly once. Each phase has at least 3 REQ-IDs. No orphans.
+**Coverage check:** 50 REQ-IDs mapped to 7 phases. Each REQ-ID appears exactly once. Each phase has at least 2 REQ-IDs. No orphans.
 
-**Category distribution across v2 phases:**
+**Category distribution across phases:**
 
-| Category | Phase 7 | Phase 8 | Phase 9 | Phase 10 | Total |
-|----------|---------|---------|---------|----------|-------|
-| RECON | 5 | – | – | – | 5 |
-| BUG | – | 3 | – | – | 3 |
-| ENTSOE | – | – | 5 | – | 5 |
-| ENTSOG | – | – | – | 4 | 4 |
-| GIE | – | – | – | 4 | 4 |
-| NESO | – | – | – | 4 | 4 |
-| METEO | – | – | – | 4 | 4 |
-| SITE | – | – | – | 2 | 2 |
-| **Total** | **5** | **3** | **5** | **18** | **31** |
-
----
-
-## Traceability — v1 (Complete, historical)
-
-| REQ-ID | Phase | Status |
-|--------|-------|--------|
-| HYG-01, HYG-02 | Phase 0 — Commit in-flight refactor | ✓ Delivered (PR #3) |
-| MOB-01, HON-04, A11Y-06 | Phase 1 — Trivial bug fixes | ✓ Delivered (PR #4) |
-| REF-01, REF-02, REF-03, A11Y-05 | Phase 2 — Shared CSS/JS extraction | ✓ Delivered (PR #5) |
-| BUILD-01..08, VAULT-01..04, ELX-01..08 | Phase 3 — Build mechanism + Elexon depth | ✓ Delivered (PR #6) |
-| VEND-01..05, PAGE-03 | Phase 4 — Cross-vendor proof + dead-link fix | ✓ Delivered (PR #7) |
-| HON-01..03, MOB-02..03, A11Y-01..04, PAGE-01, PAGE-02, PAGE-04 | Phase 5 — Honesty + a11y + mobile + polish | ✓ Delivered (PR #8) |
-| CI-01..03 | Phase 6 — CI validation | ✓ Delivered (PR #9 + #10 + #11) |
-
-**v1 coverage:** 50/50 REQ-IDs delivered across 7 phases. See `MILESTONE-COMPLETE.md` for the per-success-criterion audit.
+| Category | Phase 0 | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 | Phase 6 | Total |
+|----------|---------|---------|---------|---------|---------|---------|---------|-------|
+| HYG | 2 | – | – | – | – | – | – | 2 |
+| PAGE | – | – | – | – | 1 | 3 | – | 4 |
+| BUILD | – | – | – | 8 | – | – | – | 8 |
+| VAULT | – | – | – | 4 | – | – | – | 4 |
+| ELX | – | – | – | 8 | – | – | – | 8 |
+| VEND | – | – | – | – | 5 | – | – | 5 |
+| HON | – | 1 | – | – | – | 3 | – | 4 |
+| A11Y | – | 1 | 1 | – | – | 4 | – | 6 |
+| MOB | – | 1 | – | – | – | 2 | – | 3 |
+| REF | – | – | 3 | – | – | – | – | 3 |
+| CI | – | – | – | – | – | – | 3 | 3 |
+| **Total** | **2** | **3** | **4** | **20** | **6** | **12** | **3** | **50** |
