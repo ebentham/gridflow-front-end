@@ -203,7 +203,7 @@
     }
     .about-facts li {
       display: grid;
-      grid-template-columns: 140px 1fr;
+      grid-template-columns: 110px 1fr;
       gap: 16px;
       padding: 10px 0;
       border-bottom: 1px solid var(--rule-soft);
@@ -222,17 +222,6 @@
     .about-facts .v code, .about-facts .v .mono {
       font-family: var(--mono);
       font-size: 12px;
-    }
-    .about-callout {
-      font-family: var(--serif);
-      font-style: italic;
-      font-size: 15px;
-      line-height: 1.5;
-      color: var(--ink);
-      border-left: 2px solid var(--accent);
-      padding: 4px 0 4px 16px;
-      margin: 0 0 32px;
-      max-width: 540px;
     }
     .about-contacts {
       display: flex;
@@ -814,68 +803,70 @@ df = df[df.timestamp_utc >= pd.Timestamp.now() - pd.Timedelta(<span class="s">"3
       <div class="about-grid stack-md">
         <div>
           <h2 class="about-name">
-            Elliot Bentham, <span class="here">here.</span>
+            E. Bentham, <span class="here">here.</span>
           </h2>
-          <div class="about-where">Quantitative Developer · London · UK</div>
+          <div class="about-where">Based in London · UK</div>
 
           <p class="about-intro">
-            Gridflow is a personal research platform for UK and European
-            power markets — a medallion data pipeline, vendor catalogue
-            and probabilistic modelling stack, built in the open.
+            I'm a quant researcher working on UK and European power markets.
+            Gridflow is the data and modelling backbone behind everything I
+            study — built locally, in the open, around the same patterns
+            I'd want at a desk.
           </p>
 
           <p class="about-body">
-            I'm a quantitative developer at ICBCS working across FICC,
-            with prior experience in European power and gas research at
-            RISQ and FX options pricing at Bank of America Merrill
-            Lynch. Gridflow is where I work on the markets I want to
-            specialise in, and where I keep current with agentic AI
-            development workflows — context engineering, spec-first
-            prompting and disciplined use of tools like Claude Code.
-          </p>
-
-          <p class="about-callout">
-            Open to roles in energy trading and quantitative research.
+            I'm interested in fundamentals-driven price formation, the
+            transition away from CCGT marginal pricing, and what
+            probabilistic forecasts mean for short-horizon trading and
+            scheduling decisions. The catalogue captures the data; the
+            modelling stack captures the assumptions. Both are public so
+            the caveats are honest.
           </p>
 
           <div class="row gap-16" style="flex-wrap:wrap;">
             <a href="https://github.com/EBentham" target="_blank" rel="noopener" class="btn primary">GitHub →</a>
-            <a href="https://linkedin.com/in/elliot-bentham" target="_blank" rel="noopener" class="btn ghost">LinkedIn →</a>
-            <a href="cv.pdf" class="btn ghost">CV (PDF) →</a>
-            <a href="mailto:e.bentham31231@gmail.com" class="btn ghost">Email →</a>
+            <a href="mailto:bob.bob31231@gmail.com" class="btn ghost">Email →</a>
           </div>
         </div>
 
         <div class="about-card">
-          <h4>Skills</h4>
+          <h4>At a glance</h4>
           <ul class="about-facts">
             <li>
-              <span class="k">Languages</span>
-              <span class="v"><span class="mono">Python · SQL</span></span>
+              <span class="k">Focus</span>
+              <span class="v">European power markets · fundamentals + probabilistic modelling</span>
             </li>
             <li>
-              <span class="k">Data engineering</span>
-              <span class="v"><span class="mono">Polars · DuckDB · Parquet · Pydantic</span> · medallion architecture · event-driven design (<span class="mono">Kafka</span>)</span>
+              <span class="k">Tools</span>
+              <span class="v"><span class="mono">Python · Polars · DuckDB · LightGBM · Pydantic</span></span>
             </li>
             <li>
-              <span class="k">Quant &amp; ML</span>
-              <span class="v"><span class="mono">LightGBM</span> · quantile regression · conformal prediction (<span class="mono">MAPIE</span>) · linear programming (<span class="mono">PuLP</span>) · Monte Carlo · time-series analysis</span>
+              <span class="k">Domains</span>
+              <span class="v">GB electricity (Elexon, NESO) · EU power (ENTSO-E) · gas (ENTSO-G, GIE) · weather (Open-Meteo)</span>
             </li>
             <li>
-              <span class="k">HPC</span>
-              <span class="v">Multithreading · multiprocessing · parallel batch compute · distributed computing (<span class="mono">PySpark</span>)</span>
+              <span class="k">Approach</span>
+              <span class="v">Local-first · bitemporal · artifact-pinned · walk-forward validated</span>
             </li>
             <li>
-              <span class="k">Cloud &amp; infra</span>
-              <span class="v"><span class="mono">AWS · Azure · Docker · Git · CI/CD</span></span>
+              <span class="k">Status</span>
+              <span class="v">Open to roles in energy trading &amp; quantitative research</span>
+            </li>
+          </ul>
+
+          <h4 style="margin-top:32px;">Public code</h4>
+          <ul class="about-facts">
+            <li>
+              <span class="k"><span class="mono" style="color:var(--ink);">gridflow</span></span>
+              <span class="v">Data pipeline · bronze/silver/gold · 7 connectors</span>
             </li>
             <li>
-              <span class="k">Visualisation</span>
-              <span class="v"><span class="mono">Power BI · Plotly · matplotlib</span></span>
+              <span class="k"><span class="mono" style="color:var(--ink);">-models</span></span>
+              <span class="v">Probabilistic estimators · LightGBM quantile · MAPIE conformity</span>
             </li>
             <li>
-              <span class="k">Markets</span>
-              <span class="v">UK &amp; European power · gas · FX options · rates · credit · commodities · vol surfaces</span>
+              <span class="k"><span class="mono" style="color:var(--ink);">-front-end</span></span>
+              <span class="v">This site · static · MIT</span>
             </li>
           </ul>
         </div>

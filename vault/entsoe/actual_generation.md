@@ -111,7 +111,7 @@ Live verification 2026-05-08:
 |-------|-------------|----------|--------------|-------|
 | timestamp_utc | datetime[UTC] | No | `<Period>` start + position * resolution | tz-aware UTC; PT15M / PT30M / PT60M resolution |
 | area_code | str | No | `<inBiddingZone_Domain.mRID>` | EIC bidding zone code |
-| area_name | str | No | derived | Default "" in canonical (ElexonActualGeneration.area_name: str = ""). |
+| area_name | str | Yes | derived | Currently empty in code |
 | production_type | str | No | `<MktPSRType><psrType>` | EIC PSR type (B01..B25) |
 | generation_mw | float | No | `<Point><quantity>` | Renamed from `value`; MW (XML unit `MAW`) |
 | data_provider | str | No | constant | "entsoe" |

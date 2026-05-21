@@ -2,13 +2,8 @@
 source: elexon
 dataset_key: disbsad
 vendor: Elexon BMRS
-last_verified: 2026-05-21
+last_verified: 2026-05-08
 layer_coverage: bronze, silver
-v2_fix_history:
-  - date: 2026-05-20
-    phase: gridflow-G5-W1.3
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: silver transformer now also renames current-API `service` field to `component` alongside the legacy `component` key
 ---
 
 # Elexon - Disaggregated Balancing Services Adjustment Data (`DISBSAD`)
@@ -125,7 +120,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `adjustment_action_id` | `str` | Yes | `id` | DISBSAD action identifier. |
 | `so_flag` | `bool` | No | `soFlag` | System Operator flag. |
 | `stor_flag` | `bool` | No | `storProviderFlag` | STOR flag. |
-| `component` | `str` | Yes | `component` (legacy) / `service` (current) | DISBSAD component code. G5-W1.3: live API renamed to `service` 2026-05; transformer renames both. |
+| `component` | `str` | Yes | `component` | DISBSAD component code. |
 | `cost` | `float` | Yes | `cost` | GBP. |
 | `volume` | `float` | Yes | `volume` | MWh. |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
@@ -170,13 +165,6 @@ None implemented.
 
 - **Param style**: docs require `from`/`to`; code matches.
 - **No Pydantic class** beyond `ElexonDISBSAD` for many fields — schema enforces the core (settlement_date, settlement_period, optional flags); silver transformer enforces full output column set.
-
-### V2-FIX changelog
-
-- **2026-05-20 — gridflow G5-W1.3 (PR #7)**: live Elexon API now returns
-  `service` rather than `component`. Silver transformer renames both;
-  pre-G5 silver carried `null` on `component` because the live bronze
-  didn't match the original rename map (P1 silent-null bug).
 
 ---
 

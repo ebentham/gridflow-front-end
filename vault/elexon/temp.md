@@ -2,17 +2,8 @@
 source: elexon
 dataset_key: temp
 vendor: Elexon BMRS
-last_verified: 2026-05-21
+last_verified: 2026-05-08
 layer_coverage: bronze, silver
-v2_fix_history:
-  - date: 2026-05-20
-    phase: gridflow-G5-W1.4
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: silver transformer now carries vendor measurementDate through as `measurement_date` (Date)
-  - date: 2026-05-20
-    phase: gridflow-G5-W4
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: ElexonTemp Pydantic schema declared
 ---
 
 # Elexon - Temperature Data (`TEMP`)
@@ -91,7 +82,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/temp/year=YYYY/month=MM/temp_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.temp.TempTransformer`
-**Pydantic schema**: `gridflow.schemas.elexon.ElexonTemp` (added 2026-05-20, gridflow G5-W4).
+**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
 **Dedup key**: `(timestamp_utc)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -99,7 +90,6 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 | Field | Python type | Nullable | Source field | Notes |
 |-------|-------------|----------|--------------|-------|
-| `measurement_date` | `date` | No | `measurementDate` | G5-W1.4: vendor measurement-date carried through to silver. |
 | `timestamp_utc` | `datetime[UTC]` | No | `publishDateTime` or `publishTime` | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `temperature` | `float` | Yes | `temperature` | Celsius — measured. |
 | `normal_temperature` | `float` | Yes | `normal` | Celsius — seasonal normal. |
@@ -142,17 +132,8 @@ None implemented.
 ## Implementation delta
 
 - **Daily publication** — empty within 3-hour windows.
-- **Pydantic schema declared** as of gridflow G5-W4: `ElexonTemp`.
-
-### V2-FIX changelog
-
-- **2026-05-20 — gridflow G5-W1.4 (PR #7)**: silver transformer now casts
-  `measurementDate` to a Date column and includes it in `output_cols`.
-  Previously the field was renamed but dropped before write — schema
-  table claimed the field existed, code silently omitted it (P2
-  schema-vs-output mismatch bug).
-- **2026-05-20 — gridflow G5-W4 (PR #7)**: `ElexonTemp` Pydantic class
-  added to `schemas/elexon.py`.
+- **No Pydantic schema** in `schemas/elexon.py`.
+- **API field `measurementDate`** is not currently mapped to a silver field by the connector (`temp.py` mapping renames `publishDateTime → timestamp_utc`).
 
 ---
 

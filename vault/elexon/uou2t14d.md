@@ -2,17 +2,8 @@
 source: elexon
 dataset_key: uou2t14d
 vendor: Elexon BMRS
-last_verified: 2026-05-21
+last_verified: 2026-05-08
 layer_coverage: bronze, silver
-v2_fix_history:
-  - date: 2026-05-20
-    phase: gridflow-G5-W2.3
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: silver transformer made self-describing — restores `fuel_type` and `national_grid_bm_unit` columns; published_at also carried through as UTC datetime
-  - date: 2026-05-20
-    phase: gridflow-G5-W4
-    pr: https://github.com/EBentham/gridflow/pull/7
-    change: ElexonUOU2T14D Pydantic schema declared
 ---
 
 # Elexon - 2-14 Day Ahead Generation Availability by BM Unit (`UOU2T14D`)
@@ -108,7 +99,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/uou2t14d/year=YYYY/month=MM/uou2t14d_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.uou2t14d.UOU2T14DTransformer`
-**Pydantic schema**: `gridflow.schemas.elexon.ElexonUOU2T14D` (added 2026-05-20, gridflow G5-W4).
+**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
 **Dedup key**: _inline in transformer (see `silver/elexon/uou2t14d.py`)_
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -120,10 +111,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `bm_unit_id` | `str` | No | `bmUnit` | BM Unit identifier — preserve raw casing. |
-| `fuel_type` | `str` | Yes | `fuelType` | Fuel category (G5-W2.3: restored — was dropped before write). |
-| `national_grid_bm_unit` | `str` | Yes | `nationalGridBmUnit` | National Grid BM unit identifier (G5-W2.3: restored). |
 | `output_usable_mw` | `float` | No | `outputUsable` | MW. |
-| `published_at` | `datetime[UTC]` | Yes | `publishDateTime` (also `publishTime`) | Publication time (G5-W2.3). |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 
@@ -162,19 +150,7 @@ None implemented.
 
 - **API max-chunk 4 hours**: `ElexonEndpoint.max_chunk_hours = 4` — connector enforces, vendor returns 400 for wider ranges.
 - **`forecastDate → settlement_date`** mapping (same as FOU2T14D).
-- **Pydantic schema declared** as of gridflow G5-W4: `ElexonUOU2T14D`.
-
-### V2-FIX changelog
-
-- **2026-05-20 — gridflow G5-W2.3 (PR #7)**: silver transformer is now
-  self-describing — restores the `fuel_type` and `national_grid_bm_unit`
-  columns the rename map produced but `output_cols` was dropping before
-  write (P2 schema-vs-output mismatch bug). `published_at` also surfaced
-  as a UTC-aware datetime under the same fix. Pre-G5 silver carried only
-  the bare `bm_unit_id` + `output_usable_mw` pair — downstream readers
-  had to look up fuel type / NG mapping separately.
-- **2026-05-20 — gridflow G5-W4 (PR #7)**: `ElexonUOU2T14D` Pydantic class
-  added to `schemas/elexon.py`.
+- **No Pydantic schema** in `schemas/elexon.py`.
 
 ---
 
