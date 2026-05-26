@@ -15,7 +15,7 @@
         <span class="sep">/</span>
         <span class="here">{{ doc.slug }}</span>
       </div>
-      <div style="display:grid; grid-template-columns: 1fr auto; gap: 48px; align-items: end;">
+      <div style="display:grid; grid-template-columns: 1fr auto; gap: 48px; align-items: stretch;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center;">
             <span class="eyebrow">{{ manifest.group }} · {{ doc.vendor_id }} · silver</span>
@@ -36,10 +36,10 @@
             </p>
           {% endif %}
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
           <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">SILVER PATH</div>
-            <div class="mono small">{{ doc.silver_path or 'silver.' ~ doc.slug }}</div>
+            <div class="mono small">silver.{{ doc.slug }}</div>
           </div>
           <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">API PATH</div>

@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    body { min-width: 0; }
+    .meta-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); }
+    .meta-grid > div { padding: 18px 20px; border-bottom: 1px solid var(--rule); }
+    .meta-grid > div:nth-child(odd) { border-right: 1px solid var(--rule); }
+    .meta-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .meta-grid .mono { word-break: break-all; }
+    .ds-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card.ds-card { border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block; }
+    .card.ds-card h4 { font-family: var(--serif); font-size: 18px; margin: 0; }
+    .card.ds-card .mono.small { min-width: 0; }
+    .ds-meta { color: var(--ink-soft); }
+    .group-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 16px; }
+    .group-head h3 { font-family: var(--serif); font-size: 24px; font-weight: 400; margin: 0; }
+    .footer { margin-top: 0; }
+
+    @media (max-width: 1080px) {
+      .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
+      .stats-strip > div:nth-child(2) { border-right: 0; }
+      .stats-strip > div:nth-child(1), .stats-strip > div:nth-child(2) { border-bottom: 1px solid var(--rule); }
+      .ds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .meta-grid { grid-template-columns: 1fr; }
+      .meta-grid > div { border-right: 0 !important; border-bottom: 1px solid var(--rule); }
+      .meta-grid > div:last-child { border-bottom: 0; }
+      .ds-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page="vendor" data-root="../../" data-screen-label="Vendor · ENTSO-E Transparency">
+<main>
+
+  <!-- hero -->
+  <section class="block" style="padding: 48px 0 40px;">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <span class="here" aria-current="page">ENTSO-E Transparency</span>
+      </nav>
+
+      <div class="hero-grid" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-16" style="align-items:center;">
+            <span class="eyebrow">ENTSO-E &middot; European Union &middot; Electricity</span>
+            <span class="chip" style="font-size: 11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 18px;">
+            ENTSO-E <span class="italic">Transparency.</span>
+          </h1>
+          <p class="lede" style="max-width: 580px;">The pan-European transmission system operators' Transparency Platform. Day-ahead prices, actual generation per production type, cross-border flows, forecasts, and outages across EU bidding zones.</p>
+          <div class="row gap-16 mt-32">
+            <a href="#datasets" class="btn primary">Browse 49 datasets &darr;</a>
+            <a href="https://transparency.entsoe.eu/" target="_blank" rel="noopener" class="btn ghost">Vendor docs &nearr;</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="meta-grid">
+            <div>
+              <div class="tiny mb-8">BASE URL</div>
+              <div class="mono small">web-api.tp.entsoe.eu</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">API key &middot; <span class="mono">securityToken</span></div>
+            </div>
+            <div>
+              <div class="tiny mb-8">RATE LIMIT</div>
+              <div class="small">~1 req/s &middot; polite default</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">FORMAT</div>
+              <div class="small">XML &middot; <span class="mono">GL_MarketDocument</span></div>
+            </div>
+            <div>
+              <div class="tiny mb-8">EARLIEST</div>
+              <div class="small">2014-12-05</div>
+            </div>
+            <div>
+              <div class="tiny mb-8">TIMEZONE</div>
+              <div class="small">UTC &middot; PT15M / PT30M / PT60M</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- stats strip -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">49</div>
+        <div class="stat-l">Datasets</div>
+      </div>
+      <div>
+        <div class="stat-n">6</div>
+        <div class="stat-l">Categories</div>
+      </div>
+      <div>
+        <div class="stat-n">B25</div>
+        <div class="stat-l">PSR types &middot; production codes</div>
+      </div>
+      <div>
+        <div class="stat-n">EU</div>
+        <div class="stat-l">Bidding zones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- dataset catalog -->
+  <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">49 datasets &middot; 6 categories</div>
+          <h2 class="display-3">The catalog.</h2>
+        </div>
+      </div>
+
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Generation</h3>
+          <span class="small">8 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Actual and forecast generation by PSR type, unit-level outturn, installed capacity, and water storage.</p>
+
+        <div class="ds-grid">
+          <a href="entsoe/actual_generation.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">actual_generation</span><span class="chip" style="font-size:10px;">PT15M/PT60M</span></div>
+                <h4>Actual generation by PSR type</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT15M/PT60M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/actual_generation_units.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">actual_generation_units</span><span class="chip" style="font-size:10px;">PT30M</span></div>
+                <h4>Actual generation per unit &middot; GB</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT30M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/generation_forecast.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">generation_forecast</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Day-ahead generation forecast aggregated</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/generation_units_master_data.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">generation_units_master_data</span><span class="chip" style="font-size:10px;">static</span></div>
+                <h4>Production and generation unit master data</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">static</span></span><span>Lag <span class="mono">on change</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/installed_capacity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">installed_capacity</span><span class="chip" style="font-size:10px;">yearly</span></div>
+                <h4>Installed generation capacity aggregated</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">yearly</span></span><span>Lag <span class="mono">annual</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/installed_capacity_units.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">installed_capacity_units</span><span class="chip" style="font-size:10px;">yearly</span></div>
+                <h4>Installed capacity per production unit</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">yearly</span></span><span>Lag <span class="mono">annual</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/water_reservoirs.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">water_reservoirs</span><span class="chip" style="font-size:10px;">weekly</span></div>
+                <h4>Water reservoirs and hydro storage</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">weekly</span></span><span>Lag <span class="mono">weekly</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/wind_solar_forecast.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">wind_solar_forecast</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Day-ahead wind and solar forecast</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Load</h3>
+          <span class="small">6 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Actual total load and day-ahead through yearly forecasts across EU bidding zones.</p>
+
+        <div class="ds-grid">
+          <a href="entsoe/actual_load.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">actual_load</span><span class="chip" style="font-size:10px;">PT15M/PT60M</span></div>
+                <h4>Actual total load &middot; bidding zone</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT15M/PT60M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/load_forecast.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">load_forecast</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Day-ahead load forecast</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/load_forecast_weekly.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">load_forecast_weekly</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Week-ahead load forecast</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">weekly</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/load_forecast_monthly.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">load_forecast_monthly</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Month-ahead load forecast</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">monthly</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/load_forecast_yearly.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">load_forecast_yearly</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Year-ahead load forecast</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">annual</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/forecast_margin.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">forecast_margin</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Year-ahead forecast margin</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">annual</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Transmission &amp; Cross-Border</h3>
+          <span class="small">12 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Physical cross-border flows, NTC, commercial schedules, offered / allocated capacity, and redispatching.</p>
+
+        <div class="ds-grid">
+          <a href="entsoe/cross_border_flows.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">cross_border_flows</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Physical cross-border flows (A11)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/net_transfer_capacity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">net_transfer_capacity</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Forecasted net transfer capacity (A61)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/commercial_schedules.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">commercial_schedules</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Commercial schedules (A09)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/commercial_schedules_net_positions.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">commercial_schedules_net_positions</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Commercial schedules net positions</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/offered_transfer_capacity_continuous.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">offered_transfer_capacity_continuous</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Offered transfer capacity continuous</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/offered_transfer_capacity_explicit.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">offered_transfer_capacity_explicit</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Offered transfer capacity explicit</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/offered_transfer_capacity_implicit.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">offered_transfer_capacity_implicit</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Offered transfer capacity implicit</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/total_capacity_allocated.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">total_capacity_allocated</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Total capacity already allocated (A26)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/total_nominated_capacity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">total_nominated_capacity</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Total nominated capacity (A26)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/transfer_capacity_use.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">transfer_capacity_use</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Use of transfer capacity (A25)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/redispatching_cross_border.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">redispatching_cross_border</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Redispatching cross-border (A63)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/redispatching_internal.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">redispatching_internal</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Redispatching internal (A63)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Outages &amp; Unavailabilities</h3>
+          <span class="small">5 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Planned and unplanned unavailabilities for generation units, production units, transmission, and offshore grid.</p>
+
+        <div class="ds-grid">
+          <a href="entsoe/outages_generation.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">outages_generation</span><span class="chip" style="font-size:10px;">as published</span></div>
+                <h4>Unavailability of generation units (A80)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">as published</span></span><span>Lag <span class="mono">real-time</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/outages_production.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">outages_production</span><span class="chip" style="font-size:10px;">as published</span></div>
+                <h4>Unavailability of production units (A77)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">as published</span></span><span>Lag <span class="mono">real-time</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/outages_consumption.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">outages_consumption</span><span class="chip" style="font-size:10px;">as published</span></div>
+                <h4>Unavailability of consumption units (A76)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">as published</span></span><span>Lag <span class="mono">real-time</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/outages_transmission.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">outages_transmission</span><span class="chip" style="font-size:10px;">as published</span></div>
+                <h4>Unavailability of transmission (A78)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">as published</span></span><span>Lag <span class="mono">real-time</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/outages_offshore_grid.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">outages_offshore_grid</span><span class="chip" style="font-size:10px;">as published</span></div>
+                <h4>Unavailability of offshore grid (A79)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">as published</span></span><span>Lag <span class="mono">real-time</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Prices &amp; Balancing</h3>
+          <span class="small">12 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Day-ahead and imbalance prices, activated / contracted reserves, balancing bids, and financial settlement.</p>
+
+        <div class="ds-grid">
+          <a href="entsoe/day_ahead_prices.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">day_ahead_prices</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Day-ahead prices (A44)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/imbalance_prices.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">imbalance_prices</span><span class="chip" style="font-size:10px;">PT30M</span></div>
+                <h4>Imbalance prices (A85)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT30M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/imbalance_volume.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">imbalance_volume</span><span class="chip" style="font-size:10px;">PT30M</span></div>
+                <h4>Imbalance volumes (A86)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT30M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/activated_balancing_prices.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">activated_balancing_prices</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Activated balancing energy prices</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/activated_balancing_qty.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">activated_balancing_qty</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Activated balancing energy quantity</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/balancing_energy_bids.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">balancing_energy_bids</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Balancing energy bids</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/aggregated_balancing_energy_bids.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">aggregated_balancing_energy_bids</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Aggregated balancing energy bids</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/procured_balancing_capacity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">procured_balancing_capacity</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Procured balancing capacity</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/contracted_reserves.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">contracted_reserves</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Contracted reserves (A81/A52)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/cross_zonal_balancing_capacity.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">cross_zonal_balancing_capacity</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Cross-zonal balancing capacity</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/current_balancing_state.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">current_balancing_state</span><span class="chip" style="font-size:10px;">PT30M</span></div>
+                <h4>Current balancing state (B33)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT30M</span></span><span>Lag <span class="mono">T+1 hr</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/balancing_financial_expenses_income.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">balancing_financial_expenses_income</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Balancing financial expenses / income</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-32">
+        <div class="group-head">
+          <h3>Capacity &amp; Auctions</h3>
+          <span class="small">6 datasets</span>
+        </div>
+        <p class="small mb-24" style="max-width:640px; color:var(--ink-soft);">Net positions, congestion income and costs, auction revenue, countertrading, and DC link limits.</p>
+
+        <div class="ds-grid">
+          <a href="entsoe/net_positions.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">net_positions</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Implicit auction net positions (B09)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">D-1</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/congestion_income.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">congestion_income</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Congestion income (B10)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/congestion_management_costs.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">congestion_management_costs</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Costs of congestion management (A92)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/auction_revenue.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">auction_revenue</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Auction revenue (B07)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/countertrading.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">countertrading</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>Countertrading (A91)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+          <a href="entsoe/dc_link_intraday_transfer_limits.html" class="row-link card flush ds-card">
+            <div class="row between" style="align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="row gap-8 mb-8"><span class="mono small" style="color:var(--ink-strong);">dc_link_intraday_transfer_limits</span><span class="chip" style="font-size:10px;">PT60M</span></div>
+                <h4>DC link intraday transfer limits (A93)</h4>
+              </div>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </div>
+            <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="../assets/charts.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

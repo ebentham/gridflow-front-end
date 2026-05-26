@@ -49,6 +49,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = REPO_ROOT / "templates"
 SITE_DIR = REPO_ROOT / "site" / "hifi"
 DEFAULT_VAULT = REPO_ROOT / "vault"
+AUTHORED_DIR = REPO_ROOT / "authored-pages"
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -760,34 +761,194 @@ def build_vendor(env: Environment, vendor_id: str, vault_path: Path, out_root: P
 
     n_pages = 0
     for _path, doc in docs:
-        html = render_dataset(env, doc, manifest)
         out_path = out_dataset_dir / f"{doc.slug}.html"
-        out_path.write_text(html, encoding="utf-8")
+        authored = AUTHORED_DIR / vendor_id / f"{doc.slug}.html"
+        if authored.exists():
+            shutil.copy(authored, out_path)
+            print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html (authored)")
+        else:
+            html = render_dataset(env, doc, manifest)
+            out_path.write_text(html, encoding="utf-8")
+            print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html")
         n_pages += 1
-        print(f"  wrote: data-sources/{vendor_id}/{doc.slug}.html")
 
-    hub_html = render_vendor_hub(env, manifest, vendor_id, vendor_label, vendor_cfg["vendor_meta"])
     hub_path = out_root / "data-sources" / f"{vendor_id}.html"
-    hub_path.write_text(hub_html, encoding="utf-8")
-    print(f"  wrote: data-sources/{vendor_id}.html")
+    authored_hub = AUTHORED_DIR / vendor_id / "_landing.html"
+    if authored_hub.exists():
+        shutil.copy(authored_hub, hub_path)
+        print(f"  wrote: data-sources/{vendor_id}.html (authored hub)")
+    else:
+        hub_html = render_vendor_hub(env, manifest, vendor_id, vendor_label, vendor_cfg["vendor_meta"])
+        hub_path.write_text(hub_html, encoding="utf-8")
+        print(f"  wrote: data-sources/{vendor_id}.html")
     return n_pages
 
 
 def build_coming_soon_stubs(env: Environment, out_root: Path) -> int:
-    """Render coming-soon vendor stubs for the 5 deferred vendors."""
+    """Render coming-soon vendor stubs for the 5 deferred vendors.
+
+    If ``authored-pages/<vendor_id>/_landing.html`` exists it is copied verbatim
+    instead of rendering the coming-soon template.  For the ``gie_agsi`` /
+    ``gie_alsi`` split-IDs, ``authored-pages/gie/_landing.html`` is accepted as a
+    unified fallback (Phase 8D unifies GIE into a single hub brief).
+    """
     n = 0
     for cfg in COMING_SOON_VENDORS:
-        html = render_coming_soon_stub(env, cfg)
-        out_path = out_root / "data-sources" / f"{cfg['vendor_id']}.html"
+        vendor_id = cfg["vendor_id"]
+        out_path = out_root / "data-sources" / f"{vendor_id}.html"
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(html, encoding="utf-8")
+        # Authored override: exact match first, then gie parent for gie_agsi / gie_alsi
+        authored_hub = AUTHORED_DIR / vendor_id / "_landing.html"
+        gie_parent_hub = AUTHORED_DIR / "gie" / "_landing.html"
+        if authored_hub.exists():
+            shutil.copy(authored_hub, out_path)
+            n += 1
+            print(f"  wrote: data-sources/{vendor_id}.html (authored hub)")
+        elif vendor_id.startswith("gie_") and gie_parent_hub.exists():
+            shutil.copy(gie_parent_hub, out_path)
+            n += 1
+            print(f"  wrote: data-sources/{vendor_id}.html (authored hub via gie)")
+        else:
+            html = render_coming_soon_stub(env, cfg)
+            out_path.write_text(html, encoding="utf-8")
+            n += 1
+            print(f"  wrote: data-sources/{vendor_id}.html (stub)")
+
+    # COMING_SOON_VENDORS splits GIE into gie_agsi / gie_alsi, but the user-facing
+    # vendor folder is the unified ``gie`` (per Phase 8D). Per-dataset HTML under
+    # data-sources/gie/<slug>.html links back to ../gie.html — so a unified hub
+    # must also be served at that path. Sourced from the same authored landing
+    # that already drives gie_agsi.html and gie_alsi.html (see gie_parent_hub
+    # fallback above), keeping the three hub copies content-identical.
+    gie_parent_hub = AUTHORED_DIR / "gie" / "_landing.html"
+    if gie_parent_hub.exists():
+        gie_out_path = out_root / "data-sources" / "gie.html"
+        shutil.copy(gie_parent_hub, gie_out_path)
         n += 1
-        print(f"  wrote: data-sources/{cfg['vendor_id']}.html (stub)")
+        print("  wrote: data-sources/gie.html (authored unified hub via gie)")
     return n
 
 
-def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int, int]:
-    """Render all vendor pages. Returns (n_dataset_pages, n_real_hubs, n_stubs)."""
+def copy_authored_dataset_pages_for_coming_soon(out_root: Path) -> int:
+    """Copy authored per-dataset HTML files for COMING_SOON vendor folders.
+
+    REAL_VENDORS get per-dataset overrides via ``build_vendor`` (manifest-driven).
+    For COMING_SOON vendors and the unified ``gie`` folder, no manifest exists,
+    so any per-dataset HTML the user authored under ``authored-pages/<vendor>/``
+    needs to be copied directly. ``_landing.html`` is excluded (it's the hub,
+    handled by ``build_coming_soon_stubs``).
+    """
+    n = 0
+    coming_soon_folders = {cfg["vendor_id"] for cfg in COMING_SOON_VENDORS} | {"gie"}
+    for vendor_folder in sorted(coming_soon_folders):
+        src_dir = AUTHORED_DIR / vendor_folder
+        if not src_dir.is_dir():
+            continue
+        dst_dir = out_root / "data-sources" / vendor_folder
+        for src in sorted(src_dir.glob("*.html")):
+            if src.name == "_landing.html":
+                continue
+            dst_dir.mkdir(parents=True, exist_ok=True)
+            dst = dst_dir / src.name
+            shutil.copy(src, dst)
+            n += 1
+            print(f"  wrote: data-sources/{vendor_folder}/{src.name} (authored dataset)")
+    return n
+
+
+def _vendor_stub_metadata() -> dict[str, dict[str, str | None]]:
+    """Lookup table: vendor folder → {label, docs_url, connector_state}.
+
+    Drives ``build_dataset_stubs_from_landings``. Covers REAL_VENDORS (entsoe),
+    the 5 COMING_SOON_VENDORS, and the unified ``gie`` folder which has no
+    direct entry in COMING_SOON_VENDORS but shares metadata with its gie_agsi
+    / gie_alsi children.
+    """
+    meta: dict[str, dict[str, str | None]] = {}
+    for vendor_id, cfg in REAL_VENDORS.items():
+        meta[vendor_id] = {
+            "label": cfg["label"],
+            "docs_url": cfg["vendor_meta"].get("vendor_docs_url"),
+            "connector_state": "shipping",
+        }
+    for cfg in COMING_SOON_VENDORS:
+        meta[cfg["vendor_id"]] = {
+            "label": cfg["vendor_label"],
+            "docs_url": cfg.get("vendor_docs_url"),
+            "connector_state": cfg.get("connector_state", "planned"),
+        }
+    if "gie" not in meta and "gie_agsi" in meta:
+        meta["gie"] = {
+            "label": "GIE",
+            "docs_url": "https://www.gie.eu/",
+            "connector_state": meta["gie_agsi"]["connector_state"],
+        }
+    return meta
+
+
+_LANDING_DATASET_LINK_RE = re.compile(r'href="([a-z][a-z0-9_]*)/([a-z][a-z0-9_]*)\.html"')
+
+
+def build_dataset_stubs_from_landings(env: Environment, out_root: Path) -> int:
+    """Render per-dataset coming-soon stubs for landing links with no real page.
+
+    Scans every ``authored-pages/<vendor>/_landing.html`` for outgoing links of
+    the form ``href="<vendor>/<slug>.html"``. For each target that does not yet
+    exist under ``data-sources/<vendor>/<slug>.html`` after the manifest-driven
+    and authored-copy passes have run, renders a depth-2 stub from
+    ``dataset-coming-soon.html.j2``. Skips Elexon (full per-dataset coverage
+    already authored).
+
+    Must run AFTER ``build_vendor`` and ``copy_authored_dataset_pages_for_coming_soon``
+    so the existence check correctly identifies real pages. Idempotent: a second
+    invocation finds the stubs already on disk and skips them; ``filecmp`` in
+    ``--check`` sees identical content because the template has no time-varying
+    fields.
+    """
+    template = env.get_template("dataset-coming-soon.html.j2")
+    vendor_meta = _vendor_stub_metadata()
+    n = 0
+    for landing in sorted(AUTHORED_DIR.glob("*/_landing.html")):
+        vendor_folder = landing.parent.name
+        if vendor_folder == "elexon":
+            continue
+        meta = vendor_meta.get(vendor_folder)
+        if not meta:
+            print(f"  skip stubs for {vendor_folder} (no vendor metadata)")
+            continue
+        text = landing.read_text(encoding="utf-8")
+        targets = {
+            slug
+            for vendor, slug in _LANDING_DATASET_LINK_RE.findall(text)
+            if vendor == vendor_folder
+        }
+        out_dir = out_root / "data-sources" / vendor_folder
+        for slug in sorted(targets):
+            out_path = out_dir / f"{slug}.html"
+            if out_path.exists():
+                continue
+            out_dir.mkdir(parents=True, exist_ok=True)
+            html = template.render(
+                vendor_id=vendor_folder,
+                vendor_label=meta["label"],
+                vendor_docs_url=meta["docs_url"],
+                connector_state=meta["connector_state"],
+                slug=slug,
+            )
+            out_path.write_text(html, encoding="utf-8")
+            n += 1
+            print(f"  wrote: data-sources/{vendor_folder}/{slug}.html (coming-soon stub)")
+    return n
+
+
+def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int, int, int]:
+    """Render all vendor pages.
+
+    Returns ``(n_dataset_pages, n_real_hubs, n_hub_stubs, n_dataset_stubs)``.
+    ``n_dataset_pages`` covers manifest-rendered + authored-copied dataset pages;
+    ``n_dataset_stubs`` is the coming-soon fallback for unfinished slugs linked
+    from a vendor landing.
+    """
     env = make_env()
     out_root = output_dir or SITE_DIR
 
@@ -800,8 +961,10 @@ def build(vault_path: Path, output_dir: Path | None = None) -> tuple[int, int, i
         n_pages += build_vendor(env, vendor_id, vault_path, out_root)
         n_hubs += 1
 
-    n_stubs = build_coming_soon_stubs(env, out_root)
-    return n_pages, n_hubs, n_stubs
+    n_hub_stubs = build_coming_soon_stubs(env, out_root)
+    n_pages += copy_authored_dataset_pages_for_coming_soon(out_root)
+    n_dataset_stubs = build_dataset_stubs_from_landings(env, out_root)
+    return n_pages, n_hubs, n_hub_stubs, n_dataset_stubs
 
 
 def _snapshot_outputs(temp_dir: Path) -> None:
@@ -852,14 +1015,17 @@ def main(argv: list[str] | None = None) -> int:
     vault_path = resolve_vault_path(args.vault_path)
     print(f"[gridflow-build] vault: {vault_path}")
 
-    n_pages, n_hubs, n_stubs = build(vault_path)
-    print(f"[gridflow-build] wrote {n_pages} dataset pages + {n_hubs} vendor hub(s) + {n_stubs} coming-soon stub(s)")
+    n_pages, n_hubs, n_hub_stubs, n_dataset_stubs = build(vault_path)
+    print(
+        f"[gridflow-build] wrote {n_pages} dataset pages + {n_hubs} vendor hub(s) + "
+        f"{n_hub_stubs} coming-soon hub(s) + {n_dataset_stubs} coming-soon dataset stub(s)"
+    )
 
     if args.check:
         with tempfile.TemporaryDirectory(prefix="gridflow-build-check-") as tmp:
             tmp_path = Path(tmp)
             _snapshot_outputs(tmp_path)
-            _, _, _ = build(vault_path)
+            _, _, _, _ = build(vault_path)
             differing = _diff_outputs(tmp_path)
             if differing:
                 print(
@@ -868,7 +1034,10 @@ def main(argv: list[str] | None = None) -> int:
                 for p in differing:
                     print(f"    {p}")
                 return 1
-            print(f"[gridflow-build] OK: idempotent across {n_pages} pages + {n_hubs + n_stubs} hubs/stubs.")
+            print(
+                f"[gridflow-build] OK: idempotent across {n_pages} pages + "
+                f"{n_hubs + n_hub_stubs} hubs + {n_dataset_stubs} dataset stubs."
+            )
 
     return 0
 

@@ -13,10 +13,14 @@ dependencies = []
 [project.optional-dependencies]
 # Build-time templating; not required for `gridflow-serve` runtime.
 build = ["Jinja2>=3.1,<4"]
+# Drift verification; consumes the renamed gridflow_drift_check.py script.
+# Pydantic is transitive via the editable gridflow install used by the script.
+drift = ["PyYAML>=6,<7"]
 
 [project.scripts]
 gridflow-serve = "gridflow_front_end.serve:main"
 gridflow-build = "gridflow_front_end.build:main"
+gridflow-drift-check = "gridflow_front_end.drift_check_entry:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
