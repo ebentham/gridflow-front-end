@@ -19,26 +19,30 @@ All workflow context lives under `.planning/`:
 
 ## Working agreements
 
-- **Conventional commits** — `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`. One concern per commit. Never commit to `main` — feature branches only.
-- **Never auto-commit** unless the user asks.
-- **Phase 0 is complete** — the in-flight refactor was committed in v1. Working tree is clean entering v2.
+- **Never auto-commit** unless the user asks — this overrides the global "commit after each passing test" cadence (a docs site has no test-driven rhythm).
+- Never commit to `main` — feature branches only. Conventional commits (`feat:`/`fix:`/`docs:`/`chore:`/`refactor:`/`test:`); one concern per commit.
 
-## Tech stack (current — pre-build-script)
+## Commands
+
+```bash
+uv run gridflow-serve              # stdlib-only dev server (no build deps required)
+uv run gridflow-build              # render vault .md → site/hifi/data-sources/ (needs [build] extra: Jinja2)
+uv run gridflow-build --check      # idempotence / content audit; CI fails on drift
+uv run gridflow-drift-check        # verify rendered pages against their vault sources
+```
+
+CI (`.github/workflows/deploy.yml`) additionally runs `htmlhint` and `lychee` link-checking before publishing to GitHub Pages.
+
+## Tech stack
 
 - Static HTML5 + CSS3 + vanilla JS (ES2017+, no transpilation, no modules)
 - Single shared stylesheet (`site/hifi/assets/theme.css`)
 - Runtime chrome injection (`site/hifi/assets/site.js`) via body `data-page` / `data-root` / `data-screen-label` attribute contract
 - Deterministic seeded inline-SVG charts (`site/hifi/assets/charts.js`)
 - Python 3.11+ stdlib-only dev server (`src/gridflow_front_end/serve.py`, exposed as `gridflow-serve`)
+- `gridflow-build` console script (Python + Jinja2 3.1.x) renders vault `.md` files → `site/hifi/data-sources/` (vault → site direction); Jinja2 lives in `[build]` extras only, the runtime dev server stays stdlib-only
+- Generated HTML is gitignored; CI runs `gridflow-build --check` before `upload-pages-artifact`
 - Deploy: GitHub Pages from `site/hifi/` via `.github/workflows/deploy.yml` on push to `main`
-
-## Tech stack (post-Phase-3 — what we're building toward)
-
-- Same deploy contract (GitHub Pages from `site/hifi/`, pure-static artefact)
-- New `gridflow-build` console script (Python + Jinja2 3.1.x)
-- Jinja2 lives in `[build]` extras only — runtime dev server stays stdlib-only
-- Build reads vault `.md` files (vault → site direction), renders to `site/hifi/data-sources/`
-- Generated HTML is gitignored; CI runs `gridflow-build` before `upload-pages-artifact`
 
 ## Source-of-truth hierarchy
 
@@ -67,7 +71,7 @@ CI will need both vault and gridflow checkouts available when running `gridflow-
 - Templating: Python + Jinja2 (Option B + CI build)
 - ENTSO-E cross-vendor proof: Generation by PSR type
 - Kill all 'live' framing; charts are illustrative snapshots
-- License decision still TBD (resolve via HON-04 in Phase 1)
+- License: MIT
 
 ## Anti-goals
 
@@ -75,19 +79,19 @@ CI will need both vault and gridflow checkouts available when running `gridflow-
 - Fake live indicators (timestamps, "X min ago", "Shipping" status badges on unfinished work)
 - Performance metrics / KPIs / uptime badges
 - Adopting Node/Go SSGs (11ty, Astro, Hugo) — rejected for Python-first portfolio alignment
-- Hand-authored dataset pages that bypass the build script entirely (Phase 8B adopts a hybrid: `authored-pages/<vendor>/<slug>.html` overrides for showcase pages; long tail stays template-driven)
+- Hand-authored dataset pages that bypass the build script entirely (one bounded exception: `authored-pages/<vendor>/<slug>.html` overrides for showcase pages; the long tail stays template-driven)
 - Author photos / testimonials / hire-me CTAs
 
 ## Conventions
 
 - HTML filenames: kebab-case slugs except Elexon dataset codes (`system_prices.html` keeps underscores from the BMRS API)
 - Dataset page anatomy: hero → metadata grid → stats strip → sticky sidebar → overview → snapshot chart → schema → sample → API tabs → caveats → related
-- Mobile viewport: `<meta name="viewport" content="width=device-width, initial-scale=1">` (currently broken on 23/27 pages — fixed in Phase 1)
+- Mobile viewport: every page needs `<meta name="viewport" content="width=device-width, initial-scale=1">`
 - A11y minimums: `<main>` landmark, `aria-current="page"` on active nav, distinguishing `aria-label` on dual `<nav>` (top + sidebar), `aria-hidden="true"` on decorative icons
 
 ## Slash commands
 
-- `/gsd-plan-phase <n>` — decompose a phase into executable plans (next: `/gsd-plan-phase 8B`)
+- `/gsd-plan-phase <n>` — decompose a phase into executable plans
 - `/gsd-execute-phase <n>` — execute all plans in a phase
 - `/gsd-discuss-phase <n>` — clarify scope before planning (interactive)
 - `/gsd-manager` — milestone dashboard: shows D/P/E status per phase, dispatches subagents
