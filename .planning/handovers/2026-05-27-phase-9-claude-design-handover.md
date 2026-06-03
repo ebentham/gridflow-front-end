@@ -85,6 +85,13 @@ Recommend this order to validate the entitlement treatment early then crank thro
 **Batch 7 — Landing page (1 brief)**
 - `_landing.md` → `_landing.html` (vendor hub for `site/hifi/data-sources/entsoe.html`). Save as `authored-pages/entsoe/_landing.html`.
 
+  > **Hub depth ≠ dataset-page depth — do NOT carry over the `../../` contract used everywhere else in this doc.** A vendor hub renders one level below the site root (`data-sources/<vendor>.html`), so it is **depth-1**. On the hub `_landing.html`:
+  > - `<body … data-root="../" …>` — **not** `../../`. The hub's injected top-nav + footer are built from `data-root` (see `site/hifi/assets/site.js`); `../../` resolves them one level above the project root and 404s in production (GitHub Pages *project* site), while staying invisible on the origin-root dev server where `../` and `../../` collapse.
+  > - asset links are `../assets/theme.css|charts.js|site.js` — **not** `../../assets/`.
+  > - dataset card hrefs are slug-prefixed `<vendor>/<slug>.html` (e.g. `entsoe/day_ahead_prices.html`).
+  >
+  > Canonical reference: the Jinja template `templates/vendor-hub.html.j2` (`data-root="../"`). `gridflow-build` copies `_landing.html` **verbatim** (no path rewriting), so these must be correct in the authored source.
+
 You don't have to follow this order — it's just the path with the cleanest cross-references.
 
 ---
