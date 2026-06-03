@@ -12,7 +12,7 @@ layer_coverage: bronze, silver
 
 Contracted balancing reserve quantities in MW per control area, by reserve
 type. Article 17.1.B&C (`AMOUNT_AND_PRICES_PAID_OF_BALANCING_RESERVES_UNDER_CONTRACT_R3`).
-Document type `A81` + process type `A52` (Capacity allocated/contracted)
+Document type `A81` + process type `A52` (Frequency containment reserve, FCR)
 + `businessType=B95` (codebase) + `Type_MarketAgreement.Type=A01` (daily
 products). Returns `Balancing_MarketDocument` with `<TimeSeries>` carrying
 the reserve type via businessType inside the time series.
@@ -40,7 +40,7 @@ products."
 | Publication lag  | ~T+1 day |
 | Response format  | XML (Balancing_MarketDocument); ZIP-of-XML for large windows |
 | Document type    | `A81` |
-| Process type     | `A52` (Capacity contracted) |
+| Process type     | `A52` (Frequency containment reserve, FCR) |
 | Domain param name | `controlArea_Domain` |
 | Required businessType | `B95` |
 | Required Type_MarketAgreement.Type | `A01` (daily products) |
@@ -78,23 +78,57 @@ GB returns code 999 (`AMOUNT_AND_PRICES_PAID_OF_BALANCING_RESERVES_UNDER_CONTRAC
 
 ### Bronze sample
 
-```json
-{
-  "envelope": "Balancing_MarketDocument xmlns='urn:iec62325.351:tc57wg16:451-6:balancingdocument:4:4'",
-  "type": "A81",
-  "process.processType": "A52",
-  "area_Domain.mRID": "10YFR-RTE------C",
-  "TimeSeries": [
-    {
-      "businessType": "A96",
-      "Period": {
-        "resolution": "PT15M",
-        "Point": [{"position": 1, "quantity": 540}]
-      }
-    }
-  ]
-}
+From `tests/fixtures/entsoe/contracted_reserves_gb.xml` (abridged — one
+`<Point>` per series shown):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Balancing_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-6:balancingdocument:4:0">
+  <mRID>fixture-contracted-res-gb-20240115</mRID>
+  <revisionNumber>1</revisionNumber>
+  <type>A81</type>
+  <process.processType>A52</process.processType>
+  <createdDateTime>2024-01-14T12:00:00Z</createdDateTime>
+  <period.timeInterval>
+    <start>2024-01-15T00:00Z</start>
+    <end>2024-01-16T00:00Z</end>
+  </period.timeInterval>
+  <TimeSeries>
+    <mRID>1</mRID>
+    <businessType>A95</businessType>
+    <controlArea_Domain.mRID codingScheme="A01">10YGB----------A</controlArea_Domain.mRID>
+    <quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name>
+    <curveType>A03</curveType>
+    <Period>
+      <timeInterval>
+        <start>2024-01-15T00:00Z</start>
+        <end>2024-01-16T00:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point><position>1</position><quantity>500</quantity></Point>
+    </Period>
+  </TimeSeries>
+  <TimeSeries>
+    <mRID>2</mRID>
+    <businessType>A96</businessType>
+    <controlArea_Domain.mRID codingScheme="A01">10YGB----------A</controlArea_Domain.mRID>
+    <quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name>
+    <curveType>A03</curveType>
+    <Period>
+      <timeInterval>
+        <start>2024-01-15T00:00Z</start>
+        <end>2024-01-16T00:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point><position>1</position><quantity>350</quantity></Point>
+    </Period>
+  </TimeSeries>
+</Balancing_MarketDocument>
 ```
+
+Note: the per-TimeSeries area key is `controlArea_Domain.mRID` (which the
+parser maps to `control_area_domain`), not `area_Domain.mRID` — the A81 path
+keys on the control-area domain.
 
 ---
 

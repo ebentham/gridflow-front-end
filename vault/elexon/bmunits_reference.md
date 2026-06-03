@@ -136,7 +136,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/referenc
 | `registered_capacity_mw` | `float` | Yes | `registeredCapacity` or `generationCapacity` | MW. |
 | `company_name` | `str` | Yes | `companyName` or `leadPartyName` | Lead party (operator) name. |
 | `gsp_group_id` | `str` | Yes | `gspGroupId` | GSP group identifier. |
-| `national_grid_bm_unit` | `str` | Yes | `nationalGridBmUnit` | ENTSO-E EIC for the BM Unit. |
+| `national_grid_bm_unit` | `str` | Yes | `nationalGridBmUnit` | National Grid BM Unit id (e.g. `ABERU-1`) — **not** the ENTSO-E EIC. The bronze carries the EIC in a separate `eic` field (e.g. `48W00000ABRBO-19`), which the transformer does not currently map into silver. |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 

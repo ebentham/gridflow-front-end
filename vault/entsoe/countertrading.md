@@ -131,7 +131,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A91, processType=none, businessType=none-in-request, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:172-177`.
+- **Tuple recorded:** `(documentType=A91, processType=none, businessType=none-in-request, domain=in_Domain+out_Domain)`. Matches code — the `countertrading` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08:** GB→FR for 2026-05-06 returned Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (no countertrading published that day, as expected).
 
 ---

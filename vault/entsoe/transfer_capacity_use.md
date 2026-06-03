@@ -137,7 +137,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B05, Auction.Category=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:238-249`.
+- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B05, Auction.Category=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `transfer_capacity_use` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR daily and 30-day:** Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (use-of-capacity publication cadence does not align with the test daily window for GB borders).
 - **Disambiguation from other A25 variants:**
   - `auction_revenue`: `businessType=B07`, no `Auction.Category`, unit EUR.

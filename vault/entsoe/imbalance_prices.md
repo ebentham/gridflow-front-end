@@ -111,6 +111,7 @@ Use Elexon `system_prices` for GB imbalance settlement.
 | `area_code` | `str` | No | `area_Domain.mRID` (parser remaps to `control_area_domain`) | EIC control area |
 | `direction` | `str` | No | `businessType` mapped via `replace_strict` | `A19→long`, `A20→short` |
 | `price_eur_mwh` | `float` | No | `Point/imbalance_Price.amount` (parser matches `*_Price.amount`) | EUR/MWh |
+| `currency` | `str` | No | `<currency_Unit.name>` | Default "EUR" in canonical; labels the price currency (e.g. GBP for GB) so `price_eur_mwh` is never silently trusted as EUR. |
 | `resolution` | `str` | No (default `""`) | `Period/resolution` | `PT15M` typical |
 | `data_provider` | `str` | No (default `"entsoe"`) | derived | Constant |
 | `ingested_at` | `datetime` (tz-aware UTC) | Yes | derived | |
@@ -124,6 +125,7 @@ Use Elexon `system_prices` for GB imbalance settlement.
         "area_code": "10YFR-RTE------C",
         "direction": "long",
         "price_eur_mwh": 31.11,
+        "currency": "EUR",
         "resolution": "PT15M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 5, 16, tzinfo=UTC),
@@ -133,6 +135,7 @@ Use Elexon `system_prices` for GB imbalance settlement.
         "area_code": "10YFR-RTE------C",
         "direction": "short",
         "price_eur_mwh": 35.40,
+        "currency": "EUR",
         "resolution": "PT15M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 5, 16, tzinfo=UTC),
@@ -170,6 +173,12 @@ None implemented.
   counted and a warning logs the distinct unmapped raw codes, and the run
   finishes as `completed_with_warnings` (rows still written). Downstream
   consumers must tolerate a `"unmapped"` value in `direction`.
+- **`direction` derives from a different source enum than `imbalance_volume`**
+  — here `direction` comes from `businessType` (`A19→long`, `A20→short`),
+  whereas `imbalance_volume` derives `direction` from `flowDirection.direction`
+  (`A01→long`, `A02→short`). The two are *not* interchangeable enums; before
+  joining the two datasets on `direction`, confirm `A19↔A01` (long) and
+  `A20↔A02` (short) co-occur consistently on a real continental response.
 
 ---
 

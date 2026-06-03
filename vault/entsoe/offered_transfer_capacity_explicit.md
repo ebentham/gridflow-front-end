@@ -138,7 +138,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A31, processType=none, businessType=none-in-request, auction.Category=A01, auction.Type=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:211-226`.
+- **Tuple recorded:** `(documentType=A31, processType=none, businessType=none-in-request, auction.Category=A01, auction.Type=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `offered_transfer_capacity_explicit` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR daily window:** Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (GB not in EU explicit allocation auctions on the test day).
 - **Disambiguation from sister A31 variants:** explicit = lowercase `auction.Category=A01` + lowercase `auction.Type=A01` + lowercase `contract_MarketAgreement.Type=A01`. `_continuous` uses capitalised forms and **no** `auction.Category`. `_implicit` uses lowercase but **no** `auction.Category`.
 
