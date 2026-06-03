@@ -101,7 +101,7 @@ Live verification 2026-05-08:
 **Path pattern**: `data/silver/entsoe/outages_production/year=YYYY/month=MM/outages_production_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.entsoe.outages_h7.OutagesProductionTransformer`
 **Pydantic schema**: `gridflow.schemas.entsoe.EntsoeOutagesProduction`
-**Dedup key**: `(timestamp_utc, area_code, unit_mrid, document_mrid)`
+**Dedup key**: `(timestamp_utc, area_code, unit_mrid, timeseries_mrid)`
 **Point-in-time field**: `ingested_at`
 
 ### Silver schema

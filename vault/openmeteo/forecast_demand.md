@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: forecast_demand
 vendor: Open-Meteo
-last_verified: 2026-05-09
+last_verified: 2026-06-03
 layer_coverage: bronze, silver
 ---
 
@@ -144,17 +144,17 @@ connector request adds `wind_direction_10m`, `relative_humidity_2m`,
 | `location` | `str` | No | derived | City name from `DEMAND_LOCATIONS` (london, birmingham, ...) |
 | `latitude` | `float` | No | top-level `latitude` | Float64; matches request lat (Open-Meteo may snap to nearest grid cell) |
 | `longitude` | `float` | No | top-level `longitude` | Float64 |
-| `temperature_2m` | `float` | Yes | `hourly.temperature_2m[i]` | Air temperature 2 m above ground, °C |
-| `wind_speed_10m` | `float` | Yes | `hourly.wind_speed_10m[i]` | Wind speed 10 m above ground, km/h |
-| `wind_direction_10m` | `float` | Yes | `hourly.wind_direction_10m[i]` | Wind direction 10 m, degrees (0=N, 90=E) |
-| `relative_humidity_2m` | `float` | Yes | `hourly.relative_humidity_2m[i]` | Relative humidity 2 m, % |
-| `precipitation` | `float` | Yes | `hourly.precipitation[i]` | Precipitation total per hour, mm |
-| `shortwave_radiation` | `float` | Yes | `hourly.shortwave_radiation[i]` | Mean shortwave radiation (GHI), W/m² |
-| `surface_pressure` | `float` | Yes | `hourly.surface_pressure[i]` | Surface pressure, hPa |
-| `snowfall` | `float` | Yes | `hourly.snowfall[i]` | New-snow water equivalent per hour, cm |
-| `snow_depth` | `float` | Yes | `hourly.snow_depth[i]` | Standing snow depth, m |
-| `hdd` | `float` | Yes | derived | `max(15.5 - temperature_2m, 0)` — heating degree-hours, base 15.5 °C |
-| `cdd` | `float` | Yes | derived | `max(temperature_2m - 22.0, 0)` — cooling degree-hours, base 22.0 °C |
+| `temperature_2m_c` | `float` | Yes | `hourly.temperature_2m[i]` | Air temperature 2 m above ground, °C |
+| `wind_speed_10m_mps` | `float` | Yes | `hourly.wind_speed_10m[i]` | Wind speed 10 m above ground, m/s |
+| `wind_direction_10m_deg` | `float` | Yes | `hourly.wind_direction_10m[i]` | Wind direction 10 m, degrees (0=N, 90=E) |
+| `relative_humidity_2m_pct` | `float` | Yes | `hourly.relative_humidity_2m[i]` | Relative humidity 2 m, % |
+| `precipitation_mm` | `float` | Yes | `hourly.precipitation[i]` | Precipitation total per hour, mm |
+| `shortwave_radiation_wm2` | `float` | Yes | `hourly.shortwave_radiation[i]` | Mean shortwave radiation (GHI), W/m² |
+| `surface_pressure_hpa` | `float` | Yes | `hourly.surface_pressure[i]` | Surface pressure, hPa |
+| `snowfall_cm` | `float` | Yes | `hourly.snowfall[i]` | New-snow water equivalent per hour, cm |
+| `snow_depth_m` | `float` | Yes | `hourly.snow_depth[i]` | Standing snow depth, m |
+| `hdd_k` | `float` | Yes | derived | `max(15.5 - temperature_2m, 0)` — heating degree-hours, base 15.5 °C |
+| `cdd_k` | `float` | Yes | derived | `max(temperature_2m - 22.0, 0)` — cooling degree-hours, base 22.0 °C |
 | `air_density_kg_m3` | `float` | Yes | derived | `surface_pressure_Pa / (287.05 × T_K)` — ideal gas, dry air |
 | `data_provider` | `str` | No | derived | Constant `"open_meteo"` |
 | `ingested_at` | `datetime[UTC]` | Yes | derived | Wall-clock UTC at silver-build time |
@@ -173,17 +173,17 @@ time by `BaseSilverTransformer` per the F0 pattern; `DATASET_VERSION` is
         "location": "london",
         "latitude": 51.5,
         "longitude": -0.1,
-        "temperature_2m": 11.8,
-        "wind_speed_10m": 9.5,
-        "wind_direction_10m": 200.0,
-        "relative_humidity_2m": 78.0,
-        "precipitation": 0.0,
-        "shortwave_radiation": 0.0,
-        "surface_pressure": 1018.4,
-        "snowfall": 0.0,
-        "snow_depth": 0.0,
-        "hdd": 3.7,
-        "cdd": 0.0,
+        "temperature_2m_c": 11.8,
+        "wind_speed_10m_mps": 2.64,
+        "wind_direction_10m_deg": 200.0,
+        "relative_humidity_2m_pct": 78.0,
+        "precipitation_mm": 0.0,
+        "shortwave_radiation_wm2": 0.0,
+        "surface_pressure_hpa": 1018.4,
+        "snowfall_cm": 0.0,
+        "snow_depth_m": 0.0,
+        "hdd_k": 3.7,
+        "cdd_k": 0.0,
         "air_density_kg_m3": 1.245,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
@@ -193,17 +193,17 @@ time by `BaseSilverTransformer` per the F0 pattern; `DATASET_VERSION` is
         "location": "london",
         "latitude": 51.5,
         "longitude": -0.1,
-        "temperature_2m": 17.2,
-        "wind_speed_10m": 16.3,
-        "wind_direction_10m": 230.0,
-        "relative_humidity_2m": 55.0,
-        "precipitation": 0.0,
-        "shortwave_radiation": 540.0,
-        "surface_pressure": 1019.1,
-        "snowfall": 0.0,
-        "snow_depth": 0.0,
-        "hdd": 0.0,
-        "cdd": 0.0,
+        "temperature_2m_c": 17.2,
+        "wind_speed_10m_mps": 4.53,
+        "wind_direction_10m_deg": 230.0,
+        "relative_humidity_2m_pct": 55.0,
+        "precipitation_mm": 0.0,
+        "shortwave_radiation_wm2": 540.0,
+        "surface_pressure_hpa": 1019.1,
+        "snowfall_cm": 0.0,
+        "snow_depth_m": 0.0,
+        "hdd_k": 0.0,
+        "cdd_k": 0.0,
         "air_density_kg_m3": 1.221,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),

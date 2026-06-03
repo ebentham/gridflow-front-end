@@ -106,7 +106,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/soso/year=YYYY/month=MM/soso_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.soso.SOSOTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonSOSO` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: _inline in transformer (see `silver/elexon/soso.py`)_
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -172,7 +172,7 @@ None implemented.
 ## Implementation delta
 
 - **Vendor-enforced max 1-day query window — RESOLVED in V2 (2026-05-09).** `ENDPOINTS["soso"].max_chunk_hours = 23` matches the same fix applied to REMIT. Boundary re-verified live 2026-05-09: 23h request → HTTP 200, 25h request → HTTP 400. See gridflow commit `fix(V2-C):` and [remit.md](./remit.md#changelog).
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonSOSO` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

@@ -105,7 +105,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 **Path pattern**: `data/silver/elexon/fou2t14d/year=YYYY/month=MM/fou2t14d_YYYYMMDD_run<available_at>.parquet`
 **Write mode**: append-only revision-preserving Silver files (`APPEND_ONLY = True`).
 **Transformer class**: `gridflow.silver.elexon.fou2t14d.FOU2T14DTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonFOU2T14D` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: _inline in transformer (see `silver/elexon/fou2t14d.py`)_
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -154,7 +154,7 @@ None implemented.
 ## Implementation delta
 
 - **`forecastDate → settlement_date` mapping**: API uses `forecastDate` for the future delivery date; silver renames to `settlement_date` to match the canonical schema column.
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonFOU2T14D` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

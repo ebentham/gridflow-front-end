@@ -100,7 +100,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/agws/year=YYYY/month=MM/agws_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.agws.AGWSTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonAGWS` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date, settlement_period, psr_type)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -111,7 +111,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `settlement_date` | `date` | No | `settlementDate` | Settlement date (BST/GMT calendar). |
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
-| `psr_type` | `str` | No | `psrType` | ENTSO-E PSR type code. |
+| `psr_type` | `str` | No | `psrType` | Elexon's human-readable PSR *label* (e.g. "Wind Onshore", "Wind Offshore"), stored as-is — NOT an ENTSO-E B-code. |
 | `generation_mw` | `float` | No | `quantity` | MW. |
 | `business_type` | `str` | Yes | `businessType` | ENTSO-E business type. |
 | `document_id` | `str` | Yes | `documentId` | ENTSO-E document MRID. |
@@ -149,13 +149,14 @@ None implemented.
 ## Known issues and gotchas
 
 - **Same gotchas as AGPT** — limited to wind/solar PSR types.
+- **Cross-source representation differs.** Elexon stores human-readable PSR *labels*; ENTSO-E's `wind_solar_forecast` stores the raw B-code. The same concept is represented two ways across sources — downstream joins must not assume a shared code domain.
 
 ---
 
 ## Implementation delta
 
 - **Same B-series/ENTSO-E lineage** as AGPT (B1630).
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonAGWS` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

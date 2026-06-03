@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: historical_wind
 vendor: Open-Meteo
-last_verified: 2026-05-09
+last_verified: 2026-06-03
 layer_coverage: bronze, silver
 ---
 
@@ -180,25 +180,25 @@ transformer's `BRONZE_DATASET_PREFIX` is `"historical_wind"`.
 | `location` | `str` | No | derived | Site key from `WIND_LOCATIONS` (hornsea, dogger_bank, walney, ...) |
 | `latitude` | `float` | No | top-level `latitude` | Float64 |
 | `longitude` | `float` | No | top-level `longitude` | Float64 |
-| `temperature_2m` | `float` | Yes | `hourly.temperature_2m[i]` | °C |
-| `surface_pressure` | `float` | Yes | `hourly.surface_pressure[i]` | hPa |
-| `precipitation` | `float` | Yes | `hourly.precipitation[i]` | mm/hr |
-| `wind_speed_10m` | `float` | Yes | `hourly.wind_speed_10m[i]` | km/h at 10m |
-| `wind_speed_80m` | `float` | Yes | not requested on archive | **always null on this dataset** — see [Archive limitation](#archive-10m100m-limitation) |
-| `wind_speed_100m` | `float` | Yes | `hourly.wind_speed_100m[i]` | km/h at 100m |
-| `wind_speed_120m` | `float` | Yes | not requested on archive | **always null on this dataset** |
-| `wind_speed_180m` | `float` | Yes | not requested on archive | **always null on this dataset** |
-| `wind_direction_10m` | `float` | Yes | `hourly.wind_direction_10m[i]` | degrees (0=N) |
-| `wind_direction_80m` | `float` | Yes | not requested on archive | **always null on this dataset** |
-| `wind_direction_100m` | `float` | Yes | `hourly.wind_direction_100m[i]` | degrees |
-| `wind_direction_120m` | `float` | Yes | not requested on archive | **always null on this dataset** |
-| `wind_direction_180m` | `float` | Yes | not requested on archive | **always null on this dataset** |
-| `wind_gusts_10m` | `float` | Yes | `hourly.wind_gusts_10m[i]` | Peak gust 10m, km/h |
-| `cloud_cover` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
-| `cloud_cover_low` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
-| `cloud_cover_mid` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
-| `cloud_cover_high` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
-| `dew_point_2m` | `float` | Yes | `hourly.dew_point_2m[i]` | °C — proxy for icing risk |
+| `temperature_2m_c` | `float` | Yes | `hourly.temperature_2m[i]` | °C |
+| `surface_pressure_hpa` | `float` | Yes | `hourly.surface_pressure[i]` | hPa |
+| `precipitation_mm` | `float` | Yes | `hourly.precipitation[i]` | mm/hr |
+| `wind_speed_10m_mps` | `float` | Yes | `hourly.wind_speed_10m[i]` | m/s at 10m |
+| `wind_speed_80m_mps` | `float` | Yes | not requested on archive | **always null on this dataset** — see [Archive limitation](#archive-10m100m-limitation) |
+| `wind_speed_100m_mps` | `float` | Yes | `hourly.wind_speed_100m[i]` | m/s at 100m |
+| `wind_speed_120m_mps` | `float` | Yes | not requested on archive | **always null on this dataset** |
+| `wind_speed_180m_mps` | `float` | Yes | not requested on archive | **always null on this dataset** |
+| `wind_direction_10m_deg` | `float` | Yes | `hourly.wind_direction_10m[i]` | degrees (0=N) |
+| `wind_direction_80m_deg` | `float` | Yes | not requested on archive | **always null on this dataset** |
+| `wind_direction_100m_deg` | `float` | Yes | `hourly.wind_direction_100m[i]` | degrees |
+| `wind_direction_120m_deg` | `float` | Yes | not requested on archive | **always null on this dataset** |
+| `wind_direction_180m_deg` | `float` | Yes | not requested on archive | **always null on this dataset** |
+| `wind_gusts_10m_mps` | `float` | Yes | `hourly.wind_gusts_10m[i]` | Peak gust 10m, m/s |
+| `cloud_cover_pct` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
+| `cloud_cover_low_pct` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
+| `cloud_cover_mid_pct` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
+| `cloud_cover_high_pct` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
+| `dew_point_2m_c` | `float` | Yes | `hourly.dew_point_2m[i]` | °C — proxy for icing risk |
 | `air_density_kg_m3` | `float` | Yes | derived | `surface_pressure_Pa / (287.05 × T_K)` — turbine power-curve density correction |
 | `data_provider` | `str` | No | derived | Constant `"open_meteo"` |
 | `ingested_at` | `datetime[UTC]` | Yes | derived | Wall-clock UTC at silver-build time |
@@ -218,25 +218,25 @@ stamped at write time; `DATASET_VERSION = "2.0.0"`.
         "location": "hornsea",
         "latitude": 53.88,
         "longitude": 1.79,
-        "temperature_2m": 4.2,
-        "surface_pressure": 1010.2,
-        "precipitation": 0.0,
-        "wind_speed_10m": 22.5,
-        "wind_speed_80m": None,
-        "wind_speed_100m": 25.8,
-        "wind_speed_120m": None,
-        "wind_speed_180m": None,
-        "wind_direction_10m": 225.0,
-        "wind_direction_80m": None,
-        "wind_direction_100m": 230.0,
-        "wind_direction_120m": None,
-        "wind_direction_180m": None,
-        "wind_gusts_10m": 38.0,
-        "cloud_cover": 85.0,
-        "cloud_cover_low": 60.0,
-        "cloud_cover_mid": 25.0,
-        "cloud_cover_high": 0.0,
-        "dew_point_2m": 3.0,
+        "temperature_2m_c": 4.2,
+        "surface_pressure_hpa": 1010.2,
+        "precipitation_mm": 0.0,
+        "wind_speed_10m_mps": 6.25,
+        "wind_speed_80m_mps": None,
+        "wind_speed_100m_mps": 7.17,
+        "wind_speed_120m_mps": None,
+        "wind_speed_180m_mps": None,
+        "wind_direction_10m_deg": 225.0,
+        "wind_direction_80m_deg": None,
+        "wind_direction_100m_deg": 230.0,
+        "wind_direction_120m_deg": None,
+        "wind_direction_180m_deg": None,
+        "wind_gusts_10m_mps": 10.56,
+        "cloud_cover_pct": 85.0,
+        "cloud_cover_low_pct": 60.0,
+        "cloud_cover_mid_pct": 25.0,
+        "cloud_cover_high_pct": 0.0,
+        "dew_point_2m_c": 3.0,
         "air_density_kg_m3": 1.273,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
@@ -246,25 +246,25 @@ stamped at write time; `DATASET_VERSION = "2.0.0"`.
         "location": "whitelee",
         "latitude": 55.69,
         "longitude": -4.27,
-        "temperature_2m": 1.8,
-        "surface_pressure": 1004.5,
-        "precipitation": 0.4,
-        "wind_speed_10m": 17.6,
-        "wind_speed_80m": None,
-        "wind_speed_100m": 28.3,
-        "wind_speed_120m": None,
-        "wind_speed_180m": None,
-        "wind_direction_10m": 250.0,
-        "wind_direction_80m": None,
-        "wind_direction_100m": 254.0,
-        "wind_direction_120m": None,
-        "wind_direction_180m": None,
-        "wind_gusts_10m": 30.0,
-        "cloud_cover": 95.0,
-        "cloud_cover_low": 80.0,
-        "cloud_cover_mid": 30.0,
-        "cloud_cover_high": 5.0,
-        "dew_point_2m": 0.5,
+        "temperature_2m_c": 1.8,
+        "surface_pressure_hpa": 1004.5,
+        "precipitation_mm": 0.4,
+        "wind_speed_10m_mps": 4.89,
+        "wind_speed_80m_mps": None,
+        "wind_speed_100m_mps": 7.86,
+        "wind_speed_120m_mps": None,
+        "wind_speed_180m_mps": None,
+        "wind_direction_10m_deg": 250.0,
+        "wind_direction_80m_deg": None,
+        "wind_direction_100m_deg": 254.0,
+        "wind_direction_120m_deg": None,
+        "wind_direction_180m_deg": None,
+        "wind_gusts_10m_mps": 8.33,
+        "cloud_cover_pct": 95.0,
+        "cloud_cover_low_pct": 80.0,
+        "cloud_cover_mid_pct": 30.0,
+        "cloud_cover_high_pct": 5.0,
+        "dew_point_2m_c": 0.5,
         "air_density_kg_m3": 1.279,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
@@ -300,8 +300,9 @@ None implemented.
 - **ERA5 grid-cell snapping.** `latitude` / `longitude` echoed in the
   response can differ slightly from the request (snapped to the nearest
   ERA5 grid cell). Silver stores the *response* values.
-- **Wind units.** All wind speeds and gusts are in **km/h**. Convert to
-  m/s for typical power-curve work (`m/s = km/h / 3.6`).
+- **Wind units.** Silver wind speeds and gusts are in **m/s** — the
+  connector converts the km/h archive response (`m/s = km/h / 3.6`), so
+  the `_mps`-suffixed columns are power-curve-ready.
 - **`air_density_kg_m3` requires `surface_pressure`.** Both are
   requested on this dataset, so the derivation is always populated when
   the archive returns the underlying fields.
@@ -340,7 +341,8 @@ None implemented.
   `wind_speed_100m` are the headline features; the 10m → 100m ratio
   is a useful shear-derived feature. Cube-root or
   power-curve-mapped derivations belong in feature engineering, not
-  silver. Convert km/h → m/s before applying turbine power curves.
+  silver. (Silver wind is already m/s, so no km/h conversion is needed
+  before applying turbine power curves.)
 - **Air-density correction.** `air_density_kg_m3` is the canonical
   correction term applied to manufacturer power curves at standard
   density (1.225 kg/m³). Useful as a multiplicative or residual

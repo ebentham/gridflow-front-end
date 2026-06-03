@@ -117,7 +117,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 **Path pattern**: `data/silver/elexon/remit/year=YYYY/month=MM/remit_YYYYMMDD_run<available_at>.parquet`
 **Write mode**: append-only revision-preserving Silver files (`APPEND_ONLY = True`).
 **Transformer class**: `gridflow.silver.elexon.remit.REMITTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonREMIT` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: _inline in transformer (see `silver/elexon/remit.py`)_
 **Point-in-time field**: `revision_number`
 
@@ -203,7 +203,7 @@ None implemented.
 ## Implementation delta
 
 - **Vendor-enforced max 1-day query window — RESOLVED in V2 (2026-05-09).** Connector now declares `max_chunk_hours=23` on `ENDPOINTS["remit"]` so chunks stay safely under the undocumented 1-day cap. Boundary re-verified live 2026-05-09: 23h request → HTTP 200, 25h request → HTTP 400 (same vendor error body). See gridflow commit `fix(V2-C):`.
-- **No Pydantic schema** in `schemas/elexon.py`; silver `REMITTransformer` enforces 24-column output set.
+- **Pydantic schema** `ElexonREMIT` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

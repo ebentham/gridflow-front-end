@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: forecast_solar
 vendor: Open-Meteo
-last_verified: 2026-05-09
+last_verified: 2026-06-03
 layer_coverage: bronze, silver
 ---
 
@@ -149,18 +149,18 @@ The silver transformer's `BRONZE_DATASET_PREFIX` is `"forecast_solar"`.
 | `location` | `str` | No | derived | Site key from `SOLAR_LOCATIONS` |
 | `latitude` | `float` | No | top-level `latitude` | Float64 |
 | `longitude` | `float` | No | top-level `longitude` | Float64 |
-| `temperature_2m` | `float` | Yes | `hourly.temperature_2m[i]` | °C |
-| `shortwave_radiation` | `float` | Yes | `hourly.shortwave_radiation[i]` | GHI, W/m² |
-| `direct_radiation` | `float` | Yes | `hourly.direct_radiation[i]` | Beam on horizontal, W/m² |
-| `direct_normal_irradiance` | `float` | Yes | `hourly.direct_normal_irradiance[i]` | DNI, W/m² |
-| `diffuse_radiation` | `float` | Yes | `hourly.diffuse_radiation[i]` | DHI, W/m² |
-| `global_tilted_irradiance` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°/180°), W/m² |
-| `cloud_cover` | `float` | Yes | `hourly.cloud_cover[i]` | % |
-| `cloud_cover_low` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
-| `cloud_cover_mid` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
-| `cloud_cover_high` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
-| `snowfall` | `float` | Yes | `hourly.snowfall[i]` | New-snow water equivalent per hour, cm |
-| `snow_depth` | `float` | Yes | `hourly.snow_depth[i]` | Standing snow depth, m |
+| `temperature_2m_c` | `float` | Yes | `hourly.temperature_2m[i]` | °C |
+| `shortwave_radiation_wm2` | `float` | Yes | `hourly.shortwave_radiation[i]` | GHI, W/m² |
+| `direct_radiation_wm2` | `float` | Yes | `hourly.direct_radiation[i]` | Beam on horizontal, W/m² |
+| `direct_normal_irradiance_wm2` | `float` | Yes | `hourly.direct_normal_irradiance[i]` | DNI, W/m² |
+| `diffuse_radiation_wm2` | `float` | Yes | `hourly.diffuse_radiation[i]` | DHI, W/m² |
+| `global_tilted_irradiance_wm2` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°/180°), W/m² |
+| `cloud_cover_pct` | `float` | Yes | `hourly.cloud_cover[i]` | % |
+| `cloud_cover_low_pct` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
+| `cloud_cover_mid_pct` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
+| `cloud_cover_high_pct` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
+| `snowfall_cm` | `float` | Yes | `hourly.snowfall[i]` | New-snow water equivalent per hour, cm |
+| `snow_depth_m` | `float` | Yes | `hourly.snow_depth[i]` | Standing snow depth, m |
 | `data_provider` | `str` | No | derived | Constant `"open_meteo"` |
 | `ingested_at` | `datetime[UTC]` | Yes | derived | Wall-clock UTC at silver-build time |
 
@@ -182,18 +182,18 @@ transformer does NOT carry air density.
         "location": "cornwall",
         "latitude": 50.30,
         "longitude": -5.00,
-        "temperature_2m": 14.5,
-        "shortwave_radiation": 580.0,
-        "direct_radiation": 400.0,
-        "direct_normal_irradiance": 750.0,
-        "diffuse_radiation": 180.0,
-        "global_tilted_irradiance": 670.0,
-        "cloud_cover": 30.0,
-        "cloud_cover_low": 15.0,
-        "cloud_cover_mid": 10.0,
-        "cloud_cover_high": 5.0,
-        "snowfall": 0.0,
-        "snow_depth": 0.0,
+        "temperature_2m_c": 14.5,
+        "shortwave_radiation_wm2": 580.0,
+        "direct_radiation_wm2": 400.0,
+        "direct_normal_irradiance_wm2": 750.0,
+        "diffuse_radiation_wm2": 180.0,
+        "global_tilted_irradiance_wm2": 670.0,
+        "cloud_cover_pct": 30.0,
+        "cloud_cover_low_pct": 15.0,
+        "cloud_cover_mid_pct": 10.0,
+        "cloud_cover_high_pct": 5.0,
+        "snowfall_cm": 0.0,
+        "snow_depth_m": 0.0,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
     },
@@ -202,18 +202,18 @@ transformer does NOT carry air density.
         "location": "kent",
         "latitude": 51.20,
         "longitude": 0.70,
-        "temperature_2m": 17.0,
-        "shortwave_radiation": 720.0,
-        "direct_radiation": 510.0,
-        "direct_normal_irradiance": 800.0,
-        "diffuse_radiation": 210.0,
-        "global_tilted_irradiance": 790.0,
-        "cloud_cover": 20.0,
-        "cloud_cover_low": 5.0,
-        "cloud_cover_mid": 10.0,
-        "cloud_cover_high": 5.0,
-        "snowfall": 0.0,
-        "snow_depth": 0.0,
+        "temperature_2m_c": 17.0,
+        "shortwave_radiation_wm2": 720.0,
+        "direct_radiation_wm2": 510.0,
+        "direct_normal_irradiance_wm2": 800.0,
+        "diffuse_radiation_wm2": 210.0,
+        "global_tilted_irradiance_wm2": 790.0,
+        "cloud_cover_pct": 20.0,
+        "cloud_cover_low_pct": 5.0,
+        "cloud_cover_mid_pct": 10.0,
+        "cloud_cover_high_pct": 5.0,
+        "snowfall_cm": 0.0,
+        "snow_depth_m": 0.0,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
     },

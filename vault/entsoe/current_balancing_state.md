@@ -129,7 +129,7 @@ From `tests/fixtures/entsoe/current_balancing_state_gb.xml`:
 | `area_code` | `str` | No | `area_Domain.mRID` | Renamed from `area_domain` by the transformer. |
 | `quantity_mw` | `float` | No | `<quantity>` per Point | Sign convention: positive = system short. |
 | `business_type` | `str` | No | `<businessType>` | Default "B33" in canonical. Always `B33` for this dataset. |
-| `resolution` | `str` | No | `<resolution>` (raw ISO duration) | Default "" in canonical. E.g. `0:15:00` after `_resolve_resolution` mapping. |
+| `resolution` | `str` | No | `<resolution>` (raw ISO duration) | Default "" in canonical. Emitted verbatim as the ISO-8601 duration code, e.g. `PT60M` / `PT15M`. |
 | `data_provider` | `str` | No | derived | Default "entsoe" in canonical. |
 | `ingested_at` | `datetime` | Yes | derived (now(UTC) at transform) | Nullable (datetime or None). |
 
@@ -142,7 +142,7 @@ From `tests/fixtures/entsoe/current_balancing_state_gb.xml`:
         "area_code": "10YGB----------A",
         "quantity_mw": 125.0,
         "business_type": "B33",
-        "resolution": "1:00:00",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 3, tzinfo=UTC),
     },
@@ -151,7 +151,7 @@ From `tests/fixtures/entsoe/current_balancing_state_gb.xml`:
         "area_code": "10YGB----------A",
         "quantity_mw": -75.0,
         "business_type": "B33",
-        "resolution": "1:00:00",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 3, tzinfo=UTC),
     },

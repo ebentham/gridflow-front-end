@@ -138,7 +138,7 @@ From `tests/fixtures/entsoe/balancing_energy_bids_gb.xml`:
 | `direction` | `str` | No | `<Direction>` (or `flowDirection.direction`) | Default "" in canonical. `A01`=up, `A02`=down. |
 | `original_market_product` | `str` | No | `Original_MarketProduct/marketProductType` | Default "" in canonical. Bidder-side product. |
 | `standard_market_product` | `str` | No | `Standard_MarketProduct/marketProductType` | Default "" in canonical. Standardised product code. |
-| `resolution` | `str` | No | `<resolution>` (resolved to timedelta string) | Default "" in canonical. |
+| `resolution` | `str` | No | `<resolution>` (raw ISO-8601 duration code, emitted verbatim) | Default "" in canonical. |
 | `data_provider` | `str` | No | derived | Default "entsoe" in canonical. |
 | `ingested_at` | `datetime` | Yes | derived | Nullable (datetime or None). |
 
@@ -155,7 +155,7 @@ From `tests/fixtures/entsoe/balancing_energy_bids_gb.xml`:
         "direction": "A01",
         "original_market_product": "A01",
         "standard_market_product": "A05",
-        "resolution": "1:00:00",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 3, tzinfo=UTC),
     },
@@ -168,7 +168,7 @@ From `tests/fixtures/entsoe/balancing_energy_bids_gb.xml`:
         "direction": "A01",
         "original_market_product": "A01",
         "standard_market_product": "A05",
-        "resolution": "1:00:00",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 3, tzinfo=UTC),
     },

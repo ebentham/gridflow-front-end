@@ -82,7 +82,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/indod/year=YYYY/month=MM/indod_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.indod.INDODTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonINDOD` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -128,7 +128,7 @@ None implemented.
 
 - **Daily aggregate** — one record per `settlementDate`. Silver dedup is on `settlement_date` only.
 - **Sparse cadence** — empty within 3-hour windows; V1 validation used a 1-day window.
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonINDOD` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

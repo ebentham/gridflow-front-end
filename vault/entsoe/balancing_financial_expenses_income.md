@@ -124,6 +124,7 @@ From `tests/fixtures/entsoe/balancing_financial_expenses_income_gb.xml`:
 | `area_code` | `str` | No | `controlArea_Domain.mRID` | Renamed from `control_area_domain`. |
 | `amount_eur` | `float` | No | `<*_Price.amount>` (parser uses `_matches_value_tag` with `value_tag="price.amount"`) | EUR; sign convention is TSO-local. |
 | `business_type` | `str` | No | `<businessType>` per TimeSeries | Default "" in canonical. Examples: `B10`, `B11` (TSO-classified expense category). |
+| `reason_code` | `str` | No | `<Reason><code>` per TimeSeries | Default "" in canonical (empty when source has no `<Reason>`). G9 ENTSOE-02. |
 | `resolution` | `str` | No | `<resolution>` | Default "" in canonical. |
 | `data_provider` | `str` | No | derived | Default "entsoe" in canonical. |
 | `ingested_at` | `datetime` | Yes | derived | Nullable (datetime or None). |
@@ -137,7 +138,8 @@ From `tests/fixtures/entsoe/balancing_financial_expenses_income_gb.xml`:
         "area_code": "10YGB----------A",
         "amount_eur": 35.5,
         "business_type": "B10",
-        "resolution": "1:00:00",
+        "reason_code": "",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 3, tzinfo=UTC),
     },
@@ -146,7 +148,8 @@ From `tests/fixtures/entsoe/balancing_financial_expenses_income_gb.xml`:
         "area_code": "10YGB----------A",
         "amount_eur": 37.25,
         "business_type": "B10",
-        "resolution": "1:00:00",
+        "reason_code": "",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 3, tzinfo=UTC),
     },
@@ -180,7 +183,7 @@ counterpart in the ENTSOE catalogue.
 
 - **A87 uses `controlArea_Domain` (older style) — the lone H8 dataset that does so.** The other H8 balancing datasets (A86/A24/A15/A37/A38) use `area_Domain` / `connecting_Domain` / `Acquiring_Domain` per the H8 spec, but A87 reverts to the legacy `controlArea_Domain` convention. The orchestrator instructions stated *all* four of A37/A24/A15/A38 use `controlArea_Domain` — that is incorrect for A24/A15/A37 (they use `area_Domain` / `connecting_Domain`) but correct only by coincidence for A87.
 - **Schedule cadence — RESOLVED in V2 (2026-05-09).** `config/sources.yaml` now registers A87 as `schedule: monthly, max_query_days: 31`. See gridflow commit `fix(V2-D):`.
-- **`Reason.code`-based classification not yet exposed in silver — DEFERRED.** Requires base-class refactor of `_H8BalancingTransformer` to extract `<Reason><code>` from the MarketDocument header, plus a new `reason_code` schema column on `EntsoeBalancingFinancial`. Recorded as a backlog item; will land in a follow-up phase.
+- **`Reason.code`-based classification — IMPLEMENTED (G9 ENTSOE-02).** `parse_timeseries_xml` extracts the first `<Reason><code>` descendant per TimeSeries; the transformer emits it as the `reason_code` silver column (empty string when the document carries no `<Reason>`).
 
 ---
 

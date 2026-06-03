@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: historical_solar
 vendor: Open-Meteo
-last_verified: 2026-05-09
+last_verified: 2026-06-03
 layer_coverage: bronze, silver
 ---
 
@@ -166,18 +166,18 @@ transformer's `BRONZE_DATASET_PREFIX` is `"historical_solar"`.
 | `location` | `str` | No | derived | Site key from `SOLAR_LOCATIONS` (cornwall, kent, ...) |
 | `latitude` | `float` | No | top-level `latitude` | Float64 |
 | `longitude` | `float` | No | top-level `longitude` | Float64 |
-| `temperature_2m` | `float` | Yes | `hourly.temperature_2m[i]` | °C — drives module-temperature derate |
-| `shortwave_radiation` | `float` | Yes | `hourly.shortwave_radiation[i]` | GHI — global horizontal irradiance, W/m² |
-| `direct_radiation` | `float` | Yes | `hourly.direct_radiation[i]` | Beam component on horizontal, W/m² |
-| `direct_normal_irradiance` | `float` | Yes | `hourly.direct_normal_irradiance[i]` | DNI — beam normal to sun, W/m² |
-| `diffuse_radiation` | `float` | Yes | `hourly.diffuse_radiation[i]` | DHI — diffuse on horizontal, W/m² |
-| `global_tilted_irradiance` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°/180°), W/m² |
-| `cloud_cover` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
-| `cloud_cover_low` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
-| `cloud_cover_mid` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
-| `cloud_cover_high` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
-| `snowfall` | `float` | Yes | `hourly.snowfall[i]` | New-snow water equivalent per hour, cm |
-| `snow_depth` | `float` | Yes | `hourly.snow_depth[i]` | Standing snow depth, m |
+| `temperature_2m_c` | `float` | Yes | `hourly.temperature_2m[i]` | °C — drives module-temperature derate |
+| `shortwave_radiation_wm2` | `float` | Yes | `hourly.shortwave_radiation[i]` | GHI — global horizontal irradiance, W/m² |
+| `direct_radiation_wm2` | `float` | Yes | `hourly.direct_radiation[i]` | Beam component on horizontal, W/m² |
+| `direct_normal_irradiance_wm2` | `float` | Yes | `hourly.direct_normal_irradiance[i]` | DNI — beam normal to sun, W/m² |
+| `diffuse_radiation_wm2` | `float` | Yes | `hourly.diffuse_radiation[i]` | DHI — diffuse on horizontal, W/m² |
+| `global_tilted_irradiance_wm2` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°/180°), W/m² |
+| `cloud_cover_pct` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
+| `cloud_cover_low_pct` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
+| `cloud_cover_mid_pct` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
+| `cloud_cover_high_pct` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
+| `snowfall_cm` | `float` | Yes | `hourly.snowfall[i]` | New-snow water equivalent per hour, cm |
+| `snow_depth_m` | `float` | Yes | `hourly.snow_depth[i]` | Standing snow depth, m |
 | `data_provider` | `str` | No | derived | Constant `"open_meteo"` |
 | `ingested_at` | `datetime[UTC]` | Yes | derived | Wall-clock UTC at silver-build time |
 
@@ -200,18 +200,18 @@ transformer does NOT carry air density, locking this contract in.
         "location": "cornwall",
         "latitude": 50.30,
         "longitude": -5.00,
-        "temperature_2m": 16.3,
-        "shortwave_radiation": 620.0,
-        "direct_radiation": 430.0,
-        "direct_normal_irradiance": 780.0,
-        "diffuse_radiation": 190.0,
-        "global_tilted_irradiance": 710.0,
-        "cloud_cover": 25.0,
-        "cloud_cover_low": 10.0,
-        "cloud_cover_mid": 10.0,
-        "cloud_cover_high": 5.0,
-        "snowfall": 0.0,
-        "snow_depth": 0.0,
+        "temperature_2m_c": 16.3,
+        "shortwave_radiation_wm2": 620.0,
+        "direct_radiation_wm2": 430.0,
+        "direct_normal_irradiance_wm2": 780.0,
+        "diffuse_radiation_wm2": 190.0,
+        "global_tilted_irradiance_wm2": 710.0,
+        "cloud_cover_pct": 25.0,
+        "cloud_cover_low_pct": 10.0,
+        "cloud_cover_mid_pct": 10.0,
+        "cloud_cover_high_pct": 5.0,
+        "snowfall_cm": 0.0,
+        "snow_depth_m": 0.0,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
     },
@@ -220,18 +220,18 @@ transformer does NOT carry air density, locking this contract in.
         "location": "east_anglia_norfolk",
         "latitude": 52.62,
         "longitude": 1.05,
-        "temperature_2m": 4.5,
-        "shortwave_radiation": 95.0,
-        "direct_radiation": 12.0,
-        "direct_normal_irradiance": 60.0,
-        "diffuse_radiation": 83.0,
-        "global_tilted_irradiance": 175.0,
-        "cloud_cover": 90.0,
-        "cloud_cover_low": 75.0,
-        "cloud_cover_mid": 30.0,
-        "cloud_cover_high": 5.0,
-        "snowfall": 0.2,
-        "snow_depth": 0.01,
+        "temperature_2m_c": 4.5,
+        "shortwave_radiation_wm2": 95.0,
+        "direct_radiation_wm2": 12.0,
+        "direct_normal_irradiance_wm2": 60.0,
+        "diffuse_radiation_wm2": 83.0,
+        "global_tilted_irradiance_wm2": 175.0,
+        "cloud_cover_pct": 90.0,
+        "cloud_cover_low_pct": 75.0,
+        "cloud_cover_mid_pct": 30.0,
+        "cloud_cover_high_pct": 5.0,
+        "snowfall_cm": 0.2,
+        "snow_depth_m": 0.01,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
     },

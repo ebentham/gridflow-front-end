@@ -98,7 +98,7 @@ Live verification 2026-05-08:
 **Path pattern**: `data/silver/entsoe/outages_consumption/year=YYYY/month=MM/outages_consumption_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.entsoe.outages_h7.OutagesConsumptionTransformer`
 **Pydantic schema**: `gridflow.schemas.entsoe.EntsoeOutagesConsumption`
-**Dedup key**: `(timestamp_utc, area_code, document_mrid)` — aggregate-level, no unit_mrid
+**Dedup key**: `(timestamp_utc, area_code, business_type, timeseries_mrid)` — aggregate-level, no unit_mrid
 **Point-in-time field**: `ingested_at`
 
 ### Silver schema
@@ -149,7 +149,7 @@ None implemented.
 
 - **GB EMPTY post-Brexit.**
 - **30-day window** required as for other outage datasets.
-- **Outage status codes** (DocStatus): `A05` Active, `A09` Cancelled, `A13` Withdrawn. Cancelled and withdrawn notifications are revisions to active ones — handle dedup by `document_mrid` keeping highest revision.
+- **Outage status codes** (DocStatus): `A05` Active, `A09` Cancelled, `A13` Withdrawn. Cancelled and withdrawn notifications are revisions to active ones. NOTE: gridflow silver dedups on `(timestamp_utc, area_code, business_type, timeseries_mrid)` with `keep="last"` and is NOT revision-aware (it does not sort by `revisionNumber`).
 - Aggregate-only — no `unit_mrid`. Use ENTSO-E's per-unit consumption datasets if available, or country aggregates.
 - Sparse for many zones — most TSOs do not publish granular consumer outages.
 

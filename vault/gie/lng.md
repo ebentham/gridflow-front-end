@@ -25,7 +25,7 @@ active dataset key is `lng`.
 | Auth | Header `x-key: <GIE_API_KEY>` |
 | Country set | `BE, ES, FR, GB, IT, NL, PL, PT` |
 | Response format | JSON |
-| Pagination | `page` + `size`; connector stops from `total` / `pageSize` |
+| Pagination | `page` + `size`; connector stops from `last_page` (the authoritative page count). `total` is the per-page row count; `pageSize` is absent from the live envelope. |
 
 ### Query parameters
 
@@ -60,10 +60,13 @@ Dedup key:
 | `gas_day` | `date` | No | `gasDayStart` / `gasDay` / `date` | Gas-day grain |
 | `country_code` | `str` or `None` | Yes | `countryCode` / `code` | ISO-like country code |
 | `country_name` | `str` or `None` | Yes | `countryName` / `name` | Country display name |
-| `lng_in_storage_gwh` | `float` or `None` | Yes | `lngInStorage` / `lngInStorageGwh` | Stored LNG volume |
-| `send_out_gwh` | `float` or `None` | Yes | `sendOut` / `sendOutGwh` | LNG send-out |
-| `injection_gwh` | `float` or `None` | Yes | `injection` / `injectionGwh` | LNG injection |
-| `dtrs_pct_full` | `float` or `None` | Yes | `dtrs` / `dtrsPctFull` | Percent full metric |
+| `lng_in_storage_gwh` | `float` or `None` | Yes | `lngInventory` / `gasInStorage` | Stored LNG volume |
+| `send_out_gwh` | `float` or `None` | Yes | `sendOut` / `withdrawal` | LNG send-out |
+| `injection_gwh` | `float` or `None` | Yes | `injection` | LNG injection |
+| `lng_pct_full` | `float` or `None` | Yes | derived (`lng_in_storage_gwh` / `dtmi_gwh` × 100) | Honest LNG %-full, clamped to [0, 100] in the transformer |
+| `dtrs` | `float` or `None` | Yes | `dtrs` | Raw vendor `dtrs`; **unconfirmed non-percentage** metric (live ~724–2132, so not a percent), units not in official ALSI docs |
+| `dtmi_lng` | `float` or `None` | Yes | `dtmi.lng` | Raw vendor `dtmi.lng` member; unconfirmed units |
+| `dtmi_gwh` | `float` or `None` | Yes | `dtmi.gwh` | Raw vendor `dtmi.gwh` member; unconfirmed units; feeds derived `lng_pct_full` |
 | `trend` | `float` or `None` | Yes | `trend` | Daily trend where published |
 | `data_provider` | `str` | No | derived | Constant `gie_alsi` |
 | `ingested_at` | `datetime` UTC or `None` | Yes | derived | Transformer run time |

@@ -100,7 +100,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/agpt/year=YYYY/month=MM/agpt_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.agpt.AGPTTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonAGPT` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date, settlement_period, psr_type)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -111,7 +111,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `settlement_date` | `date` | No | `settlementDate` | Settlement date (BST/GMT calendar). |
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
-| `psr_type` | `str` | No | `psrType` | ENTSO-E PSR type code. |
+| `psr_type` | `str` | No | `psrType` | Elexon's human-readable PSR *label* (e.g. "Biomass", "Wind Onshore"), stored as-is — NOT an ENTSO-E B-code. |
 | `generation_mw` | `float` | No | `quantity` | MW. |
 | `business_type` | `str` | Yes | `businessType` | ENTSO-E business type. |
 | `document_id` | `str` | Yes | `documentId` | ENTSO-E document MRID. |
@@ -148,14 +148,15 @@ None implemented.
 
 ## Known issues and gotchas
 
-- **PSR types** follow ENTSO-E codelist (B01-B25). Silver preserves codes; map to friendly names in gold.
+- **PSR types are human-readable labels.** Elexon's AGPT API returns PSR *labels* (e.g. "Biomass", "Hydro Pumped Storage"); silver stores them verbatim. They are NOT ENTSO-E B-codes — do not assume a B01-B25 code domain.
+- **Cross-source representation differs.** Elexon stores human-readable PSR *labels*; ENTSO-E's `wind_solar_forecast` stores the raw B-code. The same concept is represented two ways across sources — downstream joins must not assume a shared code domain.
 - **`document_revision`** — same period+psr_type can be re-issued; latest revision wins.
 
 ---
 
 ## Implementation delta
 
-- **No Pydantic schema** in `schemas/elexon.py`; silver enforces ENTSO-E PSR-typed output (`psr_type`, `business_type`, `document_id`, `document_revision`).
+- **Pydantic schema** `ElexonAGPT` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 - **B-series (B1620)** — payload follows ENTSO-E document/timeseries shape but exposed via Elexon's flattened JSON.
 
 ---
