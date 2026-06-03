@@ -24,6 +24,7 @@ site/hifi/data-sources/entsog.html
 site/hifi/data-sources/gie/*.html
 site/hifi/data-sources/gie_agsi.html
 site/hifi/data-sources/gie_alsi.html
+site/hifi/data-sources/gie.html
 site/hifi/data-sources/neso/*.html
 site/hifi/data-sources/neso.html
 site/hifi/data-sources/openmeteo/*.html

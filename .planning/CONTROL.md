@@ -20,29 +20,29 @@ You do **not** implement code directly. When implementation is needed, you dispa
 
 ---
 
-## Current State (as of 2026-05-19)
+## Current State (as of 2026-06-03)
 
 **Milestone:** v2 full-vendor-coverage  
-**Phase:** 8B — Claude-Design hero rewrite (hybrid authored/templated)  
-**Status:** Ready to plan — next action is `/gsd-plan-phase 8B`
+**Phase:** 9 — ENTSO-E full coverage — **COMPLETE 2026-06-03**  
+**Status:** Phase 9 closed — 49/49 ENTSO-E pages authored + 49-entry manifest (9 groups) + `gridflow-build --check` idempotent. PR open to main on `feat/phase-9-entsoe-pages`. Next action is `/gsd-plan-phase 10`.
 
 **Phase history (quick):**
 - Phases 0–6 (v1 cleanup): Complete 2026-05-18 · 50/50 REQ-IDs delivered
-- Phase 7 (Reconciliation): Complete 2026-05-19 · 5/31 v2 REQ-IDs delivered
-- Phase 8 (CSS bug fix): **Closed/superseded** 2026-05-19 — two iterations failed user visual verification; root cause was an editorial-content gap in the Vault (no short tagline field), not a rendering-layer bug
-- Phase 8B (Claude-Design hybrid): **Ready to plan** ← you are here
-- Phase 9 (ENTSO-E full): Not started · blocked on 8B
-- Phase 10 (four-vendor batch): Not started · blocked on 8B + 9
+- Phase 7 (Reconciliation): Complete 2026-05-19 · RECON-01..05
+- Phase 8 (CSS bug fix): **Closed/superseded** 2026-05-19 — root cause was an editorial-content gap in the Vault, not a rendering-layer bug
+- Phase 8B (Claude-Design hybrid): build-override path kept; AI-ports archived; superseded by the brief → Claude Design pattern
+- Phase 8C (Elexon content briefs): Complete 2026-05-20 · 33 briefs · BUG-01..03
+- Phase 8D (Vendor landing-page briefs): Complete 2026-05-20 · 5 vendor-hub briefs + build override for hubs
+- Phase 9 (ENTSO-E full): **Complete 2026-06-03** · 49 briefs + 49 authored pages + 49-entry manifest · ENTSOE-01..05 ← you are here
+- Phase 10 (four-vendor batch): Not started · the last v2 phase
 
 **Dependency graph:**
 ```
 Phase 7 (done) ──┐
 Phase 8 (closed) ┤
-                 └── Phase 8B (plan next)
-                            │
-                            └── Phase 9 (ENTSO-E)
-                                       │
-                                       └── Phase 10 (four-vendor batch)
+                 └── Phase 8B/8C/8D (done) ── Phase 9 (ENTSO-E, done 2026-06-03)
+                                                      │
+                                                      └── Phase 10 (four-vendor batch) ← next
 ```
 
 ---
@@ -132,13 +132,16 @@ These were settled via grilling or execution and recorded in ADRs / STATE.md. Tr
 
 ## Open Items (require user decision before action)
 
-### 1. ENTSO-E entitlement path (deferred to Phase 9 discuss)
+### 1. ENTSO-E entitlement path — ✅ RESOLVED (Phase 9 · STATE D-21)
 
-35 ENTSO-E datasets return HTTP 401. Two options:
-- **Extend access**: obtain additional API entitlement (cost: time + money + vendor lead time)
-- **Skip-with-warn**: ship the 35 dataset pages with a "requires additional entitlement" caveat
-
-Decision gates Phase 9 content build. **Do not decide now** — it lands in `/gsd-discuss-phase 9`.
+35 ENTSO-E datasets return HTTP 401 on the unregistered gridflow default key.
+**Resolved: skip-with-warn.** Full briefs + pages produced for all 49 from vault +
+gridflow source (both accessible without an API key); the 35 carry
+`entitlement_required: true`, a "live API requires extended ENTSO-E registration"
+line in the verified micro-line, and the 401 note as the final caveat. Live-API
+verification deferred until a user with the registration tier runs it; gridflow
+connector code is canonical for schema/transformer truth regardless. Shipped in
+Phase 9 (2026-06-03).
 
 ### 2. Phase 8B — authored page strategy (decides during Phase 8B plan/execute)
 
@@ -201,4 +204,4 @@ Trust chain: **Live API → Canonical → Vault → Site**. Vendor docs are auth
 
 ---
 
-*Last updated: 2026-05-19 — Written after grill-with-docs session that produced ADR-0001, ADR-0002, CONTEXT.md, issue-tracker.md, and V2-PHASE-7-HANDOFF.md. Phase 7 complete, Phase 8 superseded, Phase 8B next. `/gsd-manager` confirmed as workflow dashboard (NOT conversational orchestrator — this file fills that role).*
+*Last updated: 2026-06-03 — Phase 9 (ENTSO-E full coverage) closed: 49/49 datasets authored + 49-entry manifest + `gridflow-build --check` idempotent; PR open to main. Phases 8C/8D (content-brief + vendor-hub infrastructure) and Phase 9 all landed since the prior 2026-05-19 update. Next: `/gsd-plan-phase 10` (four-vendor batch — the last v2 phase). Carry-over: authored vendor-hub `data-root="../../"`→`"../"` bug flagged for a site-wide fix (see `phases/09-entsoe-content-briefs/09-01-SUMMARY.md`).*

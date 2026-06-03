@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>cross_border_flows · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); overflow-wrap: break-word; word-break: break-word; }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; overflow-wrap: break-word; word-break: break-word; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display: block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px; border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display: block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · cross_border_flows">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">cross_border_flows</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Transmission</span>
+            <span class="chip" style="font-size:11px;">PT60M · T+1h lag</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">cross_border_flows</span><br/>
+            Physical flows between zones, <span class="italic fg-accent">directional.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Hourly physical cross-border flows in MW per zone-pair direction
+            — the canonical input for interconnector utilisation, congestion
+            analysis, and cross-border price-spread modelling.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Schema verified against gridflow source 2026-05-20 ·
+            live API requires extended ENTSO-E registration ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <!-- key metrics -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.cross_border_flows</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api?documentType=A11</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">PT60M</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">T+1h</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">24 pts / border-direction / day</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, in_area_code,<br/>out_area_code)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A11</div>
+        <div class="stat-l">DocumentType</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size: 36px;">T+1h</div>
+        <div class="stat-l">Best-case lag</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 28px;">zone-pair</div>
+        <div class="stat-l"><code class="mono">domain_style</code></div>
+      </div>
+      <div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="cross_border_flows.html" class="active">cross_border_flows</a>
+          <a href="#" style="color:var(--ink-faint);">net_transfer_capacity</a>
+          <a href="commercial_schedules.html" style="color:var(--ink-faint);">commercial_schedules</a>
+          <a href="#" style="color:var(--ink-faint);">net_positions</a>
+          <a href="#" style="color:var(--ink-faint);">transfer_capacity_use</a>
+          <a href="#" style="color:var(--ink-faint);">offered_transfer_capacity_implicit</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">cross_border_flows</code>
+            holds the hourly physical cross-border flows in megawatts per
+            zone-pair direction — one row per source-zone × destination-zone
+            × hourly interval. Each border is queried as a directed pair
+            (<code class="mono">in_Domain</code> → <code class="mono">out_Domain</code>),
+            so the GB ↔ FR interconnector cluster is reported as two
+            separate directional series. Each row is one border-direction's
+            realised flow for a single <code class="mono">PT60M</code> interval.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A11&amp;in_Domain={EIC}&amp;out_Domain={EIC}</code>,
+            queried per directed border-pair over a date range. The raw
+            XML lands in bronze as a <code class="mono">GL_MarketDocument</code>,
+            is validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeCrossborderFlow</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">CrossBorderFlowsTransformer</code>.
+            The G5-W3 schema update (2026-05) added <code class="mono">resolution</code>
+            and <code class="mono">ingested_at</code> to align with the
+            transformer's actual output columns.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            Cross-border flows are the realised-physical view of inter-zone
+            transfer; pair against <code class="mono">commercial_schedules</code>
+            to measure intraday adjustment, against <code class="mono">net_transfer_capacity</code>
+            for utilisation ratios, and against <code class="mono">day_ahead_prices</code>
+            to study how price spreads drive flow direction. Unlike
+            <code class="mono">actual_generation</code>, GB borders continue
+            to publish via ENTSO-E post-Brexit (the flows are physical and
+            reported by the European-side TSO). Schema verified against
+            gridflow source on 2026-05-20; the live API requires extended
+            ENTSO-E registration and returns HTTP 401 against the
+            unregistered gridflow default key.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">GB → FR physical flow · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">cross_border_flows · silver layer · 10YGB---------A → 10YFR-RTE------C</div>
+                <div class="small">Line · MW · UTC · 6 May 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":41}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/entsoe.py · EntsoeCrossborderFlow</code>
+            (lines 64–84). G5-W3 (2026-05) added <code class="mono">resolution</code>
+            and <code class="mono">ingested_at</code> to align with transformer output.
+            Partitioned by <code class="mono">timestamp_utc</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 22%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  tz-aware UTC; validator requires tzinfo. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.
+                  <span class="cite">schemas/entsoe.py L71, L79-84</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">in_area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Source zone EIC. Source: <code class="mono">&lt;in_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L72</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">out_area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Destination zone EIC. Source: <code class="mono">&lt;out_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L73</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">flow_mw</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  MW physical flow (directional, positive = in → out). Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L74</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">resolution</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  ISO duration; typically <code class="mono">PT60M</code>. Added in G5-W3 to match transformer output. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L75</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Always <code class="mono">"entsoe"</code>. Default <code class="mono">"entsoe"</code>.
+                  <span class="cite">schemas/entsoe.py L76</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Set at silver write. Added in G5-W3.
+                  <span class="cite">schemas/entsoe.py L77</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsoe/cross_border_flows/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(timestamp_utc, in_area_code, out_area_code)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>timestamp_utc</th>
+                  <th>in_area_code</th>
+                  <th>out_area_code</th>
+                  <th>flow_mw</th>
+                  <th>resolution</th>
+                  <th>data_provider</th>
+                  <th>ingested_at</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">1,840.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T06:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">2,410.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T19:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">3,920.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T19:00:00+00:00</td><td class="str">10YFR-RTE------C</td><td class="str">10YGB----------A</td><td class="num">0.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T11:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">-180.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T11:00:00+00:00</td><td class="str">10YFR-RTE------C</td><td class="str">10YGB----------A</td><td class="num">180.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised against typical GB ↔ FR flow shape (export to FR in evenings via IFA/ElecLink, low or reverse mid-day). The highlighted <strong>GB → FR 19:00 (3.92 GW)</strong> row is the canonical winter-evening export peak via the GB-FR interconnectors (IFA + IFA2 + ElecLink ≈ 4 GW combined capacity). Note the SP11 (11:00) rows: GB → FR is -180 MW (recorded as -180) and FR → GB is +180 MW — many TSOs publish both directions; pair them to compute the signed net flow.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A11<br/>&amp;in_Domain={EIC}<br/>&amp;out_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — <strong>extended registration required</strong>. The unregistered gridflow default key returns HTTP 401 against this DocumentType. Register at <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">transparency.entsoe.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/cross_border_flows/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.cross_border_flows.<br/>CrossBorderFlowsTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="cbf">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('cbf','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('cbf','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('cbf','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="cbf-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A11
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">in_Domain</span>=10YGB----------A
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">out_Domain</span>=10YFR-RTE------C
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202605060000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605070000</pre>
+            </div></div>
+            <div data-tab-panel="cbf-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Signed net flow per border per hour (GB perspective)</span>
+<span class="k">SELECT</span> timestamp_utc,
+       <span class="k">CASE WHEN</span> in_area_code=<span class="s">'10YGB----------A'</span> <span class="k">THEN</span> flow_mw
+            <span class="k">ELSE</span> -flow_mw <span class="k">END</span> <span class="k">AS</span> gb_export_mw,
+       <span class="k">CASE WHEN</span> in_area_code=<span class="s">'10YGB----------A'</span> <span class="k">THEN</span> out_area_code
+            <span class="k">ELSE</span> in_area_code <span class="k">END</span> <span class="k">AS</span> counterparty
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/cross_border_flows/**/*.parquet'</span>)
+<span class="k">WHERE</span> <span class="s">'10YGB----------A'</span> <span class="k">IN</span> (in_area_code, out_area_code)
+<span class="k">ORDER BY</span> timestamp_utc <span class="k">DESC</span> <span class="k">LIMIT</span> 100;</pre>
+            </div></div>
+            <div data-tab-panel="cbf-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+flows = pl.read_parquet(<span class="s">"data/silver/entsoe/cross_border_flows/**/*.parquet"</span>)
+prices = pl.read_parquet(<span class="s">"data/silver/entsoe/day_ahead_prices/**/*.parquet"</span>)
+<span class="c"># Spread-flow correlation: do flows track day-ahead spread?</span>
+gb_fr = flows.filter(
+    (pl.col(<span class="s">"in_area_code"</span>) == <span class="s">"10YGB----------A"</span>) &amp;
+    (pl.col(<span class="s">"out_area_code"</span>) == <span class="s">"10YFR-RTE------C"</span>)
+)
+<span class="k">print</span>(gb_fr.tail())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">cross_border_flows</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Directional — pair both halves for net flow</div>
+                <p class="small" style="margin: 0;">Each border requires two requests (one per direction). True net flow = <code class="mono">flow(GB→FR) − flow(FR→GB)</code>. <span class="src-cite">vault Known Issues · endpoints.py L47-49</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GB borders still publish post-Brexit</div>
+                <p class="small" style="margin: 0;">Unlike <code class="mono">actual_generation</code>, GB cross-border flows continue to publish via ENTSO-E (the flows are physical and reported by the European-side TSO). <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Resolution typically <code class="mono">PT60M</code></div>
+                <p class="small" style="margin: 0;">Most borders publish <code class="mono">PT60M</code>. The G5-W3 schema update (2026-05) added <code class="mono">resolution</code> to the Pydantic class to match transformer output. <span class="src-cite">schemas/entsoe.py L66-69</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Revisions overwrite</div>
+                <p class="small" style="margin: 0;">Same <code class="mono">(timestamp_utc, in_area_code, out_area_code)</code> re-publication overwrites silently on dedup. No <code class="mono">published_at</code> for point-in-time queries. <span class="src-cite">silver/entsoe/cross_border_flows.py L68-70</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Entitlement-blocked on default API key</div>
+                <p class="small" style="margin: 0;">Live API returns HTTP 401 for the unregistered gridflow default key. Schema verified from gridflow source. <span class="src-cite">.planning/reconciliation/entsoe/10-cross-border-flows-http-401.md</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside cross_border_flows.</h2>
+
+          <div class="related-grid">
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">net_transfer_capacity</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Forecasted capacity per border at <code class="mono">PT60M</code>. The denominator for interconnector utilisation calculations (<code class="mono">flow / NTC</code>).</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+
+            <a href="commercial_schedules.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">commercial_schedules</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Nominated commercial flows per border at <code class="mono">PT60M</code>. Compare commercial schedule to physical flow to identify intraday adjustment.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">transfer_capacity_use</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Use of transfer capacity (A25/B05) at <code class="mono">PT60M</code>. The settlement-side view of border utilisation.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+
+            <a href="day_ahead_prices.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">day_ahead_prices</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Cross-border price spreads drive cross-border flows at <code class="mono">PT60M</code>. Pair to compute flow-vs-spread correlation.</p>
+              <span class="tiny">entsoe · prices · hourly</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

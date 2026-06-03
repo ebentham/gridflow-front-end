@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>balancing_energy_bids · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px; border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · balancing_energy_bids">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">balancing_energy_bids</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Balancing</span>
+            <span class="chip" style="font-size:11px;">PT60M · as published</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">balancing_energy_bids</span><br/>
+            Balancing bid stack, <span class="italic fg-accent">A37/A47/B74.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Individual balancing energy bids in MW per connecting area — the
+            raw bid-stack that procurement clears against, with bid_mrid,
+            direction, and standard / original market product identifiers.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Schema verified against gridflow source 2026-05-20 ·
+            live API requires extended ENTSO-E registration ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.balancing_energy_bids</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api?documentType=A37<br/>&amp;processType=A47<br/>&amp;businessType=B74</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">PT60M typical</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">as published</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">high — many bids per period</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, area_code,<br/>bid_mrid, direction)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A37</div>
+        <div class="stat-l">DocumentType</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A47</div>
+        <div class="stat-l">processType</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">B74</div>
+        <div class="stat-l"><code class="mono">businessType</code> (pinned)</div>
+      </div>
+      <div>
+        <div class="stat-n">11</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="balancing_energy_bids.html" class="active">balancing_energy_bids</a>
+          <a href="aggregated_balancing_energy_bids.html" style="color:var(--ink-faint);">aggregated_balancing_energy_bids</a>
+          <a href="procured_balancing_capacity.html" style="color:var(--ink-faint);">procured_balancing_capacity</a>
+          <a href="contracted_reserves.html" style="color:var(--ink-faint);">contracted_reserves</a>
+          <a href="activated_balancing_qty.html" style="color:var(--ink-faint);">activated_balancing_qty</a>
+          <a href="cross_zonal_balancing_capacity.html" style="color:var(--ink-faint);">cross_zonal_balancing_capacity</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">balancing_energy_bids</code>
+            holds the raw, per-bidder balancing-energy bid stack in MW per
+            connecting area. Each bid surfaces as a separate row keyed by
+            <code class="mono">bid_mrid</code> (renamed from the source
+            <code class="mono">&lt;TimeSeries&gt;&lt;mRID&gt;</code>),
+            with direction, the original and the standardised market-product
+            codes side-by-side. Each row is one individual bid for one
+            settlement interval — typical evening-peak hours carry 20–50
+            separate bids per direction.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A37&amp;processType=A47&amp;businessType=B74</code>,
+            queried per connecting area with optional <code class="mono">offset</code>
+            paging for large bid stacks. The raw XML lands in bronze, is
+            validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeBalancingEnergyBid</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BalancingEnergyBidsTransformer</code>
+            in the shared H8 family.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            This is the per-bidder ladder that
+            <code class="mono">procured_balancing_capacity</code> clears
+            against and <code class="mono">activated_balancing_qty</code>
+            dispatches from; the area-aggregated view sits in
+            <code class="mono">aggregated_balancing_energy_bids</code> when
+            the use case is "how much was offered total" rather than
+            ladder analysis. Use <code class="mono">standard_market_product</code>
+            for cross-zone aggregation and <code class="mono">original_market_product</code>
+            when matching to a specific bidder's local product naming.
+            Schema verified against gridflow source on 2026-05-20; the live
+            API requires extended ENTSO-E registration and returns HTTP 401
+            for the unregistered gridflow default key.
+          </p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Balancing bid stack · single-period <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">balancing_energy_bids · silver layer · 10YGB----------A</div>
+                <div class="small">Price ladder · EUR/MWh · UTC · single hour</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div data-chart="priceLadder" data-opts='{"width":900,"height":280,"seed":91}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/entsoe.py · EntsoeBalancingEnergyBid</code>
+            (lines 616–636). H8-family transformer with <code class="mono">connecting_Domain</code>
+            cross-area-pair-style dispatch. Partitioned by <code class="mono">timestamp_utc</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 22%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.
+                  <span class="cite">schemas/entsoe.py L619, L631-636</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Connecting area EIC. Renamed by the H8 transformer from <code class="mono">connecting_domain</code>. Source: <code class="mono">&lt;connecting_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L620 · silver/entsoe/h8_balancing.py L107</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">quantity_mw</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Bid MW. Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L621</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">business_type</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Bid business code. Default <code class="mono">""</code>. Source: <code class="mono">&lt;businessType&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L622</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">bid_mrid <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Individual bid identifier. Renamed from <code class="mono">&lt;TimeSeries&gt;&lt;mRID&gt;</code>. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L623 · silver/entsoe/h8_balancing.py L109</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">direction <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Up / down direction code. Renamed from <code class="mono">&lt;flow_Direction&gt;</code>. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L624</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">original_market_product</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Bidder's product designation. Default <code class="mono">""</code>. Source: <code class="mono">&lt;Original_Market_Product&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L625</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">standard_market_product</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Standardised product designation. Default <code class="mono">""</code>. Source: <code class="mono">&lt;Standard_Market_Product&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L626</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">resolution</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  ISO duration. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L627</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Always <code class="mono">"entsoe"</code>. Default <code class="mono">"entsoe"</code>.
+                  <span class="cite">schemas/entsoe.py L628</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Set at silver write.
+                  <span class="cite">schemas/entsoe.py L629</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsoe/balancing_energy_bids/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(timestamp_utc, area_code, bid_mrid, direction)</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>timestamp_utc</th>
+                  <th>area_code</th>
+                  <th>quantity_mw</th>
+                  <th>business_type</th>
+                  <th>bid_mrid</th>
+                  <th>direction</th>
+                  <th>original_market_product</th>
+                  <th>standard_market_product</th>
+                  <th>resolution</th>
+                  <th>data_provider</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">50.0</td><td class="str">B74</td><td class="str">bid-001</td><td class="str">up</td><td class="str">mFRR-up</td><td class="str">A04</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">100.0</td><td class="str">B74</td><td class="str">bid-002</td><td class="str">up</td><td class="str">mFRR-up</td><td class="str">A04</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">150.0</td><td class="str">B74</td><td class="str">bid-003</td><td class="str">up</td><td class="str">mFRR-up</td><td class="str">A04</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">80.0</td><td class="str">B74</td><td class="str">bid-004</td><td class="str">down</td><td class="str">mFRR-down</td><td class="str">A04</td><td class="str">PT60M</td><td>entsoe</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised. The highlighted <strong>150 MW mFRR-up bid (bid-003)</strong> illustrates a single bid in the stack — typical evening-peak hour has 20–50 separate bids per direction. Pair across all <code class="mono">bid_mrid</code>s in a settlement period for the full ladder used to clear <code class="mono">procured_balancing_capacity</code>.
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A37<br/>&amp;processType=A47<br/>&amp;businessType=B74<br/>&amp;connecting_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}<br/>&amp;offset=0</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — <strong>extended registration required</strong>. The unregistered gridflow default key returns HTTP 401 against this DocumentType. Register at <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">transparency.entsoe.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/balancing_energy_bids/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.h8_balancing.<br/>BalancingEnergyBidsTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="beb">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('beb','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('beb','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('beb','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="beb-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A37
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">processType</span>=A47
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">businessType</span>=B74
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">connecting_Domain</span>=10YGB----------A
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202605060000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605070000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">offset</span>=0</pre>
+            </div></div>
+            <div data-tab-panel="beb-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Bid stack depth per direction per hour (count of bids)</span>
+<span class="k">SELECT</span> timestamp_utc, area_code, direction,
+       count(*) <span class="k">AS</span> bid_count,
+       sum(quantity_mw) <span class="k">AS</span> total_offered_mw
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/balancing_energy_bids/**/*.parquet'</span>)
+<span class="k">WHERE</span> timestamp_utc &gt;= current_timestamp - <span class="k">INTERVAL</span> 7 <span class="k">DAY</span>
+<span class="k">GROUP BY</span> 1, 2, 3 <span class="k">ORDER BY</span> timestamp_utc <span class="k">DESC</span> <span class="k">LIMIT</span> 100;</pre>
+            </div></div>
+            <div data-tab-panel="beb-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+bids = pl.read_parquet(<span class="s">"data/silver/entsoe/balancing_energy_bids/**/*.parquet"</span>)
+<span class="c"># Bid concentration — which standard products dominate the stack?</span>
+<span class="k">print</span>(bids.group_by([<span class="s">"standard_market_product"</span>, <span class="s">"direction"</span>]).agg(
+    pl.col(<span class="s">"quantity_mw"</span>).sum().alias(<span class="s">"total_mw"</span>),
+    pl.col(<span class="s">"bid_mrid"</span>).n_unique().alias(<span class="s">"n_bids"</span>),
+).sort(<span class="s">"total_mw"</span>, descending=<span class="k">True</span>).head())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">balancing_energy_bids</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">connecting_Domain</code> (not <code class="mono">area_Domain</code>)</div>
+                <p class="small" style="margin: 0;">A37 uses <code class="mono">connecting_Domain</code> for the area param (renamed by the H8 transformer). <span class="src-cite">endpoints.py L326-338</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Offset paging</div>
+                <p class="small" style="margin: 0;">Connector exposes <code class="mono">offset</code> as optional — large bid stacks may require multiple requests with offset paging. Default offset is 0. <span class="src-cite">endpoints.py L331-336</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">bid_mrid</code> is the per-bid identifier</div>
+                <p class="small" style="margin: 0;"><code class="mono">bid_mrid</code> is renamed from <code class="mono">&lt;TimeSeries&gt;&lt;mRID&gt;</code> — each bid is a separate TimeSeries. Dedup includes <code class="mono">bid_mrid + direction</code>. <span class="src-cite">silver/entsoe/h8_balancing.py L109, L138</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">standard_market_product</code> vs <code class="mono">original_market_product</code></div>
+                <p class="small" style="margin: 0;">Standard = harmonised across TSOs (e.g. A04 = mFRR); original = bidder's local code. Use standard for cross-zone aggregation. <span class="src-cite">schemas/entsoe.py L625-626</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Entitlement-blocked on the default API key</div>
+                <p class="small" style="margin: 0;">The live API returns HTTP 401 for the unregistered gridflow default key. Schema verified from gridflow source. <span class="src-cite">.planning/reconciliation/entsoe/05-balancing-energy-bids-http-401.md</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside balancing_energy_bids.</h2>
+
+          <div class="related-grid">
+            <a href="aggregated_balancing_energy_bids.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">aggregated_balancing_energy_bids</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A24/A51 aggregated version of this dataset at <code class="mono">PT60M</code>. Same schema but aggregated by <code class="mono">area_Domain</code>, no per-bidder <code class="mono">bid_mrid</code>.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+
+            <a href="procured_balancing_capacity.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">procured_balancing_capacity</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A15/A51 procurement at <code class="mono">PT60M</code>. Clears against this bid stack.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+
+            <a href="activated_balancing_qty.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">activated_balancing_qty</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A83/A16 activation MWh at <code class="mono">PT60M</code>. Identifies which bids were dispatched.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+
+            <a href="contracted_reserves.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">contracted_reserves</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A81 contracted reserves at <code class="mono">PT60M</code>. Pre-arranged capacity from cleared bids.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>
