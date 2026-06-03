@@ -95,7 +95,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/imbalngc/year=YYYY/month=MM/imbalngc_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.imbalngc.ImbalNGCTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonImbalNGC` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date, settlement_period)`
 **Point-in-time field**: `published_at`
 
@@ -141,7 +141,7 @@ None implemented.
 
 ## Implementation delta
 
-- **No Pydantic schema** in `schemas/elexon.py`; silver enforces inline.
+- **Pydantic schema** `ElexonImbalNGC` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

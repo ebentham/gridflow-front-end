@@ -164,8 +164,12 @@ None implemented.
 - **`area_Domain.mRID`** in some envelopes (root level) and `controlArea_Domain.mRID`
   in others — the parser handles both.
 - **Direction mapping**: `A19→"long"` (system surplus, TSO sells imbalance)
-  and `A20→"short"` (system deficit, TSO buys). `replace_strict` will
-  raise on any unknown businessType — silver fails fast on unknowns.
+  and `A20→"short"` (system deficit, TSO buys). Per ADR-022, an unknown
+  `businessType` no longer raises: `replace_strict` maps it to the
+  `"unmapped"` sentinel (`direction = "unmapped"`), the affected rows are
+  counted and a warning logs the distinct unmapped raw codes, and the run
+  finishes as `completed_with_warnings` (rows still written). Downstream
+  consumers must tolerate a `"unmapped"` value in `direction`.
 
 ---
 

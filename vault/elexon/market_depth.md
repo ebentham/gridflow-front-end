@@ -105,7 +105,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/balancin
 
 **Path pattern**: `data/silver/elexon/market_depth/year=YYYY/month=MM/market_depth_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.market_depth.MarketDepthTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonMarketDepth` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date, settlement_period)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -164,7 +164,7 @@ None implemented.
 ## Implementation delta
 
 - **Path**: same shape pattern as `system_prices` (date appended at request time).
-- **No Pydantic schema in `schemas/elexon.py`** for market_depth — silver enforces the column set inline.
+- **Pydantic schema** `ElexonMarketDepth` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

@@ -95,7 +95,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/indgen/year=YYYY/month=MM/indgen_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.indgen.INDGENTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonIndGen` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: _inline in transformer (see `silver/elexon/indgen.py`)_
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -143,7 +143,7 @@ None implemented.
 
 ## Implementation delta
 
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonIndGen` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

@@ -142,8 +142,12 @@ None implemented.
 - **`businessType=A19` mandatory in the request** — the connector adds it
   via `extra_params`, fixed at A19. Without it, the API rejects with a
   required-parameter error.
-- **`replace_strict` direction mapping** raises on any flowDirection not in
-  `{A01, A02}` — silent unknowns are not allowed.
+- **`replace_strict` direction mapping** — per ADR-022, a `flowDirection`
+  not in `{A01, A02}` no longer raises: it maps to the `"unmapped"` sentinel
+  (`direction = "unmapped"`), the affected rows are counted and a warning logs
+  the distinct unmapped raw codes, and the run finishes as
+  `completed_with_warnings` (rows still written). Downstream consumers must
+  tolerate a `"unmapped"` value in `direction`.
 - **`Balancing_MarketDocument`** envelope.
 
 ---

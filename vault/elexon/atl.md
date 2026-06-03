@@ -96,7 +96,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/atl/year=YYYY/month=MM/atl_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.atl.ATLTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonATL` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date, settlement_period)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -149,7 +149,7 @@ None implemented.
 ## Implementation delta
 
 - **Same B-series** as AGPT (B0610).
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonATL` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

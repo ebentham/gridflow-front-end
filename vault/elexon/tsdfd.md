@@ -88,7 +88,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/tsdfd/year=YYYY/month=MM/tsdfd_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.tsdfd.TSDFDTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonTSDFD` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(forecast_date)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -136,7 +136,7 @@ None implemented.
 
 - **Daily publication** — empty within 3-hour windows.
 - **`forecast_date` rather than `settlement_date`** in silver output (no settlement_period — daily aggregate).
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonTSDFD` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

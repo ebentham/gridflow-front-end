@@ -84,7 +84,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 
 **Path pattern**: `data/silver/elexon/nonbm/year=YYYY/month=MM/nonbm_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.elexon.nonbm.NONBMTransformer`
-**Pydantic schema**: _Not declared in `schemas/elexon.py` — silver transformer enforces shape directly. See Implementation delta._
+**Pydantic schema**: `gridflow.schemas.elexon.ElexonNonBM` — validated fail-soft on the full frame at write time (VTA-SCHEMA-01: invalid rows are logged and counted, never dropped).
 **Dedup key**: `(settlement_date, settlement_period)`
 **Point-in-time field**: `ingested_at` (no native PIT field)
 
@@ -131,7 +131,7 @@ None implemented.
 ## Implementation delta
 
 - **Param style mismatch**: docs declare `from`/`to`; code uses default `publishDateTimeFrom/To`. Live test 2026-05-08 returned 1 row with the default param names — the API may accept both. Worth verifying with explicit `from`/`to` parameters and noting whichever path is canonical.
-- **No Pydantic schema** in `schemas/elexon.py`.
+- **Pydantic schema** `ElexonNonBM` exists in `schemas/elexon.py` and is applied via `BaseSilverTransformer._validate_against_schema` (fail-soft).
 
 ---
 

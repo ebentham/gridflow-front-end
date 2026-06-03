@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: forecast_wind
 vendor: Open-Meteo
-last_verified: 2026-05-09
+last_verified: 2026-06-03
 layer_coverage: bronze, silver
 ---
 
@@ -157,25 +157,25 @@ parallel array or carry `null` — silver fills `None`.
 | `location` | `str` | No | derived | Site key from `WIND_LOCATIONS` |
 | `latitude` | `float` | No | top-level `latitude` | Float64 |
 | `longitude` | `float` | No | top-level `longitude` | Float64 |
-| `temperature_2m` | `float` | Yes | `hourly.temperature_2m[i]` | °C |
-| `surface_pressure` | `float` | Yes | `hourly.surface_pressure[i]` | hPa |
-| `precipitation` | `float` | Yes | `hourly.precipitation[i]` | mm/hr |
-| `wind_speed_10m` | `float` | Yes | `hourly.wind_speed_10m[i]` | km/h at 10m |
-| `wind_speed_80m` | `float` | Yes | `hourly.wind_speed_80m[i]` | km/h at 80m — null if NWP model does not carry |
-| `wind_speed_100m` | `float` | Yes | `hourly.wind_speed_100m[i]` | km/h at 100m |
-| `wind_speed_120m` | `float` | Yes | `hourly.wind_speed_120m[i]` | km/h at 120m — null if NWP model does not carry |
-| `wind_speed_180m` | `float` | Yes | `hourly.wind_speed_180m[i]` | km/h at 180m — null if NWP model does not carry |
-| `wind_direction_10m` | `float` | Yes | `hourly.wind_direction_10m[i]` | degrees (0=N) |
-| `wind_direction_80m` | `float` | Yes | `hourly.wind_direction_80m[i]` | degrees |
-| `wind_direction_100m` | `float` | Yes | `hourly.wind_direction_100m[i]` | degrees |
-| `wind_direction_120m` | `float` | Yes | `hourly.wind_direction_120m[i]` | degrees |
-| `wind_direction_180m` | `float` | Yes | `hourly.wind_direction_180m[i]` | degrees |
-| `wind_gusts_10m` | `float` | Yes | `hourly.wind_gusts_10m[i]` | Peak gust 10m, km/h |
-| `cloud_cover` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
-| `cloud_cover_low` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
-| `cloud_cover_mid` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
-| `cloud_cover_high` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
-| `dew_point_2m` | `float` | Yes | `hourly.dew_point_2m[i]` | °C |
+| `temperature_2m_c` | `float` | Yes | `hourly.temperature_2m[i]` | °C |
+| `surface_pressure_hpa` | `float` | Yes | `hourly.surface_pressure[i]` | hPa |
+| `precipitation_mm` | `float` | Yes | `hourly.precipitation[i]` | mm/hr |
+| `wind_speed_10m_mps` | `float` | Yes | `hourly.wind_speed_10m[i]` | m/s at 10m |
+| `wind_speed_80m_mps` | `float` | Yes | `hourly.wind_speed_80m[i]` | m/s at 80m — null if NWP model does not carry |
+| `wind_speed_100m_mps` | `float` | Yes | `hourly.wind_speed_100m[i]` | m/s at 100m |
+| `wind_speed_120m_mps` | `float` | Yes | `hourly.wind_speed_120m[i]` | m/s at 120m — null if NWP model does not carry |
+| `wind_speed_180m_mps` | `float` | Yes | `hourly.wind_speed_180m[i]` | m/s at 180m — null if NWP model does not carry |
+| `wind_direction_10m_deg` | `float` | Yes | `hourly.wind_direction_10m[i]` | degrees (0=N) |
+| `wind_direction_80m_deg` | `float` | Yes | `hourly.wind_direction_80m[i]` | degrees |
+| `wind_direction_100m_deg` | `float` | Yes | `hourly.wind_direction_100m[i]` | degrees |
+| `wind_direction_120m_deg` | `float` | Yes | `hourly.wind_direction_120m[i]` | degrees |
+| `wind_direction_180m_deg` | `float` | Yes | `hourly.wind_direction_180m[i]` | degrees |
+| `wind_gusts_10m_mps` | `float` | Yes | `hourly.wind_gusts_10m[i]` | Peak gust 10m, m/s |
+| `cloud_cover_pct` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
+| `cloud_cover_low_pct` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
+| `cloud_cover_mid_pct` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
+| `cloud_cover_high_pct` | `float` | Yes | `hourly.cloud_cover_high[i]` | % |
+| `dew_point_2m_c` | `float` | Yes | `hourly.dew_point_2m[i]` | °C |
 | `air_density_kg_m3` | `float` | Yes | derived | `surface_pressure_Pa / (287.05 × T_K)` |
 | `data_provider` | `str` | No | derived | Constant `"open_meteo"` |
 | `ingested_at` | `datetime[UTC]` | Yes | derived | Wall-clock UTC at silver-build time |
@@ -192,25 +192,25 @@ Bitemporal columns (`event_time`, `available_at`, `source_run_id`,
         "location": "hornsea",
         "latitude": 53.88,
         "longitude": 1.79,
-        "temperature_2m": 10.5,
-        "surface_pressure": 1015.0,
-        "precipitation": 0.0,
-        "wind_speed_10m": 18.2,
-        "wind_speed_80m": 25.1,
-        "wind_speed_100m": 27.8,
-        "wind_speed_120m": 30.2,
-        "wind_speed_180m": 33.6,
-        "wind_direction_10m": 225.0,
-        "wind_direction_80m": 230.0,
-        "wind_direction_100m": 232.0,
-        "wind_direction_120m": 234.0,
-        "wind_direction_180m": 236.0,
-        "wind_gusts_10m": 32.0,
-        "cloud_cover": 60.0,
-        "cloud_cover_low": 40.0,
-        "cloud_cover_mid": 20.0,
-        "cloud_cover_high": 0.0,
-        "dew_point_2m": 8.5,
+        "temperature_2m_c": 10.5,
+        "surface_pressure_hpa": 1015.0,
+        "precipitation_mm": 0.0,
+        "wind_speed_10m_mps": 5.06,
+        "wind_speed_80m_mps": 6.97,
+        "wind_speed_100m_mps": 7.72,
+        "wind_speed_120m_mps": 8.39,
+        "wind_speed_180m_mps": 9.33,
+        "wind_direction_10m_deg": 225.0,
+        "wind_direction_80m_deg": 230.0,
+        "wind_direction_100m_deg": 232.0,
+        "wind_direction_120m_deg": 234.0,
+        "wind_direction_180m_deg": 236.0,
+        "wind_gusts_10m_mps": 8.89,
+        "cloud_cover_pct": 60.0,
+        "cloud_cover_low_pct": 40.0,
+        "cloud_cover_mid_pct": 20.0,
+        "cloud_cover_high_pct": 0.0,
+        "dew_point_2m_c": 8.5,
         "air_density_kg_m3": 1.249,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
@@ -220,25 +220,25 @@ Bitemporal columns (`event_time`, `available_at`, `source_run_id`,
         "location": "whitelee",
         "latitude": 55.69,
         "longitude": -4.27,
-        "temperature_2m": 12.3,
-        "surface_pressure": 1010.5,
-        "precipitation": 0.2,
-        "wind_speed_10m": 14.7,
-        "wind_speed_80m": 22.4,
-        "wind_speed_100m": 24.1,
-        "wind_speed_120m": None,
-        "wind_speed_180m": None,
-        "wind_direction_10m": 250.0,
-        "wind_direction_80m": 255.0,
-        "wind_direction_100m": 258.0,
-        "wind_direction_120m": None,
-        "wind_direction_180m": None,
-        "wind_gusts_10m": 26.0,
-        "cloud_cover": 75.0,
-        "cloud_cover_low": 60.0,
-        "cloud_cover_mid": 25.0,
-        "cloud_cover_high": 5.0,
-        "dew_point_2m": 9.0,
+        "temperature_2m_c": 12.3,
+        "surface_pressure_hpa": 1010.5,
+        "precipitation_mm": 0.2,
+        "wind_speed_10m_mps": 4.08,
+        "wind_speed_80m_mps": 6.22,
+        "wind_speed_100m_mps": 6.69,
+        "wind_speed_120m_mps": None,
+        "wind_speed_180m_mps": None,
+        "wind_direction_10m_deg": 250.0,
+        "wind_direction_80m_deg": 255.0,
+        "wind_direction_100m_deg": 258.0,
+        "wind_direction_120m_deg": None,
+        "wind_direction_180m_deg": None,
+        "wind_gusts_10m_mps": 7.22,
+        "cloud_cover_pct": 75.0,
+        "cloud_cover_low_pct": 60.0,
+        "cloud_cover_mid_pct": 25.0,
+        "cloud_cover_high_pct": 5.0,
+        "dew_point_2m_c": 9.0,
         "air_density_kg_m3": 1.235,
         "data_provider": "open_meteo",
         "ingested_at": datetime(2026, 5, 9, 9, 12, 5, tzinfo=UTC),
@@ -279,7 +279,7 @@ None implemented.
 - **Approximate site centroids.** Same caveat as
   [historical_wind §approximate locations](./historical_wind.md#known-issues-and-gotchas).
   See ADR-020.
-- **Wind units.** All wind speeds and gusts are in **km/h**.
+- **Wind units.** Silver wind speeds and gusts are in **m/s** (the connector converts the km/h API response by ÷3.6); the `_mps`-suffixed columns are power-curve-ready.
 - **`past_days` not used.** For past data, use the
   [historical_wind](./historical_wind.md) endpoint.
 - **Bronze double-underscore separator.** Bronze paths use

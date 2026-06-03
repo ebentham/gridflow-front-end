@@ -150,9 +150,12 @@ None implemented.
   supports four reserve types (fcr/afrr/mfrr/rr) but the connector currently
   only requests aFRR. Other reserve types would require either
   per-businessType fetches or relaxing the request.
-- **`replace_strict` for reserve_type and direction** — any unknown
-  businessType or flowDirection raises in silver. Surfacing schema drift
-  rather than swallowing it.
+- **`replace_strict` for reserve_type and direction** — per ADR-022, an
+  unknown `businessType` or `flowDirection` no longer raises: each maps to the
+  `"unmapped"` sentinel (`reserve_type`/`direction = "unmapped"`), the affected
+  rows are counted and a warning logs the distinct unmapped raw codes, and the
+  run finishes as `completed_with_warnings` (rows still written). Downstream
+  consumers must tolerate a `"unmapped"` value in `reserve_type`/`direction`.
 - **Value tag** is `activation_Price.amount` (or similar `*_Price.amount`),
   matched by the parser's `_matches_value_tag` flexible rule.
 

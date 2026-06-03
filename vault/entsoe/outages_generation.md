@@ -150,8 +150,8 @@ None implemented.
 
 - **30-day window minimum.** A 1-day query window often returns Acknowledgement reason 999 even when outages exist. Use 30-day windows for backfill; daily incremental queries can use a rolling 30-day window with dedup.
 - **ZIP archives** — the API returns a ZIP for any window with ≥1 outage. Bytes start with `PK\x03\x04`. Connector detects this in `client._is_zip_response()` and `_iter_zip_xml()` extracts inner XMLs into separate `RawResponse`s.
-- **Outage status codes** (DocStatus): `A05` Active, `A09` Cancelled, `A13` Withdrawn. The default query returns Active outages only; `DocStatus=A09` retrieves cancelled notifications which can revise earlier values. Silver dedup keeps only the latest revision.
-- **Revision number** — same outage `mRID` may be republished with `revisionNumber > 1`; sort and keep latest.
+- **Outage status codes** (DocStatus): `A05` Active, `A09` Cancelled, `A13` Withdrawn. The default query returns Active outages only; `DocStatus=A09` retrieves cancelled notifications which can revise earlier values. NOTE: gridflow silver dedup is `df.unique(keep="last")` over the dedup key and is NOT revision-aware — `revisionNumber` is parsed but not used to order survivors, so the surviving row follows bronze parse order, not the highest revision.
+- **Revision number** — same outage `mRID` may be republished with `revisionNumber > 1`. gridflow does NOT currently sort by `revisionNumber`; dedup keeps the last row in parse order (known limitation).
 - **Pagination by record count** — windows with >200 outages return HTTP 400 reason 999 "exceeds the allowed maximum (200)". Splits into smaller windows are required for high-outage zones.
 - `unavailable_mw` is the **unavailable** MW, not the available capacity. To compute available output, subtract from installed capacity.
 

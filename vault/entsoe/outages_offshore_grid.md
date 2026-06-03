@@ -103,7 +103,7 @@ Power Hub schemes.
 **Path pattern**: `data/silver/entsoe/outages_offshore_grid/year=YYYY/month=MM/outages_offshore_grid_YYYYMMDD.parquet`
 **Transformer class**: `gridflow.silver.entsoe.outages_h7.OutagesOffshoreGridTransformer`
 **Pydantic schema**: `gridflow.schemas.entsoe.EntsoeOutagesOffshoreGrid`
-**Dedup key**: `(timestamp_utc, area_code, asset_mrid, document_mrid)`
+**Dedup key**: `(timestamp_utc, area_code, asset_mrid, timeseries_mrid)`
 **Point-in-time field**: `ingested_at`
 
 ### Silver schema
