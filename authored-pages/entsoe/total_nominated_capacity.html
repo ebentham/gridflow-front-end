@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>total_nominated_capacity · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); overflow-wrap: break-word; word-break: break-word; }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; overflow-wrap: break-word; word-break: break-word; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display: block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display: block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · total_nominated_capacity">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a><span class="sep">/</span>
+        <span class="here">total_nominated_capacity</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Transmission</span>
+            <span class="chip" style="font-size:11px;">PT60M · varies</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 26px; font-family: var(--mono); letter-spacing: -0.01em;">total_nominated_capacity</span><br/>
+            Total nominated capacity, <span class="italic fg-accent">B08.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Total nominated capacity in MW per zone-pair direction —
+            capacity that holders have nominated for actual physical
+            use, distinct from "allocated" (sold but not yet nominated).
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Schema verified against gridflow source 2026-05-20 ·
+            live API requires extended ENTSO-E registration ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px;">silver.total_nominated_capacity</div></div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px;">/api?documentType=A26<br/>&amp;businessType=B08</div></div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">PT60M</div></div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">varies</div></div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">24 pts / border-direction / day</div></div>
+          <div style="padding: 16px 18px;"><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, in_area_code,<br/>out_area_code, business_type)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A26</div><div class="stat-l">DocumentType</div></div>
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">B08</div><div class="stat-l">businessType</div></div>
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">H6</div><div class="stat-l">Shared transformer family</div></div>
+      <div><div class="stat-n">8</div><div class="stat-l">Schema columns</div></div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="total_nominated_capacity.html" class="active">total_nominated_capacity</a>
+          <a href="total_capacity_allocated.html" style="color:var(--ink-faint);">total_capacity_allocated</a>
+          <a href="transfer_capacity_use.html" style="color:var(--ink-faint);">transfer_capacity_use</a>
+          <a href="commercial_schedules.html" style="color:var(--ink-faint);">commercial_schedules</a>
+          <a href="cross_border_flows.html" style="color:var(--ink-faint);">cross_border_flows</a>
+          <a href="net_transfer_capacity.html" style="color:var(--ink-faint);">net_transfer_capacity</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">total_nominated_capacity</code>
+            holds total nominated capacity in megawatts per zone-pair
+            direction, tagged with <code class="mono">businessType=B08</code>
+            ("Total nominated capacity"). Nomination is the step after
+            allocation — a holder has bought capacity in advance, and
+            nominates it when they actually intend to flow against it.
+            Each row is one border-direction's nominated quantity for a
+            single <code class="mono">PT60M</code> interval.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A26&amp;businessType=B08</code>,
+            queried per directed border-pair. The raw XML lands in
+            bronze, is validated against the shared H6-family class
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeTransmissionMarketQuantity</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">TotalNominatedCapacityTransformer</code>
+            in <code class="mono">silver/entsoe/h6_market.py</code>.
+            <code class="mono">A26</code> is shared with
+            <code class="mono">total_capacity_allocated</code> (A29
+            businessType), so callers must always select on the dataset
+            key — not DocumentType alone.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            Allocated vs nominated = use-it-or-lose-it tracking — pair
+            against <code class="mono">total_capacity_allocated</code> to
+            see how much pre-bought capacity holders chose not to
+            nominate, and against <code class="mono">cross_border_flows</code>
+            to see how nomination translates into realised physical flow
+            after intraday adjustment. Closely related to
+            <code class="mono">commercial_schedules</code> but at the
+            capacity-management rather than schedule level. Schema
+            verified against gridflow source on 2026-05-20; the live API
+            requires extended ENTSO-E registration and returns HTTP 401
+            against the unregistered gridflow default key.
+          </p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">GB → FR nominated capacity · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">total_nominated_capacity · silver layer · 10YGB---------A → 10YFR-RTE------C · B08</div>
+                <div class="small">Line · MW · UTC · 6 May 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":59}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Shared H6-family class <code class="mono">EntsoeTransmissionMarketQuantity</code>
+            (<code class="mono">schemas/entsoe.py L557-574</code>) — see
+            <code class="mono">commercial_schedules</code> brief for full
+            column-by-column annotation; this surface differentiates
+            through <code class="mono">businessType=B08</code> and the
+            dataset-key dispatch in <code class="mono">h6_market.py</code>.
+          </p>
+          <table class="schema-table">
+            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.<span class="cite">schemas/entsoe.py L560</span></td></tr>
+              <tr><td class="col-name">in_area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Source zone EIC.<span class="cite">schemas/entsoe.py L561</span></td></tr>
+              <tr><td class="col-name">out_area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Destination zone EIC.<span class="cite">schemas/entsoe.py L562</span></td></tr>
+              <tr><td class="col-name">quantity_mw</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Nominated MW. Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.<span class="cite">schemas/entsoe.py L563</span></td></tr>
+              <tr><td class="col-name">business_type <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note"><code class="mono">B08</code> — "Total nominated capacity". Default <code class="mono">""</code>.<span class="cite">schemas/entsoe.py L564</span></td></tr>
+              <tr><td class="col-name">resolution</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">ISO duration; typically <code class="mono">PT60M</code>.<span class="cite">schemas/entsoe.py L565</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsoe"</code>.<span class="cite">schemas/entsoe.py L566</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">Set at silver write.<span class="cite">schemas/entsoe.py L567</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/entsoe/total_nominated_capacity/year=YYYY/month=MM/</div></div>
+            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">timestamp_utc (year + month)</div></div>
+            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small" style="font-size:10px;">(timestamp_utc, in_area_code, out_area_code, business_type)</div></div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead><tr><th>timestamp_utc</th><th>in_area_code</th><th>out_area_code</th><th>quantity_mw</th><th>business_type</th><th>resolution</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">1,200.0</td><td class="str">B08</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T19:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">2,050.0</td><td class="str">B08</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T11:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">-150.0</td><td class="str">B08</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised. The highlighted <strong>GB → FR 19:00 (2.05 GW nominated)</strong> row tracks just below the 2.1 GW allocated at the same hour from <code class="mono">total_capacity_allocated</code> — the 50 MW gap is typical "use-it-or-lose-it" capacity that holders chose not to nominate. Negative values (SP11) indicate reverse-direction nomination.
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A26<br/>&amp;businessType=B08<br/>&amp;in_Domain={EIC}<br/>&amp;out_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — <strong>extended registration required</strong>. The unregistered gridflow default key returns HTTP 401 against this DocumentType.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/total_nominated_capacity/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.h6_market.<br/>TotalNominatedCapacityTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="tnc">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('tnc','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('tnc','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('tnc','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="tnc-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A26
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">businessType</span>=B08
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">in_Domain</span>=10YGB----------A
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">out_Domain</span>=10YFR-RTE------C
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202605060000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605070000</pre>
+            </div></div>
+            <div data-tab-panel="tnc-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Allocated vs nominated gap (use-it-or-lose-it tracking)</span>
+<span class="k">SELECT</span> a.timestamp_utc, a.in_area_code, a.out_area_code,
+       a.quantity_mw <span class="k">AS</span> allocated_mw,
+       n.quantity_mw <span class="k">AS</span> nominated_mw,
+       a.quantity_mw - n.quantity_mw <span class="k">AS</span> lost_mw
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/total_capacity_allocated/**/*.parquet'</span>) a
+<span class="k">JOIN</span> read_parquet(<span class="s">'data/silver/entsoe/total_nominated_capacity/**/*.parquet'</span>) n
+  <span class="k">ON</span> a.timestamp_utc = n.timestamp_utc
+ <span class="k">AND</span> a.in_area_code = n.in_area_code
+ <span class="k">AND</span> a.out_area_code = n.out_area_code
+<span class="k">ORDER BY</span> lost_mw <span class="k">DESC</span> <span class="k">LIMIT</span> 20;</pre>
+            </div></div>
+            <div data-tab-panel="tnc-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+nom = pl.read_parquet(<span class="s">"data/silver/entsoe/total_nominated_capacity/**/*.parquet"</span>)
+phys = pl.read_parquet(<span class="s">"data/silver/entsoe/cross_border_flows/**/*.parquet"</span>)
+<span class="c"># Nominated vs realised — how often does nomination actually flow?</span>
+joined = nom.join(phys, on=[<span class="s">"timestamp_utc"</span>, <span class="s">"in_area_code"</span>, <span class="s">"out_area_code"</span>], suffix=<span class="s">"_p"</span>)
+<span class="k">print</span>(joined.with_columns(
+    (pl.col(<span class="s">"flow_mw"</span>) - pl.col(<span class="s">"quantity_mw"</span>)).alias(<span class="s">"intraday_adj_mw"</span>)
+).select([<span class="s">"timestamp_utc"</span>, <span class="s">"intraday_adj_mw"</span>]).tail())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">total_nominated_capacity</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+          <div>
+            <div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;">A26 shared with <code class="mono">total_capacity_allocated</code></div><p class="small" style="margin: 0;">A26 is also used for <code class="mono">total_capacity_allocated</code> (A29 businessType). Select on dataset key. <span class="src-cite">endpoints.py L259-270</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">businessType=B08</code> pinned by connector</div><p class="small" style="margin: 0;">Connector pins <code class="mono">businessType=B08</code>. <span class="src-cite">endpoints.py L257</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;">Pydantic class is shared (H6 family)</div><p class="small" style="margin: 0;"><code class="mono">EntsoeTransmissionMarketQuantity</code> covers 12 H6 datasets. Reconciliation finding <code class="mono">70-total-nominated-capacity-no-table.md</code> (wontfix v3-candidate) is stale. <span class="src-cite">schemas/entsoe.py L557</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;">Revisions overwrite</div><p class="small" style="margin: 0;">Same <code class="mono">(timestamp_utc, in_area_code, out_area_code, business_type)</code> overwrites silently. <span class="src-cite">silver/entsoe/h6_market.py L85-91</span></p></div></div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Entitlement-blocked on default API key</div><p class="small" style="margin: 0;">Live API returns HTTP 401 for the unregistered gridflow default key. <span class="src-cite">.planning/reconciliation/entsoe/32-total-nominated-capacity-http-401.md</span></p></div></div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside total_nominated_capacity.</h2>
+          <div class="related-grid">
+            <a href="total_capacity_allocated.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">total_capacity_allocated</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Same A26 DocumentType, A29 businessType at <code class="mono">PT60M</code>. Allocated vs nominated gap = use-it-or-lose-it.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+            <a href="commercial_schedules.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">commercial_schedules</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Aggregated commercial nominations (A09) at <code class="mono">PT60M</code>. Closely related but at the schedule level rather than capacity-management level.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+            <a href="cross_border_flows.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">cross_border_flows</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Realised physical flow at <code class="mono">PT60M</code>. Nominated vs realised = intraday adjustment.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+            <a href="transfer_capacity_use.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">transfer_capacity_use</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Settlement-side use of capacity at <code class="mono">PT60M</code>. Cross-check this dataset's nomination view.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { links.forEach((l) => l.classList.remove("active")); const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`); if (match) match.classList.add("active"); } });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

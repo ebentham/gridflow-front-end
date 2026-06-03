@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>balancing_financial_expenses_income · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); overflow-wrap: break-word; word-break: break-word; }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; overflow-wrap: break-word; word-break: break-word; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display: block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display: block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · balancing_financial_expenses_income">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a><span class="sep">/</span>
+        <span class="here">balancing_financial_expenses_income</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Balancing</span>
+            <span class="chip" style="font-size:11px;">PT60M · as published</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 22px; font-family: var(--mono); letter-spacing: -0.01em;">balancing_financial_expenses_income</span><br/>
+            Balancing financial expenses and income, <span class="italic fg-accent">A87.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Financial expenses and income for balancing in EUR per control area —
+            the €-side P&amp;L of the balancing mechanism, distinct from MWh
+            activations and MW capacity.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Schema verified against gridflow source 2026-05-20 ·
+            live API requires extended ENTSO-E registration ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px;">silver.balancing_financial_<br/>expenses_income</div></div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px;">/api?documentType=A87</div></div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">PT60M typical</div></div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">as published</div></div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">varies</div></div>
+          <div style="padding: 16px 18px;"><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, area_code,<br/>business_type)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A87</div><div class="stat-l">DocumentType</div></div>
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 26px;">control_area</div><div class="stat-l"><code class="mono">domain_style</code></div></div>
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">H8</div><div class="stat-l">Transformer family (amount_eur variant)</div></div>
+      <div><div class="stat-n">7</div><div class="stat-l">Schema columns</div></div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="balancing_financial_expenses_income.html" class="active">balancing_financial_expenses_income</a>
+          <a href="activated_balancing_prices.html" style="color:var(--ink-faint);">activated_balancing_prices</a>
+          <a href="contracted_reserves.html" style="color:var(--ink-faint);">contracted_reserves</a>
+          <a href="procured_balancing_capacity.html" style="color:var(--ink-faint);">procured_balancing_capacity</a>
+          <a href="congestion_income.html" style="color:var(--ink-faint);">congestion_income</a>
+          <a href="auction_revenue.html" style="color:var(--ink-faint);">auction_revenue</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">balancing_financial_expenses_income</code>
+            is the financial P&amp;L of the balancing mechanism — the expenses a
+            TSO pays to acquire balancing energy and the income it earns from
+            absorbing surplus, in EUR per control area under DocumentType
+            <code class="mono">A87</code>. It is the cash view that complements the
+            physical balancing surfaces: where <code class="mono">activated_balancing_qty</code>
+            gives MWh and <code class="mono">activated_balancing_prices</code> gives
+            €/MWh, this gives the settled monetary total. Each row carries
+            <code class="mono">(timestamp_utc, area_code, business_type)</code> as the
+            primary key and <code class="mono">amount_eur</code> as the value, with
+            <code class="mono">business_type</code> distinguishing expense from
+            income line items.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A87&amp;controlArea_Domain={EIC}</code>,
+            queried per control area. The raw XML lands in bronze and is validated
+            against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeBalancingFinancial</code>
+            (schemas/entsoe.py L680-696), then written to silver via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BalancingFinancialExpensesIncomeTransformer</code>
+            in the H8 balancing family. Uniquely for an H8 dataset, the transformer
+            runs with <code class="mono">value_tag="price.amount"</code> rather than
+            "quantity" — so it outputs <code class="mono">amount_eur</code> instead of
+            <code class="mono">quantity_mw</code> and reads the area from
+            <code class="mono">controlArea_Domain</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It closes the balancing-cost loop: joined against
+            <code class="mono">activated_balancing_qty</code> it yields an implied
+            €/MWh, and read alongside <code class="mono">procured_balancing_capacity</code>
+            it separates reservation cost from activation cost. It also sits beside
+            congestion economics (<code class="mono">congestion_income</code>) as one
+            of the TSO's recurring financial flows. Schema verified against gridflow
+            source on 2026-05-20; the live API requires extended ENTSO-E registration.
+          </p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">GB balancing P&amp;L · 90-day <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">balancing_financial_expenses_income · silver layer · 10YGB----------A</div>
+                <div class="small">Line · EUR · UTC · daily</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">30d</span>
+                <span class="chip btn-like">90d</span>
+                <span class="chip btn-like">1y</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":97}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/entsoe.py · EntsoeBalancingFinancial</code>
+            (lines 680-696). H8-family transformer with
+            <code class="mono">value_tag="price.amount"</code> instead of "quantity" —
+            outputs <code class="mono">amount_eur</code> instead of
+            <code class="mono">quantity_mw</code>.
+          </p>
+          <table class="schema-table">
+            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start + position × resolution.<span class="cite">schemas/entsoe.py L683, L691-696</span></td></tr>
+              <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Control area EIC (renamed from control_area_domain). Source: <code class="mono">&lt;controlArea_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L684 · h8_balancing.py L200</span></td></tr>
+              <tr><td class="col-name">amount_eur</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">EUR (expense if positive, income if negative depending on businessType). Source: <code class="mono">&lt;Point&gt;&lt;price.amount&gt;</code>.<span class="cite">schemas/entsoe.py L685</span></td></tr>
+              <tr><td class="col-name">business_type <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">Distinguishes expense / income line items. Default <code class="mono">""</code>.<span class="cite">schemas/entsoe.py L686</span></td></tr>
+              <tr><td class="col-name">resolution</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">ISO duration. Default <code class="mono">""</code>.<span class="cite">schemas/entsoe.py L687</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsoe"</code>.<span class="cite">schemas/entsoe.py L688</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">Set at silver write.<span class="cite">schemas/entsoe.py L689</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start; flex-wrap:wrap;">
+            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small" style="font-size:10px;">data/silver/entsoe/balancing_financial_expenses_income/year=YYYY/month=MM/</div></div>
+            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">timestamp_utc (year + month)</div></div>
+            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small" style="font-size:10px;">(timestamp_utc, area_code, business_type)</div></div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>amount_eur</th><th>business_type</th><th>resolution</th><th>data_provider</th></tr></thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">42,180.0</td><td class="str">B45</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr><td class="date">2026-05-06T08:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">81,420.0</td><td class="str">B45</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">184,600.0</td><td class="str">B45</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">-28,500.0</td><td class="str">B47</td><td class="str">PT60M</td><td>entsoe</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised. The highlighted <strong>GB 17:00 (€184.6 k expense, B45)</strong> row is the typical evening-peak balancing cost — the TSO paid ~€185 k that hour to acquire upward balancing. The companion B47 row of −€28.5 k is income from downward bids (where the TSO was paid to absorb surplus). Note the sign convention varies by <code class="mono">business_type</code>.
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A87<br/>&amp;controlArea_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — <strong>extended registration required</strong>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/balancing_financial_expenses_income/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.h8_balancing.<br/>BalancingFinancialExpensesIncomeTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="bfei">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('bfei','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('bfei','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('bfei','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="bfei-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A87
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">controlArea_Domain</span>=10YGB----------A
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202605060000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605070000</pre>
+            </div></div>
+            <div data-tab-panel="bfei-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Daily net balancing P&amp;L per zone</span>
+<span class="k">SELECT</span> date_trunc(<span class="s">'day'</span>, timestamp_utc) <span class="k">AS</span> day, area_code,
+       sum(<span class="k">CASE WHEN</span> amount_eur &gt; 0 <span class="k">THEN</span> amount_eur <span class="k">ELSE</span> 0 <span class="k">END</span>) <span class="k">AS</span> expense_eur,
+       sum(<span class="k">CASE WHEN</span> amount_eur &lt; 0 <span class="k">THEN</span> amount_eur <span class="k">ELSE</span> 0 <span class="k">END</span>) <span class="k">AS</span> income_eur,
+       sum(amount_eur) <span class="k">AS</span> net_eur
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/balancing_financial_expenses_income/**/*.parquet'</span>)
+<span class="k">WHERE</span> timestamp_utc &gt;= current_timestamp - <span class="k">INTERVAL</span> 30 <span class="k">DAY</span>
+<span class="k">GROUP BY</span> 1, 2 <span class="k">ORDER BY</span> 1, net_eur <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="bfei-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+fin = pl.read_parquet(<span class="s">"data/silver/entsoe/balancing_financial_expenses_income/**/*.parquet"</span>)
+qty = pl.read_parquet(<span class="s">"data/silver/entsoe/activated_balancing_qty/**/*.parquet"</span>)
+<span class="c"># €/MWh implied by financial / quantity</span>
+joined = fin.group_by([<span class="s">"timestamp_utc"</span>, <span class="s">"area_code"</span>]).agg(
+    pl.col(<span class="s">"amount_eur"</span>).sum().alias(<span class="s">"total_eur"</span>)
+).join(
+    qty.group_by([<span class="s">"timestamp_utc"</span>, <span class="s">"area_code"</span>]).agg(
+        pl.col(<span class="s">"quantity_mwh"</span>).sum().alias(<span class="s">"total_mwh"</span>)
+    ),
+    on=[<span class="s">"timestamp_utc"</span>, <span class="s">"area_code"</span>]
+)
+<span class="k">print</span>(joined.with_columns((pl.col(<span class="s">"total_eur"</span>) / pl.col(<span class="s">"total_mwh"</span>)).alias(<span class="s">"eur_per_mwh"</span>)).tail())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">balancing_financial_expenses_income</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+          <div>
+            <div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">value_tag="price.amount"</code> (not quantity)</div><p class="small" style="margin: 0;">A87 carries currency values, so the transformer parses <code class="mono">&lt;Point&gt;&lt;price.amount&gt;</code> rather than <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>. Output column is <code class="mono">amount_eur</code>. <span class="src-cite">silver/entsoe/h8_balancing.py L197-199</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;">Sign convention varies by businessType</div><p class="small" style="margin: 0;">Different businessType codes denote different P&amp;L line items — sign convention varies. Aggregate over businessType for full P&amp;L. <span class="src-cite">domain knowledge</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">controlArea_Domain</code></div><p class="small" style="margin: 0;">Uses <code class="mono">controlArea_Domain</code> for the area param (renamed by the H8 transformer to <code class="mono">area_code</code>). <span class="src-cite">silver/entsoe/h8_balancing.py L200</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;">Revisions overwrite</div><p class="small" style="margin: 0;">Same <code class="mono">(timestamp_utc, area_code, business_type)</code> re-publication overwrites silently on dedup. <span class="src-cite">silver/entsoe/h8_balancing.py L210</span></p></div></div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Entitlement-blocked on default API key</div><p class="small" style="margin: 0;">Live API returns HTTP 401 for the unregistered gridflow default key. Schema verified from gridflow source. <span class="src-cite">.planning/reconciliation/entsoe/06-balancing-financial-expenses-income-http-401.md</span></p></div></div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside balancing_financial_expenses_income.</h2>
+          <div class="related-grid">
+            <a href="activated_balancing_prices.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">activated_balancing_prices</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">A84/A16 activation €/MWh. Per-MWh activation cost; sum over MWh gives the total €.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+            <a href="activated_balancing_qty.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">activated_balancing_qty</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">A83/A16 activation MWh. Pair to derive implied €/MWh.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+            <a href="procured_balancing_capacity.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">procured_balancing_capacity</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">A15/A51 procurement. The reservation cost (€/MW/h) layer; total cost = reservation + activation.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+            <a href="congestion_income.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">congestion_income</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">A25/B10 congestion-rent income. A separate income stream (capacity allocation rents) that supports the balancing P&amp;L.</p>
+              <span class="tiny">entsoe · capacity · hourly</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { links.forEach((l) => l.classList.remove("active")); const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`); if (match) match.classList.add("active"); } });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>activated_balancing_qty · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px; border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · activated_balancing_qty">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">activated_balancing_qty</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Balancing</span>
+            <span class="chip" style="font-size:11px;">PT60M · as published</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">activated_balancing_qty</span><br/>
+            Activated balancing quantity, <span class="italic fg-accent">A83.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Activated balancing energy quantity in MWh per control area,
+            reserve_type and direction — the MWh delivered for each
+            frequency-restoration reserve activation, paired with prices for
+            revenue.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency · A83/A16 ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.activated_balancing_qty</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api?documentType=A83<br/>&amp;processType=A16</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">PT60M typical</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">as published</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">varies by area</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, area_code,<br/>reserve_type, direction)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A83</div>
+        <div class="stat-l">DocumentType</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A16</div>
+        <div class="stat-l">processType (realised)</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size: 28px;">manual</div>
+        <div class="stat-l"><code class="mono">DOC_TYPES</code> dispatch (no <code class="mono">endpoints.py</code> entry)</div>
+      </div>
+      <div>
+        <div class="stat-n">7</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="activated_balancing_qty.html" class="active">activated_balancing_qty</a>
+          <a href="activated_balancing_prices.html" style="color:var(--ink-faint);">activated_balancing_prices</a>
+          <a href="contracted_reserves.html" style="color:var(--ink-faint);">contracted_reserves</a>
+          <a href="procured_balancing_capacity.html" style="color:var(--ink-faint);">procured_balancing_capacity</a>
+          <a href="balancing_energy_bids.html" style="color:var(--ink-faint);">balancing_energy_bids</a>
+          <a href="current_balancing_state.html" style="color:var(--ink-faint);">current_balancing_state</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">activated_balancing_qty</code>
+            holds the activated balancing-energy quantity in MWh per control
+            area, split by reserve type and direction. The transformer maps
+            <code class="mono">businessType</code> codes
+            <code class="mono">A95</code> / <code class="mono">A96</code> /
+            <code class="mono">A97</code> / <code class="mono">A98</code> to
+            <code class="mono">reserve_type</code>
+            <code class="mono">fcr</code> / <code class="mono">afrr</code> /
+            <code class="mono">mfrr</code> / <code class="mono">rr</code>, and
+            <code class="mono">flowDirection</code>
+            <code class="mono">A01</code> / <code class="mono">A02</code> to
+            <code class="mono">direction</code>
+            <code class="mono">up</code> / <code class="mono">down</code>. Each
+            row is one reserve type × direction's activated MWh for a single
+            activation interval.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A83&amp;processType=A16</code>.
+            Unlike sibling datasets,
+            <code class="mono">activated_balancing_qty</code> has no entry in
+            the connector's <code class="mono">DOC_TYPES</code> registry, so
+            callers must dispatch the A83/A16 query manually via
+            <code class="mono">**params</code> injection. The raw XML lands
+            in bronze, is validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeActivatedBalancingQty</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">ActivatedBalancingQtyTransformer</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            Pair on the full <code class="mono">(timestamp_utc, area_code, reserve_type, direction)</code>
+            key with <code class="mono">activated_balancing_prices</code> for
+            activation revenue (€/MWh × MWh), with
+            <code class="mono">contracted_reserves</code> for utilisation
+            rates (activated MWh / contracted MW), and with
+            <code class="mono">current_balancing_state</code> to relate the
+            area control error to the resulting up- vs down-activation mix.
+            Verified against vendor docs on 2026-05-08; A83/A16 is accessible
+            with the free gridflow default API key.
+          </p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Activated reserve MWh by <code class="mono">reserve_type</code> · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">activated_balancing_qty · silver layer · 10YGB----------A</div>
+                <div class="small">Horizontal bars · MWh · UTC · 6 May 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div data-chart="barsH" data-opts='{"width":880,"items":[{"label":"mFRR · up","value":318.4,"display":"318.4 MWh","color":"#3b6b4b"},{"label":"aFRR · up","value":142.5,"display":"142.5 MWh","color":"#2a4f37"},{"label":"aFRR · down","value":18.2,"display":"18.2 MWh","color":"#c45a3a"},{"label":"mFRR · down","value":4.1,"display":"4.1 MWh","color":"#86627d"}]}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/entsoe.py · EntsoeActivatedBalancingQty</code>
+            (lines 384–407). Maps <code class="mono">businessType</code> → <code class="mono">reserve_type</code>
+            and <code class="mono">flowDirection</code> → <code class="mono">direction</code>, same pattern
+            as <code class="mono">activated_balancing_prices</code>. Partitioned by <code class="mono">timestamp_utc</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 22%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.
+                  <span class="cite">schemas/entsoe.py L392, L401-407</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Control area EIC. Source: <code class="mono">&lt;controlArea_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L393 · silver/entsoe/activated_balancing_qty.py L65</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">reserve_type <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  <code class="mono">fcr</code> (A95) / <code class="mono">afrr</code> (A96) / <code class="mono">mfrr</code> (A97) / <code class="mono">rr</code> (A98). Source: derived from <code class="mono">&lt;businessType&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L394 · silver/entsoe/activated_balancing_qty.py L68-70</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">direction <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  <code class="mono">up</code> (A01) / <code class="mono">down</code> (A02). Source: derived from <code class="mono">&lt;flowDirection&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L395 · silver/entsoe/activated_balancing_qty.py L71-73</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">quantity_mwh</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Activated MWh — the integrated energy over the activation interval. Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L396</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">resolution</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  ISO duration. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L397</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Always <code class="mono">"entsoe"</code>. Default <code class="mono">"entsoe"</code>.
+                  <span class="cite">schemas/entsoe.py L398</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Set at silver write.
+                  <span class="cite">schemas/entsoe.py L399</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsoe/activated_balancing_qty/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(timestamp_utc, area_code, reserve_type, direction)</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>timestamp_utc</th>
+                  <th>area_code</th>
+                  <th>reserve_type</th>
+                  <th>direction</th>
+                  <th>quantity_mwh</th>
+                  <th>resolution</th>
+                  <th>data_provider</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">afrr</td><td class="str">up</td><td class="num">142.5</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">afrr</td><td class="str">down</td><td class="num">18.2</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">mfrr</td><td class="str">up</td><td class="num">318.4</td><td class="str">PT60M</td><td>entsoe</td></tr>
+                <tr><td class="date">2026-05-06T17:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">mfrr</td><td class="str">down</td><td class="num">4.1</td><td class="str">PT60M</td><td>entsoe</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised against typical GB evening-peak activation. The highlighted <strong>mFRR up 318.4 MWh</strong> row reflects the deeper reserve volume during the high-system-stress hour. Pair this MWh quantity with the <code class="mono">activated_balancing_prices</code> €/MWh for the same key tuple to get the activation cost (412.80 × 318.4 ≈ 131 k€ for that one hour of mFRR up).
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A83<br/>&amp;processType=A16<br/>&amp;businessType={A95|A96|A97|A98}<br/>&amp;controlArea_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — free registration sufficient. Register at <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">transparency.entsoe.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/activated_balancing_qty/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.activated_balancing_qty.<br/>ActivatedBalancingQtyTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="abq">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('abq','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('abq','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('abq','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="abq-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A83
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">processType</span>=A16
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">businessType</span>=A96
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">controlArea_Domain</span>=10YGB----------A
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202605060000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605070000</pre>
+            </div></div>
+            <div data-tab-panel="abq-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Activation revenue per reserve_type per zone (last 30 days)</span>
+<span class="k">SELECT</span> q.area_code, q.reserve_type, q.direction,
+       sum(q.quantity_mwh) <span class="k">AS</span> total_mwh,
+       sum(q.quantity_mwh * p.price_eur_mwh) <span class="k">AS</span> revenue_eur
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/activated_balancing_qty/**/*.parquet'</span>) q
+<span class="k">JOIN</span> read_parquet(<span class="s">'data/silver/entsoe/activated_balancing_prices/**/*.parquet'</span>) p
+  <span class="k">USING</span> (timestamp_utc, area_code, reserve_type, direction)
+<span class="k">WHERE</span> q.timestamp_utc &gt;= current_timestamp - <span class="k">INTERVAL</span> 30 <span class="k">DAY</span>
+<span class="k">GROUP BY</span> 1, 2, 3 <span class="k">ORDER BY</span> revenue_eur <span class="k">DESC</span> <span class="k">NULLS LAST</span>;</pre>
+            </div></div>
+            <div data-tab-panel="abq-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+qty = pl.read_parquet(<span class="s">"data/silver/entsoe/activated_balancing_qty/**/*.parquet"</span>)
+<span class="c"># Daily activation volume by reserve_type</span>
+daily = qty.with_columns(pl.col(<span class="s">"timestamp_utc"</span>).dt.date().alias(<span class="s">"day"</span>)).group_by(
+    [<span class="s">"day"</span>, <span class="s">"reserve_type"</span>, <span class="s">"direction"</span>]
+).agg(pl.col(<span class="s">"quantity_mwh"</span>).sum())
+<span class="k">print</span>(daily.tail())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">activated_balancing_qty</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">01</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · schema vs connector</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">No <code class="mono">DOC_TYPES</code> entry in <code class="mono">endpoints.py</code></div>
+                <p class="small" style="margin: 0;"><code class="mono">activated_balancing_qty</code> has no entry in <code class="mono">connectors/entsoe/endpoints.py::DOC_TYPES</code>. Callers must dispatch the A83/A16 query manually via <code class="mono">**params</code> injection. Finding <code class="mono">36-activated-balancing-qty-manual-transformer-schema.md</code> (wontfix v3-candidate) flagged the missing class — now closed by the L384-407 addition, but the connector dispatch remains manual. <span class="src-cite">connector source · schemas/entsoe.py L384-407 · .planning/reconciliation/entsoe/36-activated-balancing-qty-manual-transformer-schema.md</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">reserve_type</code> code mapping</div>
+                <p class="small" style="margin: 0;"><code class="mono">businessType</code> A95/A96/A97/A98 → <code class="mono">reserve_type</code> "fcr"/"afrr"/"mfrr"/"rr" via <code class="mono">replace_strict</code>. <span class="src-cite">silver/entsoe/activated_balancing_qty.py L68-70</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">quantity_mwh</code> (MWh) not <code class="mono">quantity_mw</code></div>
+                <p class="small" style="margin: 0;">Unit is MWh — the integrated energy over the activation interval. Distinct from MW (instantaneous power) in capacity datasets. <span class="src-cite">schemas/entsoe.py L396</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Both directions surface separately</div>
+                <p class="small" style="margin: 0;">Up and down activations have separate rows. To compute net activation, sign-handle: <code class="mono">up − down</code>. <span class="src-cite">schemas/entsoe.py L395</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Not entitlement-blocked</div>
+                <p class="small" style="margin: 0;">A83/A16 is accessible with the free gridflow default API key. <span class="src-cite">.planning/reconciliation/entsoe/ — no activated_balancing_qty-http-401.md</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside activated_balancing_qty.</h2>
+
+          <div class="related-grid">
+            <a href="activated_balancing_prices.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">activated_balancing_prices</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A84/A16 price counterpart at <code class="mono">PT60M</code>. Pair for revenue (€).</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+
+            <a href="contracted_reserves.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">contracted_reserves</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A81 reserved capacity at <code class="mono">PT60M</code>. The pre-arranged capacity from which activations draw.</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+
+            <a href="procured_balancing_capacity.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">procured_balancing_capacity</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A15/A51 procured capacity at <code class="mono">PT60M</code>. Reservation-side cost (€/MW/h).</p>
+              <span class="tiny">entsoe · balancing · hourly</span>
+            </a>
+
+            <a href="current_balancing_state.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">current_balancing_state</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">A86/B33 area control error at <code class="mono">PT30M</code>. Drives activation decisions — negative state triggers up-activation.</p>
+              <span class="tiny">entsoe · balancing · 30 min</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

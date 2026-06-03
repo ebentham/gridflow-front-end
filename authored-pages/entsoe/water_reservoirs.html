@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>water_reservoirs · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); overflow-wrap: break-word; word-break: break-word; }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; overflow-wrap: break-word; word-break: break-word; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display: block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display: block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · water_reservoirs">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a><span class="sep">/</span>
+        <span class="here">water_reservoirs</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Generation</span>
+            <span class="chip" style="font-size:11px;">weekly · P7D</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">water_reservoirs</span><br/>
+            Weekly hydro storage, <span class="italic fg-accent">MWh in the lakes.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Weekly hydro reservoir filling in MWh per bidding zone — the structural
+            driver of Nordic and Alpine hydro dispatch and a canonical input for
+            scarcity price models.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Schema verified against gridflow source 2026-05-20 ·
+            live API requires extended ENTSO-E registration ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small">silver.water_reservoirs</div></div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px;">/api?documentType=A72<br/>&amp;processType=A16</div></div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">weekly (P7D)</div></div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">weekly</div></div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small">1 reading / zone / week</div></div>
+          <div style="padding: 16px 18px;"><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, area_code)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">P7D</div><div class="stat-l">Resolution</div></div>
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 30px;">weekly</div><div class="stat-l">Cadence</div></div>
+      <div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">MWh</div><div class="stat-l">Unit (energy stored)</div></div>
+      <div><div class="stat-n">6</div><div class="stat-l">Schema columns</div></div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="water_reservoirs.html" class="active">water_reservoirs</a>
+          <a href="actual_generation.html" style="color:var(--ink-faint);">actual_generation</a>
+          <a href="generation_forecast.html" style="color:var(--ink-faint);">generation_forecast</a>
+          <a href="installed_capacity.html" style="color:var(--ink-faint);">installed_capacity</a>
+          <a href="forecast_margin.html" style="color:var(--ink-faint);">forecast_margin</a>
+          <a href="day_ahead_prices.html" style="color:var(--ink-faint);">day_ahead_prices</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">water_reservoirs</code>
+            is the weekly hydro reservoir filling level in MWh per bidding zone
+            under DocumentType <code class="mono">A72</code> — the stored potential
+            energy sitting behind the dams of Nordic and Alpine hydro systems. It is
+            a slow-moving, structural series: one reading per zone per week, tracing
+            the seasonal arc of snowmelt fill and winter drawdown. Each row carries
+            <code class="mono">(timestamp_utc, area_code)</code> as the primary key,
+            stamped at the week boundary, and <code class="mono">reservoir_mwh</code>
+            as the value — energy, not a percentage of capacity.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A72&amp;processType=A16&amp;in_Domain={EIC}</code>,
+            queried per zone over a multi-week window. The raw XML lands in bronze,
+            is validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeWaterReservoirs</code>
+            (schemas/entsoe.py L240-255), and written to the silver parquet
+            partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WaterReservoirsTransformer</code>.
+            Only zones with significant reservoir hydro publish — NO-1, SE-1, AT,
+            CH and similar — so most continental and GB zones return EMPTY.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It is the canonical scarcity feature for Nordic price modelling: high
+            fill points to abundant cheap hydro and soft prices, while a
+            drought-driven low fill is the classic precursor to a price spike.
+            Joined to <code class="mono">day_ahead_prices</code> it powers
+            hydro-scarcity models, and read against
+            <code class="mono">actual_generation</code> it tracks dispatch decisions
+            against the reservoir trajectory. Its cross-vendor analogue is GIE
+            <code class="mono">storage</code> for gas. Schema verified against
+            gridflow source on 2026-05-20; the live API requires extended ENTSO-E
+            registration.
+          </p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Nordic reservoir level · 52-week <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">water_reservoirs · silver layer · 10YNO-1--------2 (NO-1)</div>
+                <div class="small">Line · MWh · weekly · NO-1</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">52w</span>
+                <span class="chip btn-like">26w</span>
+                <span class="chip btn-like">12w</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":25}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/entsoe.py · EntsoeWaterReservoirs</code>
+            (lines 240-255). Partitioned by <code class="mono">timestamp_utc</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Week boundary, tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start.<span class="cite">schemas/entsoe.py L243, L250-255</span></td></tr>
+              <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">EIC bidding zone — typically Nordic / Alpine. Source: <code class="mono">&lt;inBiddingZone_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L244</span></td></tr>
+              <tr><td class="col-name">reservoir_mwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Stored energy in MWh (potential hydropower if released). Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.<span class="cite">schemas/entsoe.py L245</span></td></tr>
+              <tr><td class="col-name">resolution</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">ISO duration; typically <code class="mono">P7D</code>. Default <code class="mono">""</code>.<span class="cite">schemas/entsoe.py L246</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsoe"</code>.<span class="cite">schemas/entsoe.py L247</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">Yes</td><td class="col-note">Set at silver write.<span class="cite">schemas/entsoe.py L248</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start; flex-wrap:wrap;">
+            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/entsoe/water_reservoirs/year=YYYY/month=MM/</div></div>
+            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">timestamp_utc (year + month)</div></div>
+            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(timestamp_utc, area_code)</div></div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>reservoir_mwh</th><th>resolution</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+              <tbody>
+                <tr><td class="date">2026-04-05T00:00:00+00:00</td><td class="str">10YNO-1--------2</td><td class="num">32,140,000.0</td><td class="str">P7D</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-04-12T00:00:00+00:00</td><td class="str">10YNO-1--------2</td><td class="num">31,920,000.0</td><td class="str">P7D</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-04-19T00:00:00+00:00</td><td class="str">10YNO-1--------2</td><td class="num">32,510,000.0</td><td class="str">P7D</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-04-26T00:00:00+00:00</td><td class="str">10YNO-1--------2</td><td class="num">33,420,000.0</td><td class="str">P7D</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-03T00:00:00+00:00</td><td class="str">10YNO-1--------2</td><td class="num">35,180,000.0</td><td class="str">P7D</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised against typical Norwegian (NO-1) spring filling pattern — snowmelt accelerates fill from ~32 TWh in early April to ~35 TWh in early May. The highlighted <strong>2026-05-03 (35.18 TWh)</strong> row is the seasonal spring-fill peak; combined with <code class="mono">day_ahead_prices</code>, this is the canonical input for Nordic price modelling (high fill → low prices; drought-low fill → high prices).
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A72<br/>&amp;processType=A16<br/>&amp;in_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — <strong>extended registration required</strong>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/water_reservoirs/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.water_reservoirs.<br/>WaterReservoirsTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="wr">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('wr','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('wr','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('wr','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="wr-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A72
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">processType</span>=A16
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">in_Domain</span>=10YNO-1--------2
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202604010000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605010000</pre>
+            </div></div>
+            <div data-tab-panel="wr-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Year-over-year reservoir level (Nordic zones)</span>
+<span class="k">SELECT</span> timestamp_utc, area_code, reservoir_mwh,
+       reservoir_mwh - lag(reservoir_mwh, 52) <span class="k">OVER</span> (
+         <span class="k">PARTITION BY</span> area_code <span class="k">ORDER BY</span> timestamp_utc
+       ) <span class="k">AS</span> yoy_change_mwh
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/water_reservoirs/**/*.parquet'</span>)
+<span class="k">WHERE</span> area_code <span class="k">IN</span> (<span class="s">'10YNO-1--------2'</span>, <span class="s">'10Y1001A1001A44P'</span>)
+<span class="k">ORDER BY</span> area_code, timestamp_utc;</pre>
+            </div></div>
+            <div data-tab-panel="wr-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+res = pl.read_parquet(<span class="s">"data/silver/entsoe/water_reservoirs/**/*.parquet"</span>)
+prices = pl.read_parquet(<span class="s">"data/silver/entsoe/day_ahead_prices/**/*.parquet"</span>)
+<span class="c"># Weekly mean price vs reservoir level — the Nordic hydro-scarcity feature</span>
+weekly_p = prices.group_by_dynamic(<span class="s">"timestamp_utc"</span>, every=<span class="s">"1w"</span>).agg(
+    pl.col(<span class="s">"price_eur_mwh"</span>).mean()
+)
+joined = res.join(weekly_p, on=[<span class="s">"timestamp_utc"</span>, <span class="s">"area_code"</span>])
+<span class="k">print</span>(joined.tail())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">water_reservoirs</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+          <div>
+            <div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;">Only Nordic and Alpine zones publish</div><p class="small" style="margin: 0;">Most continental and GB zones return EMPTY — only zones with significant reservoir hydro (NO-1, SE-1, AT, CH) publish A72/A16. <span class="src-cite">vault Known Issues</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;">Unit is MWh (energy stored), not %</div><p class="small" style="margin: 0;">The value is <em>potential energy in MWh</em> if all reservoir water were released through the turbines, not a percentage of nameplate capacity. Compute percentage by joining against the TSO-declared maximum (rarely published — use rolling max). <span class="src-cite">ENTSO-E spec</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;">Weekly cadence (P7D)</div><p class="small" style="margin: 0;">Short windows (&lt;1 week) may return EMPTY. Use weekly periods. <span class="src-cite">vault Known Issues</span></p></div></div>
+            <div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;">GB EMPTY post-Brexit</div><p class="small" style="margin: 0;">No GB hydro reservoir data via ENTSO-E. GB pumped-storage facilities (Dinorwig, Cruachan) are not "reservoirs" in the A72 sense. <span class="src-cite">vault Known Issues</span></p></div></div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Entitlement-blocked on default API key</div><p class="small" style="margin: 0;">Live API returns HTTP 401 for the unregistered gridflow default key. Schema verified from gridflow source. <span class="src-cite">.planning/reconciliation/entsoe/34-water-reservoirs-http-401.md</span></p></div></div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside water_reservoirs.</h2>
+          <div class="related-grid">
+            <a href="actual_generation.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">actual_generation</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Realised hydro generation by zone. Combine with reservoir level to track hydro dispatch decisions.</p>
+              <span class="tiny">entsoe · generation · hourly</span>
+            </a>
+            <a href="day_ahead_prices.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">day_ahead_prices</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Day-ahead clearing prices. Reservoir level is a canonical price driver in NO-1 / SE-1 / AT — pair for scarcity modelling.</p>
+              <span class="tiny">entsoe · prices · hourly</span>
+            </a>
+            <a href="generation_forecast.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">generation_forecast</span><span class="chip" style="font-size:10px;">hourly</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">TSO total generation forecast. Cross-check whether forecasted hydro dispatch is consistent with reservoir trajectory.</p>
+              <span class="tiny">entsoe · forecast · hourly</span>
+            </a>
+            <a href="../gie/storage.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">storage</span><span class="chip" style="font-size:10px;">daily</span><span class="tiny" style="color: var(--accent);">cross-vendor</span></div><span class="arrow">→</span></div>
+              <p class="small" style="margin: 0 0 8px;">Gas storage analogue. Cross-vendor parallel: gas storage drawdown vs hydro reservoir drawdown for joint energy-balance modelling.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { links.forEach((l) => l.classList.remove("active")); const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`); if (match) match.classList.add("active"); } });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

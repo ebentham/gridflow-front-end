@@ -219,11 +219,13 @@
       <nav class="sidebar">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
-          <a href="#snapshot" class="active">Snapshot chart</a>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
           <a href="#schema">Schema</a>
           <a href="#sample">Sample data</a>
           <a href="#psr-codelist">Production types</a>
           <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
           <a href="#related">Related datasets</a>
         </div>
         <div class="sidebar-section" style="margin-top: 24px;">
@@ -240,6 +242,37 @@
 
       <!-- Main content -->
       <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">actual_generation</code>
+            holds realised megawatt output per EIC bidding zone, broken down by
+            Primary Source Resource (PSR) production type — coal, gas, wind
+            onshore, wind offshore, solar, hydro, nuclear, biomass and the
+            other categories from the <code class="mono">B01..B25</code> EIC
+            codelist. Each row is one production type's contribution to a
+            single 15-, 30-, or 60-minute settlement interval.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A75&amp;processType=A16</code>,
+            queried per bidding zone over a date range. The raw XML lands in
+            bronze as a <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GL_MarketDocument</code>,
+            is validated against <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeActualGeneration</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">ActualGenerationTransformer</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            This is the canonical residual-load input for European
+            power-market models and the cross-vendor analogue of GB's
+            <code class="mono">fuelhh</code> published by individual TSOs.
+            Schema verified against gridflow source on 2026-05-20; the live
+            API requires extended ENTSO-E registration.
+          </p>
+        </section>
 
         <!-- ── Snapshot chart ── -->
         <section id="snapshot" style="margin-bottom: 56px;">
@@ -483,6 +516,59 @@ mix = df.filter(pl.col(<span class="s">"area_code"</span>) == <span class="s">"1
 <span class="c"># Residual load = actual_load - wind - solar (canonical MEF feature)</span>
 print(mix.select([<span class="s">"timestamp_utc"</span>, <span class="s">"B19"</span>, <span class="s">"B18"</span>, <span class="s">"B16"</span>]).tail())</pre>
             </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">actual_generation</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GB stopped publishing post-Brexit</div>
+                <p class="small" style="margin: 0;">Calls against GB (<code class="mono">10YGB----------A</code>) return <code class="mono">Acknowledgement_MarketDocument</code> reason code 999 — no data. Use Elexon <code class="mono">fuelhh</code> / <code class="mono">fuelinst</code> for the GB generation mix instead. <span class="src-cite">vault Known Issues #1</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Resolution varies by zone</div>
+                <p class="small" style="margin: 0;">DE-LU, AT, FR publish at <code class="mono">PT15M</code>; most other zones at <code class="mono">PT60M</code>. Don't assume hourly resolution when joining against settlement-period datasets — either filter on <code class="mono">resolution</code> or aggregate PT15M → PT60M before the join. <span class="src-cite">vault Known Issues #2</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Revisions silently overwrite</div>
+                <p class="small" style="margin: 0;">The same <code class="mono">(timestamp_utc, area_code, production_type)</code> tuple may be republished as TSOs revise their figures; the transformer keeps the latest on sort-last. No <code class="mono">published_at</code> column is surfaced — point-in-time queries need to look at the bronze layer. <span class="src-cite">silver/entsoe/actual_generation.py L72-74</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">04</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · schema vs transformer</div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">area_name</code> declared but not emitted</div>
+                <p class="small" style="margin: 0;">The schema declares <code class="mono">area_name: str = ""</code> (<code class="mono">schemas/entsoe.py L51</code>) but the transformer's <code class="mono">output_cols</code> omits it — so the silver parquet has no <code class="mono">area_name</code> column at all. Downstream code that needs human-readable zone names must join an EIC reference. <span class="src-cite">schemas/entsoe.py L51 · silver/entsoe/actual_generation.py L82-87</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Storage rows can be negative</div>
+                <p class="small" style="margin: 0;">A75 includes both generation (<code class="mono">businessType=A03</code>) and consumption (<code class="mono">A04</code>) for storage classes. <code class="mono">B10</code> (Hydro Pumped Storage) and <code class="mono">B12</code> (Hydro Water Reservoir) rows can carry negative MW when the unit is charging from the grid. Filter or sign-handle before computing net-generation totals. <span class="src-cite">vault Known Issues #5</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Entitlement-blocked on the default API key</div>
+                <p class="small" style="margin: 0;">The live API returns HTTP 401 for the unregistered gridflow default key — A75 needs extended ENTSO-E registration. The schema, transformer, and sample below are verified from gridflow source; live verification is deferred until the registration lands. <span class="src-cite">.planning/reconciliation/entsoe/01-actual-generation-http-401.md</span></p>
+              </div>
+            </div>
           </div>
         </section>
 

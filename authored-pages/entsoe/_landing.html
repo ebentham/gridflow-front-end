@@ -22,6 +22,21 @@
     .ds-meta { color: var(--ink-soft); }
     .group-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 16px; }
     .group-head h3 { font-family: var(--serif); font-size: 24px; font-weight: 400; margin: 0; }
+    .caveat { padding: 22px 0; border-top: 1px solid var(--rule); display:grid; grid-template-columns: 56px 1fr; gap: 24px; }
+    .caveat:first-of-type { border-top: 1px solid var(--ink); }
+    .caveat:last-of-type { border-bottom: 1px solid var(--ink); }
+    .caveat .num { font-family: var(--serif); font-size: 32px; line-height: 1; color: var(--ink-faint); }
+    .caveat h4 { font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 8px; line-height: 1.25; }
+    .caveat p { color: var(--ink-soft); margin: 0 0 8px; max-width: 70ch; }
+    .caveat .src { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+    .xv-list { display:grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    .xv-row { padding: 18px 0; border-bottom: 1px solid var(--rule); display:grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: baseline; padding-right: 24px; }
+    .xv-row:nth-child(odd) { padding-left: 0; padding-right: 32px; border-right: 1px solid var(--rule); }
+    .xv-row:nth-child(even) { padding-left: 32px; }
+    .xv-row:nth-last-child(-n+2) { border-bottom: 0; }
+    .xv-key { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+    .xv-key .v { color: var(--ink-faint); }
+    .xv-row p { font-size: 13px; color: var(--ink-soft); margin: 0; }
     .footer { margin-top: 0; }
 
     @media (max-width: 1080px) {
@@ -29,13 +44,20 @@
       .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
       .stats-strip > div:nth-child(2) { border-right: 0; }
       .stats-strip > div:nth-child(1), .stats-strip > div:nth-child(2) { border-bottom: 1px solid var(--rule); }
+      .about-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
       .ds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .xv-list { grid-template-columns: 1fr; }
+      .xv-row, .xv-row:nth-child(odd), .xv-row:nth-child(even) { padding: 16px 0; border-right: 0; }
+      .xv-row:nth-last-child(2) { border-bottom: 1px solid var(--rule); }
+      .xv-row { grid-template-columns: 1fr; gap: 6px; }
     }
     @media (max-width: 560px) {
       .meta-grid { grid-template-columns: 1fr; }
       .meta-grid > div { border-right: 0 !important; border-bottom: 1px solid var(--rule); }
       .meta-grid > div:last-child { border-bottom: 0; }
       .ds-grid { grid-template-columns: 1fr; }
+      .caveat { grid-template-columns: 1fr; gap: 8px; }
+      .caveat .num { font-size: 22px; }
     }
   </style>
 </head>
@@ -122,6 +144,22 @@
       </div>
     </div>
   </div>
+
+  <!-- about -->
+  <section class="block">
+    <div class="container">
+      <div class="about-grid" style="display:grid; grid-template-columns: 200px 1fr; gap: 64px;">
+        <div>
+          <div class="eyebrow">About</div>
+        </div>
+        <div style="max-width: 720px;">
+          <p style="font-family: var(--serif); font-size: 19px; line-height: 1.5; margin: 0 0 20px;">ENTSO-E Transparency is operated by the European Network of Transmission System Operators for Electricity. It is the pan-EU mandatory transparency publication under Regulation (EU) 543/2013, collecting and publishing power system data from all EU-27 TSOs plus Norway, Switzerland, and the UK (UK data available pre-Brexit; GB continues to publish post-Brexit via NESO / Elexon channels). API access requires a free registration and an API key passed as <span class="mono">securityToken</span> query parameter.</p>
+          <p style="margin: 0 0 14px;">49 endpoint surfaces across six domains: <strong>generation</strong> (actual outturn by PSR type, unit-level, capacity, forecasts, water reservoirs), <strong>load</strong> (actual outturn, day-ahead / weekly / monthly / yearly forecasts, forecast margin), <strong>transmission and cross-border</strong> (physical flows, NTC, commercial schedules, offered / allocated / used transfer capacity, net positions, redispatching), <strong>outages</strong> (generation, production, consumption, transmission, offshore grid), and <strong>prices and balancing</strong> (day-ahead prices, imbalance prices and volumes, activated / contracted / procured reserves, balancing bids, cross-zonal balancing capacity, balancing financial data, current balancing state). Data is published in XML using the <span class="mono">GL_MarketDocument</span> schema family.</p>
+          <p style="margin: 0;">ENTSO-E <span class="mono">actual_generation</span> is the ground truth for pan-European generation dispatch by fuel type &mdash; the EU-level counterpart to Elexon <span class="mono">fuelhh</span>. Pairing <span class="mono">day_ahead_prices</span> across bidding zones (GB, FR, NL, BE, DE-LU, IE-SEM) enables cross-border price spread modelling and interconnector arbitrage identification. <span class="mono">cross_border_flows</span> combined with ENTSO-G <span class="mono">aggregated_physical_flows</span> closes the pan-European power-and-gas joint dispatch chain. <span class="mono">wind_solar_forecast</span> combined with Open-Meteo ERA5 data supports forecast skill assessment for GB renewable generation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- dataset catalog -->
   <section class="block" id="datasets" style="background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
@@ -686,6 +724,104 @@
             </div>
             <div class="row gap-16 small ds-meta"><span><span class="mono">PT60M</span></span><span>Lag <span class="mono">as published</span></span><span><span class="mono">varies</span></span></div>
           </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- caveats -->
+  <section class="block">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">Caveats &middot; known quirks</div>
+          <h2 class="display-3">What to watch for.</h2>
+        </div>
+      </div>
+
+      <div class="caveats" style="max-width: 920px;">
+        <div class="caveat">
+          <div class="num">01</div>
+          <div>
+            <h4>API key required &mdash; free registration at ENTSO-E portal</h4>
+            <p>ENTSO-E is the only vendor in this set that requires a non-trivial registration step. Users must register at <span class="mono">transparency.entsoe.eu</span> and request an API key, then pass it as <span class="mono">securityToken</span> query parameter. The free tier is sufficient for all gridflow datasets. Many endpoints return HTTP 401 for unregistered keys or for endpoints gated to registered TSO users.</p>
+            <div class="src">Source &middot; vault actual_generation.md &middot; connectors/entsoe/client.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">02</div>
+          <div>
+            <h4>XML format with <span class="mono" style="font-size:14px;">GL_MarketDocument</span> schema &mdash; not JSON</h4>
+            <p>All ENTSO-E responses are XML using the ENTSO-E <span class="mono">GL_MarketDocument</span> family (IEC CIM-based schema). Some responses are ZIP-compressed. The gridflow connector auto-decompresses ZIP responses; <span class="mono">parsers.py</span> contains the XML family parsers. This contrasts with every other vendor in gridflow (all JSON). Downstream consumers building their own tooling must implement both the XML parser and the ZIP decompression.</p>
+            <div class="src">Source &middot; connectors/entsoe/client.py &middot; parsers.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">03</div>
+          <div>
+            <h4>Time resolution varies by surface (PT15M / PT30M / PT60M)</h4>
+            <p>ENTSO-E data uses three time resolutions depending on the dataset and bidding zone. Some zones publish at 15-minute intervals (PT15M, common in continental Europe), some at 30 minutes (PT30M, common in GB), and some at hourly (PT60M). When joining ENTSO-E data with half-hourly Elexon data (30-minute periods), users must account for the resolution mismatch and aggregate PT60M to PT30M with appropriate averaging or allocation logic.</p>
+            <div class="src">Source &middot; vault actual_generation.md &middot; actual_load.md</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">04</div>
+          <div>
+            <h4>Historical depth varies by area and surface (earliest ~2014-12-05)</h4>
+            <p>The official API earliest date is 2014-12-05 for most surfaces, but actual coverage varies by bidding zone and dataset. Some capacity and balancing surfaces have shallower history (2015&ndash;2016). Some zones have data gaps for specific periods. The 2014-12-05 figure is the connector's canonical claim; users should treat it as the earliest for GB and the main continental zones on the primary surfaces (actual generation, actual load, day-ahead prices).</p>
+            <div class="src">Source &middot; build.py REAL_VENDORS["entsoe"]</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">05</div>
+          <div>
+            <h4>47 DOC_TYPES vs 49 vault datasets &mdash; shared codes</h4>
+            <p>The connector's <span class="mono">DOC_TYPES</span> dict has 47 entries, yet 49 vault datasets are defined. Some vault datasets share the same underlying ENTSO-E API document type code with different query parameters (e.g. the three <span class="mono">offered_transfer_capacity_*</span> variants, <span class="mono">commercial_schedules_net_positions</span> vs <span class="mono">commercial_schedules</span>, and several balancing surfaces that use A25 with different <span class="mono">businessType</span> values). This is not a bug &mdash; it is the API's design.</p>
+            <div class="src">Source &middot; connectors/entsoe/endpoints.py</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- cross-vendor -->
+  <section class="block tight" style="background: var(--paper-deep);">
+    <div class="container">
+      <div class="row between mb-24" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">Cross-vendor &middot; joins</div>
+          <h2 class="display-3">Where it fits.</h2>
+        </div>
+      </div>
+
+      <div class="xv-list">
+        <div class="xv-row">
+          <div class="xv-key">elexon <span class="v">&middot;</span> fuelhh</div>
+          <p>GB vs EU generation by fuel: ENTSO-E <span class="mono">actual_generation</span> at GB bidding zone vs Elexon <span class="mono">fuelhh</span> at half-hourly grain. Core generation reconciliation; ENTSO-E is hourly, Elexon is 30-minute.</p>
+        </div>
+        <div class="xv-row">
+          <div class="xv-key">entsog <span class="v">&middot;</span> aggregated_physical_flows</div>
+          <p>Power-and-gas joint dispatch: ENTSO-E cross-border electricity flows combined with ENTSO-G gas interconnection flows for the EU supply side of the gas-to-power conversion chain.</p>
+        </div>
+        <div class="xv-row">
+          <div class="xv-key">openmeteo <span class="v">&middot;</span> historical_wind</div>
+          <p>Renewable generation attribution: ENTSO-E <span class="mono">actual_generation</span> by wind PSR type paired with Open-Meteo ERA5 wind at capacity-weighted sites for pan-EU wind-to-generation regression.</p>
+        </div>
+        <div class="xv-row">
+          <div class="xv-key">neso <span class="v">&middot;</span> carbon_intensity</div>
+          <p>EU carbon context: ENTSO-E <span class="mono">actual_generation</span> EU-wide carbon signal compared with NESO GB carbon intensity &mdash; cross-border carbon import / export attribution.</p>
+        </div>
+        <div class="xv-row">
+          <div class="xv-key">gie <span class="v">&middot;</span> storage</div>
+          <p>Gas storage &rarr; CCGT: ENTSO-E gas-fired generation (PSR B04/B05) vs GIE AGSI storage withdrawal &mdash; correlates gas storage drawdown with CCGT dispatch decisions.</p>
+        </div>
+        <div class="xv-row">
+          <div class="xv-key">&mdash;</div>
+          <p style="color:var(--ink-faint);">Five joins documented. Each per-dataset page will surface its individual cross-vendor anchors.</p>
         </div>
       </div>
     </div>

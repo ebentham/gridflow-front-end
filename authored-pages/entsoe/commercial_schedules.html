@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>commercial_schedules · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); overflow-wrap: break-word; word-break: break-word; }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; overflow-wrap: break-word; word-break: break-word; }
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display: block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px; border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display: block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · commercial_schedules">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">commercial_schedules</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Transmission</span>
+            <span class="chip" style="font-size:11px;">PT60M · D-1 after gate</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">commercial_schedules</span><br/>
+            Final commercial schedules, <span class="italic fg-accent">per border.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Hourly aggregated final commercial schedules per zone-pair
+            direction — the nominated commercial flow after capacity
+            allocation, distinct from realised physical flow.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-11 ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency · A09 ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.commercial_schedules</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api?documentType=A09</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">PT60M</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">D-1 after gate closure</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">24 pts / border-direction / day</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc, in_area_code,<br/>out_area_code, business_type)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A09</div>
+        <div class="stat-l">DocumentType</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size: 36px;">D-1</div>
+        <div class="stat-l">Publication</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">H6</div>
+        <div class="stat-l">Shared transformer family</div>
+      </div>
+      <div>
+        <div class="stat-n">8</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="commercial_schedules.html" class="active">commercial_schedules</a>
+          <a href="cross_border_flows.html" style="color:var(--ink-faint);">cross_border_flows</a>
+          <a href="#" style="color:var(--ink-faint);">net_transfer_capacity</a>
+          <a href="net_positions.html" style="color:var(--ink-faint);">net_positions</a>
+          <a href="#" style="color:var(--ink-faint);">redispatching_cross_border</a>
+          <a href="#" style="color:var(--ink-faint);">transfer_capacity_use</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">commercial_schedules</code>
+            holds the hourly aggregated final commercial schedules in
+            megawatts per zone-pair direction — the nominated commercial
+            flow after capacity allocation, tagged with
+            <code class="mono">businessType=A06</code>. Each border is
+            queried as a directed pair (<code class="mono">in_Domain</code>
+            → <code class="mono">out_Domain</code>), so the GB ↔ FR cluster
+            is two separate series. Each row is one border-direction's
+            nominated schedule for a single <code class="mono">PT60M</code>
+            interval.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A09&amp;in_Domain={EIC}&amp;out_Domain={EIC}</code>,
+            queried per directed border-pair over a date range. The raw
+            XML lands in bronze, is validated against the shared H6-family
+            class
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeTransmissionMarketQuantity</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">CommercialSchedulesTransformer</code>
+            — a subclass of the H6 family's
+            <code class="mono">_H6QuantityTransformer</code> base. Per
+            ADR-019 (2026-05-09) the registry-duplicate
+            <code class="mono">commercial_schedules_net_positions</code>
+            slug was removed; this dataset is the sole active A09 surface.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            Commercial schedules are the nominated view of inter-zone
+            transfer; pair against <code class="mono">cross_border_flows</code>
+            to measure the intraday adjustment + losses gap, against
+            <code class="mono">net_transfer_capacity</code> to compute
+            allocation utilisation, against <code class="mono">net_positions</code>
+            to reconcile zonal aggregates, and against
+            <code class="mono">redispatching_cross_border</code> to
+            understand TSO interventions after gate closure. Unlike most
+            ENTSO-E transmission datasets, <code class="mono">A09</code>
+            is one of the 14 endpoints accessible with the free gridflow
+            default API key.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">GB → FR commercial schedule · 24-hour <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">commercial_schedules · silver layer · 10YGB---------A → 10YFR-RTE------C · A06</div>
+                <div class="small">Line · MW · UTC · 6 May 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">24h</span>
+                <span class="chip btn-like">7d</span>
+                <span class="chip btn-like">30d</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":45}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Shared H6-family class in <code class="mono">gridflow/schemas/entsoe.py · EntsoeTransmissionMarketQuantity</code>
+            (lines 557–574). Used by 12 zone-pair quantity datasets;
+            differentiated by dataset-key dispatch in
+            <code class="mono">silver/entsoe/h6_market.py</code>.
+            Partitioned by <code class="mono">timestamp_utc</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 22%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  tz-aware UTC; validator requires tzinfo. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.
+                  <span class="cite">schemas/entsoe.py L560, L569-574</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">in_area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Source zone EIC. Source: <code class="mono">&lt;in_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L561 · silver/entsoe/h6_market.py L64</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">out_area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Destination zone EIC. Source: <code class="mono">&lt;out_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L562 · silver/entsoe/h6_market.py L65</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">quantity_mw</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Commercial nomination MW (directional). Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L563 · silver/entsoe/h6_market.py L63</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">business_type <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Typically <code class="mono">A06</code> for commercial schedules. Default <code class="mono">""</code>. Source: <code class="mono">&lt;businessType&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L564</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">resolution</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  ISO duration; typically <code class="mono">PT60M</code>. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L565</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Always <code class="mono">"entsoe"</code>. Default <code class="mono">"entsoe"</code>.
+                  <span class="cite">schemas/entsoe.py L566</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Set at silver write.
+                  <span class="cite">schemas/entsoe.py L567</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsoe/commercial_schedules/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small" style="font-size:10px;">(timestamp_utc, in_area_code, out_area_code, business_type)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>timestamp_utc</th>
+                  <th>in_area_code</th>
+                  <th>out_area_code</th>
+                  <th>quantity_mw</th>
+                  <th>business_type</th>
+                  <th>resolution</th>
+                  <th>data_provider</th>
+                  <th>ingested_at</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">1,850.0</td><td class="str">A06</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T11:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">-200.0</td><td class="str">A06</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T19:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">10YFR-RTE------C</td><td class="num">3,950.0</td><td class="str">A06</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T19:00:00+00:00</td><td class="str">10YFR-RTE------C</td><td class="str">10YGB----------A</td><td class="num">0.0</td><td class="str">A06</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised against the typical GB ↔ FR commercial-schedule shape. The highlighted <strong>GB → FR 19:00 (3.95 GW)</strong> row mirrors the physical flow at the same hour (<code class="mono">cross_border_flows.flow_mw = 3,920 MW</code>) — the gap between commercial and physical (30 MW) is the typical intraday adjustment / loss. Note the SP11 negative value: when GB imports cheaper FR power, the commercial nomination is signed in the reverse direction.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A09<br/>&amp;in_Domain={EIC}<br/>&amp;out_Domain={EIC}<br/>&amp;periodStart={YYYYMMDDhhmm}<br/>&amp;periodEnd={YYYYMMDDhhmm}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — <strong>free registration sufficient</strong>. One of the 14 ENTSO-E endpoints accessible with the gridflow default key. Register at <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">transparency.entsoe.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/commercial_schedules/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.h6_market.<br/>CommercialSchedulesTransformer<br/><span style="color:var(--ink-faint);">(shared H6 base)</span></div>
+            </div>
+          </div>
+
+          <div data-tab-group="cs">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('cs','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('cs','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('cs','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="cs-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A09
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">in_Domain</span>=10YGB----------A
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">out_Domain</span>=10YFR-RTE------C
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202605060000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202605070000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">contract_MarketAgreement.Type</span>=A01</pre>
+            </div></div>
+            <div data-tab-panel="cs-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Commercial vs physical gap per hour (GB-FR)</span>
+<span class="k">SELECT</span> c.timestamp_utc, c.quantity_mw <span class="k">AS</span> commercial,
+       p.flow_mw <span class="k">AS</span> physical,
+       p.flow_mw - c.quantity_mw <span class="k">AS</span> gap_mw
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/commercial_schedules/**/*.parquet'</span>) c
+<span class="k">JOIN</span> read_parquet(<span class="s">'data/silver/entsoe/cross_border_flows/**/*.parquet'</span>) p
+  <span class="k">ON</span> c.timestamp_utc = p.timestamp_utc
+ <span class="k">AND</span> c.in_area_code = p.in_area_code
+ <span class="k">AND</span> c.out_area_code = p.out_area_code
+<span class="k">WHERE</span> c.in_area_code = <span class="s">'10YGB----------A'</span>
+  <span class="k">AND</span> c.out_area_code = <span class="s">'10YFR-RTE------C'</span>
+<span class="k">ORDER BY</span> abs(gap_mw) <span class="k">DESC</span> <span class="k">LIMIT</span> 20;</pre>
+            </div></div>
+            <div data-tab-panel="cs-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+sch = pl.read_parquet(<span class="s">"data/silver/entsoe/commercial_schedules/**/*.parquet"</span>)
+<span class="c"># Net commercial position per zone = sum of inbound - sum of outbound</span>
+inbound = sch.group_by([<span class="s">"timestamp_utc"</span>, <span class="s">"out_area_code"</span>]).agg(
+    pl.col(<span class="s">"quantity_mw"</span>).sum().alias(<span class="s">"inbound"</span>)
+).rename({<span class="s">"out_area_code"</span>: <span class="s">"area"</span>})
+outbound = sch.group_by([<span class="s">"timestamp_utc"</span>, <span class="s">"in_area_code"</span>]).agg(
+    pl.col(<span class="s">"quantity_mw"</span>).sum().alias(<span class="s">"outbound"</span>)
+).rename({<span class="s">"in_area_code"</span>: <span class="s">"area"</span>})
+net = inbound.join(outbound, on=[<span class="s">"timestamp_utc"</span>, <span class="s">"area"</span>]).with_columns(
+    (pl.col(<span class="s">"inbound"</span>) - pl.col(<span class="s">"outbound"</span>)).alias(<span class="s">"net_mw"</span>)
+)
+<span class="k">print</span>(net.tail())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 600px;">One of the items below is a <strong>data-source discrepancy</strong> — a stale reconciliation finding now closed by the H6 refactor. Surfaced so downstream consumers don't get spooked by an old "no schema declared" note that no longer applies. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">A09 dedup resolved in V2 — <code class="mono">commercial_schedules_net_positions</code> removed</div>
+                <p class="small" style="margin: 0;">Per ADR-019 (2026-05-09), the duplicate <code class="mono">commercial_schedules_net_positions</code> key was removed. This dataset is the sole active A09 surface. <span class="src-cite">endpoints.py L155-159 · vault Implementation Delta</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">02</div>
+              <div>
+                <div class="eyebrow-discrepancy">Discrepancy · stale reconciliation finding</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Pydantic class is shared across the H6 family</div>
+                <p class="small" style="margin: 0;"><code class="mono">EntsoeTransmissionMarketQuantity</code> covers 12 zone-pair quantity datasets. Reconciliation finding <code class="mono">43-commercial-schedules-manual-transformer-schema.md</code> ("no importable Pydantic class declared") is stale — the class <strong>is</strong> importable and used by <code class="mono">silver/entsoe/h6_market.py L27</code>; the finding was closed by the H6 refactor. <span class="src-cite">schemas/entsoe.py L557 · .planning/reconciliation/entsoe/43 (closed)</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Variable-resolution <code class="mono">curveType=A03</code></div>
+                <p class="small" style="margin: 0;">A09 payloads may use <code class="mono">curveType=A03</code> which compresses unchanged intervals; the previous point's value persists until the next point. Downstream consumers must expand. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Directional — sum both directions for true commercial position</div>
+                <p class="small" style="margin: 0;">Each border requires two requests. Net commercial position requires both directions paired. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Not entitlement-blocked</div>
+                <p class="small" style="margin: 0;">A09 is one of the 14 ENTSO-E endpoints accessible with the free gridflow default API key. <span class="src-cite">.planning/reconciliation/entsoe/ — no commercial_schedules-http-401.md</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside commercial_schedules.</h2>
+
+          <div class="related-grid">
+            <a href="commercial_schedules_net_positions.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">commercial_schedules_net_positions</span>
+                  <span class="chip" style="font-size:10px;">n/a</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Deprecated pointer (ADR-019). Removed registry duplicate — use this dataset instead.</p>
+              <span class="tiny">entsoe · transmission · deprecated</span>
+            </a>
+
+            <a href="cross_border_flows.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">cross_border_flows</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Realised physical flow per border at <code class="mono">PT60M</code>. The physical counterpart; the gap is intraday adjustment + losses.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">net_transfer_capacity</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Day-ahead NTC denominator at <code class="mono">PT60M</code>. Commercial schedules clear against this NTC cap.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+
+            <a href="net_positions.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">net_positions</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Implicit-auction net positions per zone at <code class="mono">PT60M</code>. Derived from commercial schedules via zone-pair aggregation.</p>
+              <span class="tiny">entsoe · transmission · hourly</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

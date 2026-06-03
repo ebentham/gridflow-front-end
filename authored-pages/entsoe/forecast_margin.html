@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>forecast_margin · ENTSO-E Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px; border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-E · forecast_margin">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">forecast_margin</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-E · Forecast</span>
+            <span class="chip" style="font-size:11px;">PT60M · annual</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">forecast_margin</span><br/>
+            Year-ahead generation margin, <span class="italic fg-accent">capacity adequacy.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Year-ahead forecast margin in MW per bidding zone — the
+            TSO-published capacity-adequacy view, generation forecast minus
+            load forecast across a full forward year.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">ENTSO-E Transparency · A70/A33 ↗</a>
+            (vendor-doc fetch deferred — platform is PDF-heavy)
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.forecast_margin</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api?documentType=A70<br/>&amp;processType=A33</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">PT60M (over a yearly window)</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">annual</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">1 TimeSeries / zone / year</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(timestamp_utc,<br/>area_code)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">A70</div>
+        <div class="stat-l">DocumentType</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size: 32px;">annual</div>
+        <div class="stat-l">Forward-looking</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">XML</div>
+        <div class="stat-l">Response (GL_MarketDocument)</div>
+      </div>
+      <div>
+        <div class="stat-n">6</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-E Transparency</div>
+          <a href="../entsoe.html">← All datasets</a>
+          <a href="forecast_margin.html" class="active">forecast_margin</a>
+          <a href="generation_forecast.html" style="color:var(--ink-faint);">generation_forecast</a>
+          <a href="load_forecast_yearly.html" style="color:var(--ink-faint);">load_forecast_yearly</a>
+          <a href="installed_capacity.html" style="color:var(--ink-faint);">installed_capacity</a>
+          <a href="#" style="color:var(--ink-faint);">water_reservoirs</a>
+          <a href="actual_generation.html" style="color:var(--ink-faint);">actual_generation</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">forecast_margin</code>
+            holds the year-ahead forecast margin in megawatts per EIC bidding
+            zone — the TSO-published capacity-adequacy signal, computed as
+            generation forecast minus load forecast across a full forward
+            year. The <code class="mono">forecast_margin_mw</code> column is
+            signed: positive values mean comfortable headroom, negative
+            values flag a TSO-anticipated supply shortfall. Each row is one
+            bidding zone's forecast margin for a single hourly settlement
+            interval.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-E Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api?documentType=A70&amp;processType=A33</code>,
+            queried per bidding zone over a year-bounded window using the
+            <code class="mono">outBiddingZone_Domain</code> param style. The
+            raw XML lands in bronze as a
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GL_MarketDocument</code>,
+            is validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">EntsoeForecastMargin</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">ForecastMarginTransformer</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            The dataset is the LOLE (loss-of-load expectation) input for
+            capacity-adequacy modelling — count of hours per year with
+            <code class="mono">forecast_margin_mw &lt; 0</code> per zone.
+            It pairs with <code class="mono">generation_forecast</code> and
+            <code class="mono">load_forecast_yearly</code> as the conceptual
+            decomposition, with <code class="mono">installed_capacity</code>
+            for structural context, and with
+            <code class="mono">water_reservoirs</code> for the latent hydro
+            capacity that can swing margin in Nordic and Alpine zones.
+            Verified against vendor docs on 2026-05-08; A70/A33 is one of
+            the ENTSO-E endpoints accessible with the free gridflow default
+            API key.
+          </p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">DE-LU year-ahead margin · 8760-hour <span class="italic fg-accent">snapshot.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">forecast_margin · silver layer · 10Y1001A1001A82H</div>
+                <div class="small">Line · MW · year 2026</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">year</span>
+                <span class="chip btn-like">winter</span>
+                <span class="chip btn-like">summer</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":900,"height":280,"seed":29}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 600px;">
+            Defined in <code class="mono">gridflow/schemas/entsoe.py · EntsoeForecastMargin</code>
+            (lines 295–310). Partitioned by <code class="mono">timestamp_utc</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 22%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  tz-aware UTC; validator requires tzinfo. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.
+                  <span class="cite">schemas/entsoe.py L298, L305-310</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">area_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  EIC bidding zone. Source: <code class="mono">&lt;outBiddingZone_Domain.mRID&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L299</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">forecast_margin_mw</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Margin MW = generation forecast − load forecast. Negative = capacity shortage. Source: <code class="mono">&lt;Point&gt;&lt;quantity&gt;</code>.
+                  <span class="cite">schemas/entsoe.py L300</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">resolution</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  ISO duration; typically <code class="mono">PT60M</code>. Default <code class="mono">""</code>.
+                  <span class="cite">schemas/entsoe.py L301</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Always <code class="mono">"entsoe"</code>. Default <code class="mono">"entsoe"</code>.
+                  <span class="cite">schemas/entsoe.py L302</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">Yes</td>
+                <td class="col-note">
+                  Set at silver write.
+                  <span class="cite">schemas/entsoe.py L303</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsoe/forecast_margin/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(timestamp_utc, area_code)</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>timestamp_utc</th>
+                  <th>area_code</th>
+                  <th>forecast_margin_mw</th>
+                  <th>resolution</th>
+                  <th>data_provider</th>
+                  <th>ingested_at</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-01-15T08:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="num">12,450.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-01-15T18:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="num">8,210.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-01-16T18:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="num">-1,820.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-07-15T13:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="num">24,180.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-12-15T18:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="num">6,420.0</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised against typical DE-LU year-ahead shape — surplus in summer midday (solar dominant), tight in winter evenings, occasional dark-doldrums hours go negative. The highlighted <strong>2026-01-16T18:00 (−1.82 GW)</strong> row is the canonical capacity-stress hour: winter evening peak when wind is low and solar is zero — the use case A70/A33 was designed for.
+          </div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">web-api.tp.entsoe.eu/api<br/>?documentType=A70<br/>&amp;processType=A33<br/>&amp;outBiddingZone_Domain={EIC}<br/>&amp;periodStart={YYYY01010000}<br/>&amp;periodEnd={YYYY12310000}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Query-param <code class="mono">securityToken=$ENTSOE_API_KEY</code> — free registration sufficient. Register at <a href="https://transparency.entsoe.eu/" class="link" target="_blank" rel="noopener">transparency.entsoe.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsoe/forecast_margin/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.xml</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsoe.forecast_margin.<br/>ForecastMarginTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="fm">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('fm','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('fm','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('fm','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="fm-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://web-api.tp.entsoe.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">securityToken</span>=$ENTSOE_API_KEY
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">documentType</span>=A70
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">processType</span>=A33
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">outBiddingZone_Domain</span>=10Y1001A1001A82H
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodStart</span>=202601010000
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodEnd</span>=202612310000</pre>
+            </div></div>
+            <div data-tab-panel="fm-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Hours with negative margin (capacity shortage) per zone per year</span>
+<span class="k">SELECT</span> area_code, date_trunc(<span class="s">'year'</span>, timestamp_utc) <span class="k">AS</span> year,
+       count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> forecast_margin_mw &lt; 0) <span class="k">AS</span> shortage_hours,
+       min(forecast_margin_mw) <span class="k">AS</span> worst_margin_mw
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsoe/forecast_margin/**/*.parquet'</span>)
+<span class="k">GROUP BY</span> 1, 2
+<span class="k">ORDER BY</span> 1, 2;</pre>
+            </div></div>
+            <div data-tab-panel="fm-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+mar = pl.read_parquet(<span class="s">"data/silver/entsoe/forecast_margin/**/*.parquet"</span>)
+<span class="c"># LOLE proxy: count of hours with margin &lt; 0 per area per year</span>
+lole = mar.filter(pl.col(<span class="s">"forecast_margin_mw"</span>) &lt; 0).group_by(
+    [pl.col(<span class="s">"timestamp_utc"</span>).dt.year().alias(<span class="s">"year"</span>), <span class="s">"area_code"</span>]
+).agg(pl.len().alias(<span class="s">"shortage_hours"</span>))
+<span class="k">print</span>(lole.sort([<span class="s">"area_code"</span>, <span class="s">"year"</span>]))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">forecast_margin</code>. Also read the <a href="../entsoe.html#about" class="link">ENTSO-E-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">outBiddingZone_Domain</code> (not <code class="mono">in_Domain</code>)</div>
+                <p class="small" style="margin: 0;">A70/A33 uses <code class="mono">outBiddingZone_Domain</code> for the area param (<code class="mono">domain_style="out_bidding_zone"</code>). Wrong param style returns EMPTY. <span class="src-cite">endpoints.py L132-134</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Use a yearly window</div>
+                <p class="small" style="margin: 0;">Year-ahead forecast — short windows may return EMPTY or partial. Build period bounds at year boundaries. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Margin is signed — negative = capacity shortage</div>
+                <p class="small" style="margin: 0;"><code class="mono">forecast_margin_mw &lt; 0</code> indicates TSO-anticipated supply shortfall (a key LOLE input). <span class="src-cite">ENTSO-E spec</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Revisions overwrite</div>
+                <p class="small" style="margin: 0;">Same <code class="mono">(timestamp_utc, area_code)</code> re-publication overwrites silently on dedup. No <code class="mono">published_at</code> for PIT. <span class="src-cite">silver/entsoe/forecast_margin.py L62</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Not entitlement-blocked</div>
+                <p class="small" style="margin: 0;">A70/A33 is one of the 14 ENTSO-E endpoints accessible with the free gridflow default API key (per Phase 7 D-06). <span class="src-cite">.planning/reconciliation/entsoe/ — no forecast_margin-http-401.md</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside forecast_margin.</h2>
+
+          <div class="related-grid">
+            <a href="generation_forecast.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">generation_forecast</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Day-ahead supply forecast at <code class="mono">PT60M</code>. The supply side of this dataset's margin (sum across PSRs ≈ this dataset's generation half).</p>
+              <span class="tiny">entsoe · forecast · hourly</span>
+            </a>
+
+            <a href="load_forecast_yearly.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">load_forecast_yearly</span>
+                  <span class="chip" style="font-size:10px;">annual</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Year-ahead load forecast at <code class="mono">PT60M</code>. The demand side; this dataset = <code class="mono">generation_forecast − load_forecast_yearly</code>.</p>
+              <span class="tiny">entsoe · load · annual</span>
+            </a>
+
+            <a href="installed_capacity.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">installed_capacity</span>
+                  <span class="chip" style="font-size:10px;">yearly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Annual capacity-mix snapshot. Structural context behind any margin trajectory: low-margin years often coincide with capacity reductions.</p>
+              <span class="tiny">entsoe · generation · annual</span>
+            </a>
+
+            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">water_reservoirs</span>
+                  <span class="chip" style="font-size:10px;">weekly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Weekly hydro storage. Reservoir level is the latent capacity that can swing margin from comfortable to tight in Nordic / Alpine zones.</p>
+              <span class="tiny">entsoe · generation · weekly</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => { b.classList.remove('ink'); });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

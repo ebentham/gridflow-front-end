@@ -2,9 +2,105 @@
   "groups": [
     {
       "name": "Generation",
-      "blurb": "Realised generation by production type and bidding zone.",
+      "blurb": "Realised and forecast generation by production type, bidding zone, and fuel.",
       "datasets": [
-        { "id": "actual_generation", "title": "Actual generation per production type (A75/A16)", "freq": "15-60 min", "lag": "T+1 h to T+24 h", "rows": "~1.0M / mo" }
+        { "id": "actual_generation",   "title": "Actual generation per production type (A75/A16)", "freq": "15-60 min", "lag": "T+1 h to T+24 h", "rows": "~17 TS / zone / day" },
+        { "id": "generation_forecast", "title": "Day-ahead generation forecast (A65)",             "freq": "hourly",    "lag": "D-1 ~18:00 UTC",  "rows": "1 TS / zone / day" },
+        { "id": "wind_solar_forecast", "title": "Wind & solar generation forecast (A69)",          "freq": "hourly",    "lag": "D-1",             "rows": "~3 TS / zone / day" },
+        { "id": "installed_capacity",  "title": "Installed generation capacity (A68)",             "freq": "annual",    "lag": "year boundary",   "rows": "~20 TS / zone / year" },
+        { "id": "actual_generation_units",      "title": "Actual generation per unit (A73/A16)",       "freq": "hourly", "lag": "T+1 h",         "rows": "varies — many zones empty" },
+        { "id": "installed_capacity_units",     "title": "Installed capacity per unit (A71/A33)",      "freq": "annual", "lag": "year boundary", "rows": "varies — many zones empty" },
+        { "id": "generation_units_master_data", "title": "Generation units master data (A95)",         "freq": "static", "lag": "on change",     "rows": "varies by zone" },
+        { "id": "water_reservoirs",             "title": "Water reservoirs & hydro storage (A72/A16)", "freq": "weekly", "lag": "weekly",        "rows": "1 / zone / week" }
+      ]
+    },
+    {
+      "name": "Prices",
+      "blurb": "Day-ahead clearing prices per bidding zone — the EU spot reference.",
+      "datasets": [
+        { "id": "day_ahead_prices", "title": "Day-ahead clearing prices (A44)", "freq": "hourly", "lag": "D-1 ~12:55 CET", "rows": "24-96 / zone / day" }
+      ]
+    },
+    {
+      "name": "Demand & Forecasts",
+      "blurb": "Realised total load plus multi-horizon forecasts and the cross-zonal forecast margin.",
+      "datasets": [
+        { "id": "actual_load",           "title": "Actual total load (A65/A16)",             "freq": "15-60 min", "lag": "T+1 h", "rows": "varies / zone" },
+        { "id": "load_forecast",         "title": "Load forecast — day-ahead (A65/A01)",     "freq": "hourly", "lag": "D-1",     "rows": "24-96 / zone / day" },
+        { "id": "load_forecast_weekly",  "title": "Load forecast — weekly (A65/A31)",        "freq": "hourly", "lag": "weekly",  "rows": "168 / zone / week" },
+        { "id": "load_forecast_monthly", "title": "Load forecast — monthly (A65/A32)",       "freq": "hourly", "lag": "monthly", "rows": "~720 / zone / mo" },
+        { "id": "load_forecast_yearly",  "title": "Load forecast — yearly (A65/A33)",        "freq": "hourly", "lag": "annual",  "rows": "8760 / zone / year" },
+        { "id": "forecast_margin",       "title": "Forecast margin (A70)",                   "freq": "hourly", "lag": "annual",  "rows": "1 TS / zone / year" }
+      ]
+    },
+    {
+      "name": "Balancing — Actions & Imbalance",
+      "blurb": "Activated balancing energy, bids, imbalance settlement prices and volumes.",
+      "datasets": [
+        { "id": "activated_balancing_prices",       "title": "Activated balancing prices (A84)",            "freq": "hourly",   "lag": "as published", "rows": "varies / area" },
+        { "id": "activated_balancing_qty",          "title": "Activated balancing quantity (A83)",          "freq": "hourly",   "lag": "as published", "rows": "varies / area" },
+        { "id": "balancing_energy_bids",            "title": "Balancing energy bids (A37/A47/B74)",         "freq": "hourly",   "lag": "as published", "rows": "many bids / period" },
+        { "id": "aggregated_balancing_energy_bids", "title": "Aggregated balancing energy bids (A24/A51)",  "freq": "hourly",   "lag": "as published", "rows": "low (aggregated)" },
+        { "id": "imbalance_prices",                 "title": "Imbalance prices (A85)",                      "freq": "30 min",   "lag": "T+1 h",        "rows": "96 / area / day" },
+        { "id": "imbalance_volume",                 "title": "Imbalance volume (A86/A19)",                  "freq": "30 min",   "lag": "T+1 h",        "rows": "96 / area / day" },
+        { "id": "current_balancing_state",          "title": "Current balancing state (A86/B33)",           "freq": "30 min",   "lag": "T+1 h",        "rows": "48 / area / day" },
+        { "id": "balancing_financial_expenses_income", "title": "Balancing financial expenses & income (A87)", "freq": "hourly", "lag": "as published", "rows": "varies / area" }
+      ]
+    },
+    {
+      "name": "Reserves & Balancing Capacity",
+      "blurb": "Contracted reserves and procured balancing capacity by reserve type and border.",
+      "datasets": [
+        { "id": "contracted_reserves",         "title": "Contracted reserves (A81/A52/B95)",        "freq": "daily product", "lag": "as published", "rows": "varies" },
+        { "id": "procured_balancing_capacity", "title": "Procured balancing capacity (A15/A51)",     "freq": "hourly",        "lag": "as published", "rows": "varies / area" },
+        { "id": "cross_zonal_balancing_capacity", "title": "Cross-zonal balancing capacity (A38/A51)", "freq": "hourly",      "lag": "as published", "rows": "varies / border" }
+      ]
+    },
+    {
+      "name": "Cross-Border Flows & Schedules",
+      "blurb": "Realised border flows, nominated and commercial schedules, and net positions per zone.",
+      "datasets": [
+        { "id": "cross_border_flows",                "title": "Cross-border physical flows (A11)",                  "freq": "hourly", "lag": "T+1 h",                "rows": "24 / border-direction / day" },
+        { "id": "net_positions",                     "title": "Net positions (A25/B09)",                            "freq": "hourly", "lag": "D-1",                  "rows": "24 / zone / day" },
+        { "id": "commercial_schedules",              "title": "Commercial schedules (A09)",                         "freq": "hourly", "lag": "D-1 after gate close", "rows": "24 / border-direction / day" },
+        { "id": "commercial_schedules_net_positions","title": "Commercial schedules: net positions (deprecated)",   "freq": "—",      "lag": "—",                    "rows": "removed in V2" },
+        { "id": "transfer_capacity_use",             "title": "Transfer capacity use (A25/B05)",                    "freq": "hourly", "lag": "T+1 h",                "rows": "24 / border-direction / day" }
+      ]
+    },
+    {
+      "name": "Transfer Capacity",
+      "blurb": "Net transfer capacity and offered transfer capacity across continuous, explicit and implicit auction surfaces.",
+      "datasets": [
+        { "id": "net_transfer_capacity",                  "title": "Net transfer capacity (A61)",                  "freq": "hourly", "lag": "D-1",     "rows": "24 / border-direction / day" },
+        { "id": "offered_transfer_capacity_continuous",   "title": "Offered transfer capacity — continuous (A31)", "freq": "hourly", "lag": "D-1",     "rows": "24 / border-direction / day" },
+        { "id": "offered_transfer_capacity_explicit",     "title": "Offered transfer capacity — explicit (A31)",   "freq": "hourly", "lag": "varies",  "rows": "24 / border-direction / day" },
+        { "id": "offered_transfer_capacity_implicit",     "title": "Offered transfer capacity — implicit (A31)",   "freq": "hourly", "lag": "D-1",     "rows": "24 / border-direction / day" },
+        { "id": "total_capacity_allocated",               "title": "Total capacity allocated (A26/A29)",           "freq": "hourly", "lag": "varies",  "rows": "24 / border-direction / day" },
+        { "id": "total_nominated_capacity",               "title": "Total nominated capacity (A26/B08)",           "freq": "hourly", "lag": "varies",  "rows": "24 / border-direction / day" },
+        { "id": "dc_link_intraday_transfer_limits",       "title": "DC-link intraday transfer limits (A93)",       "freq": "hourly", "lag": "intraday","rows": "24 / border-direction / day" }
+      ]
+    },
+    {
+      "name": "Outages & Unavailability",
+      "blurb": "Planned and forced unavailability of generation, production and consumption units, transmission infrastructure, and the offshore grid.",
+      "datasets": [
+        { "id": "outages_generation",    "title": "Generation unit outages (A80)",  "freq": "event-driven", "lag": "real-time", "rows": "varies / zone" },
+        { "id": "outages_production",     "title": "Production unit outages (A77)",  "freq": "event-driven", "lag": "real-time", "rows": "varies / zone" },
+        { "id": "outages_consumption",    "title": "Consumption unit outages (A76)", "freq": "as published", "lag": "real-time", "rows": "varies / zone (rare)" },
+        { "id": "outages_transmission",   "title": "Transmission outages (A78)",     "freq": "as published", "lag": "real-time", "rows": "varies / border" },
+        { "id": "outages_offshore_grid",  "title": "Offshore grid outages (A79)",    "freq": "as published", "lag": "real-time", "rows": "varies / zone" }
+      ]
+    },
+    {
+      "name": "Congestion, Redispatch & Auction Revenue",
+      "blurb": "Congestion rents and costs, redispatch and countertrading volumes, and explicit-auction revenue — the economics of grid constraints.",
+      "datasets": [
+        { "id": "congestion_income",           "title": "Congestion income (A25/B10)",            "freq": "hourly", "lag": "as published", "rows": "varies / border" },
+        { "id": "congestion_management_costs", "title": "Congestion management costs (A92)",       "freq": "hourly", "lag": "as published", "rows": "varies / zone" },
+        { "id": "redispatching_cross_border",  "title": "Redispatching — cross-border (A63/A46)", "freq": "hourly", "lag": "as published", "rows": "varies / border" },
+        { "id": "redispatching_internal",      "title": "Redispatching — internal (A63/A85)",     "freq": "hourly", "lag": "as published", "rows": "varies / zone" },
+        { "id": "countertrading",              "title": "Countertrading (A91)",                   "freq": "hourly", "lag": "as published", "rows": "varies / border" },
+        { "id": "auction_revenue",             "title": "Auction revenue (A25/B07)",              "freq": "hourly", "lag": "as published", "rows": "varies / border" }
       ]
     }
   ]
