@@ -143,7 +143,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A93, processType=none, businessType=none-in-request, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:138-143`.
+- **Tuple recorded:** `(documentType=A93, processType=none, businessType=none-in-request, domain=in_Domain+out_Domain)`. Matches code — the `dc_link_intraday_transfer_limits` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR for 2026-05-06:** Acknowledgement, Reason 999, no data published. **EMPTY** — cause: "border has zero allocation in window" (no DC-link revision recorded that day).
 - Empty result is expected and not a code defect; consumers should treat absence as "no revision" rather than 0.
 

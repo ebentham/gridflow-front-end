@@ -170,7 +170,12 @@ None implemented.
 
 - Pair with `imbalance_prices` on `(timestamp_utc, area_code, direction)`
   to derive directional cost-of-imbalance. Useful input for short-term
-  market-stress models.
+  market-stress models. **Caveat:** the `direction` label is derived from a
+  *different* source enum in each dataset — `imbalance_volume` maps
+  `flowDirection.direction` (`A01→long`, `A02→short`), while `imbalance_prices`
+  maps `businessType` (`A19→long`, `A20→short`). They are not interchangeable
+  enums; before relying on this join, confirm `A01↔A19` (long) and `A02↔A20`
+  (short) co-occur consistently on a real continental response.
 
 ---
 

@@ -135,7 +135,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A31, processType=none, businessType=none-in-request, auction.Type=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:200-210`. **Lowercase** param names distinct from `_continuous`.
+- **Tuple recorded:** `(documentType=A31, processType=none, businessType=none-in-request, auction.Type=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `offered_transfer_capacity_implicit` entry in `endpoints.py` `DOC_TYPES`. **Lowercase** param names distinct from `_continuous`.
 - **Live validation 2026-05-08:** GB→FR daily window: Acknowledgement, Reason 999. Sanity NL→DE: also Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" for GB (post-Brexit, GB not in SDAC); for NL→DE, the data item is published with a different cadence/window than tested.
 - **Disambiguation from sister A31 variants:** implicit = lowercase `auction.Type=A01` + lowercase `contract_MarketAgreement.Type=A01` and **no** `auction.Category`. `_continuous` uses **capitalised** versions of the same params; `_explicit` adds **lowercase** `auction.Category=A01`.
 

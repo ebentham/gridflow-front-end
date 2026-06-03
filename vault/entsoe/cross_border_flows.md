@@ -135,6 +135,7 @@ curl --ssl-no-revoke -fsS \
 | `in_area_code` | `str` | No | `TimeSeries.in_Domain.mRID` | EIC, never normalised |
 | `out_area_code` | `str` | No | `TimeSeries.out_Domain.mRID` | EIC, never normalised |
 | `flow_mw` | `float` | No | `Point.quantity` | MW (Measure_Unit `MAW`) |
+| `resolution` | `str` | No | `Period.resolution` | ISO code verbatim (e.g. `PT60M`, `PT15M`); not normalised |
 | `data_provider` | `str` | No | derived | Always `"entsoe"` |
 | `ingested_at` | `datetime[UTC]` | Yes | derived | UTC now at silver write |
 
@@ -190,7 +191,7 @@ None implemented.
 
 - **Tuple recorded:** `(documentType=A11, processType=none, businessType=none-in-request, domain=in_Domain+out_Domain)`. Matches `connectors/entsoe/endpoints.py` `cross_border_flows` entry. PASS.
 - **Live validation 2026-05-08:** GB → FR for 2026-05-06, returned `Publication_MarketDocument` with 1 TimeSeries, 24 hourly points. PASS.
-- **Schema field `ingested_at`:** present in transformer code (`silver/entsoe/cross_border_flows.py:80`) but absent from `EntsoeCrossborderFlow` Pydantic class — schema only declares `timestamp_utc`, `in_area_code`, `out_area_code`, `flow_mw`, `data_provider`. Silver Parquet will contain extra columns (`resolution`, `ingested_at`) not validated by Pydantic. Log only — no code change in V1.
+- **Schema field set (G5-W3, 2026-05):** `EntsoeCrossborderFlow` now declares all seven columns the transformer emits — `timestamp_utc`, `in_area_code`, `out_area_code`, `flow_mw`, `resolution`, `data_provider`, `ingested_at` (`resolution` and `ingested_at` were added per the schema docstring; they previously drifted from the V1 §13 declaration). The silver Parquet column set matches the schema declaration.
 
 ---
 

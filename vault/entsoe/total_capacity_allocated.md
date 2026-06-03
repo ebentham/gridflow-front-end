@@ -135,7 +135,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A26, processType=none, businessType=A29, auction.Category=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:257-268`.
+- **Tuple recorded:** `(documentType=A26, processType=none, businessType=A29, auction.Category=A01, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `total_capacity_allocated` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR daily and 30-day:** Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (post-Brexit GB borders publish no long-term allocation; sanity check NL→DE not run for this specific tuple but the pattern follows the rest of the EMPTY GB borders).
 - **Disambiguation from sister A26 `total_nominated_capacity`:**
   - `total_nominated_capacity`: `businessType=B08`, no auction.Category, no contract.

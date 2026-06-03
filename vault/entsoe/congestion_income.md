@@ -143,7 +143,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B10, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:269-279`.
+- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B10, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `congestion_income` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR daily and 30-day:** Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (post-Brexit GB-FR is not in EU implicit / flow-based coupling).
 - **Disambiguation from other A25 variants:**
   - `auction_revenue`: `businessType=B07`, EUR (revenue from **explicit** auctions).

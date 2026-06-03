@@ -46,7 +46,7 @@ import/export economics.
 ### Single-domain parameters (NOT cross-zonal)
 
 A25/B09 net_positions is **single-zone**. The connector's
-`domain_style="zone"` (line `endpoints.py:284`) means `in_Domain` is the
+`domain_style="zone"` (the `net_positions` entry in `endpoints.py`) means `in_Domain` is the
 zone whose net position is reported. The current curl form passes the same
 EIC for both `in_Domain` and `out_Domain` to satisfy the connector's URL
 builder.
@@ -140,7 +140,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B09, contract_MarketAgreement.Type=A01, domain=in_Domain only — `domain_style=zone`)`. Matches code `endpoints.py:280-290`.
+- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B09, contract_MarketAgreement.Type=A01, domain=in_Domain only — `domain_style=zone`)`. Matches code — the `net_positions` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB daily and 30-day:** Acknowledgement, Reason 999, single-EIC fingerprint `(10YGB----------A)`. **EMPTY** — cause: "border has zero allocation in window" (GB not in SDAC post-Brexit; would need a SDAC-participating zone to PASS).
 - **Disambiguation from other A25 variants — this is the ONLY single-zone A25:**
   - `auction_revenue`: `businessType=B07`, zone_pair, EUR.

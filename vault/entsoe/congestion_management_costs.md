@@ -136,14 +136,14 @@ None implemented.
   `amount_eur` via `_H6AmountTransformer`.
 - Often published with weekly or longer cadence (not daily) — empty daily
   responses do not necessarily indicate the absence of cost.
-- Single-zone (`domain_style=zone` per `endpoints.py:178`) — passing different
+- Single-zone (`domain_style=zone` per the `congestion_management_costs` entry in `endpoints.py`) — passing different
   `in_Domain`/`out_Domain` may be ignored or cause confusing empties.
 
 ---
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A92, processType=none, businessType=none-in-request, domain=in_Domain only)`. Matches code `endpoints.py:178-183`.
+- **Tuple recorded:** `(documentType=A92, processType=none, businessType=none-in-request, domain=in_Domain only)`. Matches code — the `congestion_management_costs` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB for 2026-05-06:** Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (publication cadence weekly/monthly; no GB cost record for that single day).
 - A92 is the only `domain_style="zone"` dataset in this batch; matches advisor's note that A92 should NOT be treated as cross-zonal.
 

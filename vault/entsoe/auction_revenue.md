@@ -140,7 +140,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B07, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:227-237`.
+- **Tuple recorded:** `(documentType=A25, processType=none, businessType=B07, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `auction_revenue` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR daily and 30-day:** Acknowledgement, Reason 999. Sanity NL→DE 30-day: also EMPTY. **EMPTY** — cause: "border has zero allocation in window" (auction-revenue publication cadence is sparser than daily; the test windows did not overlap a published settlement).
 - **Disambiguation from other A25 variants** (critical because A25 multiplexes four datasets):
   - **`auction_revenue`** (this page): `businessType=B07`, `contract_MarketAgreement.Type=A01`, `domain_style=zone_pair` (cross-border revenue per border), unit EUR.

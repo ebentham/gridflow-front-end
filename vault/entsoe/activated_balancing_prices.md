@@ -114,6 +114,7 @@ Use Elexon `boal` / `disbsad` for GB equivalents.
 | `reserve_type` | `str` | No | `businessType` mapped via `replace_strict` | `A95→fcr`, `A96→afrr`, `A97→mfrr`, `A98→rr` |
 | `direction` | `str` | No | `flowDirection.direction` mapped via `replace_strict` | `A01→up`, `A02→down` |
 | `price_eur_mwh` | `float` | No | `Point/*_Price.amount` | EUR/MWh |
+| `currency` | `str` | No | `<currency_Unit.name>` | Default "EUR" in canonical; labels the price currency (e.g. GBP for GB) so `price_eur_mwh` is never silently trusted as EUR. |
 | `resolution` | `str` | No (default `""`) | `Period/resolution` | `PT15M` typical |
 | `data_provider` | `str` | No (default `"entsoe"`) | derived | Constant |
 | `ingested_at` | `datetime` (tz-aware UTC) | Yes | derived | |
@@ -128,6 +129,7 @@ Use Elexon `boal` / `disbsad` for GB equivalents.
         "reserve_type": "afrr",
         "direction": "up",
         "price_eur_mwh": 92.50,
+        "currency": "EUR",
         "resolution": "PT15M",
         "data_provider": "entsoe",
         "ingested_at": datetime(2026, 5, 8, 18, 6, 30, tzinfo=UTC),

@@ -169,7 +169,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A61, processType=none, businessType=none-in-request, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:131-137`.
+- **Tuple recorded:** `(documentType=A61, processType=none, businessType=none-in-request, contract_MarketAgreement.Type=A01, domain=in_Domain+out_Domain)`. Matches code — the `net_transfer_capacity` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08:** GB → FR for 2026-05-06 returned `Publication_MarketDocument` with 1 TimeSeries, 1 point of 3028 MW. PASS.
 - TimeSeries `<businessType>` returned as `A27` (capacity allocation) — undocumented in code but expected per Article 11.1.
 

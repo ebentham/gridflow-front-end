@@ -107,7 +107,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/datasets
 | `settlement_period` | `int` | No | `settlementPeriod` | 1..50 (DST: 46 spring, 50 autumn). |
 | `timestamp_utc` | `datetime[UTC]` | No | _derived_ | Derived from (settlement_date, settlement_period) via `utils/time.settlement_period_to_utc`. |
 | `forecast_demand_mw` | `float` | Yes | `demand` | MW. |
-| `boundary` | `str` | Yes | `boundary` | `N` (national) or `Z` (zonal). |
+| `boundary` | `str` | Yes | `boundary` | Transmission-boundary identifier. Observed `B1` in the live bronze sample; the `boundary` query param also accepts `N` (national). Vendor-managed value list — no fixed enumeration. |
 | `data_provider` | `str` | No | _derived_ | Default `"elexon"`. |
 | `ingested_at` | `datetime[UTC]` | Yes | _derived_ | Time ingested into bronze. |
 

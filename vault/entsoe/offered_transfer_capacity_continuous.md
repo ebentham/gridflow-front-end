@@ -144,7 +144,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A31, processType=none, businessType=none-in-request, Auction.Type=A01, Contract_MarketAgreement.Type=A01, domain=In_Domain+Out_Domain)`. Matches code `endpoints.py:184-199`. Note **capitalised** parameter names — distinct from `_implicit` and `_explicit`.
+- **Tuple recorded:** `(documentType=A31, processType=none, businessType=none-in-request, Auction.Type=A01, Contract_MarketAgreement.Type=A01, domain=In_Domain+Out_Domain)`. Matches code — the `offered_transfer_capacity_continuous` entry in `endpoints.py` `DOC_TYPES`. Note **capitalised** parameter names — distinct from `_implicit` and `_explicit`.
 - **Live validation 2026-05-08 GB→FR daily window:** Acknowledgement, Reason 999. Retried 30-day: still EMPTY. **EMPTY** — cause: "border has zero allocation in window" (GB no longer participates in EU continuous auctions post-Brexit; sanity-checked NL→DE same window also EMPTY for A31 implicit, suggesting the data item is not actively published for the windows tested rather than a tuple-shape error).
 - **Disambiguation from sister A31 variants:** continuous = `Auction.Type=A01` only (no `Auction.Category`); implicit also `Auction.Type=A01` but **lowercase** `auction.Type` parameter; explicit adds `auction.Category=A01` (lowercase). All three differ in casing, which the connector preserves via separate `EntsoeDocType` entries.
 

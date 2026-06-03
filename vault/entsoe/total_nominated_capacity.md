@@ -171,7 +171,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A26, processType=none, businessType=B08, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:250-256`.
+- **Tuple recorded:** `(documentType=A26, processType=none, businessType=B08, domain=in_Domain+out_Domain)`. Matches code — the `total_nominated_capacity` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR for 2026-05-06:** `Publication_MarketDocument` with 3 TimeSeries (one per nominated MarketAgreement / direction split), variable-resolution points, MW values 2029-3028 across 24h. **PASS**.
 - **Disambiguation from sister A26 `total_capacity_allocated`** (this is critical because both share `documentType=A26`):
   - **`total_nominated_capacity`** (this page): `businessType=B08`, no `auction.Category`, no `contract_MarketAgreement.Type` in request.

@@ -136,7 +136,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A63, processType=none, businessType=A46, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:158-164`.
+- **Tuple recorded:** `(documentType=A63, processType=none, businessType=A46, domain=in_Domain+out_Domain)`. Matches code — the `redispatching_cross_border` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08 GB→FR for 2026-05-06:** Acknowledgement, Reason 999. **EMPTY** — cause: "border has zero allocation in window" (no cross-border redispatch published that day, expected).
 - Sanity check NL→DE for the same window also returned EMPTY — A46 cross-border events are inherently sparse, not a query-shape error.
 - This dataset shares `documentType=A63` with `redispatching_internal`. Disambiguation: this page = **businessType=A46** (cross-border); sister page = **businessType=A85** (internal).

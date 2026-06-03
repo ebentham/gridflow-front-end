@@ -137,7 +137,7 @@ None implemented.
 
 ## Implementation delta
 
-- **Tuple recorded:** `(documentType=A63, processType=none, businessType=A85, domain=in_Domain+out_Domain)`. Matches code `endpoints.py:165-171`.
+- **Tuple recorded:** `(documentType=A63, processType=none, businessType=A85, domain=in_Domain+out_Domain)`. Matches code — the `redispatching_internal` entry in `endpoints.py` `DOC_TYPES`.
 - **Live validation 2026-05-08:** GB→FR (standard test border) returned Acknowledgement, Reason 999, single-zone interpretation `(10YGB----------A)`. **EMPTY** — cause: "border has zero allocation in window" (no internal GB redispatch published that day).
 - Disambiguation: this page = **businessType=A85** (internal); sister page (`redispatching_cross_border`) = **businessType=A46**.
 

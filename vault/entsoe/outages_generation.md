@@ -104,7 +104,17 @@ Live verification 2026-05-08:
 **Transformer class**: `gridflow.silver.entsoe.outages_generation.OutagesGenerationTransformer`
 **Pydantic schema**: `gridflow.schemas.entsoe.EntsoeOutagesGeneration`
 **Dedup key**: `(timestamp_utc, unit_mrid)`
-**Point-in-time field**: `ingested_at` (no `published_at` surfaced)
+**Point-in-time (as-of) field**: `available_at` (the bitemporal as-of column written by `BaseSilverTransformer`, reconstructable from bronze sidecars on reingest). `ingested_at` is the transform wall-clock (`datetime.now(UTC)`), **not** a publication vintage, so do not use it as a leak-proof as-of anchor. No vendor `published_at` is surfaced (the document `createdDateTime` is parsed as `document_created_at` but dropped by this transformer).
+
+> **A80 silver is intentionally unit-level.** Unlike the H7 outage family
+> (consumption/transmission/offshore-grid/production), this transformer
+> deliberately omits `production_type`/`psrType`, `business_type`,
+> `document_mrid`, `document_status`, and `timeseries_mrid` from silver — even
+> though the bronze document carries them (e.g. `pSRType.psrType=B02` above). The
+> leaner per-unit schema is by design (the unit-level shape is asserted by
+> `test_existing_generation_outage_transformer_stays_unit_level`). Join
+> `unit_mrid` against [generation units master data](generation_units_master_data.md)
+> to recover `production_type` for capacity normalisation.
 
 ### Silver schema
 
@@ -131,7 +141,7 @@ Live verification 2026-05-08:
         "unit_name": "DRAXX-1",
         "outage_type": "planned",
         "unavailable_mw": 645.0,
-        "resolution": "1:00:00",
+        "resolution": "PT60M",
         "data_provider": "entsoe",
         "ingested_at": "2026-05-08T18:00:00+00:00",
     },

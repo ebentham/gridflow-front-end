@@ -130,7 +130,7 @@ Captured live 2026-05-08 from the https://data.elexon.co.uk/bmrs/api/v1/balancin
 **Transformer class**: `gridflow.silver.elexon.system_prices.SystemPriceTransformer`
 **Pydantic schema**: `gridflow.schemas.elexon.ElexonSystemPrice`
 **Dedup key**: `(settlement_date, settlement_period)`
-**Point-in-time field**: `run_type` (precedence II<SF<R1<R2<R3<RF<DF)
+**Point-in-time field**: `run_type` — **None on the live `DATE_PATH` feed** (`/balancing/settlement/system-prices/{date}`, DISEBSP). It is populated only by legacy/alternate endpoints that surface `settlementRunType`, where the precedence II<SF<R1<R2<R3<RF<DF applies. From the live DATE_PATH feed the transformer falls back to dedup on `(settlement_date, settlement_period)` with no run-type ranking.
 
 ### Silver schema
 

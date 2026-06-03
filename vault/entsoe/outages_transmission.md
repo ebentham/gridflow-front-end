@@ -103,7 +103,7 @@ Live verification 2026-05-08:
 **Transformer class**: `gridflow.silver.entsoe.outages_h7.OutagesTransmissionTransformer`
 **Pydantic schema**: `gridflow.schemas.entsoe.EntsoeOutagesTransmission`
 **Dedup key**: `(timestamp_utc, in_area_code, out_area_code, asset_mrid, timeseries_mrid)`
-**Point-in-time field**: `ingested_at`
+**Point-in-time (as-of) field**: `available_at` (the bitemporal as-of column written by `BaseSilverTransformer`, reconstructable from bronze sidecars on reingest). `ingested_at` is the transform wall-clock (`datetime.now(UTC)`), **not** a publication vintage, so do not use it as a leak-proof as-of anchor.
 
 ### Silver schema
 
