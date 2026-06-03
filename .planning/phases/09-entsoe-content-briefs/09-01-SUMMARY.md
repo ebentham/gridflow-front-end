@@ -44,7 +44,7 @@ families).
 2. ✅ `site/hifi/data/entsoe.json` = exactly 49 dataset entries, grouped into 9 categories; valid JSON, no duplicate ids.
 3. ✅ `gridflow-build` writes 49 authored HTML files under `site/hifi/data-sources/entsoe/`; sidebar anchors resolve; entitlement wording present on the 35 blocked datasets; codelist/PSR vocabulary renders cleanly.
 4. ✅ `/data-sources/entsoe.html` renders a 49-dataset catalog (49 cards, 6 editorial groups).
-5. ✅ `gridflow-build --check` exits 0 ("idempotent across 86 pages + 8 hubs"); `htmlhint` + `lychee` run in CI.
+5. ✅ All three CI gates verified locally (not just deferred to CI): `gridflow-build --check` exits 0 (idempotent across 86 pages + 8 hubs); `htmlhint --config .htmlhintrc 'site/hifi/**/*.html'` = 174 files, 0 errors; `lychee --no-progress --offline --include-fragments './site/hifi/**/*.html'` = 0 errors (after the `#about` hub fix — see below).
 
 ## Deviation from original SC#3 (positive)
 
@@ -64,6 +64,13 @@ The shipped pages are therefore **richer** than SC#3 required — `#overview` an
   e.g. `congestion_management_costs` (`domain_style="zone"`, cites `endpoints.py L184`),
   `net_positions`, `commercial_schedules*`, `actual_generation` (`area_name` declared-not-emitted).
   Verified each rendered discrepancy against its brief; no fabricated discrepancies.
+- **Hub `#about` anchor (lychee CI gate):** running the real CI link-checker locally
+  surfaced 49 errors — every ENTSO-E dataset page links to `../entsoe.html#about`
+  ("ENTSO-E-wide caveats", mirroring the Elexon pattern), but Claude Design's hub titled
+  that section "What to watch for." and omitted `id="about"`. Fix: added `id="about"` to
+  the existing caveats section in `authored-pages/entsoe/_landing.html` (respects CD's
+  content; no new section). lychee then 0 errors (2578→2627 OK). This is the gate the
+  pages had never hit (uncommitted = unlinted until close-out).
 - **Vault build-blocker fixes (derivative-vault rule):** `activated_balancing_qty.md`
   (silver-only — `## Expected API tuple` → `## API endpoint` + silver-only callout) and
   `commercial_schedules_net_positions.md` (deprecated — added `## Overview` + `## API endpoint`).
