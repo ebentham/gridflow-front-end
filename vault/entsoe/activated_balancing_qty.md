@@ -23,7 +23,9 @@ The CLI will not fetch this dataset from ENTSO-E until connector wiring is
 added. The transformer can process matching bronze XML files when they
 already exist.
 
-## Expected API tuple
+## API endpoint
+
+> **Silver-only status.** This dataset is not wired into `gridflow.connectors.entsoe.endpoints.DOC_TYPES`; the API tuple below is the *expected* call shape once connector wiring lands. Surfaced as a known discrepancy in the rendered page caveats.
 
 | Property | Value |
 |---|---|
