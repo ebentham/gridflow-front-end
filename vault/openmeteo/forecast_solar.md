@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: forecast_solar
 vendor: Open-Meteo
-last_verified: 2026-06-03
+last_verified: 2026-06-04
 layer_coverage: bronze, silver
 ---
 
@@ -15,7 +15,7 @@ capacity-weighted GB solar sites** (East Anglia (Norfolk),
 Wiltshire/Somerset, Kent, Cornwall, Sussex, Oxfordshire). Same
 variable set, location list, and tilt geometry as
 [historical_solar](./historical_solar.md): full irradiance
-decomposition (GHI / DNI / DHI / GTI at `tilt=35°`, `azimuth=180°`),
+decomposition (GHI / DNI / DHI / GTI at `tilt=35°`, `azimuth=0°`),
 cloud cover at three heights, and snow variables.
 
 Used as the forward-looking solar-PV forecast feed for short-term
@@ -54,7 +54,7 @@ wind-site forecasts, use [forecast_demand](./forecast_demand.md) or
 | `longitude` | float | Yes | WGS-84 longitude in decimal degrees | `1.05` |
 | `hourly` | csv string | Yes | Comma-separated variable names — connector requests **12** fields | `temperature_2m,shortwave_radiation,direct_radiation,...` |
 | `tilt` | int | Yes (for GTI) | Panel tilt above horizontal, degrees | `35` |
-| `azimuth` | int | Yes (for GTI) | Panel azimuth, degrees (0=N, 180=S) | `180` |
+| `azimuth` | int | Yes (for GTI) | Panel azimuth, degrees — Open-Meteo PV convention `0=S, ±180=N` (NOT compass) | `0` |
 | `forecast_days` | int | No | Number of forecast days (default 7, max 16) | `2` |
 | `start_date` | date | No | Window start; gridflow uses this | `2026-05-08` |
 | `end_date` | date | No | Window end; gridflow uses this | `2026-05-09` |
@@ -62,8 +62,8 @@ wind-site forecasts, use [forecast_demand](./forecast_demand.md) or
 | `models` | csv string | No | Pin a specific NWP model — connector does not pin | — |
 
 The connector's `WeatherDatasetSpec.extra_params` for `forecast_solar`
-is `(("tilt", "35"), ("azimuth", "180"))` — same UK fixed-tilt
-representative geometry as the archive counterpart.
+is `(("tilt", "35"), ("azimuth", "0"))` — same UK fixed-tilt
+representative geometry (35° tilt, due south) as the archive counterpart.
 
 Connector requests these `hourly` variables (`endpoints.SOLAR_HOURLY_VARS`):
 `temperature_2m`, `shortwave_radiation`, `direct_radiation`,
@@ -76,7 +76,7 @@ Connector requests these `hourly` variables (`endpoints.SOLAR_HOURLY_VARS`):
 ```bash
 # No auth required — Cornwall, 2 days forecast with full irradiance set
 curl --ssl-no-revoke -fsS \
-  "https://api.open-meteo.com/v1/forecast?latitude=50.30&longitude=-5.00&hourly=shortwave_radiation,direct_radiation,direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,cloud_cover&tilt=35&azimuth=180&forecast_days=2&timezone=UTC"
+  "https://api.open-meteo.com/v1/forecast?latitude=50.30&longitude=-5.00&hourly=shortwave_radiation,direct_radiation,direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,cloud_cover&tilt=35&azimuth=0&forecast_days=2&timezone=UTC"
 ```
 
 ---
@@ -154,7 +154,7 @@ The silver transformer's `BRONZE_DATASET_PREFIX` is `"forecast_solar"`.
 | `direct_radiation_wm2` | `float` | Yes | `hourly.direct_radiation[i]` | Beam on horizontal, W/m² |
 | `direct_normal_irradiance_wm2` | `float` | Yes | `hourly.direct_normal_irradiance[i]` | DNI, W/m² |
 | `diffuse_radiation_wm2` | `float` | Yes | `hourly.diffuse_radiation[i]` | DHI, W/m² |
-| `global_tilted_irradiance_wm2` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°/180°), W/m² |
+| `global_tilted_irradiance_wm2` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°, due south = azimuth 0), W/m² |
 | `cloud_cover_pct` | `float` | Yes | `hourly.cloud_cover[i]` | % |
 | `cloud_cover_low_pct` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
 | `cloud_cover_mid_pct` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
@@ -233,8 +233,8 @@ None implemented.
 - **No `air_density_kg_m3` on this dataset** — see
   [historical_solar §Known issues and gotchas](./historical_solar.md#known-issues-and-gotchas).
   Solar variable list does not request `surface_pressure`.
-- **GTI requires `tilt` and `azimuth`** — same `tilt=35`, `azimuth=180`
-  as historical via `WeatherDatasetSpec.extra_params`.
+- **GTI requires `tilt` and `azimuth`** — same `tilt=35`, `azimuth=0`
+  (due south) as historical via `WeatherDatasetSpec.extra_params`.
 - **Two-host design.** Forecast lives at `api.open-meteo.com`, while
   [historical_solar](./historical_solar.md) lives at
   `archive-api.open-meteo.com`.
@@ -276,7 +276,7 @@ None implemented.
 ## Modelling notes
 
 - **Day-ahead solar-PV modelling.** `global_tilted_irradiance` is the
-  most direct feature for fixed-tilt sites at 35°/180°. For tracker
+  most direct feature for fixed-tilt sites at 35° due south. For tracker
   installations the GTI underestimates; use `direct_normal_irradiance`
   and a tracker-specific transposition.
 - **Cloud-cover dynamics.** Forecast cloud cover at three heights is
