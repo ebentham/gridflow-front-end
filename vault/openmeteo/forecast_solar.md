@@ -230,14 +230,16 @@ None implemented.
 
 ## Known issues and gotchas
 
-- **⚠️ On-disk GTI written before the OM-04 fix is north-facing (known-wrong).**
-  Any `global_tilted_irradiance_wm2` already in
-  `data/silver/open_meteo/forecast_solar/` was fetched at the pre-fix
-  `azimuth=180` (= **north** under Open-Meteo's `0=S / ±180=N` convention) and
-  is understated ~50% at solar noon. GHI / DNI / DHI are unaffected.
-  **Re-transforming from bronze does NOT fix it**; only a **live re-fetch at
-  `azimuth=0` + re-transform** corrects it (a gated live operation). All FUTURE
-  ingests are correct (connector now sends `azimuth=0`). See OM-04 (v0.15 VT5).
+- **⚠️ On-disk GTI is north-facing (known-wrong) and NOT correctable in place.**
+  The existing `forecast_solar` silver in `data/silver/open_meteo/forecast_solar/`
+  was fetched at the pre-fix `azimuth=180` (= **north** under Open-Meteo's
+  `0=S / ±180=N` convention) and is understated ~50% at solar noon. Unlike
+  [historical_solar](./historical_solar.md) — re-corrected from the deterministic
+  ERA5 archive on 2026-06-04 — a forecast is a point-in-time **vintage**:
+  re-fetching a past date returns the *current* model run, not the original
+  forecast, so these on-disk vintages **cannot be corrected without changing what
+  they mean** and are left as-is (known-wrong). GHI / DNI / DHI are unaffected.
+  All FUTURE forecasts are correct (connector now sends `azimuth=0`). See OM-04.
 - **No `air_density_kg_m3` on this dataset** — see
   [historical_solar §Known issues and gotchas](./historical_solar.md#known-issues-and-gotchas).
   Solar variable list does not request `surface_pressure`.
