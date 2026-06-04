@@ -254,15 +254,11 @@ None implemented.
 
 ## Known issues and gotchas
 
-- **⚠️ On-disk GTI written before the OM-04 fix is north-facing (known-wrong).**
-  Any `global_tilted_irradiance_wm2` already in
-  `data/silver/open_meteo/historical_solar/` was fetched at the pre-fix
-  `azimuth=180` (= **north** under Open-Meteo's `0=S / ±180=N` convention) and
-  is understated ~50% at solar noon. GHI / DNI / DHI are orientation-independent
-  and unaffected. **Re-transforming from bronze does NOT fix it** — the raw
-  bronze bytes already encode north-facing GTI; only a **live re-fetch at
-  `azimuth=0` + re-transform** corrects it (a gated live operation). All FUTURE
-  ingests are correct (connector now sends `azimuth=0`). See OM-04 (v0.15 VT5).
+- **On-disk GTI corrected (OM-04).** Earlier silver here was fetched at the
+  pre-fix `azimuth=180` (north). The affected May-2026 dates were re-ingested
+  from the ERA5 archive at `azimuth=0` and re-transformed on 2026-06-04, so
+  on-disk `global_tilted_irradiance_wm2` is now south-facing and correct
+  (verified: every date's solar-noon GTI exceeds GHI). See OM-04 (v0.15 VT5).
 - **No `air_density_kg_m3` on this dataset.** Solar variable list does
   not request `surface_pressure`, so the derivation cannot run.
   Contract enforced by `test_openmeteo_air_density.py`. If a future

@@ -2,10 +2,8 @@
 source: entsog
 dataset_key: interruptions
 vendor: ENTSOG Transparency Platform
-last_verified: 2026-05-08
+last_verified: 2026-06-04
 layer_coverage: bronze, silver
-removed: 2026-05-19
-removed_reason: "Vendor took the endpoint down; HTTP 404 from current API. See .planning/reconciliation/entsog/02-interruptions-http-404.md for the Verification finding."
 ---
 
 # ENTSOG — Interruptions
