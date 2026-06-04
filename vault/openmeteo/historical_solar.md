@@ -2,7 +2,7 @@
 source: open_meteo
 dataset_key: historical_solar
 vendor: Open-Meteo
-last_verified: 2026-06-03
+last_verified: 2026-06-04
 layer_coverage: bronze, silver
 ---
 
@@ -22,8 +22,8 @@ Used as the solar-PV-generation backtest feed. The dataset adds the
 full irradiance decomposition over the F0-era `historical` set:
 **GHI** (`shortwave_radiation`), **DNI** (`direct_normal_irradiance`),
 **DHI** (`diffuse_radiation`), and **GTI** (`global_tilted_irradiance`)
-at a UK fixed-tilt representative geometry (`tilt=35°`, `azimuth=180°`
-— latitude minus ~15°, due south). Also carries cloud cover at three
+at a UK fixed-tilt representative geometry (`tilt=35°`, `azimuth=0°`
+— latitude minus ~15°, due south; Open-Meteo PV convention 0=S, ±180=N). Also carries cloud cover at three
 heights and snow variables (snowfall, snow_depth) for snow-shading
 events.
 
@@ -65,12 +65,12 @@ phase execution).
 | `end_date` | date | Yes | Inclusive end of the window, `YYYY-MM-DD` | `2025-06-07` |
 | `hourly` | csv string | Yes | Comma-separated variable names — connector requests **12** fields | `temperature_2m,shortwave_radiation,direct_radiation,...` |
 | `tilt` | int | Yes (for GTI) | Panel tilt above horizontal, degrees | `35` |
-| `azimuth` | int | Yes (for GTI) | Panel azimuth, degrees (0=N, 180=S) | `180` |
+| `azimuth` | int | Yes (for GTI) | Panel azimuth, degrees — Open-Meteo PV convention `0=S, ±180=N` (NOT compass) | `0` |
 | `timezone` | string | No (default `GMT`) | Connector always passes `UTC` | `UTC` |
 
 The connector's `WeatherDatasetSpec.extra_params` for `historical_solar`
-is `(("tilt", "35"), ("azimuth", "180"))` — the UK fixed-tilt
-representative geometry. Both params are **required** when
+is `(("tilt", "35"), ("azimuth", "0"))` — the UK fixed-tilt
+representative geometry (35° tilt, due south). Both params are **required** when
 `global_tilted_irradiance` is in the `hourly` list.
 
 Connector requests these `hourly` variables (`endpoints.SOLAR_HOURLY_VARS`):
@@ -84,7 +84,7 @@ Connector requests these `hourly` variables (`endpoints.SOLAR_HOURLY_VARS`):
 ```bash
 # No auth required — Cornwall solar probe with full irradiance set
 curl --ssl-no-revoke -fsS \
-  "https://archive-api.open-meteo.com/v1/archive?latitude=50.30&longitude=-5.00&start_date=2025-06-01&end_date=2025-06-07&hourly=shortwave_radiation,direct_radiation,direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,cloud_cover&tilt=35&azimuth=180&timezone=UTC"
+  "https://archive-api.open-meteo.com/v1/archive?latitude=50.30&longitude=-5.00&start_date=2025-06-01&end_date=2025-06-07&hourly=shortwave_radiation,direct_radiation,direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,cloud_cover&tilt=35&azimuth=0&timezone=UTC"
 ```
 
 Verified 2026-05-09 (F7.5): GHI = `shortwave_radiation` and the
@@ -171,7 +171,7 @@ transformer's `BRONZE_DATASET_PREFIX` is `"historical_solar"`.
 | `direct_radiation_wm2` | `float` | Yes | `hourly.direct_radiation[i]` | Beam component on horizontal, W/m² |
 | `direct_normal_irradiance_wm2` | `float` | Yes | `hourly.direct_normal_irradiance[i]` | DNI — beam normal to sun, W/m² |
 | `diffuse_radiation_wm2` | `float` | Yes | `hourly.diffuse_radiation[i]` | DHI — diffuse on horizontal, W/m² |
-| `global_tilted_irradiance_wm2` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°/180°), W/m² |
+| `global_tilted_irradiance_wm2` | `float` | Yes | `hourly.global_tilted_irradiance[i]` | GTI on UK fixed tilt (35°, due south = azimuth 0), W/m² |
 | `cloud_cover_pct` | `float` | Yes | `hourly.cloud_cover[i]` | Total cover, % |
 | `cloud_cover_low_pct` | `float` | Yes | `hourly.cloud_cover_low[i]` | % |
 | `cloud_cover_mid_pct` | `float` | Yes | `hourly.cloud_cover_mid[i]` | % |
@@ -261,7 +261,8 @@ None implemented.
   `SOLAR_HOURLY_VARS` and the derivation will activate via
   `BaseOpenMeteoTransformer.DERIVE_AIR_DENSITY`.
 - **GTI requires `tilt` and `azimuth` query params.** The connector
-  injects `tilt=35&azimuth=180` via `WeatherDatasetSpec.extra_params`.
+  injects `tilt=35&azimuth=0` via `WeatherDatasetSpec.extra_params`
+  (azimuth 0 = due south under Open-Meteo's PV convention 0=S / ±180=N).
   Modifying the tilt geometry requires a code change in
   `_SOLAR_GTI_PARAMS` and a downstream re-ingest; document any change
   here. UK fixed-tilt sites typically use latitude minus ~15°, due
@@ -312,7 +313,7 @@ None implemented.
 - **Day-ahead solar-PV modelling.** `global_tilted_irradiance` is the
   most direct feature — it represents the irradiance arriving on the
   representative panel geometry — but watch out: the tilt is fixed at
-  35° / 180°, so for sites with tracker installations the GTI will
+  35° due south (azimuth 0), so for sites with tracker installations the GTI will
   systematically underestimate. `shortwave_radiation` is GHI; combine
   with cloud cover for cloud-shading proxy features.
 - **DNI / DHI separation.** Useful for tracker-vs-fixed comparisons
