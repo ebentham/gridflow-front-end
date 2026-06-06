@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>available_through_oversubscription · ENTSO-G Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-G · available_through_oversubscription">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsog.html">ENTSO-G Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">available_through_oversubscription</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-G · CMP / Capacity</span>
+            <span class="chip" style="font-size:11px;">daily · same-day</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 20px; font-family: var(--mono); letter-spacing: -0.01em;">available_through_oversubscription</span><br/>
+            Capacity above firm through <span class="italic fg-accent">oversubscription.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Extra capacity offered through the oversubscription CMP mechanism — the canonical signal for capacity beyond firm-technical limits, made available when historical utilisation justifies it.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://transparency.entsog.eu/" class="link" target="_blank" rel="noopener">ENTSO-G Transparency · /operationalData ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px; line-height:1.4;">silver.available_<br/>through_oversubscription</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:9px; line-height:1.4;">/api/v1/operationalData<br/>?indicator=Available%20<br/>through%20Oversubscription</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">daily</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">same-day</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small" style="font-size:12px; line-height:1.4;">~9 GB points/day; often 0 rows</div></div>
+<div style="padding: 16px 18px; "><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px; line-height:1.4;">(id)<br/>— vendor concatenation</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+<div><div class="stat-n">daily</div><div class="stat-l">Frequency</div></div>
+<div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">kWh/d</div><div class="stat-l">Reporting unit</div></div>
+<div><div class="stat-n">CMP</div><div class="stat-l">Mechanism (oversubscription)</div></div>
+<div><div class="stat-n">dynamic</div><div class="stat-l">Silver schema (no Pydantic class)</div></div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+<a href="#overview" class="active">Overview</a>
+<a href="#snapshot">Snapshot chart</a>
+<a href="#schema">Schema</a>
+<a href="#sample">Sample data</a>
+<a href="#api">API &amp; ingestion</a>
+<a href="#caveats">Caveats</a>
+<a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-G Transparency</div>
+          <a href="../entsog.html">← All datasets</a>
+          <a href="available_through_oversubscription.html" class="active">available_through_oversubscription</a>
+<a href="#" style="color:var(--ink-faint);">available_through_surrender</a>
+<a href="#" style="color:var(--ink-faint);">available_through_uioli_long_term</a>
+<a href="#" style="color:var(--ink-faint);">available_through_uioli_short_term</a>
+<a href="#" style="color:var(--ink-faint);">cmp_unavailable_firm_capacity</a>
+<a href="#" style="color:var(--ink-faint);">firm_available</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">available_through_oversubscription</code> holds the extra capacity a TSO offers above the firm-technical limit through the oversubscription CMP (Congestion Management Procedure) mechanism. It shares the canonical ENTSO-G operational-data shape with the other indicators; the differentiator is <code class="mono">indicator="Available through Oversubscription"</code>. Oversubscription is only offered when historical utilisation at a point justifies selling more than the physical technical capacity. Each row is one operator-point-direction's oversubscription capacity for a validity window.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-G Transparency Platform at <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api/v1/operationalData</code> with <code class="mono">indicator=Available through Oversubscription</code>, queried per operator-point-direction over a gas-day range with <code class="mono">timeZone=UCT</code> and <code class="mono">periodType=day</code>. The raw JSON lands in bronze and is written to silver via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GenericEntsogJsonTransformer</code> (subclassed as <code class="mono">AvailableThroughOversubscriptionTransformer</code>), with no Pydantic class — columns are derived dynamically.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            As one of the three CMP procedures (oversubscription, surrender, UIOLI), it signals where chronic congestion is letting the TSO sell beyond physical limits — a useful tell for GB interconnection tightness. Pair it with the <code class="mono">cmp_*</code> datasets and <code class="mono">firm_available</code> for the full congestion picture. Schema and API verified against the gridflow connector source and the 2026-05-08 vault Bronze sample; ENTSO-G is a public, no-authentication API.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Oversubscription capacity at GB points · <span class="italic fg-accent">1-year window.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">available_through_oversubscription · silver layer · GB points</div>
+                <div class="small">Sparkline · GWh/day · last 12 months</div>
+              </div>
+              <div class="row gap-8">
+<span class="chip ink btn-like">1y</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":820,"height":140,"seed":34}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No Pydantic class</strong> — columns are derived dynamically by <code class="mono">GenericEntsogJsonTransformer</code> from the live response (<code class="mono">silver/entsog/generic.py L80</code>). Same canonical operational-data shape as the other indicators; the differentiator is <code class="mono">indicator="Available through Oversubscription"</code>. Every citation is a <code class="mono">silver/entsog/*.py</code> source path, not a schema class.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 24%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+<tr><td class="col-name">id <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor concatenation. Dedup key. <span class="cite">silver/entsog/generic.py L126-130</span></td></tr>
+<tr><td class="col-name">timestamp_utc</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Set from <code class="mono">periodFrom</code> via the priority list. Partition driver. <span class="cite">silver/entsog/generic.py L118-120</span></td></tr>
+<tr><td class="col-name">period_from / period_to</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Validity window. <span class="cite">silver/entsog/generic.py L114-116</span></td></tr>
+<tr><td class="col-name">indicator</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Always <code class="mono">"Available through Oversubscription"</code>. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_key / point_key / direction_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Operator-point-direction identity. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">is_cmp_relevant</td><td class="col-type">bool</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">true</code> for this CMP indicator. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">unit</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Always <code class="mono">"kWh/d"</code> — gas convention, <strong>NOT MWh</strong>. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">value</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Oversubscription extra capacity offered above the firm-technical limit. <span class="cite">silver/entsog/generic.py L122-124</span></td></tr>
+<tr><td class="col-name">last_update_date_time</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor publication timestamp; may be <code class="mono">""</code>, <code class="mono">"-"</code>, <code class="mono">"N/A"</code>. <span class="cite">silver/entsog/datetime.py</span></td></tr>
+<tr><td class="col-name">data_provider</td><td class="col-type">str ("entsog")</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsog"</code>. Constant. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+<tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Wall-clock at silver write. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsog/available_through_oversubscription/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(id) — vendor concatenation</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr><th>period_from</th><th>period_to</th><th>point_key</th><th>direction_key</th><th>unit</th><th>value</th><th>last_update_date_time</th></tr>
+              </thead>
+              <tbody>
+<tr><td class="date">2025-10-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">12,000,000</td><td class="date">2025-09-15T08:00:00+00:00</td></tr>
+<tr><td class="date">2025-10-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">entry</td><td>kWh/d</td><td class="num">8,000,000</td><td class="date">2025-09-15T08:00:00+00:00</td></tr>
+<tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2025-10-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00207</td><td class="str">exit</td><td>kWh/d</td><td class="num">5,000,000</td><td class="date">2025-09-15T08:00:00+00:00</td></tr>
+<tr><td class="date">2025-10-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00207</td><td class="str">entry</td><td>kWh/d</td><td class="num">0</td><td class="date">2025-09-15T08:00:00+00:00</td></tr>
+<tr><td class="date">2025-10-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00495</td><td class="str">entry</td><td>kWh/d</td><td class="num">0</td><td class="date">2025-09-15T08:00:00+00:00</td></tr>
+<tr><td class="date">2026-04-01T04:00:00+00:00</td><td class="date">2026-07-01T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">3,000,000</td><td class="date">2026-03-15T08:00:00+00:00</td></tr>
+<tr><td class="date">2026-04-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">4,000,000</td><td class="date">2026-03-15T08:00:00+00:00</td></tr>
+<tr><td class="date">2026-05-06T04:00:00+00:00</td><td class="date">2026-05-07T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">0</td><td class="date">2026-05-05T08:00:00+00:00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised — oversubscription capacity is typically small (single-digit % of technical) and only offered at chronically-congested points. Highlighted row is BBL exit oversubscription at 5 GWh/d, about 2.5% of the 200 GWh/d technical. Zero-rows are common for points without congestion history. <code class="mono">kWh/d</code> throughout (NOT MWh).
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">transparency.entsog.eu/api/v1/<br/>operationalData<br/>?indicator=Available through<br/>Oversubscription<br/>&amp;from={YYYY-MM-DD}<br/>&amp;to={YYYY-MM-DD}<br/>&amp;timeZone=UCT<br/>&amp;periodType=day<br/>&amp;pointDirection={...}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public).</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsog/<br/>available_through_oversubscription/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsog.generic.<br/>GenericEntsogJsonTransformer<br/>↳ AvailableThroughOversubscriptionTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="ovs">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('ovs','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('ovs','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('ovs','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="ovs-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://transparency.entsog.eu/api/v1/operationalData<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">from</span>=2026-05-06<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">to</span>=2026-05-06<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">timeZone</span>=UCT<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">indicator</span>=Available%20through%20Oversubscription<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodType</span>=day<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">pointDirection</span>=UK-TSO-0001ITP-00005exit<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">forceDownload</span>=true<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">limit</span>=-1</pre>
+            </div></div>
+            <div data-tab-panel="ovs-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Points with oversubscription capacity active in the current gas year</span>
+<span class="k">SELECT</span> point_key, direction_key,
+       MAX_BY(value, period_from) / <span class="num">1e6</span> <span class="k">AS</span> extra_gwh
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsog/available_through_oversubscription/**/*.parquet'</span>)
+<span class="k">WHERE</span> period_from &lt;= current_date <span class="k">AND</span> period_to &gt; current_date
+  <span class="k">AND</span> value &gt; <span class="num">0</span>
+<span class="k">GROUP BY</span> <span class="num">1</span>, <span class="num">2</span>
+<span class="k">ORDER BY</span> extra_gwh <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="ovs-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/entsog/available_through_oversubscription/**/*.parquet"</span>)
+<span class="c"># How often is oversubscription &gt;0?</span>
+print(df.group_by(<span class="s">"point_key"</span>).agg((pl.col(<span class="s">"value"</span>) &gt; <span class="num">0</span>).sum().alias(<span class="s">"nonzero_rows"</span>)).sort(<span class="s">"nonzero_rows"</span>, descending=<span class="k">True</span>))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">available_through_oversubscription</code>. Also read the <a href="../entsog.html#about" class="link">ENTSO-G-wide caveats</a> on the vendor page.</p>
+          <div>
+<div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;">Indicator string is exact-case (mixed case)</div><p class="small" style="margin: 0;">Connector sends the literal <code class="mono">"Available through Oversubscription"</code> — note the lowercase <code class="mono">through</code>. <span class="src-cite">OPERATIONAL_INDICATORS["available_through_oversubscription"] · connectors/entsog/endpoints.py L111</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;">Most rows are zero</div><p class="small" style="margin: 0;">Oversubscription only kicks in when historical congestion justifies it. Empty (zero-value) rows are the norm at uncongested points. <span class="src-cite">domain knowledge / CMP mechanism docs</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">timeZone=UCT</code> (vendor typo, intentional)</div><p class="small" style="margin: 0;">Connector sends <code class="mono">UCT</code> not <code class="mono">UTC</code>; sending <code class="mono">UTC</code> returns HTTP 400. <span class="src-cite">connectors/entsog/endpoints.py L17 · ENTSOG_TIMEZONE</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;">Empty windows return HTTP 404, not 200</div><p class="small" style="margin: 0;">ENTSO-G's empty convention is <code class="mono">HTTP 404 + {"message":"No result found"}</code>. Connector short-circuits as empty-bronze. <span class="src-cite">connectors/entsog/client.py L24-28, L109-115</span></p></div></div>
+<div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Part of CMP — pair with <code class="mono">cmp_*</code> datasets</div><p class="small" style="margin: 0;">Oversubscription is one of three CMP procedures (oversubscription, surrender, UIOLI). For the full CMP picture, also query <code class="mono">cmp_unsuccessful_requests</code>, <code class="mono">cmp_unavailable_firm_capacity</code>, <code class="mono">cmp_auction_premiums</code>. <span class="src-cite">ENTSO-G Network Code on CAM/CMP</span></p></div></div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside available_through_oversubscription.</h2>
+          <div class="related-grid">
+<a href="available_through_surrender.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">available_through_surrender</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Capacity surrendered back to the TSO. Complementary CMP mechanism.</p><span class="tiny">entsog · capacity · daily</span></a>
+<a href="available_through_uioli_long_term.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">available_through_uioli_long_term</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Long-term UIOLI capacity — use-it-or-lose-it long product.</p><span class="tiny">entsog · capacity · daily</span></a>
+<a href="available_through_uioli_short_term.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">available_through_uioli_short_term</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Short-term UIOLI capacity — same mechanism, day-ahead window.</p><span class="tiny">entsog · capacity · daily</span></a>
+<a href="cmp_unavailable_firm_capacity.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">cmp_unavailable_firm_capacity</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Firm capacity classified as unavailable — the CMP trigger condition.</p><span class="tiny">entsog · CMP · daily</span></a>
+          </div>
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>
