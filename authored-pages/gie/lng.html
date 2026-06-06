@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>lng · GIE Storage · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="GIE · lng">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../gie.html">GIE Storage</a>
+        <span class="sep">/</span>
+        <span class="here">lng</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · GIE-ALSI · LNG</span>
+            <span class="chip" style="font-size:11px;">daily · gas-day</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">lng</span><br/>
+            European LNG terminals, <span class="italic fg-accent">country by country.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Country-scoped daily LNG terminal inventory and send-out — the
+            canonical EU LNG-inflow indicator for storage-vs-LNG substitution
+            modelling, security-of-supply analysis, and gas-supply balance.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-11 ·
+            <a href="https://alsi.gie.eu/api" class="link" target="_blank" rel="noopener">GIE ALSI · /api ↗</a>
+          </p>
+        </div>
+        <!-- key metrics -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.gie_alsi.lng</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api?country={ISO2}<br/>&amp;from=…&amp;till=…</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">daily (gas day)</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">daily</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">~8 rows / day</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(gas_day,<br/>country_code)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">daily</div>
+        <div class="stat-l">Snapshot cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">8</div>
+        <div class="stat-l">ALSI countries (BE ES FR GB IT NL PL PT)</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 36px;">GWh</div>
+        <div class="stat-l">Reporting unit</div>
+      </div>
+      <div>
+        <div class="stat-n">10</div>
+        <div class="stat-l">Silver output columns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">GIE Storage</div>
+          <a href="../gie.html">← All datasets</a>
+          <a href="lng.html" class="active">lng</a>
+          <a href="storage.html" style="color:var(--ink-faint);">storage</a>
+          <a href="storage_reports.html" style="color:var(--ink-faint);">storage_reports</a>
+          <a href="unavailability.html" style="color:var(--ink-faint);">unavailability</a>
+          <a href="about_summary.html" style="color:var(--ink-faint);">about_summary</a>
+          <a href="about_listing.html" style="color:var(--ink-faint);">about_listing</a>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">lng</code>
+            holds country-scoped daily LNG terminal inventory and send-out — the
+            EU LNG-inflow side of the gas-supply balance. It is the ALSI
+            counterpart to AGSI storage: where storage tracks underground stock,
+            <code class="mono">lng</code> tracks regasification terminals, with
+            <code class="mono">dtrs_pct_full</code> (Declared Technical
+            Regasification Send-out, clamped 0–100) as the headline utilisation
+            indicator. Each row is one ALSI country's terminal aggregate for a
+            single gas day.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from GIE's ALSI platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">alsi.gie.eu/api</code>,
+            queried per country with an <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">x-key</code>
+            header, validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">LNGTerminal</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">LNGTerminalTransformer</code>.
+            As with AGSI, the grain is the gas day — each <code class="mono">gas_day</code>
+            starts at 06:00 UTC, not midnight — and stocks and flows are reported
+            in GWh, not MWh.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It matters because LNG send-out is the substitute supply buffer that
+            offsets storage drawdown: pairing <code class="mono">lng</code>
+            send-out with AGSI net-withdrawal, ENTSO-G pipeline nominations, and
+            downstream Elexon CCGT generation gives the full dual-buffer picture
+            for security-of-supply analysis. Values are projected from the
+            2026-05 ALSI footprint and respect the schema validator; verified
+            against vendor docs on 2026-05-11.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">FR LNG terminals · send-out · last 12 <span class="italic fg-accent">months.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">lng · silver layer · country_code=FR</div>
+                <div class="small">Sparkline · GWh/day · daily · gas-day · 2025-06 → 2026-05</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">1y</span>
+                <span class="chip btn-like">5y</span>
+              </div>
+            </div>
+            <div style="padding: 24px 0;">
+              <div class="row" style="align-items: center; gap: 32px;">
+                <div style="font-family: var(--serif); font-size: 56px; line-height: 1; color: var(--ink); font-weight: 400;">420<span style="font-size: 28px; color: var(--ink-soft); margin-left: 6px;">GWh/d</span></div>
+                <div>
+                  <div class="tiny mb-4">Current · 2026-05-06</div>
+                  <div class="small" style="color: var(--ink-soft);">dtrs 64.2% · trend +0.42</div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div data-chart="sparkline" data-opts='{"width":640,"height":80,"seed":28,"n":120}'></div>
+                </div>
+              </div>
+              <div class="row" style="justify-content: space-between; margin-top: 8px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint);">
+                <span>Jun 2025</span><span>Sep 2025</span><span>Dec 2025</span><span>Mar 2026</span><span>May 2026</span>
+              </div>
+            </div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            Defined in <code class="mono">gridflow/schemas/gie.py · LNGTerminal</code>
+            (lines 50–68) and <code class="mono">gridflow/silver/gie/alsi.py · LNGTerminalTransformer</code>
+            (lines 18–119). Partitioned by <code class="mono">gas_day</code>
+            (year + month). Silver <code class="mono">output_cols</code> is the
+            source of truth (<code class="mono">silver/gie/alsi.py L109-114</code>)
+            — 10 columns including <code class="mono">data_provider</code> and
+            <code class="mono">ingested_at</code>.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 24%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">gas_day <span class="pk-badge">PK</span></td><td class="col-type">date</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Gas day, <strong>NOT calendar day</strong> — starts at 06:00 UTC. Strict parse via <code class="mono">str.to_date("%Y-%m-%d")</code>. Source: <code class="mono">gasDayStart</code> / <code class="mono">gasDay</code> / <code class="mono">date</code>.<span class="cite">schemas/gie.py L53 · silver/gie/alsi.py L57-61</span></td></tr>
+              <tr><td class="col-name">country_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">ISO-2 (one of <code class="mono">BE ES FR GB IT NL PL PT</code>). <strong>Required</strong> in <code class="mono">LNGTerminal</code> — no default, distinct from AGSI's <code class="mono">country_code: str = ""</code>. Source: <code class="mono">countryCode</code> / <code class="mono">code</code>.<span class="cite">schemas/gie.py L54 · silver/gie/alsi.py L74, L95-96</span></td></tr>
+              <tr><td class="col-name">country_name</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Human-readable country (default <code class="mono">""</code>). Source: <code class="mono">countryName</code> / <code class="mono">name</code>.<span class="cite">schemas/gie.py L55 · silver/gie/alsi.py L75</span></td></tr>
+              <tr><td class="col-name">lng_in_storage_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Stored LNG inventory (GWh). Multiple vendor aliases handled in <code class="mono">field_map</code>. Source: <code class="mono">lngInventory</code> / <code class="mono">lngInStorage</code> / <code class="mono">gasInStorage</code>.<span class="cite">schemas/gie.py L56 · silver/gie/alsi.py L66-67</span></td></tr>
+              <tr><td class="col-name">send_out_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">LNG send-out (regas) volume (GWh). Falls back to <code class="mono">withdrawal</code> for the legacy shape. Source: <code class="mono">sendOut</code> / <code class="mono">sendOutGwh</code> / <code class="mono">withdrawal</code>.<span class="cite">schemas/gie.py L57 · silver/gie/alsi.py L68-69</span></td></tr>
+              <tr><td class="col-name">injection_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">LNG inflow to the terminal (GWh). Source: <code class="mono">injection</code> / <code class="mono">injectionGwh</code>.<span class="cite">schemas/gie.py L58 · silver/gie/alsi.py L70</span></td></tr>
+              <tr><td class="col-name">dtrs_pct_full</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Declared Technical Regasification Send-out — % of nominal capacity. 0–100, clamped by validator. Source: <code class="mono">dtrs</code> / <code class="mono">dtrsPctFull</code> / <code class="mono">full</code>.<span class="cite">schemas/gie.py L59, L63-68 · silver/gie/alsi.py L71-72</span></td></tr>
+              <tr><td class="col-name">trend</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Signed daily delta of <code class="mono">dtrs_pct_full</code>. Source: <code class="mono">trend</code>.<span class="cite">schemas/gie.py L60 · silver/gie/alsi.py L73</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"gie_alsi"</code> (<strong>NOT</strong> <code class="mono">"gie_agsi"</code>). Default <code class="mono">"gie_alsi"</code>.<span class="cite">schemas/gie.py L61 · silver/gie/alsi.py L105</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Silver write timestamp.<span class="cite">silver/gie/alsi.py L106</span></td></tr>
+            </tbody>
+          </table>
+
+          <!-- partition info -->
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/gie_alsi/lng/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">gas_day (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(gas_day, country_code) · else (gas_day,)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>gas_day</th>
+                  <th>country_code</th>
+                  <th>country_name</th>
+                  <th>lng_in_storage_gwh</th>
+                  <th>send_out_gwh</th>
+                  <th>injection_gwh</th>
+                  <th>dtrs_pct_full</th>
+                  <th>trend</th>
+                  <th>data_provider</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-06</td><td class="str">FR</td><td class="str">France</td><td class="num">78.40</td><td class="num">420.10</td><td class="num">510.30</td><td class="num">64.20</td><td class="num">0.42</td><td class="str">gie_alsi</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06</td><td class="str">ES</td><td class="str">Spain</td><td class="num">142.80</td><td class="num">685.30</td><td class="num">812.40</td><td class="num">78.50</td><td class="num">0.61</td><td class="str">gie_alsi</td></tr>
+                <tr><td class="date">2026-05-06</td><td class="str">NL</td><td class="str">Netherlands</td><td class="num">56.20</td><td class="num">312.40</td><td class="num">380.10</td><td class="num">51.30</td><td class="num">0.28</td><td class="str">gie_alsi</td></tr>
+                <tr><td class="date">2026-05-06</td><td class="str">BE</td><td class="str">Belgium</td><td class="num">24.10</td><td class="num">145.20</td><td class="num">178.30</td><td class="num">48.60</td><td class="num">0.32</td><td class="str">gie_alsi</td></tr>
+                <tr><td class="date">2026-05-06</td><td class="str">IT</td><td class="str">Italy</td><td class="num">41.80</td><td class="num">215.40</td><td class="num">258.10</td><td class="num">42.10</td><td class="num">-0.15</td><td class="str">gie_alsi</td></tr>
+                <tr><td class="date">2026-05-06</td><td class="str">PT</td><td class="str">Portugal</td><td class="num">18.20</td><td class="num">92.10</td><td class="num">110.30</td><td class="num">55.40</td><td class="num">0.18</td><td class="str">gie_alsi</td></tr>
+                <tr><td class="date">2026-05-06</td><td class="str">GB</td><td class="str">United Kingdom</td><td class="num">35.40</td><td class="num">198.30</td><td class="num">240.10</td><td class="num">39.80</td><td class="num">-0.21</td><td class="str">gie_alsi</td></tr>
+                <tr><td class="date">2026-05-06</td><td class="str">PL</td><td class="str">Poland</td><td class="num">12.10</td><td class="num">68.40</td><td class="num">82.20</td><td class="num">38.50</td><td class="num">0.10</td><td class="str">gie_alsi</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            All 8 rows synthesised respecting <code class="mono">LNGTerminal</code> schema constraints — vault <code class="mono">lng.md</code> carries no explicit live Silver Sample, so values are projected from the 2026-05 ALSI footprint and respect the <code class="mono">dtrs_pct_full</code> clamp validator (0–100) at <code class="mono">schemas/gie.py L63-68</code>. The highlighted <code class="mono">ES</code> row is the canonical case: Spain is the largest LNG-import country in the ALSI footprint by send-out volume (Mugardos, Bilbao, Cartagena, Barcelona, Sagunto, Huelva combined). Unlike AGSI's GB Pre-Brexit gap, GB ALSI continues to publish — treat any null <code class="mono">lng_in_storage_gwh</code> as publication absence, not zero.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">alsi.gie.eu/api<br/>?country={ISO2}<br/>&amp;from={YYYY-MM-DD}<br/>&amp;till={YYYY-MM-DD}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Header <code class="mono">x-key</code> (LOWERCASE — <code class="mono">X-Key</code> returns 401), key from env <code class="mono">GIE_API_KEY</code> (shared with AGSI+). Free registration at <a href="https://alsi.gie.eu/account/registration" class="link" target="_blank" rel="noopener">alsi.gie.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/gie_alsi/lng/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.gie.alsi.<br/>LNGTerminalTransformer<br/>(registered · silver/gie/alsi.py L122)</div>
+            </div>
+          </div>
+
+          <!-- tabs -->
+          <div data-tab-group="lng">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('lng','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('lng','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('lng','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="lng-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;"><span class="c"># Header: x-key: $GIE_API_KEY  (lowercase)</span>
+https://alsi.gie.eu/api
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">country</span>=ES
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">from</span>=2026-05-01
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">till</span>=2026-05-07
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">size</span>=300
+
+<span class="c"># Note: ALSI uses `till=` for range end (NOT `to=` — different from AGSI).</span></pre>
+            </div></div>
+            <div data-tab-panel="lng-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- EU-wide LNG send-out trajectory, last 90 days</span>
+<span class="k">SELECT</span> gas_day,
+       <span class="k">SUM</span>(send_out_gwh) <span class="k">AS</span> eu_send_out_gwh,
+       <span class="k">SUM</span>(injection_gwh) <span class="k">AS</span> eu_injection_gwh,
+       <span class="k">AVG</span>(dtrs_pct_full) <span class="k">AS</span> avg_pct_full
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/gie_alsi/lng/**/*.parquet'</span>)
+<span class="k">WHERE</span> send_out_gwh <span class="k">IS NOT NULL</span>
+  <span class="k">AND</span> gas_day &gt;= current_date - <span class="k">INTERVAL</span> 90 <span class="k">DAY</span>
+<span class="k">GROUP BY</span> gas_day
+<span class="k">ORDER BY</span> gas_day;</pre>
+            </div></div>
+            <div data-tab-panel="lng-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/gie_alsi/lng/**/*.parquet"</span>)
+<span class="c"># Spain LNG net contribution: injection - send_out daily, last 30 days</span>
+es = (
+    df.filter(pl.col(<span class="s">"country_code"</span>) == <span class="s">"ES"</span>)
+      .with_columns((pl.col(<span class="s">"injection_gwh"</span>) - pl.col(<span class="s">"send_out_gwh"</span>)).alias(<span class="s">"net_storage_change_gwh"</span>))
+      .select(<span class="s">"gas_day"</span>, <span class="s">"lng_in_storage_gwh"</span>, <span class="s">"send_out_gwh"</span>, <span class="s">"injection_gwh"</span>,
+              <span class="s">"net_storage_change_gwh"</span>, <span class="s">"dtrs_pct_full"</span>)
+      .sort(<span class="s">"gas_day"</span>)
+      .tail(<span class="num">30</span>)
+)
+print(es)</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">lng</code>. Also read the <a href="../gie.html#about" class="link">GIE-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">01</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · ALSI vs AGSI range param</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">ALSI uses <code class="mono">till=</code> for the range end, AGSI uses <code class="mono">to=</code></div>
+                <p class="small" style="margin: 0;">The ALSI range query is <code class="mono">from=YYYY-MM-DD&amp;till=YYYY-MM-DD</code>; AGSI uses <code class="mono">from</code>/<code class="mono">to</code>. The connector's <code class="mono">_fetch_country</code> (used by <code class="mono">gie_alsi</code>) preserves the legacy <code class="mono">till=</code> form. <span class="src-cite">vault lng.md query params · storage.md Implementation Delta</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Unit is GWh — NOT MWh</div>
+                <p class="small" style="margin: 0;">Stocks in <code class="mono">lng_in_storage_gwh</code>; flows in <code class="mono">send_out_gwh</code> / <code class="mono">injection_gwh</code> (GWh per gas day). Same convention as AGSI. <span class="src-cite">vault lng.md Silver schema</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Gas day starts at 06:00 UTC, NOT midnight</div>
+                <p class="small" style="margin: 0;"><code class="mono">gas_day</code> is a <code class="mono">date</code>. The gas day for <code class="mono">2026-05-06</code> runs 06:00 UTC → 06:00 UTC the next day. <span class="src-cite">vault lng.md Modelling notes · 20-domain/concepts/gas-day.md</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">x-key</code> header MUST be lowercase</div>
+                <p class="small" style="margin: 0;"><code class="mono">X-Key</code> returns HTTP 401 — same enforcement as AGSI. <span class="src-cite">shared GIE vendor convention</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GB null values are publication absence, not zero</div>
+                <p class="small" style="margin: 0;">Unlike AGSI GB (Pre-Brexit <code class="mono">"-"</code> placeholders), ALSI GB still publishes — but <code class="mono">lng_in_storage_gwh</code> may carry null during reporting outages. Treat null as publication absence, not a zero LNG inventory. <span class="src-cite">vault lng.md Modelling notes</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">dtrs_pct_full</code> is clamped 0–100 by validator</div>
+                <p class="small" style="margin: 0;"><code class="mono">LNGTerminal.dtrs_pct_full</code> has a <code class="mono">field_validator</code> clamping to <code class="mono">[0.0, 100.0]</code> — identical pattern to <code class="mono">GasStorage.storage_pct_full</code>. <span class="src-cite">schemas/gie.py L63-68</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside lng.</h2>
+
+          <div class="related-grid">
+            <a href="storage.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Country-level gas storage (AGSI). Pair LNG send-out (terminal regas) with storage net withdrawal to model the dual gas-supply buffer — storage drawdown vs LNG inflow.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="storage_reports.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage_reports</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Facility / company / country / aggregate storage (AGSI). Finer-grain storage context for the same supply-buffer analysis.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="../entsog/aggregated_physical_flows.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">aggregated_physical_flows</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Cross-border pipeline flows from ENTSO-G. Pair ALSI LNG inflow with ENTSO-G pipeline imports to model the full EU gas-supply mix.</p>
+              <span class="tiny">entsog · transmission · daily</span>
+            </a>
+
+            <a href="../elexon/fuelhh.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">fuelhh</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">GB half-hourly CCGT generation from Elexon. Pair GB LNG send-out with downstream gas-to-power conversion to trace LNG → grid attribution.</p>
+              <span class="tiny">elexon · generation · 30 min</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>about_listing · GIE Storage · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="GIE · about_listing">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../gie.html">GIE Storage</a>
+        <span class="sep">/</span>
+        <span class="here">about_listing</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · GIE-AGSI · Reference</span>
+            <span class="chip" style="font-size:11px;">snapshot · on change</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">about_listing</span><br/>
+            AGSI operators and facilities, <span class="italic fg-accent">flat-listed.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Flat listing of AGSI storage companies and facilities with EICs and
+            parent-company linkage — the canonical entity inventory used for
+            query planning across <code class="mono" style="font-size:15px;">storage_reports</code>
+            company and facility scopes.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://agsi.gie.eu/api/about?show=listing" class="link" target="_blank" rel="noopener">GIE AGSI+ · /api/about?show=listing ↗</a>
+          </p>
+        </div>
+        <!-- key metrics -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.gie_agsi.about_listing</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api/about?show=listing</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">snapshot (on change)</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">on operator inventory update</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">71 companies + facilities</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(entity_level,<br/>entity_code)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-size: 34px;">snapshot</div>
+        <div class="stat-l">Cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">71</div>
+        <div class="stat-l">Companies (live 2026-05-08)</div>
+      </div>
+      <div>
+        <div class="stat-n">9</div>
+        <div class="stat-l">AGSI countries</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 30px;">SSO/DSR</div>
+        <div class="stat-l">Entity types</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">GIE Storage</div>
+          <a href="../gie.html">← All datasets</a>
+          <a href="about_listing.html" class="active">about_listing</a>
+          <a href="about_summary.html" style="color:var(--ink-faint);">about_summary</a>
+          <a href="storage_reports.html" style="color:var(--ink-faint);">storage_reports</a>
+          <a href="storage.html" style="color:var(--ink-faint);">storage</a>
+          <a href="unavailability.html" style="color:var(--ink-faint);">unavailability</a>
+          <a href="news.html" style="color:var(--ink-faint);">news</a>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">about_listing</code>
+            is a flat listing of the AGSI storage universe — every storage
+            company and every storage facility, each with its 16-character EIC
+            and, for facilities, the parent company's EIC. It is a snapshot
+            reference table refreshed on change rather than a time-series: the
+            two-level <code class="mono">entity_level</code> discriminator splits
+            <code class="mono">company</code> (SSO operators) from
+            <code class="mono">facility</code> (DSR assets). Each row represents
+            one entity — a single company or a single storage facility — keyed
+            by <code class="mono">(entity_level, entity_code)</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from GIE's AGSI+ platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">agsi.gie.eu/api</code>,
+            queried with an <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">x-key</code>
+            header, with no dedicated Pydantic class — columns are derived
+            dynamically by <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">AgsiJsonTransformer</code>.
+            <code class="mono">AboutListingTransformer</code> extends it and
+            overrides <code class="mono">_records_from_payload</code> to call
+            <code class="mono">parse_listing_inventory</code>, emitting flat rows
+            for both companies and facilities; the dynamic-column pass adds any
+            other vendor keys present.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It matters because it is the entity master the rest of the storage
+            stack plans against: the company and facility EICs that drive the
+            <code class="mono">storage_reports</code> company and facility query
+            scopes come from here, and the <code class="mono">country</code>
+            field defines the country footprint. Schema verified against
+            gridflow source on 2026-05-20; the live API requires a free GIE
+            registration key.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">AGSI companies · facility count <span class="italic fg-accent">by country.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">about_listing · silver layer · entity_level=facility</div>
+                <div class="small">Horizontal bars · facility count · snapshot · 2026-05-08</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">all</span>
+              </div>
+            </div>
+            <div data-chart="barsH" data-opts='{"width":760,"items":[{"label":"DE","value":18,"display":"18"},{"label":"IT","value":12,"display":"12"},{"label":"FR","value":11,"display":"11"},{"label":"NL","value":7,"display":"7"},{"label":"AT","value":6,"display":"6"},{"label":"ES","value":5,"display":"5"},{"label":"PL","value":4,"display":"4"},{"label":"BE","value":3,"display":"3"}]}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No dedicated Pydantic class</strong> — columns are derived
+            dynamically by <code class="mono">AgsiJsonTransformer</code>.
+            <code class="mono">AboutListingTransformer</code> overrides
+            <code class="mono">_records_from_payload</code> to call
+            <code class="mono">parse_listing_inventory</code>
+            (<code class="mono">connectors/gie/endpoints.py L253-291</code>),
+            which emits flat rows for both companies and facilities. The shape
+            below is the deterministic output of that override; the dynamic pass
+            adds any other vendor keys present. This is a snapshot reference
+            table — partitioned by ingestion date, not a gas-day time series.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 24%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">entity_level <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note"><code class="mono">"company"</code> or <code class="mono">"facility"</code>. The discriminator that splits SSO operators from DSR assets.
+                  <span class="cite">silver/gie/agsi.py L423, L432</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">entity_code <span class="pk-badge">PK</span></td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">EIC identifier (16-char ISO 17442). Source: <code class="mono">eic</code> (or <code class="mono">code</code>).
+                  <span class="cite">silver/gie/agsi.py L424, L433 · endpoints.py L260, L276</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">entity_name</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Falls back to the EIC if both labels are blank. Source: <code class="mono">short_name</code> / <code class="mono">name</code>.
+                  <span class="cite">silver/gie/agsi.py L425, L434 · endpoints.py L261, L277</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">country_code</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">ISO-2. Live shape is a string, not a nested dict. Source: <code class="mono">country</code>.
+                  <span class="cite">silver/gie/agsi.py L426, L435 · endpoints.py L262, L283</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">entity_type</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note"><code class="mono">"SSO"</code> for a company (Storage System Operator), <code class="mono">"DSR"</code> for a facility. Source: <code class="mono">type</code>.
+                  <span class="cite">silver/gie/agsi.py L427, L436 · endpoints.py L270, L284</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">entity_url</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">Vendor-managed deep-link URL. Source: <code class="mono">url</code>.
+                  <span class="cite">silver/gie/agsi.py L428, L437 · endpoints.py L271, L285</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">company_code</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">Parent company EIC — facility rows only. Source: <code class="mono">company</code>.
+                  <span class="cite">silver/gie/agsi.py L438 · endpoints.py L286</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">company_name</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">Parent company <code class="mono">short_name</code> / <code class="mono">name</code> — facility rows only.
+                  <span class="cite">silver/gie/agsi.py L439 · endpoints.py L287</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Always <code class="mono">"gie_agsi"</code>. Default <code class="mono">"gie_agsi"</code>.
+                  <span class="cite">silver/gie/agsi.py L337</span></td>
+              </tr>
+              <tr>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">Silver write timestamp.
+                  <span class="cite">silver/gie/agsi.py L338</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="small mb-24 mt-16" style="max-width: 640px;">
+            <strong>Dynamic columns</strong> (pass-through via <code class="mono">AgsiJsonTransformer</code>):
+            <code class="mono">operational_start_date</code>,
+            <code class="mono">operational_end_date</code>, and any other facility
+            metadata fields present in the live payload.
+          </p>
+
+          <!-- partition info -->
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/gie_agsi/about_listing/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">ingestion date (snapshot table)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(entity_level, entity_code)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>entity_level</th>
+                  <th>entity_code</th>
+                  <th>entity_name</th>
+                  <th>country_code</th>
+                  <th>entity_type</th>
+                  <th>company_code</th>
+                  <th>company_name</th>
+                  <th>operational_start_date</th>
+                  <th>operational_end_date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="str">company</td><td class="str">25X-GSALLC-----E</td><td class="str">GSA LLC</td><td class="str">AT</td><td class="str">SSO</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td></tr>
+                <tr><td class="str">facility</td><td class="str">25W-SPHAID-GAZ-M</td><td class="str">UGS Haidach (GSA) // historical data prior to 6 Oct 2022</td><td class="str">AT</td><td class="str">DSR</td><td class="str">25X-GSALLC-----E</td><td class="str">GSA LLC</td><td class="date">2011-01-01</td><td class="date">2022-10-07</td></tr>
+                <tr><td class="str">company</td><td class="str">21X0000000011756</td><td class="str">EWE Gasspeicher</td><td class="str">DE</td><td class="str">SSO</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="str">facility</td><td class="str">37W000000000001Q</td><td class="str">Rehden</td><td class="str">DE</td><td class="str">DSR</td><td class="str">21X-WIEHE--K</td><td class="str">astora GmbH</td><td class="date">2011-01-01</td><td class="nul">null</td></tr>
+                <tr><td class="str">company</td><td class="str">21X-DEMO-ALPHA</td><td class="str">Demo Alpha SSO</td><td class="str">FR</td><td class="str">SSO</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td></tr>
+                <tr><td class="str">facility</td><td class="str">21W-DEMO-ALPHA-1</td><td class="str">Alpha One Storage</td><td class="str">FR</td><td class="str">DSR</td><td class="str">21X-DEMO-ALPHA</td><td class="str">Demo Alpha SSO</td><td class="date">2014-06-01</td><td class="nul">null</td></tr>
+                <tr><td class="str">company</td><td class="str">21X-BERGER-NL-G</td><td class="str">Bergermeer Operator</td><td class="str">NL</td><td class="str">SSO</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td></tr>
+                <tr><td class="str">facility</td><td class="str">21W-BERGERMEER-G</td><td class="str">Bergermeer</td><td class="str">NL</td><td class="str">DSR</td><td class="str">21X-BERGER-NL-G</td><td class="str">Bergermeer Operator</td><td class="date">2014-04-01</td><td class="nul">null</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            First two rows (GSA LLC company + UGS Haidach facility) verbatim from vault Silver sample (live 2026-05-08); remaining 6 rows synthesised respecting the SSO/DSR taxonomy and the company / facility EIC linkage. The highlighted <code class="mono">Rehden</code> facility row is one of the largest German storage sites by working-gas volume (~4.4 bcm; ~50 TWh) — it illustrates how <code class="mono">about_listing</code> links a facility EIC (<code class="mono">37W…</code>) to its parent company EIC (<code class="mono">21X…</code>) for query planning.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">agsi.gie.eu/api/about<br/>?show=listing</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Header <code class="mono">x-key</code> (LOWERCASE — <code class="mono">X-Key</code> returns 401), key from env <code class="mono">GIE_API_KEY</code>. Free registration at <a href="https://agsi.gie.eu/account/registration" class="link" target="_blank" rel="noopener">agsi.gie.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/gie_agsi/about_listing/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.gie.agsi.<br/>AboutListingTransformer<br/>(extends AgsiJsonTransformer · silver/gie/agsi.py L627)</div>
+            </div>
+          </div>
+
+          <!-- tabs -->
+          <div data-tab-group="al">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('al','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('al','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('al','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="al-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;"><span class="c"># Header: x-key: $GIE_API_KEY  (lowercase)</span>
+https://agsi.gie.eu/api/about<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">show</span>=listing</pre>
+            </div></div>
+            <div data-tab-panel="al-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Facility count per company, current snapshot only</span>
+<span class="k">SELECT</span> company_code,
+       company_name,
+       country_code,
+       <span class="k">COUNT</span>(*) <span class="k">AS</span> facility_count
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/gie_agsi/about_listing/**/*.parquet'</span>)
+<span class="k">WHERE</span> entity_level = <span class="s">'facility'</span>
+  <span class="k">AND</span> operational_end_date <span class="k">IS NULL</span>  <span class="c">-- exclude decommissioned</span>
+<span class="k">GROUP BY</span> company_code, company_name, country_code
+<span class="k">ORDER BY</span> facility_count <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="al-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/gie_agsi/about_listing/**/*.parquet"</span>)
+<span class="c"># Build the company → facility EIC map needed for storage_reports facility queries</span>
+inventory = (
+    df.filter((pl.col(<span class="s">"entity_level"</span>) == <span class="s">"facility"</span>)
+              &amp; pl.col(<span class="s">"operational_end_date"</span>).is_null())
+      .select(<span class="s">"country_code"</span>, <span class="s">"company_code"</span>, <span class="s">"entity_code"</span>, <span class="s">"entity_name"</span>)
+      .sort(<span class="s">"country_code"</span>, <span class="s">"company_code"</span>)
+)
+print(inventory.head(<span class="num">20</span>))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">about_listing</code>. Also read the <a href="../gie.html#about" class="link">GIE-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">No <code class="mono">last_page</code> / <code class="mono">total</code> — single-response listing</div>
+                <p class="small" style="margin: 0;">The live response is a top-level list of 71 companies (~53 KB, 2026-05-08) with no pagination envelope. <code class="mono">_listing_rows</code> accepts either the bare list or a <code class="mono">{"data": [...]}</code> wrapper. <span class="src-cite">vault Known Issues · endpoints.py L454-463</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">No Pydantic schema — reference data via <code class="mono">AgsiJsonTransformer</code></div>
+                <p class="small" style="margin: 0;">Unlike <code class="mono">storage</code> / <code class="mono">storage_reports</code>, this dataset has no typed silver contract. Columns are emitted by <code class="mono">parse_listing_inventory</code> plus the <code class="mono">AgsiJsonTransformer</code> dynamic-column pass. <span class="src-cite">vault Silver layer note · silver/gie/agsi.py L414-442</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">country</code> is a string, not a nested dict</div>
+                <p class="small" style="margin: 0;">The live shape carries <code class="mono">country: "AT"</code> (an ISO-2 string). Some other AGSI endpoints (e.g. <code class="mono">unavailability</code>) return <code class="mono">{"name": …, "code": …}</code> — listing differs. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">operational_end_date</code> flags decommissioned facilities</div>
+                <p class="small" style="margin: 0;">A non-null <code class="mono">operational_end_date</code> means the facility no longer reports to AGSI. Filter <code class="mono">WHERE operational_end_date IS NULL</code> for a forward-looking inventory. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">x-key</code> header MUST be lowercase</div>
+                <p class="small" style="margin: 0;">The vendor enforces lowercase. Capitalised <code class="mono">X-Key</code> (the default in many HTTP libraries) returns HTTP 401. <span class="src-cite">vault Known Issues #1</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · live shape vs fixture</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Live shape is a top-level list; fixture is <code class="mono">{"data": [...]}</code></div>
+                <p class="small" style="margin: 0;">The live response (2026-05-08) is a bare top-level list of company objects; the test fixture wraps it in a <code class="mono">{"data": [...]}</code> envelope. <code class="mono">_listing_rows</code> (<code class="mono">endpoints.py L454-463</code>) accepts either shape — the fixture is stale but functionally compatible. <span class="src-cite">vault Implementation Delta</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside about_listing.</h2>
+
+          <div class="related-grid">
+            <a href="about_summary.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">about_summary</span>
+                  <span class="chip" style="font-size:10px;">snapshot</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Hierarchical (region → country → company → facility) form of the same operator inventory. Use when you need region grouping or the company <code class="mono">image</code> / <code class="mono">publication_link</code> metadata.</p>
+              <span class="tiny">gie · storage · snapshot</span>
+            </a>
+
+            <a href="storage_reports.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage_reports</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-entity storage levels. <code class="mono">about_listing</code> supplies the company and facility EICs the company / facility scopes need.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="unavailability.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">unavailability</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-facility outage records. Join on facility EIC to attach human-readable facility names.</p>
+              <span class="tiny">gie · storage · as published</span>
+            </a>
+
+            <a href="storage.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Country-level storage rollup. <code class="mono">about_listing</code> defines the country footprint via the <code class="mono">country</code> field.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

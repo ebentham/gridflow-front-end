@@ -2,54 +2,121 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>storage · GIE AGSI+ · Gridflow</title>
+  <title>storage · GIE Storage · Gridflow</title>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/theme.css" />
   <style>
+    /* ── schema table ── */
     .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
-    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
-    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
     .schema-table tr:hover td { background: var(--paper-card); }
-    .schema-table .col-name {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
-    .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
-    .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
-    .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
-    .schema-table .nullable { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
     .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
     .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
-    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
     .data-table tbody tr:nth-child(odd) td { background: #26221d; }
     .data-table tbody tr:nth-child(even) td { background: #221e19; }
-    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
     .data-table .num { text-align: right; color: #8fbf9c; }
     .data-table .date { color: #c9a96e; }
     .data-table .str  { color: #e8b8a3; }
-    .data-table .nul  { color: #6b6358; font-style: italic; text-align: right; }
-    .country-grid { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
-    .country-row { display: grid; grid-template-columns: 80px 220px 1fr; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
-    .country-row:last-child { border-bottom: 0; }
-    .country-row .k { font-family: var(--mono); font-size: 13px; color: var(--ink-strong); font-weight: 500; }
-    .country-row .v { font-size: 13px; color: var(--ink); }
-    .country-row .n { font-size: 12px; color: var(--ink-soft); }
-    .country-row.warn { background: rgba(196,90,58,0.04); }
-    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
-    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
     .sidebar-section { margin-bottom: 6px; }
-    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
-    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
     .sidebar a:hover { color: var(--ink); }
     .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
     .main-content { padding: 40px 64px 80px 64px; }
-    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
     .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
     .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
     .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
-    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
     .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
     .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
     .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   </style>
 </head>
@@ -63,7 +130,7 @@
         <span class="sep">/</span>
         <a href="../../data-sources.html">Data sources</a>
         <span class="sep">/</span>
-        <a href="../gie.html">GIE AGSI+</a>
+        <a href="../gie.html">GIE Storage</a>
         <span class="sep">/</span>
         <span class="here">storage</span>
       </div>
@@ -71,7 +138,7 @@
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
             <span class="eyebrow">Dataset · GIE-AGSI · Storage</span>
-            <span class="chip" style="font-size:11px;">daily · ~16:00 CET refresh</span>
+            <span class="chip" style="font-size:11px;">daily · gas-day</span>
             <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
           </div>
           <h1 class="display-2" style="margin-bottom: 14px;">
@@ -79,18 +146,16 @@
             European gas storage, <span class="italic fg-accent">country by country.</span>
           </h1>
           <p class="lede" style="max-width: 600px;">
-            Country-scoped gas storage time-series from GIE's Aggregated Gas
-            Storage Inventory (AGSI+). Daily snapshots for nine European
-            countries — gas-in-storage levels (GWh), injection / withdrawal
-            flows, working-gas capacity, percent-full, and trend. The
-            workhorse country-level view for winter-tightness models,
-            fuel-switching signals, and storage-spread trades.
+            Country-scoped daily gas-storage time-series — the canonical
+            winter-tightness indicator, fuel-switching signal, and storage-spread
+            trade input for European gas modelling.
           </p>
           <p class="tiny mt-16" style="max-width:600px;">
             Verified against vendor docs: 2026-05-08 ·
             <a href="https://agsi.gie.eu/api" class="link" target="_blank" rel="noopener">GIE AGSI+ · /api ↗</a>
           </p>
         </div>
+        <!-- key metrics -->
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
           <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">SILVER PATH</div>
@@ -102,7 +167,7 @@
           </div>
           <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">FREQUENCY</div>
-            <div class="small">daily</div>
+            <div class="small">daily (gas day)</div>
           </div>
           <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">PUBLICATION LAG</div>
@@ -110,7 +175,7 @@
           </div>
           <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
             <div class="tiny mb-6">VOLUME</div>
-            <div class="small">~3.3k / yr · 9 countries</div>
+            <div class="small">~9 rows / day</div>
           </div>
           <div style="padding: 16px 18px;">
             <div class="tiny mb-6">PRIMARY KEY</div>
@@ -129,47 +194,87 @@
         <div class="stat-l">Snapshot cadence</div>
       </div>
       <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">~16:00 CET</div>
+        <div class="stat-l">Publication refresh</div>
+      </div>
+      <div>
         <div class="stat-n">9</div>
         <div class="stat-l">AGSI countries (AT BE DE ES FR GB IT NL PL)</div>
       </div>
       <div>
-        <div class="stat-n" style="font-family: var(--mono); font-size: 36px;">GWh</div>
-        <div class="stat-l">Reporting unit</div>
-      </div>
-      <div>
-        <div class="stat-n">28</div>
+        <div class="stat-n">26</div>
         <div class="stat-l">Schema columns</div>
       </div>
     </div>
   </div>
 
-  <!-- ════════ BODY ════════ -->
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
+      <!-- Sidebar -->
       <nav class="sidebar">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
-          <a href="#snapshot" class="active">Snapshot chart</a>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
           <a href="#schema">Schema</a>
           <a href="#sample">Sample data</a>
-          <a href="#footprint">AGSI footprint</a>
           <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
           <a href="#related">Related datasets</a>
         </div>
         <div class="sidebar-section" style="margin-top: 24px;">
-          <div class="sidebar-section-title">GIE AGSI+</div>
+          <div class="sidebar-section-title">GIE Storage</div>
           <a href="../gie.html">← All datasets</a>
           <a href="storage.html" class="active">storage</a>
-          <a href="#" style="color:var(--ink-faint);">storage_reports</a>
-          <a href="#" style="color:var(--ink-faint);">lng</a>
-          <a href="#" style="color:var(--ink-faint);">unavailability</a>
-          <a href="#" style="color:var(--ink-faint);">about_listing</a>
-          <a href="#" style="color:var(--ink-faint);">about_summary</a>
+          <a href="storage_reports.html" style="color:var(--ink-faint);">storage_reports</a>
+          <a href="unavailability.html" style="color:var(--ink-faint);">unavailability</a>
+          <a href="about_listing.html" style="color:var(--ink-faint);">about_listing</a>
+          <a href="about_summary.html" style="color:var(--ink-faint);">about_summary</a>
+          <a href="lng.html" style="color:var(--ink-faint);">lng</a>
         </div>
       </nav>
 
+      <!-- Main content -->
       <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">storage</code>
+            holds country-scoped daily gas-storage time-series from GIE's
+            Aggregated Gas Storage Inventory (AGSI+). Its headline column,
+            <code class="mono">storage_pct_full</code>, is the canonical
+            winter-tightness indicator — gas in storage as a percentage of
+            working-gas volume — alongside injection / withdrawal flows and
+            capacities, all in GWh. The grain is the gas day, not the calendar
+            day. Each row is one AGSI country's storage snapshot for a single
+            gas day.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from GIE's AGSI+ platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">agsi.gie.eu/api</code>,
+            queried per country with an <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">x-key</code>
+            header, validated against
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GasStorage</code>,
+            and written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GasStorageTransformer</code>.
+            Each <code class="mono">gas_day</code> starts at 06:00 UTC, not
+            midnight — the <code class="mono">gasDayStart</code> field — so calendar
+            joins need a +06:00 offset.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It matters because storage percent-full is the structural
+            gas-tightness signal for the Oct–Mar withdrawal season: pair it with
+            ENTSO-G pipeline nominations and Elexon CCGT generation to build the
+            full European gas-balance picture, and with LNG send-out for the
+            dual supply-buffer view. Schema verified against gridflow source on
+            2026-05-20; the live API requires a free GIE registration key.
+          </p>
+        </section>
 
         <!-- ── Snapshot chart ── -->
         <section id="snapshot" style="margin-bottom: 56px;">
@@ -179,7 +284,7 @@
             <div class="row between mb-16" style="align-items: baseline;">
               <div>
                 <div class="eyebrow mb-4">storage · silver layer · entity_code=DE</div>
-                <div class="small">Sparkline · % full · daily · UTC · 2025-06 → 2026-05</div>
+                <div class="small">Sparkline · % full · daily · gas-day · 2025-06 → 2026-05</div>
               </div>
               <div class="row gap-8">
                 <span class="chip ink btn-like">1y</span>
@@ -209,51 +314,67 @@
         <section id="schema" style="margin-bottom: 56px;">
           <div class="eyebrow mb-8">Schema</div>
           <h2 class="display-3 mb-8">Silver layer columns.</h2>
-          <p class="small mb-24" style="max-width: 600px;">
+          <p class="small mb-24" style="max-width: 640px;">
             Defined in <code class="mono">gridflow/schemas/gie.py · GasStorage</code>
-            (line 12) and <code class="mono">gridflow/silver/gie/agsi.py · GasStorageTransformer</code>
+            (lines 12–47) and <code class="mono">gridflow/silver/gie/agsi.py · GasStorageTransformer</code>
             (line 115). Partitioned by <code class="mono">gas_day</code>
-            (year + month). Point-in-time field:
-            <code class="mono">updated_at</code> (vendor
-            <code class="mono">updatedAt</code> revision timestamp).
+            (year + month). Point-in-time field: <code class="mono">updated_at</code>
+            (vendor <code class="mono">updatedAt</code> revision timestamp).
           </p>
           <table class="schema-table">
             <thead>
-              <tr><th style="width: 28%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+              <tr>
+                <th style="width: 28%;">Column</th>
+                <th style="width: 13%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td class="col-name">gas_day <span class="pk-badge">PK</span></td><td class="col-type">date</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Gas day, <strong>NOT calendar day</strong> — starts at 06:00 UTC. Source: <code class="mono">gasDayStart</code>.<span class="cite">schemas/gie.py L12+</span></td></tr>
-              <tr><td class="col-name">gas_day_end</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">End of the same gas day window. Source: <code class="mono">gasDayEnd</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">updated_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor revision timestamp. Use for as-of filtering on revised data. Source: <code class="mono">updatedAt</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">entity_level <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"country"</code> for this dataset (vs <code class="mono">"facility"</code> for <code class="mono">storage_reports</code>).<span class="cite">silver/gie/agsi.py L115+</span></td></tr>
-              <tr><td class="col-name">entity_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">ISO-2 country code (<code class="mono">AT</code>, <code class="mono">BE</code>, <code class="mono">DE</code>, …). Source: <code class="mono">country</code> request param + <code class="mono">code</code> response.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">entity_name</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Human-readable country name. Source: <code class="mono">name</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">entity_url <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor URL slug. Source: <code class="mono">url</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">country_code / country_name</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Duplicates of <code class="mono">entity_code</code> / <code class="mono">entity_name</code> for consistency with other AGSI datasets.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">gas_in_storage_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><strong>GWh</strong> (NOT MWh — GIE convention). <code class="mono">"-"</code> placeholder → null. Source: <code class="mono">gasInStorage</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">consumption_gwh / _full_pct</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily consumption in GWh; and as % of working gas volume. Sources: <code class="mono">consumption</code>, <code class="mono">consumptionFull</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">injection_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily injection in GWh. Source: <code class="mono">injection</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">withdrawal_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily withdrawal in GWh. Source: <code class="mono">withdrawal</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">net_withdrawal_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Signed: positive = withdrawing (drawing down stock), negative = injecting. Source: <code class="mono">netWithdrawal</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">working_gas_volume_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Total usable capacity in GWh. Source: <code class="mono">workingGasVolume</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">injection_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily injection capacity. Source: <code class="mono">injectionCapacity</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">withdrawal_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily withdrawal capacity. Source: <code class="mono">withdrawalCapacity</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">contracted_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Capacity contracted to shippers. Source: <code class="mono">contractedCapacity</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">available_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Capacity still available to contract. Source: <code class="mono">availableCapacity</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">covered_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Capacity covered by storage obligations. Source: <code class="mono">coveredCapacity</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">storage_pct_full</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">0–100, clamped at schema layer. The headline winter-tightness indicator. Source: <code class="mono">full</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">trend</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Signed daily change in <code class="mono">storage_pct_full</code>.<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">status</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">E</code> = estimate, <code class="mono">C</code> = confirmed, <code class="mono">N</code> = no value (filter out).<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">info</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">JSON-encoded freeform info object (rare).<span class="cite">schemas/gie.py</span></td></tr>
-              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"gie_agsi"</code> (NOT <code class="mono">"gie"</code> — gridflow distinguishes the AGSI sub-product).<span class="cite">schemas/gie.py · derived</span></td></tr>
-              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Silver write timestamp.<span class="cite">schemas/gie.py · derived</span></td></tr>
+              <tr><td class="col-name">gas_day <span class="pk-badge">PK</span></td><td class="col-type">date</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Gas day, <strong>NOT calendar day</strong> — starts at 06:00 UTC. Source: <code class="mono">gasDayStart</code>.<span class="cite">schemas/gie.py L15 · silver/gie/agsi.py L184</span></td></tr>
+              <tr><td class="col-name">country_code</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">ISO-2 (e.g. <code class="mono">DE</code>, <code class="mono">FR</code>, <code class="mono">GB</code>). Default <code class="mono">""</code>. Source: request <code class="mono">country</code> / <code class="mono">code</code>.<span class="cite">schemas/gie.py L16 · silver/gie/agsi.py L175-177</span></td></tr>
+              <tr><td class="col-name">country_name</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Human-readable country. Source: <code class="mono">name</code>.<span class="cite">schemas/gie.py L17 · silver/gie/agsi.py L179-181</span></td></tr>
+              <tr><td class="col-name">gas_day_end</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">End of the same gas-day window. Source: <code class="mono">gasDayEnd</code>.<span class="cite">schemas/gie.py L18 · silver/gie/agsi.py L185</span></td></tr>
+              <tr><td class="col-name">updated_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor revision timestamp; use for as-of filtering on revised data. Source: <code class="mono">updatedAt</code>.<span class="cite">schemas/gie.py L19 · silver/gie/agsi.py L186</span></td></tr>
+              <tr><td class="col-name">entity_level <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"country"</code> for this dataset (vs <code class="mono">"facility"</code> for <code class="mono">storage_reports</code>). Default <code class="mono">"country"</code>.<span class="cite">schemas/gie.py L20 · silver/gie/agsi.py L160-165</span></td></tr>
+              <tr><td class="col-name">entity_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">ISO-2 country code. Default <code class="mono">""</code>. Source: <code class="mono">code</code> / request param.<span class="cite">schemas/gie.py L21 · silver/gie/agsi.py L166-173</span></td></tr>
+              <tr><td class="col-name">entity_name</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Human-readable country. Source: <code class="mono">name</code>.<span class="cite">schemas/gie.py L22</span></td></tr>
+              <tr><td class="col-name">entity_url <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor URL slug. Source: <code class="mono">url</code>.<span class="cite">schemas/gie.py L23</span></td></tr>
+              <tr><td class="col-name">gas_in_storage_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><strong>GWh</strong> (NOT MWh — GIE convention). <code class="mono">"-"</code> → null via <code class="mono">_safe_float</code>. Source: <code class="mono">gasInStorage</code>.<span class="cite">schemas/gie.py L24 · silver/gie/agsi.py L193</span></td></tr>
+              <tr><td class="col-name">consumption_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily consumption (GWh). Source: <code class="mono">consumption</code>.<span class="cite">schemas/gie.py L25 · silver/gie/agsi.py L194</span></td></tr>
+              <tr><td class="col-name">consumption_full_pct</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Consumption as % of working-gas volume. Source: <code class="mono">consumptionFull</code>.<span class="cite">schemas/gie.py L26 · silver/gie/agsi.py L195</span></td></tr>
+              <tr><td class="col-name">withdrawal_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily withdrawal (GWh). Source: <code class="mono">withdrawal</code>.<span class="cite">schemas/gie.py L27 · silver/gie/agsi.py L197</span></td></tr>
+              <tr><td class="col-name">injection_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily injection (GWh). Source: <code class="mono">injection</code>.<span class="cite">schemas/gie.py L28 · silver/gie/agsi.py L196</span></td></tr>
+              <tr><td class="col-name">net_withdrawal_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Signed daily delta; positive = withdrawing (drawing down stock), negative = injecting. Source: <code class="mono">netWithdrawal</code>.<span class="cite">schemas/gie.py L29 · silver/gie/agsi.py L198</span></td></tr>
+              <tr><td class="col-name">working_gas_volume_gwh</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Total usable capacity (GWh). Source: <code class="mono">workingGasVolume</code>.<span class="cite">schemas/gie.py L30 · silver/gie/agsi.py L199</span></td></tr>
+              <tr><td class="col-name">injection_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily injection capacity (GWh/day). Source: <code class="mono">injectionCapacity</code>.<span class="cite">schemas/gie.py L31</span></td></tr>
+              <tr><td class="col-name">withdrawal_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Daily withdrawal capacity (GWh/day). Source: <code class="mono">withdrawalCapacity</code>.<span class="cite">schemas/gie.py L32</span></td></tr>
+              <tr><td class="col-name">contracted_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Capacity contracted to shippers. Source: <code class="mono">contractedCapacity</code>.<span class="cite">schemas/gie.py L33</span></td></tr>
+              <tr><td class="col-name">available_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Capacity still available to contract. Source: <code class="mono">availableCapacity</code>.<span class="cite">schemas/gie.py L34</span></td></tr>
+              <tr><td class="col-name">covered_capacity_gwh_per_day</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Capacity covered by storage obligations. Source: <code class="mono">coveredCapacity</code>.<span class="cite">schemas/gie.py L35</span></td></tr>
+              <tr><td class="col-name">storage_pct_full</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">0–100, clamped by validator. The headline winter-tightness indicator. Source: <code class="mono">full</code>.<span class="cite">schemas/gie.py L36, L42-47 · silver/gie/agsi.py L205</span></td></tr>
+              <tr><td class="col-name">trend</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Signed daily change in <code class="mono">storage_pct_full</code>. Source: <code class="mono">trend</code>.<span class="cite">schemas/gie.py L37 · silver/gie/agsi.py L206</span></td></tr>
+              <tr><td class="col-name">status</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">E</code> = estimate, <code class="mono">C</code> = confirmed, <code class="mono">N</code> = no value (filter out). Source: <code class="mono">status</code>.<span class="cite">schemas/gie.py L38 · silver/gie/agsi.py L207</span></td></tr>
+              <tr><td class="col-name">info</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">JSON-encoded freeform info object (rare). Source: <code class="mono">info</code>.<span class="cite">schemas/gie.py L39 · silver/gie/agsi.py L208</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"gie_agsi"</code> (NOT <code class="mono">"gie"</code> — gridflow distinguishes the AGSI sub-product).<span class="cite">schemas/gie.py L40 · silver/gie/agsi.py L209</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Silver write timestamp.<span class="cite">silver/gie/agsi.py L210</span></td></tr>
             </tbody>
           </table>
 
+          <!-- partition info -->
           <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
-            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/gie_agsi/storage/year=YYYY/month=MM/</div></div>
-            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">gas_day (year + month)</div></div>
-            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(gas_day, entity_level, entity_code, entity_url)</div></div>
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/gie_agsi/storage/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">gas_day (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(gas_day, entity_level, entity_code, entity_url)</div>
+            </div>
           </div>
         </section>
 
@@ -265,13 +386,21 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>gas_day</th><th>entity_code</th><th>gas_in_storage_gwh</th><th>injection_gwh</th><th>withdrawal_gwh</th><th>net_withdrawal_gwh</th><th>storage_pct_full</th><th>trend</th><th>status</th>
+                  <th>gas_day</th>
+                  <th>entity_code</th>
+                  <th>gas_in_storage_gwh</th>
+                  <th>injection_gwh</th>
+                  <th>withdrawal_gwh</th>
+                  <th>net_withdrawal_gwh</th>
+                  <th>storage_pct_full</th>
+                  <th>trend</th>
+                  <th>status</th>
                 </tr>
               </thead>
               <tbody>
                 <tr><td class="date">2026-05-06</td><td class="str">DE</td><td class="num">65.96</td><td class="num">182.43</td><td class="num">60.30</td><td class="num">-122.13</td><td class="num">26.62</td><td class="num">-0.57</td><td class="str">E</td></tr>
                 <tr><td class="date">2026-05-06</td><td class="str">FR</td><td class="num">84.20</td><td class="num">95.10</td><td class="num">12.40</td><td class="num">-82.70</td><td class="num">33.45</td><td class="num">-0.40</td><td class="str">E</td></tr>
-                <tr style="outline: 1px solid #c45a3a; outline-offset: -1px;"><td class="date">2026-05-06</td><td class="str">GB</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="str">N</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06</td><td class="str">GB</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="nul">null</td><td class="str">N</td></tr>
                 <tr><td class="date">2026-05-06</td><td class="str">NL</td><td class="num">41.30</td><td class="num">78.20</td><td class="num">8.10</td><td class="num">-70.10</td><td class="num">29.85</td><td class="num">-0.31</td><td class="str">C</td></tr>
                 <tr><td class="date">2026-05-06</td><td class="str">IT</td><td class="num">92.40</td><td class="num">142.60</td><td class="num">15.30</td><td class="num">-127.30</td><td class="num">38.20</td><td class="num">-0.49</td><td class="str">E</td></tr>
                 <tr><td class="date">2026-05-06</td><td class="str">AT</td><td class="num">38.10</td><td class="num">47.20</td><td class="num">4.60</td><td class="num">-42.60</td><td class="num">35.10</td><td class="num">-0.42</td><td class="str">E</td></tr>
@@ -281,25 +410,7 @@
             </table>
           </div>
           <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
-            First row (DE) from vault Silver sample (live 2026-05-08); subsequent country rows synthesised respecting the schema's GWh-and-% ranges and the early-May "shoulder-season injection" macro pattern (positive injection, small withdrawal, percent-full slowly rising from winter lows). The highlighted row is GB — <code class="mono">"United Kingdom (Pre-Brexit)"</code> with <code class="mono">status: "N"</code> (no value); all numeric columns are null. GB has been unusable in AGSI since 2020 — fall back to UK-specific sources (e.g. National Gas Transmission published statistics) for British storage. PL has been excluded from the sample since AGSI tracks it but PL's recent statistics are sparse.
-          </div>
-        </section>
-
-        <!-- ── AGSI footprint ── -->
-        <section id="footprint" style="margin-bottom: 56px;">
-          <div class="eyebrow mb-8">AGSI footprint</div>
-          <h2 class="display-3 mb-8">Country codelist.</h2>
-          <p class="small mb-24" style="max-width: 600px;">The nine countries covered by AGSI+ as of 2026. Querying any other ISO-2 code returns empty data.</p>
-          <div class="country-grid">
-            <div class="country-row"><div class="k">AT</div><div class="v">Austria</div><div class="n">—</div></div>
-            <div class="country-row"><div class="k">BE</div><div class="v">Belgium</div><div class="n">—</div></div>
-            <div class="country-row"><div class="k">DE</div><div class="v">Germany</div><div class="n">Largest single-country storage; dominant European winter buffer</div></div>
-            <div class="country-row"><div class="k">ES</div><div class="v">Spain</div><div class="n">—</div></div>
-            <div class="country-row"><div class="k">FR</div><div class="v">France</div><div class="n">—</div></div>
-            <div class="country-row warn"><div class="k">GB</div><div class="v">United Kingdom</div><div class="n" style="color: #c45a3a;"><strong>Unusable post-Brexit</strong> — returns <code class="mono">"-"</code> placeholders since 2020. Vendor still publishes the row with <code class="mono">status: "N"</code> for consistency.</div></div>
-            <div class="country-row"><div class="k">IT</div><div class="v">Italy</div><div class="n">—</div></div>
-            <div class="country-row"><div class="k">NL</div><div class="v">Netherlands</div><div class="n">Includes Groningen historical (now ~0 since closure)</div></div>
-            <div class="country-row"><div class="k">PL</div><div class="v">Poland</div><div class="n">—</div></div>
+            First row (DE) verbatim from vault Silver sample (live 2026-05-08); subsequent country rows synthesised respecting the schema's GWh-and-% ranges and the early-May shoulder-season injection pattern (positive injection, small withdrawal, percent-full slowly rising from winter lows). The highlighted <code class="mono">GB</code> row is <code class="mono">"United Kingdom (Pre-Brexit)"</code> with <code class="mono">status: "N"</code> (no value) — all numeric columns are null (<code class="mono">"-"</code> placeholders converted by <code class="mono">_safe_float</code>). GB has been unusable in AGSI since 2020; fall back to UK-specific sources for British storage. Always filter <code class="mono">WHERE status IN ('E', 'C')</code> for GB-inclusive aggregates.
           </div>
         </section>
 
@@ -313,7 +424,7 @@
               <div class="tiny mb-8">ENDPOINT</div>
               <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">agsi.gie.eu/api<br/>?country={ISO2}<br/>&amp;date={YYYY-MM-DD}<br/><br/><span style="color:var(--ink-faint);"># or range:</span><br/>&amp;from={YYYY-MM-DD}<br/>&amp;to={YYYY-MM-DD}</div>
               <div class="tiny mb-8">AUTH</div>
-              <div class="small">Header <code class="mono">x-key</code> (LOWERCASE — <code class="mono">X-Key</code> returns 401) with key from env <code class="mono">GIE_API_KEY</code>. <a href="https://agsi.gie.eu/account/registration" class="link" target="_blank" rel="noopener">Register at agsi.gie.eu ↗</a>.</div>
+              <div class="small">Header <code class="mono">x-key</code> (LOWERCASE — <code class="mono">X-Key</code> returns 401), key from env <code class="mono">GIE_API_KEY</code>. Free registration at <a href="https://agsi.gie.eu/account/registration" class="link" target="_blank" rel="noopener">agsi.gie.eu ↗</a>.</div>
             </div>
             <div class="card" style="padding: 20px;">
               <div class="tiny mb-8">BRONZE PATH</div>
@@ -323,18 +434,20 @@
             </div>
           </div>
 
+          <!-- tabs -->
           <div data-tab-group="agsi">
             <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
               <button class="chip btn-like ink" onclick="setTab('agsi','url',this)" style="cursor:pointer;">Example URL</button>
               <button class="chip btn-like" onclick="setTab('agsi','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
-              <button class="chip btn-like" onclick="setTab('agsi','py',this)" style="cursor:pointer;">Python · parquet</button>
+              <button class="chip btn-like" onclick="setTab('agsi','py',this)" style="cursor:pointer;">Python · polars</button>
             </div>
             <div data-tab-panel="agsi-url" style="display:block;"><div class="code-wrap">
 <pre class="code dark" style="padding: 18px 22px; overflow-x: auto;"><span class="c"># Header: x-key: $GIE_API_KEY  (lowercase)</span>
 https://agsi.gie.eu/api
   <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">country</span>=DE
   <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">from</span>=2026-05-01
-  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">to</span>=2026-05-07</pre>
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">to</span>=2026-05-07
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">size</span>=300</pre>
             </div></div>
             <div data-tab-panel="agsi-sql" style="display:none;"><div class="code-wrap">
 <pre class="code dark" style="padding: 18px 22px;"><span class="c">-- European storage trajectory: percent-full per country, last 90 days</span>
@@ -350,18 +463,68 @@ https://agsi.gie.eu/api
             <div data-tab-panel="agsi-py" style="display:none;"><div class="code-wrap">
 <pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
 
-df = pl.read_parquet(
-    <span class="s">"data/silver/gie_agsi/storage/**/*.parquet"</span>,
-)
-<span class="c"># EU-wide storage trajectory: rolling sum of country gas_in_storage_gwh</span>
+df = pl.read_parquet(<span class="s">"data/silver/gie_agsi/storage/**/*.parquet"</span>)
+<span class="c"># EU-wide rolling stock — sum country gas_in_storage and convert to TWh</span>
 eu = (
     df.filter(pl.col(<span class="s">"status"</span>).is_in([<span class="s">"E"</span>, <span class="s">"C"</span>]))
       .group_by(<span class="s">"gas_day"</span>)
-      .agg(pl.col(<span class="s">"gas_in_storage_gwh"</span>).sum().alias(<span class="s">"eu_total_twh"</span>) / <span class="num">1000</span>)
+      .agg((pl.col(<span class="s">"gas_in_storage_gwh"</span>).sum() / <span class="num">1000</span>).alias(<span class="s">"eu_total_twh"</span>))
       .sort(<span class="s">"gas_day"</span>)
 )
 print(eu.tail(<span class="num">30</span>))</pre>
             </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">storage</code>. Also read the <a href="../gie.html#about" class="link">GIE-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Unit is GWh — NOT MWh</div>
+                <p class="small" style="margin: 0;">GIE reports stocks in <code class="mono">gas_in_storage_gwh</code> and capacities in <code class="mono">*_gwh_per_day</code>. Divide by 1000 for TWh; multiply by 1000 to align with MWh power-market datasets. <span class="src-cite">vault Known Issues · schemas/gie.py L24</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GB is in the footprint but unusable post-Brexit</div>
+                <p class="small" style="margin: 0;"><code class="mono">country=GB</code> returns <code class="mono">"United Kingdom (Pre-Brexit)"</code> with <code class="mono">"-"</code> placeholders for all numeric fields and <code class="mono">status: "N"</code>. <code class="mono">_safe_float</code> converts <code class="mono">"-"</code> → null. Filter <code class="mono">WHERE status IN ('E', 'C')</code> for GB-inclusive aggregates. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Gas day starts at 06:00 UTC, NOT midnight</div>
+                <p class="small" style="margin: 0;"><code class="mono">gas_day</code> is a <code class="mono">date</code>. The gas day for <code class="mono">2026-05-06</code> runs 2026-05-06 06:00 UTC → 2026-05-07 06:00 UTC. Apply the +06:00 offset when joining intra-day calendar-day datasets. <span class="src-cite">vault Known Issues · 20-domain/concepts/gas-day.md</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">x-key</code> header MUST be lowercase</div>
+                <p class="small" style="margin: 0;">The vendor enforces lowercase. Capitalised <code class="mono">X-Key</code> (the default in many HTTP libraries) returns HTTP 401. <span class="src-cite">vault Known Issues #1</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">last_page</code> is the pagination source of truth</div>
+                <p class="small" style="margin: 0;"><code class="mono">last_page</code> is the global page count; <code class="mono">total</code> is the per-page row count. Iterating on <code class="mono">total</code> mis-paginates. <span class="src-cite">vault Known Issues #2</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">gas_day_start_validation</code> is enforced by the connector</div>
+                <p class="small" style="margin: 0;">A <code class="mono">date=YYYY-MM-DD</code> query that returns a different gas day fails loudly — a guard against silent vendor caching errors. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -371,7 +534,7 @@ print(eu.tail(<span class="num">30</span>))</pre>
           <h2 class="display-3 mb-24">What to use alongside storage.</h2>
 
           <div class="related-grid">
-            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+            <a href="storage_reports.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
               <div class="row between mb-8" style="align-items: flex-start;">
                 <div class="row gap-8">
                   <span class="mono small" style="color:var(--ink-strong);">storage_reports</span>
@@ -379,8 +542,20 @@ print(eu.tail(<span class="num">30</span>))</pre>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">Facility-level (not country-level) version of this dataset — same <code class="mono">/api</code> endpoint, but <code class="mono">entity_level: "facility"</code> and one row per storage facility per gas day. Use when country-level rollup hides facility-specific dynamics.</p>
+              <p class="small" style="margin: 0 0 8px;">Facility / company / aggregate version of this dataset — same <code class="mono">/api</code> endpoint, finer <code class="mono">entity_level</code> granularity. Use when country roll-up hides facility dynamics.</p>
               <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="unavailability.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">unavailability</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Planned outages of storage facilities — flag periods where storage capacity is reduced; pair with this dataset's capacity columns to derive effective capacity net of outages.</p>
+              <span class="tiny">gie · storage · as published</span>
             </a>
 
             <a href="../entsog/aggregated_physical_flows.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
@@ -392,33 +567,20 @@ print(eu.tail(<span class="num">30</span>))</pre>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">Daily cross-border gas flows from ENTSOG. Pair with the Storage-direction rows in ENTSOG to validate AGSI injection/withdrawal against pipeline-network attribution.</p>
+              <p class="small" style="margin: 0 0 8px;">Daily cross-border gas flows from ENTSO-G. Pair AGSI net withdrawal with ENTSO-G pipeline-network attribution to validate the gas balance.</p>
               <span class="tiny">entsog · transmission · daily</span>
             </a>
 
-            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+            <a href="lng.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
               <div class="row between mb-8" style="align-items: flex-start;">
                 <div class="row gap-8">
-                  <span class="mono small" style="color:var(--ink-strong);">unavailability</span>
-                  <span class="chip" style="font-size:10px;">as published</span>
+                  <span class="mono small" style="color:var(--ink-strong);">lng</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">Planned outages of storage facilities — flag periods where storage capacity is reduced; pair with this dataset's capacity columns to derive effective-capacity-net-of-outages.</p>
-              <span class="tiny">gie · storage · as published</span>
-            </a>
-
-            <a href="../openmeteo/forecast_solar.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
-              <div class="row between mb-8" style="align-items: flex-start;">
-                <div class="row gap-8">
-                  <span class="mono small" style="color:var(--ink-strong);">forecast_demand</span>
-                  <span class="chip" style="font-size:10px;">hourly</span>
-                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
-                </div>
-                <span class="arrow">→</span>
-              </div>
-              <p class="small" style="margin: 0 0 8px;">Weather-driven gas demand forecasts from Open-Meteo. Combine with this dataset's <code class="mono">withdrawal_gwh</code> for the canonical "weather-driven storage drawdown" winter-tightness model.</p>
-              <span class="tiny">open-meteo · forecast · hourly</span>
+              <p class="small" style="margin: 0 0 8px;">Daily LNG terminal inventory and send-out (ALSI). Combine LNG inflow with the AGSI storage trajectory for the full supply-buffer picture.</p>
+              <span class="tiny">gie · lng · daily</span>
             </a>
           </div>
 
@@ -431,6 +593,7 @@ print(eu.tail(<span class="num">30</span>))</pre>
   <script src="../../assets/charts.js"></script>
   <script src="../../assets/site.js"></script>
   <script>
+    // Sidebar active link on scroll
     (function () {
       const sections = document.querySelectorAll("section[id]");
       const links = document.querySelectorAll(".sidebar a[href^='#']");
@@ -446,12 +609,15 @@ print(eu.tail(<span class="num">30</span>))</pre>
       sections.forEach((s) => observer.observe(s));
     })();
   </script>
+
   <script>
     function setTab(group, tab, btn) {
       document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
       const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
       if (panel) panel.style.display = 'block';
-      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => b.classList.remove('ink'));
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
       if (btn) btn.classList.add('ink');
     }
   </script>

@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>news · GIE Storage · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="GIE · news">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../gie.html">GIE Storage</a>
+        <span class="sep">/</span>
+        <span class="here">news</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · GIE-AGSI · News</span>
+            <span class="chip" style="font-size:11px;">as published</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">news</span><br/>
+            AGSI service announcements <span class="italic fg-accent">and data caveats.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            AGSI service-announcement listing flagging operator reporting
+            issues, planned data outages, and corrections — the data-quality
+            feed for masking suspect periods in storage time-series.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://agsi.gie.eu/api/news" class="link" target="_blank" rel="noopener">GIE AGSI+ · /api/news ↗</a>
+          </p>
+        </div>
+        <!-- key metrics -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.gie_agsi.news</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api/news</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">as published</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">real-time (AGSI staff)</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small" style="font-size:12px;">~299 records rolling (~2–3 yr)</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(url,)<br/>numeric announcement ID</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-size: 30px;">as published</div>
+        <div class="stat-l">Cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">299</div>
+        <div class="stat-l">Records (live 2026-05-08)</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">~2.6 MB</div>
+        <div class="stat-l">Payload size</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size: 32px;">deferred</div>
+        <div class="stat-l">Implementation phase</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">GIE Storage</div>
+          <a href="../gie.html">← All datasets</a>
+          <a href="news.html" class="active">news</a>
+          <a href="news_item.html" style="color:var(--ink-faint);">news_item</a>
+          <a href="unavailability.html" style="color:var(--ink-faint);">unavailability</a>
+          <a href="storage.html" style="color:var(--ink-faint);">storage</a>
+          <a href="storage_reports.html" style="color:var(--ink-faint);">storage_reports</a>
+          <a href="about_summary.html" style="color:var(--ink-faint);">about_summary</a>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">news</code>
+            is the AGSI service-announcement listing — the free-text feed where
+            AGSI staff flag operator reporting issues, planned data outages, and
+            corrections. It is the data-quality companion to the numeric storage
+            datasets: an announcement names the affected operators (via a
+            JSON-encoded <code class="mono">entities</code> list of
+            <code class="mono">{name, country, eic}</code> dicts) and the time
+            window it applies to. Each row is one announcement, keyed by its
+            numeric <code class="mono">url</code> ID.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from GIE's AGSI+ platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">agsi.gie.eu/api</code>,
+            queried with an <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">x-key</code>
+            header, with no dedicated Pydantic class — columns are derived
+            dynamically by <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">AgsiJsonTransformer</code>.
+            <code class="mono">NewsTransformer</code> extends it with no override;
+            columns emerge from the live JSON via
+            <code class="mono">_normalise_row</code> +
+            <code class="mono">_camel_to_snake</code> plus datetime/numeric
+            heuristics. Naïve <code class="mono">YYYY-MM-DD HH:MM:SS</code>
+            timestamps are parsed as UTC.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It matters as a masking signal: join
+            <code class="mono">news.entities[].eic</code> to
+            <code class="mono">storage_reports.entity_code</code> over the
+            <code class="mono">start_at</code> / <code class="mono">end_at</code>
+            window to mask affected periods before fitting storage models. The
+            endpoint is registered <code class="mono">implementation_phase = "deferred"</code>
+            — research-grade, not yet v0.7 production-promoted. Verified against
+            vendor docs on 2026-05-08.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">AGSI announcements · count <span class="italic fg-accent">by country.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">news · silver layer · entities[].country</div>
+                <div class="small">Horizontal bars · announcement count · rolling · 2025-05 → 2026-05</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip btn-like">30d</span>
+                <span class="chip btn-like">90d</span>
+                <span class="chip ink btn-like">1y</span>
+              </div>
+            </div>
+            <div data-chart="barsH" data-opts='{"width":760,"items":[{"label":"DE","value":142,"display":"142"},{"label":"FR","value":38,"display":"38"},{"label":"IT","value":31,"display":"31"},{"label":"NL","value":27,"display":"27"},{"label":"AT","value":24,"display":"24"},{"label":"ES","value":19,"display":"19"},{"label":"PL","value":11,"display":"11"},{"label":"platform-wide","value":34,"display":"34"}]}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No dedicated Pydantic class</strong> — columns are derived
+            dynamically by <code class="mono">AgsiJsonTransformer</code>.
+            <code class="mono">NewsTransformer</code> extends it directly
+            (<code class="mono">silver/gie/agsi.py L445-449</code>) with no
+            override; columns emerge from the live JSON via
+            <code class="mono">_normalise_row</code> +
+            <code class="mono">_camel_to_snake</code> plus datetime/numeric
+            heuristics. The shape below is the observed live 2026-05-08 response.
+            Partitioned by <code class="mono">start_at</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 18%;">Column</th>
+                <th style="width: 16%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">url <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Numeric announcement ID stored as text (e.g. <code class="mono">"1713470"</code>). Primary key. Source: <code class="mono">url</code>.<span class="cite">silver/gie/agsi.py L320-339</span></td></tr>
+              <tr><td class="col-name">start_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Event start. Naïve <code class="mono">YYYY-MM-DD HH:MM:SS</code> parsed as UTC. Source: <code class="mono">start_at</code>.<span class="cite">silver/gie/agsi.py L287-298, L331-332</span></td></tr>
+              <tr><td class="col-name">end_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Often null for ongoing events. Source: <code class="mono">end_at</code>.<span class="cite">silver/gie/agsi.py L287-298, L331-332</span></td></tr>
+              <tr><td class="col-name">title</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Operator + summary line. Source: <code class="mono">title</code>.<span class="cite">dynamic pass-through</span></td></tr>
+              <tr><td class="col-name">summary</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">HTML-tagged short summary. Source: <code class="mono">summary</code>.<span class="cite">dynamic pass-through</span></td></tr>
+              <tr><td class="col-name">details</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">HTML-tagged full body. Source: <code class="mono">details</code>.<span class="cite">dynamic pass-through</span></td></tr>
+              <tr><td class="col-name">entities</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">JSON-encoded list of affected entity dicts (<code class="mono">{"name", "country", "eic"}</code> ± base64 <code class="mono">logo</code>). Source: <code class="mono">entities</code>.<span class="cite">silver/gie/agsi.py L329-330</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"gie_agsi"</code>. Default <code class="mono">"gie_agsi"</code>.<span class="cite">silver/gie/agsi.py L337</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Silver write timestamp.<span class="cite">silver/gie/agsi.py L338</span></td></tr>
+            </tbody>
+          </table>
+
+          <!-- partition info -->
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/gie_agsi/news/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">start_at (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(url,)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>url</th>
+                  <th>start_at</th>
+                  <th>end_at</th>
+                  <th>title</th>
+                  <th>summary (HTML)</th>
+                  <th>entities (json)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="str">1713470</td><td class="date">2026-05-05 11:00:00</td><td class="nul">null</td><td class="str">Enovos Storage GmbH - Status update UGS Frankenthal</td><td class="str">&lt;p&gt;Missing reporting expected since 01/04/2026 - zero values confirmed&lt;/p&gt;</td><td class="str">[{"name":"Enovos Storage GmbH","country":"DE","eic":"21X-ENOVOS-STG"}]</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="str">1713185</td><td class="date">2026-04-22 09:30:00</td><td class="date">2026-05-15 18:00:00</td><td class="str">astora GmbH — Rehden planned maintenance window</td><td class="str">&lt;p&gt;Planned outage window for Rehden facility 22 April → 15 May.&lt;/p&gt;</td><td class="str">[{"name":"astora GmbH","country":"DE","eic":"21X-WIEHE--K"}]</td></tr>
+                <tr><td class="str">1712984</td><td class="date">2026-04-15 14:20:00</td><td class="nul">null</td><td class="str">GSA LLC — Haidach historical data note</td><td class="str">&lt;p&gt;Historical pre-2022 data for Haidach is archived; querying returns current operator only.&lt;/p&gt;</td><td class="str">[{"name":"GSA LLC","country":"AT","eic":"25X-GSALLC-----E"}]</td></tr>
+                <tr><td class="str">1712742</td><td class="date">2026-04-08 10:00:00</td><td class="date">2026-04-10 18:00:00</td><td class="str">TAQA — Bergermeer scheduled test</td><td class="str">&lt;p&gt;Safety test on Bergermeer, no withdrawal capacity 8-10 April.&lt;/p&gt;</td><td class="str">[{"name":"Bergermeer Operator","country":"NL","eic":"21X-BERGER-NL-G"}]</td></tr>
+                <tr><td class="str">1712560</td><td class="date">2026-04-01 12:00:00</td><td class="nul">null</td><td class="str">EWE Gasspeicher — H-Gas Zone reporting delay</td><td class="str">&lt;p&gt;Reporting delay 1 April; values may be revised.&lt;/p&gt;</td><td class="str">[{"name":"EWE Gasspeicher","country":"DE","eic":"21X0000000011756"}]</td></tr>
+                <tr><td class="str">1712345</td><td class="date">2026-03-25 08:00:00</td><td class="date">2026-03-27 18:00:00</td><td class="str">Storengy — Cerville maintenance</td><td class="str">&lt;p&gt;Planned outage 25-27 March.&lt;/p&gt;</td><td class="str">[{"name":"Storengy","country":"FR","eic":"21X-STORENGY---X"}]</td></tr>
+                <tr><td class="str">1712098</td><td class="date">2026-03-10 14:30:00</td><td class="nul">null</td><td class="str">AGSI — daily refresh slot moved to 16:00 CET</td><td class="str">&lt;p&gt;From 10 March the AGSI daily refresh is at 16:00 CET (previously 17:00 CET).&lt;/p&gt;</td><td class="nul">[]</td></tr>
+                <tr><td class="str">1711845</td><td class="date">2026-02-20 10:00:00</td><td class="nul">null</td><td class="str">Snam — Italian storage methodology update</td><td class="str">&lt;p&gt;Snam updated its facility-level methodology; minor restatements possible.&lt;/p&gt;</td><td class="str">[{"name":"Snam","country":"IT","eic":"21X-SNAM------M"}]</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Top row verbatim from vault Bronze sample (the live Enovos Storage UGS Frankenthal announcement, 2026-05-08); remaining 7 rows synthesised respecting the JSON-encoded <code class="mono">entities</code> shape, the naïve <code class="mono">YYYY-MM-DD HH:MM:SS</code> timestamp format, and realistic operator announcements. The highlighted <code class="mono">astora Rehden</code> announcement is the canonical use case: it pre-announces a planned outage on the Rehden facility, letting storage models mask <code class="mono">storage_reports</code> rows for <code class="mono">eic=21X-WIEHE--K</code> over 2026-04-22 → 2026-05-15. Note announcement <code class="mono">1712098</code> carries <code class="mono">entities: "[]"</code> — a platform-wide notice with no facility scope.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">agsi.gie.eu/api/news<br/><span style="color:var(--ink-faint);"># optional ?page=N&amp;size=300</span></div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Header <code class="mono">x-key</code> (LOWERCASE — <code class="mono">X-Key</code> returns 401), key from env <code class="mono">GIE_API_KEY</code>. Free registration at <a href="https://agsi.gie.eu/account/registration" class="link" target="_blank" rel="noopener">agsi.gie.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/gie_agsi/news/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.gie.agsi.<br/>NewsTransformer<br/>(extends AgsiJsonTransformer · silver/gie/agsi.py L628)</div>
+            </div>
+          </div>
+
+          <!-- tabs -->
+          <div data-tab-group="news">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('news','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('news','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('news','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="news-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;"><span class="c"># Header: x-key: $GIE_API_KEY  (lowercase)</span>
+https://agsi.gie.eu/api/news<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">size</span>=300</pre>
+            </div></div>
+            <div data-tab-panel="news-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Announcements affecting a specific facility EIC, last 1 year</span>
+<span class="k">SELECT</span> url,
+       start_at,
+       end_at,
+       title
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/gie_agsi/news/**/*.parquet'</span>)
+<span class="k">WHERE</span> entities <span class="k">LIKE</span> <span class="s">'%"eic":"21X-WIEHE--K"%'</span>
+  <span class="k">AND</span> start_at &gt;= current_date - <span class="k">INTERVAL</span> 1 <span class="k">YEAR</span>
+<span class="k">ORDER BY</span> start_at <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="news-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+<span class="k">import</span> json
+
+df = pl.read_parquet(<span class="s">"data/silver/gie_agsi/news/**/*.parquet"</span>)
+<span class="c"># Unwrap entities JSON and explode into one row per affected EIC</span>
+exploded = (
+    df.with_columns(pl.col(<span class="s">"entities"</span>).map_elements(json.loads, return_dtype=pl.List(pl.Object)))
+      .explode(<span class="s">"entities"</span>)
+      .with_columns([
+          pl.col(<span class="s">"entities"</span>).struct.field(<span class="s">"eic"</span>).alias(<span class="s">"eic"</span>),
+          pl.col(<span class="s">"entities"</span>).struct.field(<span class="s">"country"</span>).alias(<span class="s">"country"</span>),
+      ])
+      .drop(<span class="s">"entities"</span>)
+)
+print(exploded.head(<span class="num">20</span>))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">news</code>. Also read the <a href="../gie.html#about" class="link">GIE-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">01</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · docs vs live response</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Live response carries no <code class="mono">last_page</code> / <code class="mono">total</code></div>
+                <p class="small" style="margin: 0;">The catalog declares the endpoint paginated, but the live response is a single ~2.6 MB envelope with 299 records and no pagination keys. Connector <code class="mono">_last_page</code> falls back to 1 — single-page behaviour is correct, the docs claim is unverifiable. <span class="src-cite">vault Implementation Delta</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">url</code> is a numeric ID, not a URL</div>
+                <p class="small" style="margin: 0;">Confusing naming: <code class="mono">url: 1713470</code> is the announcement primary key, not an HTTP link. Use it as <code class="mono">turl=&lt;url&gt;</code> to fetch detail via <code class="mono">news_item</code> (though see the <code class="mono">news_item</code> caveat — the <code class="mono">turl</code> filter is silently ignored). <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Base64 logos inflate parquet size if untrimmed</div>
+                <p class="small" style="margin: 0;">Each <code class="mono">entities</code> element may carry a base64 PNG <code class="mono">logo</code> field; silver JSON-encodes the full array. Strip logos pre-ingest if parquet size matters. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">end_at</code> frequently null for ongoing events</div>
+                <p class="small" style="margin: 0;">Reporting outages with no scheduled resumption have <code class="mono">end_at: null</code>. Treat null <code class="mono">end_at</code> as "still active" for masking logic. <span class="src-cite">vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">x-key</code> header MUST be lowercase</div>
+                <p class="small" style="margin: 0;">Capitalised <code class="mono">X-Key</code> returns HTTP 401. <span class="src-cite">vault Known Issues #1</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">implementation_phase = "deferred"</code> — not in v0.7 production cycle</div>
+                <p class="small" style="margin: 0;">The endpoint is documented + live-served and the silver transformer is registered (<code class="mono">silver/gie/agsi.py L628</code>), but production scheduling is deferred. <span class="src-cite">endpoints.py L159 · vault Known Issues</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside news.</h2>
+
+          <div class="related-grid">
+            <a href="news_item.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">news_item</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-announcement detail by <code class="mono">turl</code>. Would fetch one announcement's full HTML body if the upstream <code class="mono">turl</code> filter worked; currently zero-row in practice.</p>
+              <span class="tiny">gie · news · as published</span>
+            </a>
+
+            <a href="unavailability.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">unavailability</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-event outage records. Typically cross-referenced from the same operator advisories surfaced in <code class="mono">news</code>. Use unavailability for structured capacity data; use news for free-text context.</p>
+              <span class="tiny">gie · storage · as published</span>
+            </a>
+
+            <a href="storage_reports.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage_reports</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-entity storage levels. Join <code class="mono">news.entities[].eic</code> ↔ <code class="mono">storage_reports.entity_code</code> and the <code class="mono">start_at</code> / <code class="mono">end_at</code> window to mask affected periods.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="storage.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Country-level storage rollup. For country-scoped news entries, mask the corresponding country rows.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>
