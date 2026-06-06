@@ -9,11 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/theme.css" />
   <style>
-    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
-    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
-    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px; }
     .schema-table tr:hover td { background: var(--paper-card); }
-    .schema-table .col-name {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-name { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
     .schema-table .col-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
     .schema-table .col-note { color: var(--ink-soft); font-size: 12px; }
     .schema-table .pk-badge { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
@@ -41,7 +41,7 @@
     .intensity-bar .mod  .lbl { color: #c9a96e; }
     .intensity-bar .hi   .lbl { color: #c45a3a; }
     .intensity-bar .vhi  .lbl { color: #86627d; }
-    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .page-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
     .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
     .sidebar-section { margin-bottom: 6px; }
     .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
@@ -69,7 +69,7 @@
         <span class="sep">/</span>
         <a href="../../data-sources.html">Data sources</a>
         <span class="sep">/</span>
-        <a href="../neso.html">NESO</a>
+        <a href="../neso.html">NESO Carbon Intensity</a>
         <span class="sep">/</span>
         <span class="here">carbon_intensity</span>
       </div>
@@ -156,11 +156,13 @@
       <nav class="sidebar">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
-          <a href="#snapshot" class="active">Snapshot chart</a>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
           <a href="#schema">Schema</a>
           <a href="#sample">Sample data</a>
           <a href="#intensity-index">Intensity index</a>
           <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
           <a href="#related">Related datasets</a>
         </div>
         <div class="sidebar-section" style="margin-top: 24px;">
@@ -176,6 +178,57 @@
       </nav>
 
       <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">carbon_intensity</code>
+            is the GB grid carbon intensity time-series —
+            <code class="mono">forecast_gco2_kwh</code> and
+            <code class="mono">actual_gco2_kwh</code> per half-hour settlement
+            period, plus a categorical <code class="mono">intensity_index</code>
+            (<code class="mono">very low</code> / <code class="mono">low</code> /
+            <code class="mono">moderate</code> / <code class="mono">high</code> /
+            <code class="mono">very high</code>). It answers "how carbon-heavy
+            is GB electricity right now, and what's predicted next?" — the
+            canonical input for carbon-aware load shifting, MEF (Marginal
+            Emissions Factor) modelling, and emissions-reporting baselines.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            Gridflow fetches it from
+            <code class="mono">api.carbonintensity.org.uk/intensity/{from}/{to}</code>
+            with no authentication (public API; just send
+            <code class="mono">Accept: application/json</code>). The connector
+            dispatch lives in
+            <code class="mono">connectors/neso/carbon_intensity.py</code> with
+            endpoint metadata in
+            <code class="mono">connectors/neso/endpoints.py::ENDPOINTS["carbon_intensity"]</code>
+            — a range route with maximum 14-day window per request
+            (<code class="mono">max_days_per_request=14</code>). The
+            <code class="mono">CarbonIntensityTransformer</code> at
+            <code class="mono">silver/neso/carbon_intensity.py L103</code>
+            parses the JSON <code class="mono">data[]</code> array, flattens the
+            nested <code class="mono">intensity.{forecast,actual,index}</code>
+            object into top-level columns, and writes to the silver parquet
+            partition. Pydantic class <code class="mono">CarbonIntensity</code>
+            at <code class="mono">schemas/neso.py L31</code> inherits from
+            <code class="mono">_TimestampedNesoBase</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            Cadence is half-hourly. Forecasts are published ahead of the
+            period; estimated actuals are populated shortly after the period
+            closes. Verified against the live API on 2026-05-08; a 30-day range
+            request for 2026-04-08 → 2026-05-07 returned 1,440 rows (no
+            missing periods). The dataset feeds
+            <code class="mono">gold_uk_imbalance_context</code> (SQL view at
+            <code class="mono">gold/views/uk_imbalance_context.sql</code>)
+            which joins it against Elexon <code class="mono">system_prices</code>
+            on <code class="mono">timestamp_utc</code> — the most-load-bearing
+            NESO downstream.
+          </p>
+        </section>
 
         <!-- ── Snapshot chart ── -->
         <section id="snapshot" style="margin-bottom: 56px;">
@@ -378,6 +431,74 @@ skill = (
 )
 print(skill.tail(<span class="num">7</span>))</pre>
             </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 600px;">Two of the items below are <strong>data-source discrepancies</strong> — drift between the vault docs and what the gridflow connector / silver actually ship. Surfaced so downstream consumers know which source to trust. Also read the <a href="../neso.html#about" class="link">NESO-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">D1</div>
+              <div>
+                <div class="eyebrow-discrepancy">Data-source discrepancy</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Path placeholder naming differs from vendor docs (cosmetic)</div>
+                <p class="small" style="margin: 0;">Vault Implementation Delta L111 notes that official NESO docs and <code class="mono">config/sources.yaml</code> use <code class="mono">{from}</code> and <code class="mono">{to}</code>; the gridflow connector at <code class="mono">connectors/neso/endpoints.py</code> internally uses <code class="mono">{from_dt}</code> and <code class="mono">{to_dt}</code> (to disambiguate from the Python <code class="mono">from</code> keyword), formatting to <code class="mono">/intensity/{from}/{to}</code> at request time. <strong>Cosmetic</strong> — internal placeholder naming differs from vendor's documented placeholders but the final URL is identical. No fix needed.</p>
+                <span class="src-cite">vault Implementation Delta L111 · connectors/neso/endpoints.py</span>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">D2</div>
+              <div>
+                <div class="eyebrow-discrepancy">Data-source discrepancy</div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">carbon_intensity</code> and <code class="mono">intensity_current</code> share <code class="mono">/intensity</code> path prefix</div>
+                <p class="small" style="margin: 0;">Vault Implementation Delta L113: <code class="mono">carbon_intensity</code> and <code class="mono">intensity_current</code> share the same <code class="mono">/intensity</code> path in <code class="mono">config/sources.yaml</code> but <code class="mono">ENDPOINTS</code> distinguishes them — <code class="mono">carbon_intensity</code> is <code class="mono">/intensity/{from_dt}/{to_dt}</code> (range, max 14 days); <code class="mono">intensity_current</code> is <code class="mono">/intensity</code> (no-arg, current single record). Both produce the same <code class="mono">CarbonIntensity</code> silver schema but answer different questions. <strong>Documented design intent</strong> — same schema, different query semantics. Surfaced as Caveat #02 below so users know to pick the right dataset for their query shape.</p>
+                <span class="src-cite">vault Implementation Delta L113 · connectors/neso/endpoints.py::ENDPOINTS</span>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Actuals lag — null is "not yet published"</div>
+                <p class="small" style="margin: 0;"><code class="mono">actual_gco2_kwh</code> is null for periods whose post-period estimate hasn't been computed yet (typically the most recent 1–2 hours, plus any backfill gaps). Filter <code class="mono">actual_gco2_kwh IS NOT NULL</code> for any back-fitted modelling; use <code class="mono">forecast_gco2_kwh</code> as the ex-ante feature when actuals aren't yet available. Do NOT treat null actual as "zero carbon".</p>
+                <span class="src-cite">vault Known Issues #3</span>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Distinct from <code class="mono">intensity_current</code> despite same <code class="mono">/intensity</code> path prefix</div>
+                <p class="small" style="margin: 0;"><code class="mono">carbon_intensity</code> (this dataset) is a <strong>range</strong> query — <code class="mono">/intensity/{from}/{to}</code> with <code class="mono">max_days_per_request=14</code> — and produces a multi-row time series. <code class="mono">intensity_current</code> (separate dataset, same vendor) is a no-arg query against <code class="mono">/intensity</code> and returns the single current half-hour record. Both produce the same <code class="mono">CarbonIntensity</code> silver schema, but they are NOT aliases. Pick <code class="mono">carbon_intensity</code> for historical / back-fill / range queries; pick <code class="mono">intensity_current</code> for live "what is it right now" displays.</p>
+                <span class="src-cite">vault Implementation Delta L113</span>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">14-day max window per request</div>
+                <p class="small" style="margin: 0;">Single requests cannot span more than 14 days. The connector auto-chunks longer windows into 14-day sub-requests with rate-limited iteration. Custom callers issuing raw HTTP must respect this — exceeding the window returns a vendor error rather than truncating silently.</p>
+                <span class="src-cite">vault API endpoint table · connector dispatch logic</span>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GB clock-change days = 46 or 50 settlement periods (sometimes)</div>
+                <p class="small" style="margin: 0;">Despite official docs describing periods 1–48 per day, GB clock-change days (DST transitions) carry 46 (spring forward) or 50 (autumn back) settlement periods. The connector handles this via <code class="mono">timestamp_utc</code> directly (no period-number arithmetic), but custom callers using <code class="mono">intensity_period</code> for slot accounting must account for the 46/50 cases.</p>
+                <span class="src-cite">vault Known Issues #4</span>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Path placeholders use <code class="mono">{from_dt}</code> / <code class="mono">{to_dt}</code> internally</div>
+                <p class="small" style="margin: 0;">Official docs and <code class="mono">config/sources.yaml</code> describe the path as <code class="mono">/intensity/{from}/{to}</code>. The gridflow connector internally templates as <code class="mono">/intensity/{from_dt}/{to_dt}</code> to disambiguate from the Python <code class="mono">from</code> keyword in connector code. The final URL is identical to the documented form. Cosmetic divergence in source-reading; no behavior difference.</p>
+                <span class="src-cite">vault Implementation Delta L111</span>
+              </div>
+            </div>
           </div>
         </section>
 
