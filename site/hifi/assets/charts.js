@@ -493,6 +493,9 @@
       const opts = {};
       try { if (el.dataset.opts) Object.assign(opts, JSON.parse(el.dataset.opts)); } catch {}
       if (window.GFCharts[kind]) window.GFCharts[kind](el, opts);
+      // Decorative, illustrative-only chart ("shape only · seeded SVG") — hide the
+      // rendered svg + legend from assistive tech (F-A8 / WCAG 1.1.1).
+      el.setAttribute("aria-hidden", "true");
     });
   });
 })();
