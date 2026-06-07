@@ -520,6 +520,55 @@
     </div>
   </section>
 
+  <section class="block" id="about">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">Caveats &middot; known quirks</div>
+          <h2 class="display-3">What to watch for.</h2>
+        </div>
+      </div>
+
+      <div class="caveats" style="max-width: 920px;">
+        <div class="caveat">
+          <div class="num">01</div>
+          <div>
+            <h4><span class="mono" style="font-size:14px;">timeZone=UCT</span> &mdash; not UTC, and not a typo</h4>
+            <p>ENTSO-G's API expects <span class="mono">timeZone=UCT</span> (literally &ldquo;UCT&rdquo;) as a query parameter; sending <span class="mono">UTC</span> returns HTTP 400. The gridflow connector encodes <span class="mono">ENTSOG_TIMEZONE = "UCT"</span> and normalises the returned timestamps to proper UTC at silver write time via <span class="mono">silver/entsog/datetime.py</span>.</p>
+            <div class="src">Source &middot; connectors/entsog/endpoints.py &middot; vault physical_flows.md</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">02</div>
+          <div>
+            <h4>Only 1 of 33 datasets has a Pydantic schema</h4>
+            <p><span class="mono">schemas/entsog.py</span> defines a single typed class, <span class="mono">EntsogPhysicalFlow</span>, covering only <span class="mono">physical_flows</span>. The other 32 datasets &mdash; nominations, capacities, CMP, tariffs, and all reference data &mdash; have no Pydantic class; their columns are derived dynamically at silver time by <span class="mono">GenericEntsogJsonTransformer</span>. Downstream consumers of those datasets receive untyped Polars frames.</p>
+            <div class="src">Source &middot; schemas/entsog.py &middot; silver/entsog/generic.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">03</div>
+          <div>
+            <h4>HTTP 404 on empty windows is the empty-set convention, not an error</h4>
+            <p>When no data exists for a requested date-and-point window, ENTSO-G returns HTTP 404 with body <span class="mono">{"message":"No result found"}</span>. This is documented behaviour, not a failure. The gridflow connector special-cases it to emit an empty bronze file rather than raising; tooling that bypasses the connector must implement the same handling.</p>
+            <div class="src">Source &middot; connectors/entsog/client.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">04</div>
+          <div>
+            <h4>Historical depth is operator-dependent (~2010)</h4>
+            <p>Unlike ENTSO-E's well-defined historical API, ENTSO-G's depth varies by operator and point. The main GB interconnection points (Bacton IUK, Bacton BBL, Moffat) reach back to approximately 2010; capacity and gas-quality surfaces may be shallower.</p>
+            <div class="src">Source &middot; vault physical_flows.md</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 <script src="../assets/charts.js"></script>
 <script src="../assets/site.js"></script>

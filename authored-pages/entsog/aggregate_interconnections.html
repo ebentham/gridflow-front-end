@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>aggregate_interconnections · ENTSO-G Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-G · aggregate_interconnections">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsog.html">ENTSO-G Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">aggregate_interconnections</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-G · Reference</span>
+            <span class="chip" style="font-size:11px;">weekly · on change</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 20px; font-family: var(--mono); letter-spacing: -0.01em;">aggregate_interconnections</span><br/>
+            Zone-to-zone aggregated <span class="italic fg-accent">interconnections.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Zone-pair-aggregated network topology with adjacent-system counts — the canonical reference for resolving zone-level flow-data joins.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://transparency.entsog.eu/" class="link" target="_blank" rel="noopener">ENTSO-G Transparency · /aggregateInterconnections ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:10px; line-height:1.4;">silver.aggregate_<br/>interconnections</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px; line-height:1.4;">/api/v1/<br/>aggregateInterconnections</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">weekly snapshot</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small">on change</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small" style="font-size:12px; line-height:1.4;">27 UK records (2026-05-08 sample)</div></div>
+<div style="padding: 16px 18px; "><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px; line-height:1.4;">(id)<br/>— vendor concatenation</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+<div><div class="stat-n">weekly</div><div class="stat-l">Snapshot cadence</div></div>
+<div><div class="stat-n">snapshot</div><div class="stat-l">Output layout</div></div>
+<div><div class="stat-n">27</div><div class="stat-l">UK records (default filter)</div></div>
+<div><div class="stat-n">dynamic</div><div class="stat-l">Silver schema (no Pydantic class)</div></div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+<a href="#overview" class="active">Overview</a>
+<a href="#snapshot">Snapshot chart</a>
+<a href="#schema">Schema</a>
+<a href="#sample">Sample data</a>
+<a href="#api">API &amp; ingestion</a>
+<a href="#caveats">Caveats</a>
+<a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-G Transparency</div>
+          <a href="../entsog.html">← All datasets</a>
+          <a href="aggregate_interconnections.html" class="active">aggregate_interconnections</a>
+<a href="#" style="color:var(--ink-faint);">interconnections</a>
+<a href="#" style="color:var(--ink-faint);">aggregated_physical_flows</a>
+<a href="#" style="color:var(--ink-faint);">balancing_zones</a>
+<a href="#" style="color:var(--ink-faint);">operators</a>
+<a href="#" style="color:var(--ink-faint);">operator_point_directions</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">aggregate_interconnections</code> is the zone-pair-aggregated view of ENTSO-G network topology — it rolls the point-level <code class="mono">interconnections</code> reference up into zone-to-zone tuples, each annotated with a count of how many adjacent systems are aggregated into it. It is the canonical reference for resolving zone-level flow joins: the <code class="mono">adjacent_systems_key</code> values it enumerates are exactly the counterparty categories that turn up in <code class="mono">aggregated_physical_flows</code>. Each row is one source-zone operator-direction paired with a single adjacent-system aggregate.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-G Transparency Platform at <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api/v1/aggregateInterconnections</code>, queried with a default <code class="mono">countryKey=UK</code> filter and <code class="mono">limit=-1</code> for one-call extraction. The raw JSON lands in bronze and is written to silver via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GenericEntsogJsonTransformer</code>, with no Pydantic class — columns are derived dynamically from the live response. It runs with <code class="mono">reference_dataset=True</code>, so the output is a single-file snapshot overwritten on each weekly refresh rather than a time-partitioned table.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            As the topology reference behind zone-level flows, it lets analysts enumerate which adjacent-system keys are valid for a zone before joining or aggregating <code class="mono">aggregated_physical_flows</code>, and resolves which TSOs sit on each side of a cross-border pair. Schema and API verified against the gridflow connector source and the 2026-05-08 vault Bronze sample; ENTSO-G is a public, no-authentication API.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Aggregate UK interconnections by <span class="italic fg-accent">adjacent system.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">aggregate_interconnections · silver layer · country_key=UK</div>
+                <div class="small">Horizontal bars · adjacent_systems_count · grouped by adjacent system</div>
+              </div>
+              <div class="row gap-8">
+<span class="chip ink btn-like">current</span>
+              </div>
+            </div>
+            <div data-chart="barsH" data-opts='{"width":820,"items":[{"label":"Storage","value":5,"display":"5","color":"#c9a96e"},{"label":"Production","value":3,"display":"3","color":"#c45a3a"},{"label":"LNG Terminals","value":2,"display":"2","color":"#3b6b4b"},{"label":"NI (UK to NI)","value":1,"display":"1","color":"#7a96a8"},{"label":"BE (UK to BE)","value":1,"display":"1","color":"#86627d"},{"label":"Distribution","value":1,"display":"1","color":"#5a8aa6"}]}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No Pydantic class</strong> — columns are derived dynamically by <code class="mono">GenericEntsogJsonTransformer</code> running with <code class="mono">reference_dataset=True</code> (<code class="mono">silver/entsog/generic.py L80</code>). The dataset rolls <code class="mono">interconnections</code> up into zone-pair tuples; the 2026-05-08 vault Bronze sample carries the fields below. Every citation is a <code class="mono">silver/entsog/*.py</code> source path, not a schema class.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 24%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+<tr><td class="col-name">id <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor concatenation. Dedup key. <span class="cite">silver/entsog/generic.py L126-130</span></td></tr>
+<tr><td class="col-name">country_key / country_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Country of the source zone (e.g. <code class="mono">"UK"</code> / <code class="mono">"United Kingdom"</code>). <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">bz_key / bz_label / bz_label_long</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Source-zone identifier (e.g. <code class="mono">"UK---------"</code> / <code class="mono">"UK"</code> / <code class="mono">"British Balancing Zone"</code>). <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_key / operator_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">The TSO at the source side. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">direction_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">"entry"</code> / <code class="mono">"exit"</code> (lowercase). <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">adjacent_systems_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Concatenation of adjacent systems (e.g. <code class="mono">"TransmissionUK-NI------"</code>). <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">adjacent_systems_count</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">How many adjacent systems are aggregated into the tuple. <span class="cite">silver/entsog/generic.py L65-77 (_NUMERIC_NAMES)</span></td></tr>
+<tr><td class="col-name">adjacent_systems_are_balancing_zones</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor-narrative flag. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">adjacent_systems_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Human label for the adjacent-system aggregate. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">data_set</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor numeric dataset id. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">data_provider</td><td class="col-type">str ("entsog")</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsog"</code>. Constant. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+<tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Wall-clock at silver write. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsog/aggregate_interconnections.parquet</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">none (single-file overwrite)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(id) — vendor concatenation</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr><th>country_key</th><th>bz_label_long</th><th>operator_key</th><th>direction_key</th><th>adjacent_systems_key</th><th>adjacent_systems_label</th><th>adjacent_systems_count</th></tr>
+              </thead>
+              <tbody>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">IE-TSO-0001</td><td class="str">entry</td><td class="str">TransmissionUK-NI------</td><td class="str">NI</td><td class="num">1</td></tr>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">IE-TSO-0001</td><td class="str">exit</td><td class="str">TransmissionUK-NI------</td><td class="str">NI</td><td class="num">1</td></tr>
+<tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">UK-TSO-0001</td><td class="str">entry</td><td class="str">LNG Terminals</td><td class="str">LNG Terminals</td><td class="num">2</td></tr>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">UK-TSO-0001</td><td class="str">entry</td><td class="str">Production</td><td class="str">Production</td><td class="num">3</td></tr>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">UK-TSO-0001</td><td class="str">entry</td><td class="str">Storage</td><td class="str">Storage</td><td class="num">5</td></tr>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">UK-TSO-0001</td><td class="str">exit</td><td class="str">Distribution</td><td class="str">Distribution</td><td class="num">1</td></tr>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">UK-TSO-0001</td><td class="str">exit</td><td class="str">Final consumer</td><td class="str">Final consumer</td><td class="num">1</td></tr>
+<tr><td class="str">UK</td><td class="str">British Balancing Zone</td><td class="str">UK-TSO-0003</td><td class="str">entry</td><td class="str">TransmissionBE---------</td><td class="str">BE</td><td class="num">1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            First two rows from the vault Bronze sample (UK→NI via IE-TSO-0001); remaining rows synthesised to demonstrate the zone-pair-aggregation shape — <code class="mono">adjacent_systems_count</code> reveals how many sub-elements roll up to each tuple. Highlighted row is the UK LNG-terminals aggregate. Use this dataset to enumerate which adjacent-system keys are available in <code class="mono">aggregated_physical_flows</code>.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">transparency.entsog.eu/api/v1/<br/>aggregateInterconnections<br/>?limit=-1<br/>&amp;countryKey=UK</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public). Default filter <code class="mono">countryKey=UK</code>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsog/aggregate_interconnections/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsog.generic.<br/>GenericEntsogJsonTransformer<br/>↳ AggregateInterconnectionsTransformer<br/>(reference_dataset=True)</div>
+            </div>
+          </div>
+
+          <div data-tab-group="agic">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('agic','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('agic','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('agic','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="agic-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://transparency.entsog.eu/api/v1/aggregateInterconnections<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">limit</span>=-1<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">countryKey</span>=UK</pre>
+            </div></div>
+            <div data-tab-panel="agic-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- All UK adjacent-system aggregates by direction</span>
+<span class="k">SELECT</span> direction_key, adjacent_systems_label,
+       SUM(adjacent_systems_count) <span class="k">AS</span> total_sub_systems
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsog/aggregate_interconnections.parquet'</span>)
+<span class="k">WHERE</span> country_key = <span class="s">'UK'</span>
+<span class="k">GROUP BY</span> <span class="num">1</span>, <span class="num">2</span>
+<span class="k">ORDER BY</span> <span class="num">1</span>, total_sub_systems <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="agic-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+agg_ic = pl.read_parquet(<span class="s">"data/silver/entsog/aggregate_interconnections.parquet"</span>)
+<span class="c"># Enumerate adjacent-system keys for UK (the codelist for aggregated_physical_flows)</span>
+print(agg_ic.filter(pl.col(<span class="s">"country_key"</span>) == <span class="s">"UK"</span>).select(<span class="s">"adjacent_systems_key"</span>).unique())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">aggregate_interconnections</code>. Also read the <a href="../entsog.html#about" class="link">ENTSO-G-wide caveats</a> on the vendor page.</p>
+          <div>
+<div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;">Single-file reference dataset (no time partitions)</div><p class="small" style="margin: 0;">Output is <code class="mono">aggregate_interconnections.parquet</code> overwritten on each refresh. <span class="src-cite">silver/entsog/generic.py L196-202 · endpoints.py L249-257 reference=True</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;">Default <code class="mono">countryKey=UK</code> filter</div><p class="small" style="margin: 0;">The connector passes <code class="mono">countryKey=UK</code> by default. For full EU connectivity, override the param. <span class="src-cite">connectors/entsog/endpoints.py L255</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">direction_key</code> is lowercase here (<code class="mono">"entry"</code>/<code class="mono">"exit"</code>)</div><p class="small" style="margin: 0;">Same casing as <code class="mono">/operationalData</code> and <code class="mono">/aggregatedData</code> (vs capitalised in <code class="mono">/cmpUnsuccessfulRequests</code>). Safe to join directly to <code class="mono">aggregated_physical_flows</code>. <span class="src-cite">vault Bronze sample L78</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">adjacent_systems_key</code> is a concatenation, not a categorical</div><p class="small" style="margin: 0;">Values like <code class="mono">"TransmissionUK-NI------"</code> and <code class="mono">"LNG Terminals"</code> mix infrastructure types with zone keys. Parse with care for downstream taxonomies. <span class="src-cite">vault Bronze sample L79</span></p></div></div>
+<div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Pagination via <code class="mono">limit</code>+<code class="mono">offset</code></div><p class="small" style="margin: 0;">No <code class="mono">from</code>/<code class="mono">to</code> accepted. Connector sets <code class="mono">limit=-1</code> for one-call extraction. <span class="src-cite">vault Query-params</span></p></div></div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside aggregate_interconnections.</h2>
+          <div class="related-grid">
+<a href="interconnections.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">interconnections</span><span class="chip" style="font-size:10px;">snapshot</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Point-level interconnection records — the underlying detail behind these aggregates. The granular companion.</p><span class="tiny">entsog · reference · snapshot</span></a>
+<a href="aggregated_physical_flows.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">aggregated_physical_flows</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Zone-level operational flows that use exactly these zone-pair and adjacent-system keys. Primary downstream consumer.</p><span class="tiny">entsog · zone · daily</span></a>
+<a href="balancing_zones.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">balancing_zones</span><span class="chip" style="font-size:10px;">snapshot</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Zone inventory. Resolves <code class="mono">bz_key</code> to human zone names.</p><span class="tiny">entsog · reference · snapshot</span></a>
+<a href="operators.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">operators</span><span class="chip" style="font-size:10px;">snapshot</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">TSO inventory. Resolves <code class="mono">operator_key</code> to operator labels.</p><span class="tiny">entsog · reference · snapshot</span></a>
+          </div>
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

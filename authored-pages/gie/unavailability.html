@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>unavailability · GIE Storage · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="GIE · unavailability">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../gie.html">GIE Storage</a>
+        <span class="sep">/</span>
+        <span class="here">unavailability</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · GIE-AGSI · Storage</span>
+            <span class="chip" style="font-size:11px;">as published</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">unavailability</span><br/>
+            Storage outages and <span class="italic fg-accent">planned maintenance.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Per-event AGSI storage outage and maintenance reports — the canonical
+            capacity-reduction feed for short-term withdrawal forecasts,
+            gas-spread trades, and explaining sudden capacity drops in
+            <code class="mono" style="font-size:15px;">storage_reports</code>.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://agsi.gie.eu/api" class="link" target="_blank" rel="noopener">GIE AGSI+ · /api/unavailability ↗</a>
+          </p>
+        </div>
+        <!-- key metrics -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.gie_agsi.unavailability</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">API PATH</div>
+            <div class="mono small" style="font-size:10px;">/api/unavailability?country={ISO2}<br/>&amp;start=…&amp;end=…</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">as published</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">real-time (operator-reported)</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">~30 records / country (rolling)</div>
+          </div>
+          <div style="padding: 16px 18px;">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(facility_eic,<br/>start, end)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n" style="font-size: 30px;">as published</div>
+        <div class="stat-l">Cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">9</div>
+        <div class="stat-l">AGSI countries</div>
+      </div>
+      <div>
+        <div class="stat-n">13</div>
+        <div class="stat-l">Dynamic columns</div>
+      </div>
+      <div>
+        <div class="stat-n" style="font-size: 24px;">Planned/Unplanned</div>
+        <div class="stat-l">Event types</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">GIE Storage</div>
+          <a href="../gie.html">← All datasets</a>
+          <a href="unavailability.html" class="active">unavailability</a>
+          <a href="storage.html" style="color:var(--ink-faint);">storage</a>
+          <a href="storage_reports.html" style="color:var(--ink-faint);">storage_reports</a>
+          <a href="about_listing.html" style="color:var(--ink-faint);">about_listing</a>
+          <a href="about_summary.html" style="color:var(--ink-faint);">about_summary</a>
+          <a href="news.html" style="color:var(--ink-faint);">news</a>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">unavailability</code>
+            is the per-event AGSI storage outage and maintenance feed — the
+            structured capacity-reduction record that explains sudden drops in
+            storage capacity. Each event carries a facility, a
+            <code class="mono">start</code> / <code class="mono">end</code> window,
+            the GWh volume and GWh/day injection / withdrawal capacity removed,
+            and a <code class="mono">type</code> × <code class="mono">end_flag</code>
+            matrix (Planned/Unplanned × Confirmed/Estimate). Each row is one
+            outage event, with windows gas-day-aligned at 06:00 UTC.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from GIE's AGSI+ platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">agsi.gie.eu/api</code>,
+            queried per country with an <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">x-key</code>
+            header, with no dedicated Pydantic class — columns are derived
+            dynamically by <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">AgsiJsonTransformer</code>.
+            <code class="mono">UnavailabilityTransformer</code> extends it; the
+            nested <code class="mono">country</code> / <code class="mono">company</code> /
+            <code class="mono">facility</code> dicts are JSON-encoded at silver, and
+            naïve <code class="mono">YYYY-MM-DD HH:MM:SS</code> timestamps are parsed
+            as UTC.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            It matters as the capacity-reduction signal behind short-term
+            withdrawal forecasts and gas-spread trades: join
+            <code class="mono">unavailability.facility.eic</code> to
+            <code class="mono">storage_reports.entity_code</code> to derive
+            effective capacity net of outages, and cross-reference
+            <code class="mono">news</code> for the free-text context behind the same
+            events. Verified against vendor docs on 2026-05-08; the live API
+            requires a free GIE registration key.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">DE storage outages · withdrawal capacity <span class="italic fg-accent">reduction.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">unavailability · silver layer · withdrawal GWh/day · by facility</div>
+                <div class="small">Horizontal bars · GWh/day offline · by facility · 2025-06 → 2026-05</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip btn-like">30d</span>
+                <span class="chip btn-like">90d</span>
+                <span class="chip ink btn-like">1y</span>
+              </div>
+            </div>
+            <div data-chart="barsH" data-opts='{"width":760,"items":[{"label":"Rehden","value":210,"display":"210.0 GWh/d"},{"label":"EWE H-Gas Zone","value":82.8,"display":"82.8 GWh/d"},{"label":"Haidach (AT)","value":63,"display":"63.0 GWh/d"},{"label":"Yela","value":49.2,"display":"49.2 GWh/d"},{"label":"Etzel ESE","value":44.2,"display":"44.2 GWh/d"},{"label":"Cortemaggiore","value":24.4,"display":"24.4 GWh/d"},{"label":"Cerville","value":16.8,"display":"16.8 GWh/d"},{"label":"Bergermeer","value":12.4,"display":"12.4 GWh/d"}]}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No dedicated Pydantic class</strong> — columns are derived
+            dynamically by <code class="mono">AgsiJsonTransformer</code>.
+            <code class="mono">UnavailabilityTransformer</code> extends it
+            (<code class="mono">silver/gie/agsi.py L465</code>) and emits columns
+            from the live JSON via <code class="mono">_normalise_row</code> +
+            <code class="mono">_camel_to_snake</code> plus numeric-suffix
+            heuristics (<code class="mono">*_volume</code>,
+            <code class="mono">*_capacity</code>, <code class="mono">*_pct</code>,
+            <code class="mono">*_percentage</code>). The columns below are the
+            observed schema from the live 2026-05-08 DE response. Partitioned by
+            <code class="mono">published</code> (year + month).
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 16%;">Column</th>
+                <th style="width: 16%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">published</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor publish timestamp; <code class="mono">_safe_datetime</code> parses naïve <code class="mono">YYYY-MM-DD HH:MM:SS</code> as UTC. Source: <code class="mono">published</code>.<span class="cite">silver/gie/agsi.py L46, L287-298, L331-332</span></td></tr>
+              <tr><td class="col-name">country</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">JSON-encoded <code class="mono">{"name", "code"}</code> dict — the live shape is nested. Source: <code class="mono">country</code>.<span class="cite">silver/gie/agsi.py L329-330</span></td></tr>
+              <tr><td class="col-name">company</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">JSON-encoded <code class="mono">{"name", "eic"}</code> dict. Source: <code class="mono">company</code>.<span class="cite">silver/gie/agsi.py L329-330</span></td></tr>
+              <tr><td class="col-name">facility <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">JSON-encoded <code class="mono">{"name", "eic"}</code> dict; the <code class="mono">eic</code> is the dedup key. Source: <code class="mono">facility</code>.<span class="cite">silver/gie/agsi.py L329-330</span></td></tr>
+              <tr><td class="col-name">start <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Outage window start. Source: <code class="mono">start</code>.<span class="cite">silver/gie/agsi.py L46, L331-332</span></td></tr>
+              <tr><td class="col-name">end <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Outage window end; check <code class="mono">end_flag</code> for confirmed-vs-estimate. Source: <code class="mono">end</code>.<span class="cite">silver/gie/agsi.py L46, L331-332</span></td></tr>
+              <tr><td class="col-name">volume</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">GWh — energy not stored during the outage. Captured by <code class="mono">numeric_names</code>. Source: <code class="mono">volume</code>.<span class="cite">silver/gie/agsi.py L300-307, L333-334</span></td></tr>
+              <tr><td class="col-name">injection</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">GWh/day injection-capacity reduction. Source: <code class="mono">injection</code>.<span class="cite">silver/gie/agsi.py L333-334</span></td></tr>
+              <tr><td class="col-name">withdrawal</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">GWh/day withdrawal-capacity reduction. Source: <code class="mono">withdrawal</code>.<span class="cite">silver/gie/agsi.py L333-334</span></td></tr>
+              <tr><td class="col-name">description</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Free-text operator note. Source: <code class="mono">description</code>.<span class="cite">silver/gie/agsi.py L335-336</span></td></tr>
+              <tr><td class="col-name">end_flag</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">Confirmed</code> or <code class="mono">Estimate</code>. Source: <code class="mono">end_flag</code>.<span class="cite">silver/gie/agsi.py L335-336</span></td></tr>
+              <tr><td class="col-name">type</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">Planned</code> · <code class="mono">Unplanned</code> · … Source: <code class="mono">type</code>.<span class="cite">silver/gie/agsi.py L335-336</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"gie_agsi"</code>. Default <code class="mono">"gie_agsi"</code>.<span class="cite">silver/gie/agsi.py L337</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Silver write timestamp.<span class="cite">silver/gie/agsi.py L338</span></td></tr>
+            </tbody>
+          </table>
+
+          <!-- partition info -->
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/gie_agsi/unavailability/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">published (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(facility_eic, start, end)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>published</th>
+                  <th>country (eic-name)</th>
+                  <th>facility (eic-name)</th>
+                  <th>start</th>
+                  <th>end</th>
+                  <th>volume</th>
+                  <th>injection</th>
+                  <th>withdrawal</th>
+                  <th>end_flag</th>
+                  <th>type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-08 10:40:07</td><td class="str">{"name":"Germany","code":"DE"}</td><td class="str">{"name":"EWE H-Gas Zone","eic":"37W000000000002O"}</td><td class="date">2026-05-04 06:00:00</td><td class="date">2026-05-08 12:00:00</td><td class="num">3.004</td><td class="num">41.4</td><td class="num">82.8</td><td class="str">Confirmed</td><td class="str">Planned</td></tr>
+                <tr><td class="date">2026-05-07 14:22:10</td><td class="str">{"name":"Germany","code":"DE"}</td><td class="str">{"name":"Etzel ESE","eic":"37W000000000005C"}</td><td class="date">2026-05-05 06:00:00</td><td class="date">2026-05-09 06:00:00</td><td class="num">1.420</td><td class="num">22.1</td><td class="num">44.2</td><td class="str">Estimate</td><td class="str">Unplanned</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06 08:11:42</td><td class="str">{"name":"Germany","code":"DE"}</td><td class="str">{"name":"Rehden","eic":"37W000000000001Q"}</td><td class="date">2026-04-15 06:00:00</td><td class="date">2026-06-01 06:00:00</td><td class="num">18.5</td><td class="num">125.0</td><td class="num">210.0</td><td class="str">Confirmed</td><td class="str">Planned</td></tr>
+                <tr><td class="date">2026-05-06 07:55:21</td><td class="str">{"name":"France","code":"FR"}</td><td class="str">{"name":"Storengy Cerville","eic":"21W-CERVILLE---T"}</td><td class="date">2026-05-04 06:00:00</td><td class="date">2026-05-07 06:00:00</td><td class="num">0.420</td><td class="num">8.4</td><td class="num">16.8</td><td class="str">Confirmed</td><td class="str">Planned</td></tr>
+                <tr><td class="date">2026-05-05 21:30:00</td><td class="str">{"name":"Italy","code":"IT"}</td><td class="str">{"name":"Cortemaggiore","eic":"21W-CORTEMAGG--N"}</td><td class="date">2026-05-03 06:00:00</td><td class="date">2026-05-06 06:00:00</td><td class="num">0.815</td><td class="num">12.2</td><td class="num">24.4</td><td class="str">Confirmed</td><td class="str">Planned</td></tr>
+                <tr><td class="date">2026-05-04 11:12:08</td><td class="str">{"name":"Austria","code":"AT"}</td><td class="str">{"name":"Haidach (AT)","eic":"25W-HAIDACH----X"}</td><td class="date">2026-05-01 06:00:00</td><td class="date">2026-05-15 06:00:00</td><td class="num">2.110</td><td class="num">31.5</td><td class="num">63.0</td><td class="str">Estimate</td><td class="str">Planned</td></tr>
+                <tr><td class="date">2026-05-03 17:48:15</td><td class="str">{"name":"Netherlands","code":"NL"}</td><td class="str">{"name":"Bergermeer","eic":"21W-BERGERMEER-G"}</td><td class="date">2026-05-02 06:00:00</td><td class="date">2026-05-04 06:00:00</td><td class="num">0.310</td><td class="num">6.2</td><td class="num">12.4</td><td class="str">Confirmed</td><td class="str">Unplanned</td></tr>
+                <tr><td class="date">2026-05-02 09:05:30</td><td class="str">{"name":"Spain","code":"ES"}</td><td class="str">{"name":"Yela","eic":"21W-YELA------4J"}</td><td class="date">2026-05-01 06:00:00</td><td class="date">2026-05-08 06:00:00</td><td class="num">1.640</td><td class="num">24.6</td><td class="num">49.2</td><td class="str">Estimate</td><td class="str">Planned</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Top row verbatim from vault Bronze sample (live DE 2026-05-08, EWE H-Gas Zone planned maintenance); remaining 7 rows synthesised respecting the JSON-encoded nested-dict shape, the <code class="mono">Planned</code>/<code class="mono">Unplanned</code> × <code class="mono">Confirmed</code>/<code class="mono">Estimate</code> matrix, and gas-day-aligned <code class="mono">start</code> / <code class="mono">end</code> (<code class="mono">06:00:00</code> UTC). The highlighted <code class="mono">Rehden</code> row is the most material event in the sample (~18.5 GWh of energy not stored, 210 GWh/day withdrawal reduction over 47 days) — the kind of event a short-term capacity model must surface.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">agsi.gie.eu/api/unavailability<br/>?country={ISO2}<br/>&amp;start={YYYY-MM-DD}<br/>&amp;end={YYYY-MM-DD}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">Header <code class="mono">x-key</code> (LOWERCASE — <code class="mono">X-Key</code> returns 401), key from env <code class="mono">GIE_API_KEY</code>. Free registration at <a href="https://agsi.gie.eu/account/registration" class="link" target="_blank" rel="noopener">agsi.gie.eu ↗</a>.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/gie_agsi/unavailability/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.gie.agsi.<br/>UnavailabilityTransformer<br/>(extends AgsiJsonTransformer · silver/gie/agsi.py L630)</div>
+            </div>
+          </div>
+
+          <!-- tabs -->
+          <div data-tab-group="un">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('un','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('un','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('un','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="un-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;"><span class="c"># Header: x-key: $GIE_API_KEY  (lowercase)</span>
+https://agsi.gie.eu/api/unavailability
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">country</span>=DE
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">start</span>=2026-04-01
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">end</span>=2026-05-07
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">size</span>=300</pre>
+            </div></div>
+            <div data-tab-panel="un-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Total withdrawal capacity offline per country, by month</span>
+<span class="k">SELECT</span> json_extract_string(country, <span class="s">'$.code'</span>) <span class="k">AS</span> country,
+       date_trunc(<span class="s">'month'</span>, start) <span class="k">AS</span> month,
+       <span class="k">SUM</span>(withdrawal) <span class="k">AS</span> gwh_per_day_offline
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/gie_agsi/unavailability/**/*.parquet'</span>)
+<span class="k">WHERE</span> type = <span class="s">'Planned'</span>
+  <span class="k">AND</span> start &gt;= current_date - <span class="k">INTERVAL</span> 1 <span class="k">YEAR</span>
+<span class="k">GROUP BY</span> 1, 2
+<span class="k">ORDER BY</span> 1, 2;</pre>
+            </div></div>
+            <div data-tab-panel="un-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/gie_agsi/unavailability/**/*.parquet"</span>)
+<span class="c"># Currently-active outages: window contains today</span>
+today = pl.lit(pl.datetime(<span class="num">2026</span>, <span class="num">5</span>, <span class="num">8</span>, time_unit=<span class="s">"us"</span>))
+active = (
+    df.filter((pl.col(<span class="s">"start"</span>) &lt;= today) &amp; (pl.col(<span class="s">"end"</span>) &gt;= today))
+      .select(<span class="s">"country"</span>, <span class="s">"facility"</span>, <span class="s">"start"</span>, <span class="s">"end"</span>, <span class="s">"withdrawal"</span>, <span class="s">"type"</span>, <span class="s">"end_flag"</span>)
+      .sort(<span class="s">"withdrawal"</span>, descending=<span class="k">True</span>)
+)
+print(active.head(<span class="num">20</span>))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">unavailability</code>. Also read the <a href="../gie.html#about" class="link">GIE-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Nested-dict columns are JSON-encoded at silver</div>
+                <p class="small" style="margin: 0;"><code class="mono">country</code>, <code class="mono">company</code>, <code class="mono">facility</code> arrive as nested dicts (<code class="mono">{"name": …, "code": …}</code> or <code class="mono">{"name": …, "eic": …}</code>). <code class="mono">AgsiJsonTransformer</code> JSON-encodes them at silver. Use <code class="mono">json_extract_string</code> / <code class="mono">pl.col(...).str.json_path_match(...)</code> to unwrap. <span class="src-cite">vault Known Issues · live 2026-05-08</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GB returns zero rows by design</div>
+                <p class="small" style="margin: 0;">No UK storage outages are reported on AGSI. <code class="mono">country=GB</code> returns <code class="mono">{"last_page": 1, "total": 0, "data": []}</code>. <span class="src-cite">vault Known Issues · live 2026-05-08</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">03</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · docs ambiguity</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Documentation ambiguity (v007 PDF)</div>
+                <p class="small" style="margin: 0;">The GIE v007 PDF leaves it unclear whether <code class="mono">/api/unavailability</code> is part of the AGSI API or a legacy/portal feature. The endpoint is live-served and well-formed (DE returned 30 records / 7 pages, 2026-05-08); treated as active. <span class="src-cite">vault Implementation Delta · docs/gie_agsi_endpoint_catalog.yaml</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">04</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · date-param semantics</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Date-param alternatives produce different filters</div>
+                <p class="small" style="margin: 0;">The registry uses <code class="mono">start</code> / <code class="mono">end</code>; the live API also accepts <code class="mono">from</code> / <code class="mono">to</code> and produces a different <code class="mono">last_page</code> (different filter semantics). Gridflow standardises on <code class="mono">start</code>/<code class="mono">end</code>. <span class="src-cite">vault Implementation Delta</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">x-key</code> header MUST be lowercase</div>
+                <p class="small" style="margin: 0;">Capitalised <code class="mono">X-Key</code> returns HTTP 401. <span class="src-cite">vault Known Issues #1</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">start</code> / <code class="mono">end</code> arrive as naïve local strings</div>
+                <p class="small" style="margin: 0;">The vendor returns <code class="mono">YYYY-MM-DD HH:MM:SS</code> without timezone; <code class="mono">_safe_datetime</code> parses with a UTC fallback. <span class="src-cite">vault Known Issues · silver/gie/agsi.py L46-61</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside unavailability.</h2>
+
+          <div class="related-grid">
+            <a href="storage_reports.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage_reports</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Per-facility storage levels. Join <code class="mono">unavailability.facility.eic</code> ↔ <code class="mono">storage_reports.entity_code</code> to derive effective capacity net of outages.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="storage.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">storage</span>
+                  <span class="chip" style="font-size:10px;">daily</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Country-level storage levels. Pair with country-rollup <code class="mono">unavailability.country.code</code> for explanatory features on sudden capacity drops.</p>
+              <span class="tiny">gie · storage · daily</span>
+            </a>
+
+            <a href="news.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">news</span>
+                  <span class="chip" style="font-size:10px;">as published</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">AGSI service announcements. Often cross-references the same outage events as free-text operator notices.</p>
+              <span class="tiny">gie · news · as published</span>
+            </a>
+
+            <a href="about_listing.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">about_listing</span>
+                  <span class="chip" style="font-size:10px;">snapshot</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Company + facility EIC inventory. Supplies the facility names for unwrapping the JSON-encoded <code class="mono">facility</code> column.</p>
+              <span class="tiny">gie · storage · snapshot</span>
+            </a>
+          </div>
+
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

@@ -513,6 +513,55 @@
     </div>
   </section>
 
+  <section class="block" id="about">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">Caveats &middot; known quirks</div>
+          <h2 class="display-3">What to watch for.</h2>
+        </div>
+      </div>
+
+      <div class="caveats" style="max-width: 920px;">
+        <div class="caveat">
+          <div class="num">01</div>
+          <div>
+            <h4>Transformer classes are generated dynamically, not statically defined</h4>
+            <p>Unlike every other vendor in gridflow, NESO's 33 silver transformer classes are generated at import time by <span class="mono">register_neso_transformers()</span> using Python's <span class="mono">type()</span> factory. They are real registered classes that behave identically to static ones &mdash; but static-analysis tools (mypy, IDE introspection) cannot see them without running the registration code. The Pydantic schema classes (<span class="mono">CarbonIntensity</span>, <span class="mono">GenerationMix</span>, <span class="mono">RegionalIntensity</span>, etc.) are statically defined and real.</p>
+            <div class="src">Source &middot; silver/neso/carbon_intensity.py &middot; schemas/neso.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">02</div>
+          <div>
+            <h4>Generation Mix and Regional surfaces are labelled &ldquo;beta&rdquo;</h4>
+            <p>The <span class="mono">Generation Mix - National</span> and <span class="mono">Carbon Intensity - Regional</span> categories carry a beta qualifier in NESO's API definition. The data is live and the gridflow connector treats these endpoints as fully operational, but NESO may modify or deprecate them without the versioning notice applied to the main national-intensity surface.</p>
+            <div class="src">Source &middot; connectors/neso/endpoints.py category fields</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">03</div>
+          <div>
+            <h4>Earliest data date is not documented by NESO</h4>
+            <p>The Carbon Intensity API publishes no official earliest date; the only documented constraint is a maximum of 14 days per request. Data appears to reach back to roughly 2018 (the API's launch), but this has not been confirmed in the vault's curl-based verification &mdash; treat pre-2018 coverage as unverified.</p>
+            <div class="src">Source &middot; vault carbon_intensity.md (Historical depth)</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">04</div>
+          <div>
+            <h4>Rate limit is gridflow-configured, not vendor-documented</h4>
+            <p>NESO does not publish a rate limit for the Carbon Intensity API. The 10 req/s figure is gridflow's own project default (<span class="mono">config/sources.yaml</span>), not a vendor-imposed cap &mdash; downstream clients should treat it as a courtesy limit rather than a hard API boundary.</p>
+            <div class="src">Source &middot; vault carbon_intensity.md &middot; connectors/neso/endpoints.py</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 <script src="../assets/charts.js"></script>
 <script src="../assets/site.js"></script>

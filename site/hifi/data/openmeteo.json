@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "Forecast",
+      "blurb": "Hourly NWP model output, 1–16 days ahead, at GB demand centres and generation sites.",
+      "datasets": [
+        { "id": "forecast_demand", "title": "Forecast demand weather · population centres", "freq": "hourly", "lag": "Real-time (~1 hr refresh)", "rows": "~7 × 7 days × 24 hr = 1 176 / run" },
+        { "id": "forecast_solar", "title": "Forecast solar irradiance · capacity-weighted sites", "freq": "hourly", "lag": "Real-time (~1 hr refresh)", "rows": "~6 × 7 days × 24 hr = 1 008 / run" },
+        { "id": "forecast_wind", "title": "Forecast wind weather · capacity-weighted sites", "freq": "hourly", "lag": "Real-time (~1 hr refresh)", "rows": "~12 × 7 days × 24 hr = 2 016 / run" }
+      ]
+    },
+    {
+      "name": "Historical",
+      "blurb": "ERA5 reanalysis archive from 1940, ~5 days behind real time, at the same GB sites.",
+      "datasets": [
+        { "id": "historical_demand", "title": "Historical demand weather · ERA5 archive", "freq": "hourly", "lag": "~5 days", "rows": "~7 × 24 hr / day" },
+        { "id": "historical_solar", "title": "Historical solar irradiance · ERA5 archive", "freq": "hourly", "lag": "~5 days", "rows": "~6 × 24 hr / day" },
+        { "id": "historical_wind", "title": "Historical wind weather · ERA5 archive", "freq": "hourly", "lag": "~5 days", "rows": "~12 × 24 hr / day" }
+      ]
+    }
+  ]
+}

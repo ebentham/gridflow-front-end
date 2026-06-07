@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>historical_solar · Open-Meteo · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px;
+      border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px;
+      border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Open-Meteo · historical_solar">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../openmeteo.html">Open-Meteo</a>
+        <span class="sep">/</span>
+        <span class="here">historical_solar</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · Open-Meteo · Weather</span>
+            <span class="chip" style="font-size:11px;">hourly · ~5-day lag</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">historical_solar</span><br/>
+            GB solar archive, <span class="italic fg-accent">ERA5 since 1940.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Hourly ERA5-reanalysis irradiance (GHI/DNI/DHI/GTI) at 6 GB capacity-weighted solar sites — the canonical multi-decade backtest input for PV-generation calibration and clear-sky regime studies.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-09 ·
+            <a href="https://open-meteo.com/en/docs/historical-weather-api" class="link" target="_blank" rel="noopener">Open-Meteo · /archive ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.historical_solar</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">BASE URL</div>
+            <div class="mono small" style="font-size:10px; line-height:1.5;">api.open-meteo.com/v1 <span style="color:var(--ink-faint);">(forecast)</span><br/>archive-api.open-meteo.com/v1 <span style="color:var(--ink-faint);">(archive)</span></div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">hourly</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">~5 days · ERA5 cadence</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); ">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">6 sites × 24 / day ≈ 53k / year</div>
+          </div>
+          <div style="padding: 16px 18px; ">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small">(timestamp_utc, location)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">hourly</div>
+        <div class="stat-l">Observation cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">1940</div>
+        <div class="stat-l">ERA5 depth (start year)</div>
+      </div>
+      <div>
+        <div class="stat-n">6</div>
+        <div class="stat-l">GB capacity-weighted sites</div>
+      </div>
+      <div>
+        <div class="stat-n">16</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">Open-Meteo</div>
+          <a href="../openmeteo.html">← All datasets</a>
+          <a href="historical_solar.html" class="active">historical_solar</a>
+          <a href="forecast_solar.html" style="color:var(--ink-faint);">forecast_solar</a>
+          <a href="historical_wind.html" style="color:var(--ink-faint);">historical_wind</a>
+          <a href="historical_demand.html" style="color:var(--ink-faint);">historical_demand</a>
+          <a href="forecast_wind.html" style="color:var(--ink-faint);">forecast_wind</a>
+          <a href="forecast_demand.html" style="color:var(--ink-faint);">forecast_demand</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;"><code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">historical_solar</code> holds hourly ERA5-reanalysis irradiance — the full GHI / DNI / DHI / GTI decomposition plus cloud cover and snow context — at six GW-capacity-weighted GB solar sites, reaching back to 1940. It is the archive half of Gridflow's solar-weather pair, with GTI computed for the UK fixed-tilt geometry (<code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">tilt=35°</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">azimuth=180°</code>). Each row is one hour at one GB site.</p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">It is sourced from Open-Meteo's ERA5 archive endpoint at <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">archive-api.open-meteo.com/v1/archive</code>, queried once per site over a date range, validated against <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">SolarWeather</code> (<code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">schemas/weather.py</code>), and written to silver via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">HistoricalSolarWeather</code>. The payload is JSON columnar — parallel hourly arrays the transformer zips into one row per timestamp before the F15-B unit-suffix rename.</p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">Multi-decade irradiance is the calibration backbone of the PV-generation model — ERA5 supplies the long GTI history that fixes capacity-factor and clear-sky-index regressions, validated downstream against realised generation from Elexon <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">fuelhh</code> (<code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">SOLAR</code>) and against ENTSO-E <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">actual_generation</code> (<code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">B16</code>) at EU scale. The forward sibling <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">forecast_solar</code> supplies the day-ahead nowcast. Verified against vendor docs: 2026-05-09 · Open-Meteo&nbsp;/archive.</p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Cornwall <code class="mono" style="font-size:24px;">global_tilted_irradiance_wm2</code> · 2025 annual <span class="italic fg-accent">cycle.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">historical_solar · silver layer · location=cornwall</div>
+                <div class="small">Sparkline · W/m² · daily mean · UTC · 2025</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">1y</span>
+                <span class="chip btn-like">5y</span>
+                <span class="chip btn-like">10y</span>
+              </div>
+            </div>
+            <div style="padding: 20px 0 8px;">
+              <div data-chart="sparkline" data-opts='{"width":860,"height":90,"seed":53,"n":96}'></div>
+              <div class="row" style="justify-content: space-between; margin-top: 8px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint);">
+                <span>Jan</span>
+                <span>Mar</span>
+                <span>May</span>
+                <span>Jul</span>
+                <span>Sep</span>
+                <span>Nov</span>
+              </div>
+            </div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">Defined in <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/schemas/weather.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">SolarWeather</code> (subclass of <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">_BaseWeather</code>) and materialised by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/silver/openmeteo/historical.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">HistoricalSolarWeather</code>. Silver parquet uses <strong>F15-B canonical (unit-suffixed) names</strong> — vault tables predate the rename. Partitioned by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">timestamp_utc</code> (year + month). Point-in-time field: <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">available_at</code>; ERA5 values are stable. <strong>No <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">air_density_kg_m3</code></strong> — the solar request omits <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">surface_pressure</code>.</p>
+          <table class="schema-table">
+            <thead>
+              <tr><th style="width: 28%;">Column</th><th style="width: 13%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC; hourly cadence. Validator requires tzinfo. Source: <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.time[i]</code>.<span class="cite">schemas/weather.py L26, L34-39</span></td></tr>
+              <tr><td class="col-name">location <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Site key from <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">SOLAR_LOCATIONS</code> — <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">cornwall</code> / <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">wiltshire_somerset</code> / <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">oxfordshire</code> / <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">sussex</code> / <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">kent</code> / <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">east_anglia_norfolk</code>.<span class="cite">schemas/weather.py L29 · connectors/openmeteo/endpoints.py L86-93</span></td></tr>
+              <tr><td class="col-name">latitude / longitude</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">WGS-84 decimal degrees (ERA5 snaps to grid cell).<span class="cite">schemas/weather.py L29</span></td></tr>
+              <tr><td class="col-name">temperature_2m_c</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Surface air temperature at 2 m, °C — drives module-temperature derate.<span class="cite">schemas/weather.py L112 · rename historical.py L111</span></td></tr>
+              <tr><td class="col-name">shortwave_radiation_wm2</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><strong>GHI</strong> (Global Horizontal Irradiance), W/m².<span class="cite">schemas/weather.py L114 · rename L119</span></td></tr>
+              <tr><td class="col-name">direct_radiation_wm2</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Beam component on a horizontal surface, W/m². Sums with diffuse ≈ GHI (property test).<span class="cite">schemas/weather.py L115 · rename L120</span></td></tr>
+              <tr><td class="col-name">direct_normal_irradiance_wm2</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><strong>DNI</strong> — beam normal to the sun, W/m². Use for tracker-mounted PV.<span class="cite">schemas/weather.py L116 · rename L121</span></td></tr>
+              <tr><td class="col-name">diffuse_radiation_wm2</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><strong>DHI</strong> (Diffuse Horizontal Irradiance), W/m².<span class="cite">schemas/weather.py L117 · rename L122</span></td></tr>
+              <tr><td class="col-name">global_tilted_irradiance_wm2</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><strong>GTI</strong> on UK fixed-tilt geometry (<code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">tilt=35°</code>, <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">azimuth=180°</code>). Most direct feature for UK fixed-tilt PV. W/m².<span class="cite">schemas/weather.py L118 · rename L123 · endpoints.py L157-160</span></td></tr>
+              <tr><td class="col-name">cloud_cover_pct</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Total cloud cover, %.<span class="cite">schemas/weather.py L120 · rename L115</span></td></tr>
+              <tr><td class="col-name">cloud_cover_low / _mid / _high_pct</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Low / mid / high-altitude cloud cover, %.<span class="cite">schemas/weather.py L121-123 · rename L116-118</span></td></tr>
+              <tr><td class="col-name">snowfall_cm</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">New-snow water equivalent per hour, cm.<span class="cite">schemas/weather.py L125 · rename L125</span></td></tr>
+              <tr><td class="col-name">snow_depth_m</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Standing snow depth, m. Flags PV yield-collapse windows.<span class="cite">schemas/weather.py L126 · rename L126</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Constant <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">"open_meteo"</code> (underscore form).<span class="cite">schemas/weather.py L31 · stamp historical.py L221</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Wall-clock UTC at silver-build time.<span class="cite">schemas/weather.py L32</span></td></tr>
+              <tr><td class="col-name">event_time, available_at, source_run_id, dataset_version</td><td class="col-type">bitemporal</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">From <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BaseSilverTransformer</code> (F0). <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">dataset_version="2.0.0"</code>.<span class="cite">BaseSilverTransformer</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-16" style="padding: 14px 18px; background: var(--paper-deep); border: 1px dashed var(--rule);">
+            <div class="tiny mb-4" style="color: #c45a3a;">ABSENT BY DESIGN</div>
+            <p class="small" style="margin: 0;">No <code class="mono">air_density_kg_m3</code> column — the solar variable list does not request <code class="mono">surface_pressure</code>, so the derived column carried by the wind feeds is intentionally absent here. Property test <code class="mono">tests/unit/test_openmeteo_air_density.py</code> locks the contract.</p>
+          </div>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/open_meteo/historical_solar/year=YYYY/month=MM/</div></div>
+            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">timestamp_utc (year + month)</div></div>
+            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(timestamp_utc, location) — keep="last"</div></div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr><th>timestamp_utc</th><th>location</th><th>shortwave_radiation_wm2</th><th>direct_normal_irradiance_wm2</th><th>diffuse_radiation_wm2</th><th>global_tilted_irradiance_wm2</th><th>cloud_cover_pct</th><th>temperature_2m_c</th><th>snow_depth_m</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2025-06-01T11:00:00+00:00</td><td class="str">cornwall</td><td class="num">620.0</td><td class="num">780.0</td><td class="num">190.0</td><td class="num">710.0</td><td class="num">25.0</td><td class="num">16.3</td><td class="num">0.0</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2025-06-01T12:00:00+00:00</td><td class="str">cornwall</td><td class="num">750.0</td><td class="num">800.0</td><td class="num">210.0</td><td class="num">820.0</td><td class="num">20.0</td><td class="num">17.8</td><td class="num">0.0</td></tr>
+                <tr><td class="date">2025-06-01T13:00:00+00:00</td><td class="str">cornwall</td><td class="num">780.0</td><td class="num">810.0</td><td class="num">215.0</td><td class="num">845.0</td><td class="num">15.0</td><td class="num">18.6</td><td class="num">0.0</td></tr>
+                <tr><td class="date">2025-12-15T12:00:00+00:00</td><td class="str">east_anglia_norfolk</td><td class="num">95.0</td><td class="num">60.0</td><td class="num">83.0</td><td class="num">175.0</td><td class="num">90.0</td><td class="num">4.5</td><td class="num">0.01</td></tr>
+                <tr><td class="date">2025-06-21T12:00:00+00:00</td><td class="str">kent</td><td class="num">810.0</td><td class="num">830.0</td><td class="num">220.0</td><td class="num">880.0</td><td class="num">10.0</td><td class="num">22.0</td><td class="num">0.0</td></tr>
+                <tr><td class="date">2025-01-15T12:00:00+00:00</td><td class="str">wiltshire_somerset</td><td class="num">120.0</td><td class="num">100.0</td><td class="num">80.0</td><td class="num">220.0</td><td class="num">75.0</td><td class="num">3.0</td><td class="num">0.0</td></tr>
+                <tr><td class="date">2025-08-15T15:00:00+00:00</td><td class="str">sussex</td><td class="num">540.0</td><td class="num">700.0</td><td class="num">175.0</td><td class="num">590.0</td><td class="num">35.0</td><td class="num">23.0</td><td class="num">0.0</td></tr>
+                <tr><td class="date">2025-03-12T18:00:00+00:00</td><td class="str">oxfordshire</td><td class="num">80.0</td><td class="num">250.0</td><td class="num">50.0</td><td class="num">95.0</td><td class="num">50.0</td><td class="num">9.5</td><td class="num">0.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 760px; line-height: 1.6;">First three Cornwall rows verbatim from vault Bronze sample (captured 2025-06-01). The Norfolk winter row is verbatim from vault Silver Sample (December noon under cloud — the mostly-diffuse regime). Remaining rows are synthesised respecting Open-Meteo's separation model where <code class="mono">direct_radiation_wm2 + diffuse_radiation_wm2 ≈ shortwave_radiation_wm2</code> (property test enforces within 5%). The highlighted <strong>Cornwall 2025-06-01 noon</strong> row is the clear-sky south-west peak: <code class="mono">global_tilted_irradiance_wm2 = 820</code> exceeds GHI = 750 because the 35° tilt captures more midday flux than horizontal. <strong>Norfolk December noon (90% cloud)</strong> shows the inverse — DNI collapses to 60 W/m² and DHI dominates.</div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">archive-api.open-meteo.com/v1/archive<br/>?latitude={lat}<br/>&amp;longitude={lon}<br/>&amp;start_date={YYYY-MM-DD}<br/>&amp;end_date={YYYY-MM-DD}<br/>&amp;hourly={vars}<br/>&amp;tilt=35&amp;azimuth=180<br/>&amp;timezone=UTC</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public; free non-commercial) — no key, no header. Soft limit ~10,000 requests/day per IP.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 4px;">data/bronze/open_meteo/<br/>historical_solar__&lt;location&gt;/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny" style="color: #c45a3a; letter-spacing: 0.04em; margin-bottom: 12px;">↑ double underscore</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.openmeteo.historical.<br/>HistoricalSolarWeather<br/>(registered · L337)</div>
+            </div>
+          </div>
+          <div data-tab-group="hs">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('hs','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('hs','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('hs','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="hs-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://archive-api.open-meteo.com/v1/archive
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">latitude</span>=50.30
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">longitude</span>=-5.00
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">start_date</span>=2025-06-01
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">end_date</span>=2025-06-07
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">hourly</span>=temperature_2m,shortwave_radiation,direct_radiation,direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,snowfall,snow_depth
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">tilt</span>=35
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">azimuth</span>=180
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">timezone</span>=UTC</pre>
+            </div></div>
+            <div data-tab-panel="hs-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x:auto;"><span class="c">-- Multi-year monthly GTI integral per site (PV-yield backtest backbone)</span>
+<span class="k">SELECT</span> date_trunc(<span class="s">'month'</span>, timestamp_utc) <span class="k">AS</span> month,
+       location,
+       sum(global_tilted_irradiance_wm2) / 1000.0 <span class="k">AS</span> gti_kwh_per_m2_per_month
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/open_meteo/historical_solar/**/*.parquet'</span>)
+<span class="k">WHERE</span> timestamp_utc &gt;= <span class="k">TIMESTAMP</span> <span class="s">'2020-01-01'</span>
+<span class="k">GROUP BY</span> 1, 2
+<span class="k">ORDER BY</span> 1, 2;</pre>
+            </div></div>
+            <div data-tab-panel="hs-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x:auto;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/open_meteo/historical_solar/**/*.parquet"</span>)
+<span class="c"># Clear-sky-index feature: GTI / clear-sky-equivalent GTI per (location, month, hour)</span>
+df2 = df.with_columns([
+    pl.col(<span class="s">"timestamp_utc"</span>).dt.month().alias(<span class="s">"month"</span>),
+    pl.col(<span class="s">"timestamp_utc"</span>).dt.hour().alias(<span class="s">"hour_utc"</span>),
+])
+clear_sky = (
+    df2.group_by([<span class="s">"location"</span>, <span class="s">"month"</span>, <span class="s">"hour_utc"</span>])
+       .agg(pl.col(<span class="s">"global_tilted_irradiance_wm2"</span>).quantile(0.95).alias(<span class="s">"gti_clear"</span>))
+)
+joined = df2.join(clear_sky, on=[<span class="s">"location"</span>,<span class="s">"month"</span>,<span class="s">"hour_utc"</span>]).with_columns(
+    (pl.col(<span class="s">"global_tilted_irradiance_wm2"</span>) / pl.col(<span class="s">"gti_clear"</span>))
+      .clip(0.0, 1.5).alias(<span class="s">"clear_sky_index"</span>)
+)
+print(joined.select([<span class="s">"timestamp_utc"</span>,<span class="s">"location"</span>,<span class="s">"clear_sky_index"</span>]).tail(24))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">historical_solar</code>. Also read the <a href="../openmeteo.html#about" class="link">Open-Meteo-wide caveats</a> on the vendor page.</p>
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">ERA5 publication lag is ~5 days</div>
+                <p class="small" style="margin: 0;">Calls for <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">end_date</code> within the last 5 days may return 200 with null trailing values — ERA5 reanalysis cadence is non-real-time by design. Plan backfills accordingly; for very recent past use <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">forecast_solar</code> with <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">past_days</code> (≤92). <span class="src-cite">vault Known Issues "ERA5 reanalysis lag"</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">02</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · vault schema vs silver</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Silver column names are unit-suffixed (F15-B)</div>
+                <p class="small" style="margin: 0;">Silver emits <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">shortwave_radiation_wm2</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">direct_normal_irradiance_wm2</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">global_tilted_irradiance_wm2</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">temperature_2m_c</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">cloud_cover_pct</code>, etc. — the vault Silver Schema tables list the pre-rename names and are stale. Query the parquet with the suffixed forms. <span class="src-cite">silver/openmeteo/historical.py L101-134 · _output_columns L255-271</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GTI requires tilt and azimuth (UK fixed-tilt 35°/180°)</div>
+                <p class="small" style="margin: 0;">The connector injects <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">tilt=35&amp;azimuth=180</code> via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WeatherDatasetSpec.extra_params</code> for the UK representative geometry. Tracker installations underestimate at this fixed tilt — use DNI plus a tracker-specific transposition model. <span class="src-cite">connectors/openmeteo/endpoints.py L157-160</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">No air_density_kg_m3 on this dataset (unlike historical_wind/demand)</div>
+                <p class="small" style="margin: 0;">The solar variable list omits <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">surface_pressure</code>, so <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BaseOpenMeteoTransformer.DERIVE_AIR_DENSITY</code> cannot run and the column is absent from silver output. Property test <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">tests/unit/test_openmeteo_air_density.py</code> locks the contract. <span class="src-cite">silver/openmeteo/historical.py L241-252 · test file</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">GHI ≈ DNI·cos(z) + DHI invariant (separation-model passthrough)</div>
+                <p class="small" style="margin: 0;">Open-Meteo's separation model is upstream; silver does not re-derive components. Property test <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">tests/unit/test_openmeteo_irradiance_components.py</code> asserts <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">direct_radiation_wm2 + diffuse_radiation_wm2</code> is within 5% of <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">shortwave_radiation_wm2</code> for daylight rows. <span class="src-cite">vault Working curl example verification · test file</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Latitude bias — all 6 sites below 53° N</div>
+                <p class="small" style="margin: 0;">The location set is deliberately south-eastern (matching actual UK PV deployment); averaging against northern demand locations like Glasgow gives biased aggregate irradiance. Weight by installed MW per region for GB aggregates. <span class="src-cite">vault historical_solar.md Known Issues "Latitude bias"</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside historical_solar.</h2>
+          <div class="related-grid">
+            <a href="forecast_solar.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">forecast_solar</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Forecast companion at <code class="mono">api.open-meteo.com/v1/forecast</code> — same 6 sites, variables and tilt geometry, 1&ndash;16 day forward horizon. Pair for forecast-skill bias-correction.</p>
+              <span class="tiny">open-meteo · weather · hourly</span>
+            </a>
+            <a href="historical_wind.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">historical_wind</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Archive companion at the same host for 12 GB wind sites — the other renewables-side ERA5 feed; includes <code class="mono">air_density_kg_m3</code> (absent here).</p>
+              <span class="tiny">open-meteo · weather · hourly</span>
+            </a>
+            <a href="../elexon/fuelhh.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">fuelhh</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">GB generation by fuel type (<code class="mono">SOLAR</code> — embedded estimate) — downstream actuals for multi-year PV capacity-factor calibration.</p>
+              <span class="tiny">elexon · generation · 30 min</span>
+            </a>
+            <a href="../entsoe/actual_generation.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">actual_generation</span>
+                  <span class="chip" style="font-size:10px;">15-60 min</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">European generation by PSR type (<code class="mono">B16</code> = Solar) — the EU-grid equivalent of GB <code class="mono">fuelhh.SOLAR</code>; cross-vendor solar-weather coupling at EU scale.</p>
+              <span class="tiny">entsoe · generation · 15-60 min</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => b.classList.remove('ink'));
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

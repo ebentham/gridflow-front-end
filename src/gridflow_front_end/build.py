@@ -112,81 +112,129 @@ REAL_VENDORS: dict[str, dict] = {
             "stat_four_label": "Bidding zones",
         },
     },
+    "entsog": {
+        "label": "ENTSO-G Transparency",
+        "vendor_doc_base": "https://transparency.entsog.eu/",
+        "vendor_meta": {
+            "region": "European Union",
+            "domain": "Gas",
+            "heading_prefix": "ENTSO-G",
+            "heading_italic": "Transparency.",
+            "lede": (
+                "The European Network of Transmission System Operators for Gas "
+                "Transparency Platform. Point-level operational flows, nominations, "
+                "capacities, CMP data, and network topology for European gas "
+                "interconnections — public API, no authentication, 33 endpoints "
+                "covering GB interconnection points (Bacton IUK/BBL, Moffat)."
+            ),
+            "vendor_docs_url": "https://transparency.entsog.eu/",
+            "base_url": "transparency.entsog.eu/api/v1",
+            "auth": "Public · no key required",
+            "rate_limit": "5 req/s · project default",
+            "format": "JSON · ISO-8601 · timeZone:UCT",
+            "earliest": "2010",
+            "timezone": "UCT · day periods",
+            "stat_three_value": "9",
+            "stat_three_label": "GB interconnection points",
+            "stat_four_value": "1",
+            "stat_four_label": "Typed schema · 32 dynamic",
+        },
+    },
+    "gie": {
+        "label": "GIE",
+        "vendor_doc_base": "https://agsi.gie.eu/",
+        "vendor_meta": {
+            "region": "European Union",
+            "domain": "Gas storage · LNG",
+            "heading_prefix": "GIE",
+            "heading_italic": "Storage.",
+            "lede": (
+                "Gas Infrastructure Europe — the trade association for European gas "
+                "storage and LNG operators. AGSI+ publishes daily underground storage "
+                "levels by country and facility from 2011; ALSI publishes daily LNG "
+                "terminal inventories and send-out across the same footprint. Both "
+                "share a single x-key authentication model on separate hosts."
+            ),
+            "vendor_docs_url": "https://agsi.gie.eu/",
+            "base_url": "agsi.gie.eu · alsi.gie.eu",
+            "auth": "API key · x-key request header",
+            "rate_limit": "1 req/s · 60 req/min cap",
+            "format": "JSON · gas day (06:00 UTC)",
+            "earliest": "2011-01-01",
+            "timezone": "UTC · daily gas-day grain",
+            "stat_three_value": "9",
+            "stat_three_label": "AGSI countries",
+            "stat_four_value": "2011",
+            "stat_four_label": "Storage depth",
+        },
+    },
+    "neso": {
+        "label": "NESO Carbon Intensity",
+        "vendor_doc_base": "https://carbonintensity.org.uk/",
+        "vendor_meta": {
+            "region": "United Kingdom",
+            "domain": "Carbon",
+            "heading_prefix": "NESO",
+            "heading_italic": "Carbon.",
+            "lede": (
+                "The National Energy System Operator's Carbon Intensity API (formerly "
+                "National Grid ESO), built with the Environmental Defense Fund Europe "
+                "and University of Oxford. Half-hourly forecast and actual carbon "
+                "intensity of the GB grid in gCO₂/kWh, with national, statistical, "
+                "generation-mix, and regional (DNO / postcode) breakdowns. Public, "
+                "no key required."
+            ),
+            "vendor_docs_url": "https://carbonintensity.org.uk/",
+            "base_url": "api.carbonintensity.org.uk",
+            "auth": "Public · no key required",
+            "rate_limit": "10 req/s · project default",
+            "format": "JSON · ISO-8601 · UTC",
+            "earliest": "2018-01",
+            "timezone": "UTC · 30-min settlement periods",
+            "stat_three_value": "48h",
+            "stat_three_label": "Forecast horizon",
+            "stat_four_value": "gCO₂/kWh",
+            "stat_four_label": "Reporting unit",
+        },
+    },
+    "openmeteo": {
+        "label": "Open-Meteo",
+        "vendor_doc_base": "https://open-meteo.com/en/docs",
+        "vendor_meta": {
+            "region": "Global",
+            "domain": "Weather",
+            "heading_prefix": "Open-Meteo",
+            "heading_italic": "Weather.",
+            "lede": (
+                "An open-source weather API aggregating ECMWF, GFS, and ERA5 "
+                "reanalysis into a single columnar JSON interface. No authentication "
+                "required for non-commercial use. Six datasets covering hourly "
+                "temperature, wind, and solar irradiance across GB population centres "
+                "and capacity-weighted generation sites — 1–16-day forecasts and "
+                "ERA5-backed archive to 1940."
+            ),
+            "vendor_docs_url": "https://open-meteo.com/en/docs",
+            "base_url": "api.open-meteo.com/v1 · archive-api.open-meteo.com/v1",
+            "auth": "Public · no key required",
+            "rate_limit": "5 req/s · ~10 000 req/day",
+            "format": "JSON · ISO-8601 · UTC",
+            "earliest": "1940-01-01 · ERA5",
+            "timezone": "UTC · hourly resolution",
+            "stat_three_value": "1940",
+            "stat_three_label": "ERA5 depth",
+            "stat_four_value": "25",
+            "stat_four_label": "GB sites",
+        },
+    },
 }
 
 
-COMING_SOON_VENDORS: list[dict] = [
-    {
-        "vendor_id": "entsog",
-        "vendor_label": "ENTSO-G",
-        "region": "European Union",
-        "domain": "Gas",
-        "stage_chip": "F6",
-        "connector_state": "shipping",
-        "vendor_docs_url": "https://transparency.entsog.eu/",
-        "planned_items": [
-            "Physical flows at interconnection points (entry/exit nominations + reallocations)",
-            "Imbalance, balancing, and capacity products documented at the vault → site contract level",
-            "Cross-link to ENTSO-E for power/gas joint analytics (gas-burn vs CCGT generation)",
-        ],
-    },
-    {
-        "vendor_id": "gie_agsi",
-        "vendor_label": "GIE AGSI",
-        "region": "European Union",
-        "domain": "Gas storage",
-        "stage_chip": "F7",
-        "connector_state": "shipping",
-        "vendor_docs_url": "https://agsi.gie.eu/",
-        "planned_items": [
-            "Underground gas storage levels by country and facility",
-            "Net injection / withdrawal cadence and full/empty thresholds",
-            "Cross-link to ENTSO-G for storage flows vs interconnection point dynamics",
-        ],
-    },
-    {
-        "vendor_id": "gie_alsi",
-        "vendor_label": "GIE ALSI",
-        "region": "European Union",
-        "domain": "LNG",
-        "stage_chip": "F8",
-        "connector_state": "shipping",
-        "vendor_docs_url": "https://alsi.gie.eu/",
-        "planned_items": [
-            "LNG terminal send-out and tank inventories",
-            "Cargoes per terminal, with country and facility granularity",
-            "Cross-link to ENTSO-G physical flows and AGSI storage for the full gas-supply picture",
-        ],
-    },
-    {
-        "vendor_id": "openmeteo",
-        "vendor_label": "Open-Meteo",
-        "region": "Global",
-        "domain": "Weather",
-        "stage_chip": "F9",
-        "connector_state": "shipping",
-        "vendor_docs_url": "https://open-meteo.com/",
-        "planned_items": [
-            "Temperature, wind, and solar irradiance — forecast and historical",
-            "ERA5 reanalysis depth from 1940 for long-horizon backtests",
-            "Joinable to power demand/generation by zone (Open-Meteo + Elexon = wind/solar nowcast)",
-        ],
-    },
-    {
-        "vendor_id": "neso",
-        "vendor_label": "NESO Carbon Intensity",
-        "region": "United Kingdom",
-        "domain": "Carbon",
-        "stage_chip": "F10",
-        "connector_state": "shipping",
-        "vendor_docs_url": "https://carbonintensity.org.uk/",
-        "planned_items": [
-            "GB grid carbon-intensity actuals plus 48-hour forecasts",
-            "Regional carbon intensity breakdown by DNO/GSP",
-            "Cross-link to Elexon fuelhh as the per-fuel input to the carbon-intensity model",
-        ],
-    },
-]
+# All six vendors are now documented at full fidelity (Phase 10 closed the v2
+# milestone): elexon, entsoe, entsog, gie, neso, openmeteo all live in
+# REAL_VENDORS above. This list is intentionally empty — the coming-soon machinery
+# (build_coming_soon_stubs / build_dataset_stubs_from_landings) is retained, dormant,
+# for any future vendor that ships ahead of its documentation.
+COMING_SOON_VENDORS: list[dict] = []
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -785,61 +833,42 @@ def build_vendor(env: Environment, vendor_id: str, vault_path: Path, out_root: P
 
 
 def build_coming_soon_stubs(env: Environment, out_root: Path) -> int:
-    """Render coming-soon vendor stubs for the 5 deferred vendors.
+    """Render coming-soon vendor hub stubs for any deferred vendors.
 
-    If ``authored-pages/<vendor_id>/_landing.html`` exists it is copied verbatim
-    instead of rendering the coming-soon template.  For the ``gie_agsi`` /
-    ``gie_alsi`` split-IDs, ``authored-pages/gie/_landing.html`` is accepted as a
-    unified fallback (Phase 8D unifies GIE into a single hub brief).
+    For each entry in ``COMING_SOON_VENDORS`` (currently empty — all six vendors
+    are documented at full fidelity after the v2 milestone), copies
+    ``authored-pages/<vendor_id>/_landing.html`` verbatim if present, else renders
+    ``vendor-coming-soon.html.j2``. Dormant after v2; retained for any future
+    vendor that ships ahead of its documentation.
     """
     n = 0
     for cfg in COMING_SOON_VENDORS:
         vendor_id = cfg["vendor_id"]
         out_path = out_root / "data-sources" / f"{vendor_id}.html"
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        # Authored override: exact match first, then gie parent for gie_agsi / gie_alsi
         authored_hub = AUTHORED_DIR / vendor_id / "_landing.html"
-        gie_parent_hub = AUTHORED_DIR / "gie" / "_landing.html"
         if authored_hub.exists():
             shutil.copy(authored_hub, out_path)
-            n += 1
             print(f"  wrote: data-sources/{vendor_id}.html (authored hub)")
-        elif vendor_id.startswith("gie_") and gie_parent_hub.exists():
-            shutil.copy(gie_parent_hub, out_path)
-            n += 1
-            print(f"  wrote: data-sources/{vendor_id}.html (authored hub via gie)")
         else:
             html = render_coming_soon_stub(env, cfg)
             out_path.write_text(html, encoding="utf-8")
-            n += 1
             print(f"  wrote: data-sources/{vendor_id}.html (stub)")
-
-    # COMING_SOON_VENDORS splits GIE into gie_agsi / gie_alsi, but the user-facing
-    # vendor folder is the unified ``gie`` (per Phase 8D). Per-dataset HTML under
-    # data-sources/gie/<slug>.html links back to ../gie.html — so a unified hub
-    # must also be served at that path. Sourced from the same authored landing
-    # that already drives gie_agsi.html and gie_alsi.html (see gie_parent_hub
-    # fallback above), keeping the three hub copies content-identical.
-    gie_parent_hub = AUTHORED_DIR / "gie" / "_landing.html"
-    if gie_parent_hub.exists():
-        gie_out_path = out_root / "data-sources" / "gie.html"
-        shutil.copy(gie_parent_hub, gie_out_path)
         n += 1
-        print("  wrote: data-sources/gie.html (authored unified hub via gie)")
     return n
 
 
 def copy_authored_dataset_pages_for_coming_soon(out_root: Path) -> int:
     """Copy authored per-dataset HTML files for COMING_SOON vendor folders.
 
-    REAL_VENDORS get per-dataset overrides via ``build_vendor`` (manifest-driven).
-    For COMING_SOON vendors and the unified ``gie`` folder, no manifest exists,
-    so any per-dataset HTML the user authored under ``authored-pages/<vendor>/``
-    needs to be copied directly. ``_landing.html`` is excluded (it's the hub,
-    handled by ``build_coming_soon_stubs``).
+    REAL_VENDORS (including ``gie`` since the v2 close-out) get their per-dataset
+    authored pages via ``build_vendor`` (manifest-driven). This covers only the
+    manifest-less COMING_SOON vendors — currently none, so this is a no-op after
+    v2. ``_landing.html`` is excluded (it's the hub, handled by
+    ``build_coming_soon_stubs``). Retained for future coming-soon vendors.
     """
     n = 0
-    coming_soon_folders = {cfg["vendor_id"] for cfg in COMING_SOON_VENDORS} | {"gie"}
+    coming_soon_folders = {cfg["vendor_id"] for cfg in COMING_SOON_VENDORS}
     for vendor_folder in sorted(coming_soon_folders):
         src_dir = AUTHORED_DIR / vendor_folder
         if not src_dir.is_dir():
@@ -859,10 +888,9 @@ def copy_authored_dataset_pages_for_coming_soon(out_root: Path) -> int:
 def _vendor_stub_metadata() -> dict[str, dict[str, str | None]]:
     """Lookup table: vendor folder → {label, docs_url, connector_state}.
 
-    Drives ``build_dataset_stubs_from_landings``. Covers REAL_VENDORS (entsoe),
-    the 5 COMING_SOON_VENDORS, and the unified ``gie`` folder which has no
-    direct entry in COMING_SOON_VENDORS but shares metadata with its gie_agsi
-    / gie_alsi children.
+    Drives ``build_dataset_stubs_from_landings``. Covers all REAL_VENDORS (the six
+    documented vendors, including the unified ``gie``) plus any COMING_SOON_VENDORS
+    (currently none).
     """
     meta: dict[str, dict[str, str | None]] = {}
     for vendor_id, cfg in REAL_VENDORS.items():
@@ -876,12 +904,6 @@ def _vendor_stub_metadata() -> dict[str, dict[str, str | None]]:
             "label": cfg["vendor_label"],
             "docs_url": cfg.get("vendor_docs_url"),
             "connector_state": cfg.get("connector_state", "planned"),
-        }
-    if "gie" not in meta and "gie_agsi" in meta:
-        meta["gie"] = {
-            "label": "GIE",
-            "docs_url": "https://www.gie.eu/",
-            "connector_state": meta["gie_agsi"]["connector_state"],
         }
     return meta
 

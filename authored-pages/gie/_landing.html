@@ -301,6 +301,55 @@
     </div>
   </section>
 
+  <section class="block" id="about">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">Caveats &middot; known quirks</div>
+          <h2 class="display-3">What to watch for.</h2>
+        </div>
+      </div>
+
+      <div class="caveats" style="max-width: 920px;">
+        <div class="caveat">
+          <div class="num">01</div>
+          <div>
+            <h4>API key required &mdash; the one authenticated vendor</h4>
+            <p>Unlike ENTSO-G, NESO, and Open-Meteo, GIE requires an API key for every endpoint, passed as a lowercase <span class="mono">x-key</span> request header (free registration at <span class="mono">agsi.gie.eu/account</span>). The rate limit is 60 calls/minute, which the gridflow connector caps at roughly 1 request/second.</p>
+            <div class="src">Source &middot; connectors/gie/endpoints.py GIE_MAX_CALLS_PER_MINUTE &middot; vault storage.md</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">02</div>
+          <div>
+            <h4>Gas-day convention &mdash; 06:00 UTC start, not midnight</h4>
+            <p>GIE data uses the European gas day: each day starts at <span class="mono">06:00 UTC</span> (the <span class="mono">gasDayStart</span> field) and runs to 06:00 UTC the next calendar day. When joining GIE daily storage figures to calendar-day or intra-day datasets (e.g. NESO carbon intensity, which runs from 00:00 UTC), align on the 06:00 gas-day open rather than midnight.</p>
+            <div class="src">Source &middot; vault storage.md &middot; schemas/gie.py GasStorage.gas_day</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">03</div>
+          <div>
+            <h4>Only 3 of 8 datasets have a Pydantic schema</h4>
+            <p><span class="mono">storage</span> and <span class="mono">storage_reports</span> map to <span class="mono">GasStorage</span>; <span class="mono">lng</span> maps to <span class="mono">LNGTerminal</span>. The five reference and news datasets (<span class="mono">about_listing</span>, <span class="mono">about_summary</span>, <span class="mono">news</span>, <span class="mono">news_item</span>, <span class="mono">unavailability</span>) have no dedicated Pydantic class &mdash; their columns are materialised dynamically by <span class="mono">AgsiJsonTransformer</span>.</p>
+            <div class="src">Source &middot; schemas/gie.py &middot; silver/gie/agsi.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">04</div>
+          <div>
+            <h4>Coverage depth &mdash; AGSI+ from 2011; ALSI not separately verified</h4>
+            <p>AGSI+ storage has a confirmed earliest date of <span class="mono">2011-01-01</span> from facility-listing records. ALSI LNG depth is not independently verified in the vault &mdash; treat the 2011 bound as AGSI-specific until ALSI is checked against the live API.</p>
+            <div class="src">Source &middot; vault storage.md &middot; vault lng.md (no Historical depth row)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 <script src="../assets/charts.js"></script>
 <script src="../assets/site.js"></script>

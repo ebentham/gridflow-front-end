@@ -70,7 +70,7 @@
         </div>
         <div class="footer-bottom">
           <span>© 2026 E. Bentham · Personal project · MIT</span>
-          <span class="mono tiny">Static documentation · 7 vendors · 34 datasets</span>
+          <span class="mono tiny">Static documentation · 6 vendors · 162 datasets</span>
         </div>
       </div>
     </footer>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>aggregated_physical_flows · ENTSOG Transparency · Gridflow</title>
+  <title>aggregated_physical_flows · ENTSO-G Transparency · Gridflow</title>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +59,18 @@
     .data-table .date { color: #c9a96e; }
     .data-table .str  { color: #e8b8a3; }
     .data-table .nul  { color: #6b6358; font-style: italic; }
-    /* ── codelist ── */
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── codelist rows (vendor adjacent-systems table) ── */
     .code-list { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
     .code-row { display: grid; grid-template-columns: 180px 1fr 180px; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
     .code-row:last-child { border-bottom: 0; }
@@ -116,7 +127,7 @@
     .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   </style>
 </head>
-<body data-page="dataset" data-root="../../" data-screen-label="ENTSOG · aggregated_physical_flows">
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-G · aggregated_physical_flows">
 
   <!-- ════════ BREADCRUMB + HERO ════════ -->
   <div style="border-bottom: 1px solid var(--rule);">
@@ -126,15 +137,15 @@
         <span class="sep">/</span>
         <a href="../../data-sources.html">Data sources</a>
         <span class="sep">/</span>
-        <a href="../entsog.html">ENTSOG Transparency</a>
+        <a href="../entsog.html">ENTSO-G Transparency</a>
         <span class="sep">/</span>
         <span class="here">aggregated_physical_flows</span>
       </div>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
-            <span class="eyebrow">Dataset · ENTSOG · Transmission</span>
-            <span class="chip" style="font-size:11px;">daily · ~2 day lag</span>
+            <span class="eyebrow">Dataset · ENTSO-G · Transmission</span>
+            <span class="chip" style="font-size:11px;">daily · ~1–2 day lag</span>
             <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
           </div>
           <h1 class="display-2" style="margin-bottom: 14px;">
@@ -142,16 +153,13 @@
             Cross-border gas flows, <span class="italic fg-accent">zone by zone.</span>
           </h1>
           <p class="lede" style="max-width: 600px;">
-            Daily aggregated physical gas flows for every European balancing
-            zone, broken down by adjacent system (Production, Storage, LNG
-            Terminals, neighbouring TSOs). Reported in <strong>kWh/day</strong>
-            per <code class="mono" style="font-size:13px;">(zone, operator, direction, adjacent-system)</code>
-            tuple. The canonical view of who is moving how much gas to whom
-            across the European pipeline network.
+            Daily aggregated zone-level gas flows by adjacent system — the
+            canonical EU view of Production, Storage, LNG, and cross-border flows
+            for balancing-zone modelling.
           </p>
           <p class="tiny mt-16" style="max-width:600px;">
             Verified against vendor docs: 2026-05-08 ·
-            <a href="https://transparency.entsog.eu/" class="link" target="_blank" rel="noopener">ENTSOG Transparency Platform · /aggregatedData ↗</a>
+            <a href="https://transparency.entsog.eu/" class="link" target="_blank" rel="noopener">ENTSO-G Transparency · /aggregatedData ↗</a>
           </p>
         </div>
         <!-- key metrics -->
@@ -166,19 +174,19 @@
           </div>
           <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">FREQUENCY</div>
-            <div class="small">daily</div>
+            <div class="small">daily (gas day)</div>
           </div>
           <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
             <div class="tiny mb-6">PUBLICATION LAG</div>
-            <div class="small">~2 days</div>
+            <div class="small" style="font-size:12px;">~1–2 days (Provisionnal → Final)</div>
           </div>
           <div style="padding: 16px 18px; border-right: 1px solid var(--rule);">
             <div class="tiny mb-6">VOLUME</div>
-            <div class="small">~1k / day · all zones</div>
+            <div class="small" style="font-size:12px;">~5 zone-directions/day (GB default); ~1k EU-wide</div>
           </div>
           <div style="padding: 16px 18px;">
             <div class="tiny mb-6">PRIMARY KEY</div>
-            <div class="mono small" style="font-size:10px; line-height:1.4;">(id) — vendor concat<br/>zone+op+dir+adj+window</div>
+            <div class="mono small" style="font-size:10px; line-height:1.4;">(id)<br/>— vendor concatenation</div>
           </div>
         </div>
       </div>
@@ -190,19 +198,19 @@
     <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
       <div>
         <div class="stat-n">daily</div>
-        <div class="stat-l">Period type</div>
+        <div class="stat-l">Frequency</div>
       </div>
       <div>
         <div class="stat-n" style="font-family: var(--mono); font-size: 32px;">kWh/d</div>
         <div class="stat-l">Reporting unit</div>
       </div>
       <div>
-        <div class="stat-n">29</div>
-        <div class="stat-l">Silver columns (dynamic schema)</div>
+        <div class="stat-n">5</div>
+        <div class="stat-l">Adjacent system categories</div>
       </div>
       <div>
-        <div class="stat-n" style="font-family: var(--mono); font-size: 32px; color: #c45a3a;">UCT<span style="font-size: 14px; color: var(--ink-faint); margin-left: 4px;">(sic)</span></div>
-        <div class="stat-l">Vendor timezone-param spelling</div>
+        <div class="stat-n">dynamic</div>
+        <div class="stat-l">Silver schema (no Pydantic class)</div>
       </div>
     </div>
   </div>
@@ -215,27 +223,63 @@
       <nav class="sidebar">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
-          <a href="#snapshot" class="active">Snapshot chart</a>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
           <a href="#schema">Schema</a>
           <a href="#sample">Sample data</a>
           <a href="#codelist">Adjacent systems</a>
           <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
           <a href="#related">Related datasets</a>
         </div>
         <div class="sidebar-section" style="margin-top: 24px;">
-          <div class="sidebar-section-title">ENTSOG Transparency</div>
+          <div class="sidebar-section-title">ENTSO-G Transparency</div>
           <a href="../entsog.html">← All datasets</a>
           <a href="aggregated_physical_flows.html" class="active">aggregated_physical_flows</a>
           <a href="#" style="color:var(--ink-faint);">physical_flows</a>
-          <a href="#" style="color:var(--ink-faint);">nominations</a>
-          <a href="#" style="color:var(--ink-faint);">interruptions</a>
+          <a href="nominations.html" style="color:var(--ink-faint);">nominations</a>
           <a href="#" style="color:var(--ink-faint);">allocations</a>
+          <a href="#" style="color:var(--ink-faint);">interruptions</a>
           <a href="#" style="color:var(--ink-faint);">balancing_zones</a>
         </div>
       </nav>
 
       <!-- Main content -->
       <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">aggregated_physical_flows</code>
+            holds daily, zone-level physical gas flows for every European
+            balancing zone, broken down by adjacent system — Production, Storage,
+            LNG Terminals, Distribution and cross-border counterparties. It is the
+            canonical EU view of who is moving how much gas to whom across the
+            transmission network, reported in kWh/day per the gas convention
+            rather than MWh. Each row is one balancing-zone operator-direction's
+            aggregated flow against a single adjacent system for one gas day.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-G Transparency Platform at
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api/v1/aggregatedData</code>,
+            queried over a gas-day range with <code class="mono">timeZone=UCT</code>
+            and <code class="mono">periodType=day</code>. The raw JSON lands in
+            bronze and is written to the silver parquet partition via
+            <code class="mono" style="font-size: 12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GenericEntsogJsonTransformer</code>,
+            with no Pydantic class — the column shape is derived dynamically from
+            the live response rather than validated against a fixed schema.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            As the balancing-zone view of supply and offtake, it underpins
+            gas-supply-tightness modelling and pairs naturally with GIE storage
+            levels and ENTSO-E gas-fired generation to trace the gas-to-power
+            chain. Schema and API verified against the gridflow connector source
+            and the 2026-05-08 vault Bronze sample; ENTSO-G is a public,
+            no-authentication API.
+          </p>
+        </section>
 
         <!-- ── Snapshot chart ── -->
         <section id="snapshot" style="margin-bottom: 56px;">
@@ -261,13 +305,14 @@
         <section id="schema" style="margin-bottom: 56px;">
           <div class="eyebrow mb-8">Schema</div>
           <h2 class="display-3 mb-8">Silver layer columns.</h2>
-          <p class="small mb-24" style="max-width: 600px;">
-            <strong>Dynamic schema</strong> — column set is derived from the live
-            API response by the <code class="mono">GenericEntsogJsonTransformer</code>.
-            No fixed Pydantic class; the table below reflects the 29 columns
-            observed in the 2026-05-08 live sample. Partitioned by
-            <code class="mono">period_from</code> (year + month). Point-in-time
-            field: <code class="mono">last_update_date_time</code>.
+          <p class="small mb-24" style="max-width: 620px;">
+            <strong>No Pydantic class</strong> — columns are derived dynamically
+            by <code class="mono">GenericEntsogJsonTransformer</code> from the live
+            response (<code class="mono">silver/entsog/generic.py L80</code>). The
+            vault Bronze sample (live 2026-05-08) carries the fields below.
+            Partitioned by <code class="mono">period_from</code> (year + month).
+            Every citation is a <code class="mono">silver/entsog/*.py</code> source
+            path, not a schema class.
           </p>
           <table class="schema-table">
             <thead>
@@ -283,99 +328,168 @@
                 <td class="col-name">id <span class="pk-badge">PK</span></td>
                 <td class="col-type">str</td>
                 <td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Vendor concatenation: <code class="mono">dataSet + Aggregates + countryKey + bzKey + operatorKey + directionKey + adjacentSystemsKey + periodFrom + periodTo + indicator</code>. Used as dedup key.<span class="cite">silver/entsog/generic.py L80+ · dedup logic</span></td>
+                <td class="col-note">
+                  Vendor concatenation: <code class="mono">dataSet + Aggregates + countryKey + bzKey + operatorKey + directionKey + adjacentSystemsKey + periodFrom + periodTo + indicator</code>. Dedup key.
+                  <span class="cite">silver/entsog/generic.py L126-130</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">data_set</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">ENTSOG dataset numeric ID (e.g. <code class="mono">"1"</code> for Aggregates).<span class="cite">dynamic</span></td>
+                <td class="col-name">period_from</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Gas-day start. Vendor sends <code class="mono">+02:00</code>/<code class="mono">+01:00</code>; transformer converts to UTC.
+                  <span class="cite">silver/entsog/generic.py L114-116, L28-44</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">data_set_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Human label (e.g. <code class="mono">"Aggregates"</code>).<span class="cite">dynamic</span></td>
+                <td class="col-name">period_to</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Gas-day end (same TZ behaviour).
+                  <span class="cite">silver/entsog/generic.py L114-116</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">indicator</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Always <code class="mono">"Physical Flow"</code> for this endpoint (single-indicator).<span class="cite">dynamic</span></td>
+                <td class="col-name">indicator</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Always <code class="mono">"Physical Flow"</code> for this endpoint.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">period_type</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note"><code class="mono">"day"</code> for this endpoint (no sub-daily aggregation).<span class="cite">dynamic</span></td>
+                <td class="col-name">country_key</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  ISO-style country code (<code class="mono">"UK"</code>, <code class="mono">"DE"</code>, <code class="mono">"FR"</code>).
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">period_from</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Period start. Carries <code class="mono">+02:00</code> (CEST) in summer / <code class="mono">+01:00</code> (CET) in winter; <code class="mono">parse_entsog_datetime</code> converts to UTC.<span class="cite">silver/entsog/datetime.py</span></td>
+                <td class="col-name">bz_key / bz_short / bz_long</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Balancing-zone identifiers (<code class="mono">"UK---------"</code>, <code class="mono">"UK"</code>, <code class="mono">"British Balancing Zone"</code>).
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">period_to</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Period end. Same TZ behaviour.<span class="cite">dynamic</span></td>
+                <td class="col-name">operator_key / operator_label</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  TSO identifier and human name (<code class="mono">"UK-TSO-0001"</code> = National Gas TSO).
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">country_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">ISO-style country code (e.g. <code class="mono">"UK"</code>, <code class="mono">"DE"</code>, <code class="mono">"FR"</code>).<span class="cite">dynamic</span></td>
+                <td class="col-name">tso_eic_code</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  EIC cross-reference to ENTSO-E datasets.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">country_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Human country name.<span class="cite">dynamic</span></td>
+                <td class="col-name">direction_key</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  <code class="mono">"entry"</code> / <code class="mono">"exit"</code> (lowercase here; capitalised in <code class="mono">/cmpUnsuccessfulRequests</code>).
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">bz_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Balancing zone EIC-style key (e.g. <code class="mono">"UK---------"</code> for British Balancing Zone).<span class="cite">dynamic</span></td>
+                <td class="col-name">adjacent_systems_key / adjacent_systems_label</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Counterparty category — <code class="mono">"Production"</code>, <code class="mono">"Storage"</code>, <code class="mono">"LNG Terminals"</code>, <code class="mono">"Distribution"</code>, or zone-pair keys.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">bz_short / bz_long</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Short (<code class="mono">"UK"</code>) and long (<code class="mono">"British Balancing Zone"</code>) zone labels.<span class="cite">dynamic</span></td>
+                <td class="col-name">unit</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Always <code class="mono">"kWh/d"</code> — gas convention, <strong>NOT MWh</strong>.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">operator_key / operator_label / tso_eic_code</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">TSO identifier (e.g. <code class="mono">"UK-TSO-0001"</code> = National Gas Transmission), human name, and EIC code (cross-references ENTSO-E).<span class="cite">dynamic</span></td>
+                <td class="col-name">value</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Flow value in the declared <code class="mono">unit</code>.
+                  <span class="cite">silver/entsog/generic.py L122-124 (_looks_numeric)</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">direction_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note"><code class="mono">"entry"</code> or <code class="mono">"exit"</code> (lowercase here; capitalised in <code class="mono">/cmpUnsuccessfulRequests</code>).<span class="cite">dynamic</span></td>
+                <td class="col-name">count_point_presents</td>
+                <td class="col-type">float</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Number of physical points contributing to the aggregate.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">adjacent_systems_key / _label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Counterparty category: <code class="mono">"Production"</code>, <code class="mono">"Storage"</code>, <code class="mono">"LNG Terminals"</code>, <code class="mono">"Distribution"</code>, or zone-pair keys.<span class="cite">dynamic</span></td>
+                <td class="col-name">flow_status</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  <code class="mono">"Provisionnal"</code> (vendor typo preserved) or <code class="mono">"Final"</code>.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">year, month, day</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">String-typed (not int); from vendor JSON verbatim.<span class="cite">dynamic</span></td>
+                <td class="col-name">points_names</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  <code class="mono">|</code>-delimited contributing point names.
+                  <span class="cite">dynamic</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">unit</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Always <code class="mono">"kWh/d"</code> for this endpoint. <strong>kWh/day NOT MWh</strong> — gas convention.<span class="cite">dynamic</span></td>
+                <td class="col-name">last_update_date_time</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">null</td>
+                <td class="col-note">
+                  Vendor publication timestamp; may be <code class="mono">""</code>, <code class="mono">"-"</code>, <code class="mono">"N/A"</code>.
+                  <span class="cite">silver/entsog/datetime.py::parse_entsog_datetime_expr</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">value</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">The aggregated flow value in the <code class="mono">unit</code>-declared units.<span class="cite">dynamic</span></td>
+                <td class="col-name">data_provider</td>
+                <td class="col-type">str</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Always <code class="mono">"entsog"</code>. Constant.
+                  <span class="cite">silver/entsog/generic.py L132-136</span>
+                </td>
               </tr>
               <tr>
-                <td class="col-name">count_point_presents</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Number of underlying physical points contributing to the aggregate.<span class="cite">dynamic</span></td>
-              </tr>
-              <tr>
-                <td class="col-name">flow_status</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note"><code class="mono">"Provisionnal"</code> (vendor typo, preserved) or <code class="mono">"Final"</code>.<span class="cite">dynamic</span></td>
-              </tr>
-              <tr>
-                <td class="col-name">points_names</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note"><code class="mono">|</code>-delimited list of contributing point names (e.g. <code class="mono">"Isle of Grain|Milford Haven"</code>).<span class="cite">dynamic</span></td>
-              </tr>
-              <tr>
-                <td class="col-name">last_update_date_time</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td>
-                <td class="col-note">Vendor publication timestamp. May be empty, <code class="mono">"-"</code>, or <code class="mono">"N/A"</code> for older records; <code class="mono">parse_entsog_datetime</code> returns None for unparseable.<span class="cite">silver/entsog/datetime.py::parse_entsog_datetime</span></td>
-              </tr>
-              <tr>
-                <td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td>
-                <td class="col-note">Always <code class="mono">"entsog"</code>.<span class="cite">derived</span></td>
-              </tr>
-              <tr>
-                <td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td>
-                <td class="col-note">Wall-clock at silver write.<span class="cite">derived</span></td>
+                <td class="col-name">ingested_at</td>
+                <td class="col-type">datetime[UTC]</td>
+                <td style="text-align:center;" class="nullable">—</td>
+                <td class="col-note">
+                  Wall-clock at silver write.
+                  <span class="cite">silver/entsog/generic.py L132-136</span>
+                </td>
               </tr>
             </tbody>
           </table>
 
+          <!-- partition info -->
           <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
             <div>
               <div class="tiny mb-6">PARQUET PATH</div>
@@ -401,31 +515,30 @@
               <thead>
                 <tr>
                   <th>period_from</th>
-                  <th>country</th>
-                  <th>bz</th>
-                  <th>operator</th>
-                  <th>dir</th>
-                  <th>adjacent_systems</th>
+                  <th>country_key</th>
+                  <th>bz_short</th>
+                  <th>operator_key</th>
+                  <th>direction_key</th>
+                  <th>adjacent_systems_key</th>
                   <th>unit</th>
                   <th>value</th>
                   <th>flow_status</th>
-                  <th>last_update_date_time</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>UK</td><td>UK</td><td>UK-TSO-0001</td><td>entry</td><td class="str">LNG Terminals</td><td>kWh/d</td><td class="num">100,259,283</td><td class="str">Provisionnal</td><td class="date">2026-05-08T16:33:42Z</td></tr>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>UK</td><td>UK</td><td>UK-TSO-0001</td><td>entry</td><td class="str">Production</td><td>kWh/d</td><td class="num">287,440,000</td><td class="str">Provisionnal</td><td class="date">2026-05-08T16:33:42Z</td></tr>
-                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T00:00:00Z</td><td>UK</td><td>UK</td><td>UK-TSO-0001</td><td>exit</td><td class="str">Distribution</td><td>kWh/d</td><td class="num">412,800,000</td><td class="str">Provisionnal</td><td class="date">2026-05-08T16:33:42Z</td></tr>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>UK</td><td>UK</td><td>UK-TSO-0001</td><td>entry</td><td class="str">Storage</td><td>kWh/d</td><td class="num">18,200,000</td><td class="str">Provisionnal</td><td class="date">2026-05-08T16:33:42Z</td></tr>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>DE</td><td>DE</td><td>DE-TSO-0011</td><td>entry</td><td class="str">Production</td><td>kWh/d</td><td class="num">1,140,000,000</td><td class="str">Final</td><td class="date">2026-05-08T18:00:00Z</td></tr>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>DE</td><td>DE</td><td>DE-TSO-0011</td><td>exit</td><td class="str">Distribution</td><td>kWh/d</td><td class="num">2,038,000,000</td><td class="str">Final</td><td class="date">2026-05-08T18:00:00Z</td></tr>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>FR</td><td>FR</td><td>FR-TSO-0001</td><td>entry</td><td class="str">LNG Terminals</td><td>kWh/d</td><td class="num">312,500,000</td><td class="str">Provisionnal</td><td class="date">2026-05-08T17:15:00Z</td></tr>
-                <tr><td class="date">2026-05-06T00:00:00Z</td><td>NL</td><td>NL</td><td>NL-TSO-0001</td><td>entry</td><td class="str">Production</td><td>kWh/d</td><td class="num">487,200,000</td><td class="str">Final</td><td class="date">2026-05-08T18:00:00Z</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">UK</td><td class="str">UK</td><td class="str">UK-TSO-0001</td><td class="str">entry</td><td class="str">LNG Terminals</td><td>kWh/d</td><td class="num">100,259,283</td><td class="str">Provisionnal</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">UK</td><td class="str">UK</td><td class="str">UK-TSO-0001</td><td class="str">entry</td><td class="str">Production</td><td>kWh/d</td><td class="num">287,440,000</td><td class="str">Provisionnal</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">UK</td><td class="str">UK</td><td class="str">UK-TSO-0001</td><td class="str">exit</td><td class="str">Distribution</td><td>kWh/d</td><td class="num">412,800,000</td><td class="str">Provisionnal</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">UK</td><td class="str">UK</td><td class="str">UK-TSO-0001</td><td class="str">entry</td><td class="str">Storage</td><td>kWh/d</td><td class="num">18,200,000</td><td class="str">Provisionnal</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">DE</td><td class="str">DE</td><td class="str">DE-TSO-0011</td><td class="str">entry</td><td class="str">Production</td><td>kWh/d</td><td class="num">1,140,000,000</td><td class="str">Final</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">DE</td><td class="str">DE</td><td class="str">DE-TSO-0011</td><td class="str">exit</td><td class="str">Distribution</td><td>kWh/d</td><td class="num">2,038,000,000</td><td class="str">Final</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">FR</td><td class="str">FR</td><td class="str">FR-TSO-0001</td><td class="str">entry</td><td class="str">LNG Terminals</td><td>kWh/d</td><td class="num">312,500,000</td><td class="str">Provisionnal</td></tr>
+                <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">NL</td><td class="str">NL</td><td class="str">NL-TSO-0001</td><td class="str">entry</td><td class="str">Production</td><td>kWh/d</td><td class="num">487,200,000</td><td class="str">Final</td></tr>
               </tbody>
             </table>
           </div>
           <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
-            First row from vault Bronze sample (UK LNG-entry, 2026-05-06, captured live 2026-05-08); subsequent UK rows synthesised respecting the vault's documented shape. Continental rows (DE, FR, NL) synthesised to plausible 2026 daily flows. The highlighted row is the UK Distribution <em>exit</em> — 412 GWh/day = the dominant outflow from the British Balancing Zone (gas going to domestic and industrial consumers). Note the <code class="mono">kWh/d</code> unit throughout (NOT MWh — convert by ÷1000 if joining against power-market datasets). <code class="mono">flow_status: Provisionnal</code> is preserved with vendor typo.
+            First UK row verbatim from vault Bronze sample (LNG entry, 2026-05-06); remaining UK rows synthesised respecting documented <code class="mono">adjacent_systems_key</code> categories. Continental rows synthesised to plausible 2026 daily flows. Highlighted row is UK Distribution exit — 412 GWh/day = the dominant outflow (gas going to domestic/industrial consumers). <code class="mono">kWh/d</code> unit throughout (NOT MWh — divide by 1000 if joining against power-market datasets). <code class="mono">flowStatus: Provisionnal</code> typo preserved.
           </div>
         </section>
 
@@ -433,15 +546,14 @@
         <section id="codelist" style="margin-bottom: 56px;">
           <div class="eyebrow mb-8">Adjacent system categories</div>
           <h2 class="display-3 mb-8">Counterparty codelist.</h2>
-          <p class="small mb-24" style="max-width: 600px;">ENTSOG's <code class="mono">adjacent_systems_key</code> enumerates the counterparty type for each aggregated flow. The set is small and stable across zones — useful for filtering / aggregating.</p>
+          <p class="small mb-24" style="max-width: 600px;">ENTSO-G's <code class="mono">adjacent_systems_key</code> enumerates the counterparty type for each aggregated flow. The set is small and stable across zones — useful for filtering / aggregating.</p>
           <div class="code-list">
-            <div class="code-row"><div class="k">Production</div><div class="v">Domestic gas production wells entering the network</div><div class="sign">entry (positive into zone)</div></div>
-            <div class="code-row"><div class="k">Storage</div><div class="v">Gas storage facilities (injection = exit, withdrawal = entry)</div><div class="sign">both, seasonal</div></div>
+            <div class="code-row"><div class="k">Production</div><div class="v">Domestic gas-production wells entering the network</div><div class="sign">entry</div></div>
+            <div class="code-row"><div class="k">Storage</div><div class="v">Storage facilities (injection = exit, withdrawal = entry)</div><div class="sign">both, seasonal</div></div>
             <div class="code-row"><div class="k">LNG Terminals</div><div class="v">LNG regasification terminals</div><div class="sign">entry</div></div>
             <div class="code-row"><div class="k">Distribution</div><div class="v">Downstream distribution networks (final consumers)</div><div class="sign">exit</div></div>
             <div class="code-row"><div class="k">Final consumer</div><div class="v">Direct industrial offtake</div><div class="sign">exit</div></div>
-            <div class="code-row"><div class="k">Other</div><div class="v">Catch-all (compressor stations, line-pack, etc.)</div><div class="sign">both</div></div>
-            <div class="code-row"><div class="k">&lt;ZoneKey&gt;</div><div class="v">Cross-border aggregate to neighbouring TSO zone (e.g. <code class="mono">UK---------</code>)</div><div class="sign">both — interconnector flows</div></div>
+            <div class="code-row"><div class="k">&lt;ZoneKey&gt;</div><div class="v">Cross-border aggregate to neighbouring TSO zone (e.g. <code class="mono">UK---------</code>)</div><div class="sign">both</div></div>
           </div>
         </section>
 
@@ -461,15 +573,16 @@
               <div class="tiny mb-8">BRONZE PATH</div>
               <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsog/aggregated_physical_flows/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
               <div class="tiny mb-8">TRANSFORMER</div>
-              <div class="mono small">gridflow.silver.entsog.generic.<br/>GenericEntsogJsonTransformer<br/>↳ AggregatedPhysicalFlowsTransformer<br/>(factory · L220-229)</div>
+              <div class="mono small">gridflow.silver.entsog.generic.<br/>GenericEntsogJsonTransformer<br/>↳ AggregatedPhysicalFlowsTransformer<br/>(factory · L223-238)</div>
             </div>
           </div>
 
+          <!-- tabs -->
           <div data-tab-group="apf">
             <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
               <button class="chip btn-like ink" onclick="setTab('apf','url',this)" style="cursor:pointer;">Example URL</button>
               <button class="chip btn-like" onclick="setTab('apf','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
-              <button class="chip btn-like" onclick="setTab('apf','py',this)" style="cursor:pointer;">Python · parquet</button>
+              <button class="chip btn-like" onclick="setTab('apf','py',this)" style="cursor:pointer;">Python · polars</button>
             </div>
             <div data-tab-panel="apf-url" style="display:block;"><div class="code-wrap">
 <pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://transparency.entsog.eu/api/v1/aggregatedData
@@ -478,13 +591,13 @@
   <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">timeZone</span>=UCT
   <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodType</span>=day
   <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">forceDownload</span>=true
-  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">limit</span>=1000</pre>
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">limit</span>=-1</pre>
             </div></div>
             <div data-tab-panel="apf-sql" style="display:none;"><div class="code-wrap">
 <pre class="code dark" style="padding: 18px 22px;"><span class="c">-- UK monthly LNG-vs-Production entry mix</span>
 <span class="k">SELECT</span> date_trunc(<span class="s">'month'</span>, period_from) <span class="k">AS</span> month,
        adjacent_systems_key,
-       sum(value) / <span class="num">1e9</span> <span class="k">AS</span> twh
+       SUM(value) / <span class="num">1e9</span> <span class="k">AS</span> twh
 <span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsog/aggregated_physical_flows/**/*.parquet'</span>)
 <span class="k">WHERE</span> bz_short = <span class="s">'UK'</span>
   <span class="k">AND</span> direction_key = <span class="s">'entry'</span>
@@ -495,9 +608,7 @@
             <div data-tab-panel="apf-py" style="display:none;"><div class="code-wrap">
 <pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
 
-df = pl.read_parquet(
-    <span class="s">"data/silver/entsog/aggregated_physical_flows/**/*.parquet"</span>,
-)
+df = pl.read_parquet(<span class="s">"data/silver/entsog/aggregated_physical_flows/**/*.parquet"</span>)
 <span class="c"># UK daily net flow (entry - exit) across all adjacent systems</span>
 net = (
     df.filter(pl.col(<span class="s">"bz_short"</span>) == <span class="s">"UK"</span>)
@@ -516,6 +627,58 @@ print(net.tail(<span class="num">30</span>))</pre>
           </div>
         </section>
 
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">aggregated_physical_flows</code>. Also read the <a href="../entsog.html#about" class="link">ENTSO-G-wide caveats</a> on the vendor page.</p>
+
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Unit is <code class="mono">kWh/d</code>, NOT MWh</div>
+                <p class="small" style="margin: 0;">ENTSO-G reports gas flows in <strong>kWh/day</strong>. Divide by 1,000 for MWh; by 1e9 for TWh. Preserve the <code class="mono">unit</code> column rather than assuming. <span class="src-cite">vault Silver schema · unit constant</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">02</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">timeZone=UCT</code> (vendor typo, intentional)</div>
+                <p class="small" style="margin: 0;">Connector sends <code class="mono">UCT</code> not <code class="mono">UTC</code>; sending <code class="mono">UTC</code> returns HTTP 400. <span class="src-cite">connectors/entsog/endpoints.py L17 · ENTSOG_TIMEZONE</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">direction_key</code> casing varies across endpoints</div>
+                <p class="small" style="margin: 0;">Lowercase here (<code class="mono">"entry"</code>, <code class="mono">"exit"</code>); capitalised in <code class="mono">/cmpUnsuccessfulRequests</code>. Lowercase both sides when cross-endpoint joining. <span class="src-cite">vault Known Issues · silver/entsog/generic.py::_normalise_column_names</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">flow_status: "Provisionnal"</code> preserved verbatim</div>
+                <p class="small" style="margin: 0;">Vendor spelling <code class="mono">Provisionnal</code> (double-n) is preserved through bronze and silver. Filter on the exact string to distinguish from <code class="mono">"Final"</code>. <span class="src-cite">vault Known Issues · vendor JSON</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Period offset is CEST/CET even with <code class="mono">timeZone=UCT</code></div>
+                <p class="small" style="margin: 0;">Despite requesting UCT, <code class="mono">periodFrom</code>/<code class="mono">periodTo</code> carry <code class="mono">+02:00</code> (CEST) / <code class="mono">+01:00</code> (CET). <code class="mono">parse_entsog_datetime_expr</code> converts to UTC at silver. <span class="src-cite">silver/entsog/datetime.py · vault Known Issues</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Empty windows return HTTP 404, not 200</div>
+                <p class="small" style="margin: 0;">ENTSO-G's empty convention is <code class="mono">HTTP 404 + {"message":"No result found"}</code>. Connector short-circuits as empty-bronze. <span class="src-cite">connectors/entsog/client.py L24-28, L109-115</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- ── Related ── -->
         <section id="related" style="margin-bottom: 56px;">
           <div class="eyebrow mb-8">Related datasets</div>
@@ -530,11 +693,11 @@ print(net.tail(<span class="num">30</span>))</pre>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">Per-physical-point detail — the granular companion data behind this dataset's aggregations. Use when the <code class="mono">points_names</code> column's pipe-delimited list isn't enough resolution.</p>
-              <span class="tiny">entsog · transmission · daily</span>
+              <p class="small" style="margin: 0 0 8px;">Per-point detail behind these aggregations. Use when the <code class="mono">points_names</code> pipe-list isn't enough resolution.</p>
+              <span class="tiny">entsog · operational · daily</span>
             </a>
 
-            <a href="#" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+            <a href="nominations.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
               <div class="row between mb-8" style="align-items: flex-start;">
                 <div class="row gap-8">
                   <span class="mono small" style="color:var(--ink-strong);">nominations</span>
@@ -542,8 +705,8 @@ print(net.tail(<span class="num">30</span>))</pre>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">Shipper-submitted nomination quantities (planned flows). Compare against this dataset to measure nomination-vs-actual delivery accuracy per zone.</p>
-              <span class="tiny">entsog · transmission · daily</span>
+              <p class="small" style="margin: 0 0 8px;">Shipper-submitted intended flows. Compare against this dataset to measure nomination-vs-actual delivery accuracy per zone.</p>
+              <span class="tiny">entsog · operational · daily</span>
             </a>
 
             <a href="../gie/storage.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
@@ -555,7 +718,7 @@ print(net.tail(<span class="num">30</span>))</pre>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">Daily gas storage levels for European facilities. Pair with the Storage-direction rows in this dataset to derive injection/withdrawal vs stock-level dynamics.</p>
+              <p class="small" style="margin: 0 0 8px;">Daily EU gas storage levels (GIE-AGSI). Pair with the Storage-direction rows for injection/withdrawal vs stock-level dynamics.</p>
               <span class="tiny">gie · storage · daily</span>
             </a>
 
@@ -568,7 +731,7 @@ print(net.tail(<span class="num">30</span>))</pre>
                 </div>
                 <span class="arrow">→</span>
               </div>
-              <p class="small" style="margin: 0 0 8px;">European power generation by PSR type, including <code class="mono">B04</code> (Fossil Gas). Cross-reference gas burn (from this dataset) against gas-fired power generation for power-vs-heat split attribution.</p>
+              <p class="small" style="margin: 0 0 8px;">EU power generation by PSR type, including <code class="mono">B04</code> (gas). Cross-reference gas burn against gas-fired generation share.</p>
               <span class="tiny">entsoe · generation · 15-60 min</span>
             </a>
           </div>
@@ -582,6 +745,7 @@ print(net.tail(<span class="num">30</span>))</pre>
   <script src="../../assets/charts.js"></script>
   <script src="../../assets/site.js"></script>
   <script>
+    // Sidebar active link on scroll
     (function () {
       const sections = document.querySelectorAll("section[id]");
       const links = document.querySelectorAll(".sidebar a[href^='#']");
@@ -597,12 +761,15 @@ print(net.tail(<span class="num">30</span>))</pre>
       sections.forEach((s) => observer.observe(s));
     })();
   </script>
+
   <script>
     function setTab(group, tab, btn) {
       document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
       const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
       if (panel) panel.style.display = 'block';
-      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => b.classList.remove('ink'));
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
       if (btn) btn.classList.add('ink');
     }
   </script>

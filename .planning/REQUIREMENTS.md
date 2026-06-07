@@ -8,7 +8,7 @@ This file holds the **v1 cleanup milestone** (complete, 50/50 delivered) and the
 
 ## v2 Requirements (Active)
 
-Scope: **v2 full-vendor-coverage** — first reconcile the Vault layer so all six Vendors carry verified content (per ADR-0001 / Phase 7), then ship the remaining 129 dataset pages at `fuelhh` fidelity across ENTSO-E (48 new), ENTSO-G (33), GIE (8), NESO (34), and Open-Meteo (6). Bring the site catalogue from 34 to 163 datasets. Every vendor on the site moves from "coming soon" to a complete dataset catalog.
+Scope: **v2 full-vendor-coverage** — first reconcile the Vault layer so all six Vendors carry verified content (per ADR-0001 / Phase 7), then ship the remaining 129 dataset pages at `fuelhh` fidelity across ENTSO-E (48 new), ENTSO-G (33), GIE (8), NESO (33), and Open-Meteo (6). Bring the site catalogue from 34 to 162 datasets. Every vendor on the site moves from "coming soon" to a complete dataset catalog.
 
 ### Reconciliation (RECON) — Phase 7, gating for content phases 9 and 10
 - [x] **RECON-01** — `gridflow-drift-check` exists as a console script on path (renamed from `quant-vault/30-vendors/scripts/verify_curl_and_silver_schema.py` → `gridflow_drift_check.py`); portable to Linux CI — both Windows-specific blockers (the `args[0] = "curl.exe"` line at L180 and the hardcoded `C:\Users\Bobbo\...` default at L20-26) are parameterised; a `[drift]` extra is declared in the appropriate `pyproject.toml` (Q-DD-16 default lean: `quant-vault` if it has one, else `gridflow-front-end`) *(completed 07-01, 2026-05-19)*
@@ -30,32 +30,32 @@ Scope: **v2 full-vendor-coverage** — first reconcile the Vault layer so all si
 - [ ] **ENTSOE-05** — `gridflow-build --check` idempotence stays green on the expanded ENTSO-E set; `htmlhint` + `lychee` gates stay green; no new dead anchors or structural HTML breakage
 
 ### ENTSO-G coverage (ENTSOG) — Phase 10
-- [ ] **ENTSOG-01** — All 33 ENTSO-G vault `.md` files vendored from upstream into `vault/entsog/`
-- [ ] **ENTSOG-02** — `site/hifi/data/entsog.json` manifest authored with 33 datasets, grouped into ENTSO-G categories
-- [ ] **ENTSOG-03** — All 33 ENTSO-G dataset pages render at `fuelhh` fidelity (6-anchor sidebar resolves; `verified-against-vendor-docs` micro-line; schema ref or drift-flag)
-- [ ] **ENTSOG-04** — `/data-sources/entsog.html` upgraded from coming-soon stub to a real vendor hub rendered from `vendor-hub.html.j2`; `entsog` entry moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `src/gridflow_front_end/build.py`
+- [x] **ENTSOG-01** — All 33 ENTSO-G vault `.md` files vendored from upstream into `vault/entsog/`
+- [x] **ENTSOG-02** — `site/hifi/data/entsog.json` manifest authored with 33 datasets, grouped into 5 ENTSO-G categories
+- [x] **ENTSOG-03** — All 33 ENTSO-G dataset pages render at `fuelhh` fidelity (D-22: synthesised `#overview` + rendered `#caveats`; authored via Claude Design)
+- [x] **ENTSOG-04** — `/data-sources/entsog.html` is a real vendor hub (8D-authored `_landing.html`, served via the authored-hub override — not the coming-soon stub); `entsog` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `src/gridflow_front_end/build.py`
 
 ### GIE coverage (GIE) — Phase 10
-- [ ] **GIE-01** — All 8 GIE vault `.md` files vendored from upstream into `vault/gie/` (or `vault/gie_agsi/` + `vault/gie_alsi/` if the AGSI/ALSI split stays — Phase 9 plan decides)
-- [ ] **GIE-02** — `site/hifi/data/gie.json` manifest (or split `gie_agsi.json` + `gie_alsi.json`) listing all 8 datasets
-- [ ] **GIE-03** — All 8 GIE dataset pages render at `fuelhh` fidelity
-- [ ] **GIE-04** — GIE has at least one real vendor hub (either one consolidated `/data-sources/gie.html` or two hubs at `gie_agsi.html` + `gie_alsi.html`); v1's coming-soon stubs are replaced; `build.py` GIE entries moved from `COMING_SOON_VENDORS` to `REAL_VENDORS`
+- [x] **GIE-01** — All 8 GIE vault `.md` files vendored from upstream into `vault/gie/` (unified — AGSI+ALSI in one folder)
+- [x] **GIE-02** — `site/hifi/data/gie.json` manifest authored: 8 datasets in 2 groups (Storage AGSI+ 7 · LNG ALSI 1)
+- [x] **GIE-03** — All 8 GIE dataset pages render at `fuelhh` fidelity (D-22; authored via Claude Design)
+- [x] **GIE-04** — GIE is one consolidated real hub at `/data-sources/gie.html`; the `gie_agsi`/`gie_alsi` coming-soon split is collapsed into a single `REAL_VENDORS["gie"]`; `gie_agsi.html`/`gie_alsi.html` no longer emitted
 
 ### NESO Carbon Intensity coverage (NESO) — Phase 10
-- [ ] **NESO-01** — All 34 NESO vault `.md` files vendored from upstream into `vault/neso/`
-- [ ] **NESO-02** — `site/hifi/data/neso.json` manifest authored with 34 datasets
-- [ ] **NESO-03** — All 34 NESO dataset pages render at `fuelhh` fidelity
-- [ ] **NESO-04** — `/data-sources/neso.html` upgraded from coming-soon stub to a real vendor hub; `neso` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`
+- [x] **NESO-01** — All 33 NESO vault `.md` files vendored from upstream into `vault/neso/` *(corrected 34→33: vendored snapshot has 33 dataset `.md`, no README — the "34" was a doc-era miscount)*
+- [x] **NESO-02** — `site/hifi/data/neso.json` manifest authored with 33 datasets in 4 groups
+- [x] **NESO-03** — All 33 NESO dataset pages render at `fuelhh` fidelity (D-22; authored via Claude Design)
+- [x] **NESO-04** — `/data-sources/neso.html` is a real vendor hub (8D-authored, authored-hub override); `neso` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`
 
 ### Open-Meteo coverage (METEO) — Phase 10
-- [ ] **METEO-01** — All 6 Open-Meteo vault `.md` files vendored from upstream into `vault/openmeteo/`
-- [ ] **METEO-02** — `site/hifi/data/openmeteo.json` manifest authored with 6 datasets
-- [ ] **METEO-03** — All 6 Open-Meteo dataset pages render at `fuelhh` fidelity
-- [ ] **METEO-04** — `/data-sources/openmeteo.html` upgraded from coming-soon stub to a real vendor hub; `openmeteo` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`
+- [x] **METEO-01** — All 6 Open-Meteo vault `.md` files vendored from upstream into `vault/openmeteo/`
+- [x] **METEO-02** — `site/hifi/data/openmeteo.json` manifest authored with 6 datasets in 2 groups (Forecast 3 · Historical 3)
+- [x] **METEO-03** — All 6 Open-Meteo dataset pages render at `fuelhh` fidelity (D-22; authored via Claude Design)
+- [x] **METEO-04** — `/data-sources/openmeteo.html` is a real vendor hub (8D-authored, authored-hub override); `openmeteo` moved from `COMING_SOON_VENDORS` to `REAL_VENDORS` in `build.py`
 
 ### Site-wide consistency (SITE) — Phase 10
-- [ ] **SITE-01** — Site-wide dataset count strings are consistent and reflect the v2 total of 163 datasets across 6 vendors: `site/hifi/index.html` stat strip, footer-line in `site/hifi/assets/site.js`, and `site/hifi/data-sources.html` catalog header all align; `grep "33 Elexon"` or other stale partial counts return zero off-purpose hits
-- [ ] **SITE-02** — `site/hifi/data-sources.html` catalog: every vendor row links to a real vendor hub; zero coming-soon stub links remain in the catalog table
+- [x] **SITE-01** — Site-wide dataset count strings are consistent and reflect the v2 total of **162** datasets across 6 vendors (corrected 163→162: 33 Elexon + 49 ENTSO-E + 33 ENTSO-G + 8 GIE + 33 NESO + 6 Open-Meteo): `site/hifi/index.html` stat strip + pillar, footer-line in `site/hifi/assets/site.js`, and `site/hifi/data-sources.html` catalog header + per-section totals all align; stale `163`/`7 vendors`/`34 datasets` greps return zero hits
+- [x] **SITE-02** — `site/hifi/data-sources.html` catalog: every vendor row links to a real vendor hub (GIE → unified `gie.html`); zero coming-soon stub links remain in the catalog table
 
 ---
 
@@ -146,24 +146,24 @@ Every v2 REQ-ID maps to exactly one v2 phase in `ROADMAP.md`. 31/31 coverage; no
 | ENTSOE-03 | Phase 9 — ENTSO-E full coverage | Pending |
 | ENTSOE-04 | Phase 9 — ENTSO-E full coverage | Pending |
 | ENTSOE-05 | Phase 9 — ENTSO-E full coverage | Pending |
-| ENTSOG-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| ENTSOG-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| ENTSOG-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| ENTSOG-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| GIE-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| NESO-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-02 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-03 | Phase 10 — Four-vendor batch coverage | Pending |
-| METEO-04 | Phase 10 — Four-vendor batch coverage | Pending |
-| SITE-01 | Phase 10 — Four-vendor batch coverage | Pending |
-| SITE-02 | Phase 10 — Four-vendor batch coverage | Pending |
+| ENTSOG-01 | Phase 10 — Four-vendor batch coverage | Delivered |
+| ENTSOG-02 | Phase 10 — Four-vendor batch coverage | Delivered |
+| ENTSOG-03 | Phase 10 — Four-vendor batch coverage | Delivered |
+| ENTSOG-04 | Phase 10 — Four-vendor batch coverage | Delivered |
+| GIE-01 | Phase 10 — Four-vendor batch coverage | Delivered |
+| GIE-02 | Phase 10 — Four-vendor batch coverage | Delivered |
+| GIE-03 | Phase 10 — Four-vendor batch coverage | Delivered |
+| GIE-04 | Phase 10 — Four-vendor batch coverage | Delivered |
+| NESO-01 | Phase 10 — Four-vendor batch coverage | Delivered |
+| NESO-02 | Phase 10 — Four-vendor batch coverage | Delivered |
+| NESO-03 | Phase 10 — Four-vendor batch coverage | Delivered |
+| NESO-04 | Phase 10 — Four-vendor batch coverage | Delivered |
+| METEO-01 | Phase 10 — Four-vendor batch coverage | Delivered |
+| METEO-02 | Phase 10 — Four-vendor batch coverage | Delivered |
+| METEO-03 | Phase 10 — Four-vendor batch coverage | Delivered |
+| METEO-04 | Phase 10 — Four-vendor batch coverage | Delivered |
+| SITE-01 | Phase 10 — Four-vendor batch coverage | Delivered |
+| SITE-02 | Phase 10 — Four-vendor batch coverage | Delivered |
 
 **Coverage check:** 31 v2 REQ-IDs mapped to 4 v2 phases. Each REQ-ID appears exactly once. Each phase has at least 3 REQ-IDs. No orphans.
 

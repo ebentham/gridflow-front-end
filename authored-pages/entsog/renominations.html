@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>renominations · ENTSO-G Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-G · renominations">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsog.html">ENTSO-G Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">renominations</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-G · Operational</span>
+            <span class="chip" style="font-size:11px;">daily · within-day</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 26px; font-family: var(--mono); letter-spacing: -0.01em;">renominations</span><br/>
+            Within-day revisions to <span class="italic fg-accent">gas nominations.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Shipper renominations updating intra-day flow quantities at each point — the canonical signal for late shifts in expected gas supply and demand.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://transparency.entsog.eu/" class="link" target="_blank" rel="noopener">ENTSO-G Transparency · /operationalData ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:12px; line-height:1.4;">silver.renominations</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:10px; line-height:1.4;">/api/v1/operationalData<br/>?indicator=Renomination</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small" style="font-size:12px; line-height:1.4;">daily (within-day revisions)</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small" style="font-size:12px; line-height:1.4;">same-day (within gas-day)</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small" style="font-size:11px; line-height:1.4;">~9 GB points/day; 0 on quiet days</div></div>
+<div style="padding: 16px 18px; "><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:10px; line-height:1.4;">(id)<br/>— vendor concatenation</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+<div><div class="stat-n">daily</div><div class="stat-l">Frequency</div></div>
+<div><div class="stat-n" style="font-family: var(--mono); font-size: 32px;">kWh/d</div><div class="stat-l">Reporting unit</div></div>
+<div><div class="stat-n">within-day</div><div class="stat-l">Revision cadence</div></div>
+<div><div class="stat-n">dynamic</div><div class="stat-l">Silver schema (no Pydantic class)</div></div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+<a href="#overview" class="active">Overview</a>
+<a href="#snapshot">Snapshot chart</a>
+<a href="#schema">Schema</a>
+<a href="#sample">Sample data</a>
+<a href="#api">API &amp; ingestion</a>
+<a href="#caveats">Caveats</a>
+<a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-G Transparency</div>
+          <a href="../entsog.html">← All datasets</a>
+          <a href="renominations.html" class="active">renominations</a>
+<a href="#" style="color:var(--ink-faint);">nominations</a>
+<a href="#" style="color:var(--ink-faint);">physical_flows</a>
+<a href="#" style="color:var(--ink-faint);">allocations</a>
+<a href="#" style="color:var(--ink-faint);">firm_booked</a>
+<a href="#" style="color:var(--ink-faint);">interruptible_booked</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">renominations</code> holds shipper renominations — within-day revisions to the intra-day flow quantities originally nominated at each point. It is the canonical signal for late shifts in expected gas supply and demand. It shares the operational column set with <code class="mono">nominations</code>; the differentiators are <code class="mono">indicator="Renomination"</code> and the presence of <code class="mono">original_period_from</code> (the original gas-day being revised). Each row is one revised nomination at an operator-point-direction.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-G Transparency Platform at <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api/v1/operationalData?indicator=Renomination</code>, queried per operator-point-direction over a gas-day range with <code class="mono">timeZone=UCT</code> and <code class="mono">periodType=day</code>. The raw JSON lands in bronze and is written to silver via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GenericEntsogJsonTransformer</code> (subclassed as <code class="mono">RenominationsTransformer</code>), with no Pydantic class — columns are derived dynamically.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            Comparing renominations against the initial <code class="mono">nominations</code> measures within-day drift — a useful nowcasting signal that often clusters around interruption windows — while <code class="mono">physical_flows</code> and <code class="mono">allocations</code> grade the final outcome. Schema and API verified against the gridflow connector source and the 2026-05-08 vault Bronze sample; ENTSO-G is a public, no-authentication API.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Bacton (IUK) exit · <span class="italic fg-accent">renomination delta.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">renominations · silver layer · point_key=ITP-00005 · direction=exit</div>
+                <div class="small">Sparkline · GWh/day · 30-day window</div>
+              </div>
+              <div class="row gap-8">
+<span class="chip ink btn-like">30d</span>
+<span class="chip btn-like">1y</span>
+              </div>
+            </div>
+            <div data-chart="sparkline" data-opts='{"width":820,"height":140,"seed":27}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No Pydantic class</strong> — columns are derived dynamically by <code class="mono">GenericEntsogJsonTransformer</code> from the live response (<code class="mono">silver/entsog/generic.py L80</code>). Same column set as <code class="mono">nominations</code>; the differentiator is <code class="mono">indicator="Renomination"</code> and the presence of <code class="mono">original_period_from</code>. Every citation is a <code class="mono">silver/entsog/*.py</code> source path, not a schema class.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 24%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+<tr><td class="col-name">id <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor concatenation (includes the revision sequence). Dedup key. <span class="cite">silver/entsog/generic.py L126-130</span></td></tr>
+<tr><td class="col-name">timestamp_utc</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Set from <code class="mono">periodFrom</code>. Partition driver. <span class="cite">silver/entsog/generic.py L118-120</span></td></tr>
+<tr><td class="col-name">period_from / period_to</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Gas-day window. <span class="cite">silver/entsog/generic.py L114-116</span></td></tr>
+<tr><td class="col-name">original_period_from</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Set on renominations — the original gas-day being revised. <span class="cite">silver/entsog/datetime.py::parse_entsog_datetime_expr</span></td></tr>
+<tr><td class="col-name">indicator</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Always <code class="mono">"Renomination"</code> for this endpoint. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_key / operator_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">TSO identifier and human name. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">point_key / point_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Connection-point identifier and label. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">direction_key</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono">"entry"</code> / <code class="mono">"exit"</code>. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">unit</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Typically <code class="mono">"kWh/d"</code>. Gas convention, <strong>NOT MWh</strong>. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">value</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Revised nomination quantity in the declared <code class="mono">unit</code>. <span class="cite">silver/entsog/generic.py L122-124</span></td></tr>
+<tr><td class="col-name">last_update_date_time</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Vendor publication timestamp (distinguishes within-day revisions). <span class="cite">silver/entsog/datetime.py</span></td></tr>
+<tr><td class="col-name">data_provider</td><td class="col-type">str ("entsog")</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsog"</code>. Constant. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+<tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Wall-clock at silver write. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsog/renominations/year=YYYY/month=MM/</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">timestamp_utc (year + month)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(id) — vendor concatenation</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr><th>period_from</th><th>original_period_from</th><th>point_key</th><th>direction_key</th><th>unit</th><th>value</th><th>last_update_date_time</th></tr>
+              </thead>
+              <tbody>
+<tr><td class="date">2026-05-06T04:00:00+00:00</td><td class="date">2026-05-06T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">18,500,000</td><td class="date">2026-05-06T10:14:22+00:00</td></tr>
+<tr><td class="date">2026-05-06T04:00:00+00:00</td><td class="date">2026-05-06T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">19,100,000</td><td class="date">2026-05-06T13:02:00+00:00</td></tr>
+<tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T04:00:00+00:00</td><td class="date">2026-05-06T04:00:00+00:00</td><td class="str">ITP-00207</td><td class="str">exit</td><td>kWh/d</td><td class="num">155,400,000</td><td class="date">2026-05-06T11:48:33+00:00</td></tr>
+<tr><td class="date">2026-05-06T04:00:00+00:00</td><td class="date">2026-05-06T04:00:00+00:00</td><td class="str">ITP-00207</td><td class="str">exit</td><td>kWh/d</td><td class="num">158,100,000</td><td class="date">2026-05-06T14:22:10+00:00</td></tr>
+<tr><td class="date">2026-05-06T04:00:00+00:00</td><td class="date">2026-05-06T04:00:00+00:00</td><td class="str">ITP-00495</td><td class="str">entry</td><td>kWh/d</td><td class="num">90,200,000</td><td class="date">2026-05-06T12:05:55+00:00</td></tr>
+<tr><td class="date">2026-05-05T04:00:00+00:00</td><td class="date">2026-05-05T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td>kWh/d</td><td class="num">14,200,000</td><td class="date">2026-05-05T09:55:11+00:00</td></tr>
+<tr><td class="date">2026-05-05T04:00:00+00:00</td><td class="date">2026-05-05T04:00:00+00:00</td><td class="str">ITP-00207</td><td class="str">exit</td><td>kWh/d</td><td class="num">146,300,000</td><td class="date">2026-05-05T11:30:00+00:00</td></tr>
+<tr><td class="date">2026-05-05T04:00:00+00:00</td><td class="date">2026-05-05T04:00:00+00:00</td><td class="str">ITP-00207</td><td class="str">exit</td><td>kWh/d</td><td class="num">148,800,000</td><td class="date">2026-05-05T15:45:00+00:00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised to demonstrate the within-day revision pattern (multiple rows per <code class="mono">(period_from, point_key, direction_key)</code> distinguished by <code class="mono">last_update_date_time</code>). Magnitudes match the vault's documented <code class="mono">kWh/d</code> scale for Bacton/Moffat. Highlighted row is the first BBL exit renomination of 2026-05-06 at 11:48 UTC, raising the nomination from 149 to 155 GWh/day — within-day revisions like this are the prime use case.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">transparency.entsog.eu/api/v1/<br/>operationalData<br/>?indicator=Renomination<br/>&amp;from={YYYY-MM-DD}<br/>&amp;to={YYYY-MM-DD}<br/>&amp;timeZone=UCT<br/>&amp;periodType=day<br/>&amp;pointDirection={...}</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public).</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsog/renominations/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsog.generic.<br/>GenericEntsogJsonTransformer<br/>↳ RenominationsTransformer</div>
+            </div>
+          </div>
+
+          <div data-tab-group="ren">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('ren','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('ren','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('ren','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="ren-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://transparency.entsog.eu/api/v1/operationalData<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">from</span>=2026-05-06<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">to</span>=2026-05-06<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">timeZone</span>=UCT<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">indicator</span>=Renomination<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">periodType</span>=day<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">pointDirection</span>=UK-TSO-0001ITP-00005exit<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">forceDownload</span>=true<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">limit</span>=-1</pre>
+            </div></div>
+            <div data-tab-panel="ren-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Within-day nomination drift: max - first per gas day per point</span>
+<span class="k">WITH</span> ordered <span class="k">AS</span> (
+  <span class="k">SELECT</span> period_from, point_key, direction_key, value, last_update_date_time,
+         ROW_NUMBER() OVER (PARTITION BY period_from, point_key, direction_key
+                            <span class="k">ORDER BY</span> last_update_date_time) <span class="k">AS</span> rev_n
+  <span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsog/renominations/**/*.parquet'</span>)
+)
+<span class="k">SELECT</span> period_from::date <span class="k">AS</span> gas_day, point_key, direction_key,
+       MAX(value) - MIN(value) <span class="k">AS</span> drift_kwh
+<span class="k">FROM</span> ordered
+<span class="k">WHERE</span> period_from &gt;= current_date - INTERVAL <span class="num">30</span> DAY
+<span class="k">GROUP BY</span> <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>
+<span class="k">ORDER BY</span> <span class="num">1</span>, drift_kwh <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="ren-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/entsog/renominations/**/*.parquet"</span>)
+<span class="c"># Count renominations per point per gas day</span>
+counts = (
+    df.group_by([<span class="s">"period_from"</span>, <span class="s">"point_key"</span>, <span class="s">"direction_key"</span>])
+      .agg(pl.len().alias(<span class="s">"revisions"</span>))
+      .filter(pl.col(<span class="s">"revisions"</span>) &gt; <span class="num">1</span>)
+      .sort(<span class="s">"revisions"</span>, descending=<span class="k">True</span>)
+)
+print(counts.head(<span class="num">10</span>))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">renominations</code>. Also read the <a href="../entsog.html#about" class="link">ENTSO-G-wide caveats</a> on the vendor page.</p>
+          <div>
+<div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;">Indicator string is exact-case</div><p class="small" style="margin: 0;">Vendor rejects <code class="mono">renomination</code> / <code class="mono">re-nomination</code>; connector sends the literal <code class="mono">"Renomination"</code>. <span class="src-cite">vault Known Issues · OPERATIONAL_INDICATORS["renominations"] = "Renomination" · connectors/entsog/endpoints.py L99</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;">Multiple renominations per gas day are expected</div><p class="small" style="margin: 0;">A single <code class="mono">(period_from, point_key, direction_key)</code> may carry multiple silver rows distinguished by <code class="mono">last_update_date_time</code>. Dedup on <code class="mono">id</code> (vendor concatenation includes the revision sequence). <span class="src-cite">silver/entsog/generic.py L126-130</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">original_period_from</code> identifies the revised gas-day</div><p class="small" style="margin: 0;">For revisions made after the gas-day window closes (rare), <code class="mono">original_period_from</code> differs from <code class="mono">period_from</code>. <span class="src-cite">vault Bronze sample field reference</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">timeZone=UCT</code> (vendor typo, intentional)</div><p class="small" style="margin: 0;">Connector sends <code class="mono">UCT</code> not <code class="mono">UTC</code>; sending <code class="mono">UTC</code> returns HTTP 400. <span class="src-cite">connectors/entsog/endpoints.py L17 · ENTSOG_TIMEZONE</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Empty windows return HTTP 404, not 200</div><p class="small" style="margin: 0;">ENTSO-G's empty convention is <code class="mono">HTTP 404 + {"message":"No result found"}</code>. Connector short-circuits as empty-bronze. <span class="src-cite">connectors/entsog/client.py L24-28, L109-115</span></p></div></div>
+<div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">06</div><div><div style="font-weight: 500; margin-bottom: 6px;">Period offset is CEST/CET even with <code class="mono">timeZone=UCT</code></div><p class="small" style="margin: 0;"><code class="mono">periodFrom</code> carries <code class="mono">+02:00</code>/<code class="mono">+01:00</code>; <code class="mono">parse_entsog_datetime_expr</code> converts to UTC at silver. <span class="src-cite">silver/entsog/datetime.py</span></p></div></div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside renominations.</h2>
+          <div class="related-grid">
+<a href="nominations.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">nominations</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Initial day-ahead nomination. Compare against renominations to measure within-day drift.</p><span class="tiny">entsog · operational · daily</span></a>
+<a href="physical_flows.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">physical_flows</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Realised flow at the same points. Final settlement against which renominations are graded.</p><span class="tiny">entsog · operational · daily</span></a>
+<a href="allocations.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">allocations</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Settled allocated quantity — the final-state record.</p><span class="tiny">entsog · operational · daily</span></a>
+<a href="interruptions.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">interruptions</span><span class="chip" style="font-size:10px;">historic</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Capacity interruption events. Pair when renominations cluster around interruption windows.</p><span class="tiny">entsog · operational · historic</span></a>
+          </div>
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>operators · ENTSO-G Transparency · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    /* ── schema table ── */
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th {
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 12px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  {
+      display: inline-block; font-size: 9px; font-family: var(--sans);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px;
+    }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    /* ── sample data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th {
+      text-align: left; padding: 10px 14px;
+      background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td {
+      padding: 8px 14px; color: #d6d0c1;
+      border-bottom: 1px solid #2e2924;
+      white-space: nowrap;
+    }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    /* ── codelist pills ── */
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill {
+      display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--rule);
+      background: var(--paper-card);
+      font-size: 12px;
+    }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    /* ── sidebar nav ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--rule);
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-faint);
+      padding: 8px 24px 4px;
+    }
+    .sidebar a {
+      display: block; padding: 6px 24px;
+      font-size: 13px; color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+      transition: color .12s, border-color .12s;
+    }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    /* ── caveat list ── */
+    .caveat-item {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+      padding: 16px 0; border-top: 1px solid var(--rule);
+    }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy {
+      display: inline-block;
+      font-family: var(--sans); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #c45a3a; margin-bottom: 6px;
+    }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    /* ── related cards ── */
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="ENTSO-G · operators">
+
+  <!-- ════════ BREADCRUMB + HERO ════════ -->
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../entsog.html">ENTSO-G Transparency</a>
+        <span class="sep">/</span>
+        <span class="here">operators</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · ENTSO-G · Reference</span>
+            <span class="chip" style="font-size:11px;">weekly · on change</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 26px; font-family: var(--mono); letter-spacing: -0.01em;">operators</span><br/>
+            All European gas <span class="italic fg-accent">TSOs.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Full ENTSO-G transmission system operator inventory — the canonical reference for resolving <code class="mono" style="font-size:13px;">operator_key</code> codes to country, balancing zone, and human TSO names.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-08 ·
+            <a href="https://transparency.entsog.eu/" class="link" target="_blank" rel="noopener">ENTSO-G Transparency · /operators ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">SILVER PATH</div><div class="mono small" style="font-size:12px; line-height:1.4;">silver.operators</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">API PATH</div><div class="mono small" style="font-size:12px; line-height:1.4;">/api/v1/operators</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">FREQUENCY</div><div class="small">weekly snapshot</div></div>
+<div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);"><div class="tiny mb-6">PUBLICATION LAG</div><div class="small" style="font-size:12px; line-height:1.4;">on change (vendor updates daily)</div></div>
+<div style="padding: 16px 18px; border-right: 1px solid var(--rule);"><div class="tiny mb-6">VOLUME</div><div class="small" style="font-size:12px; line-height:1.4;">~100 EU-wide TSOs</div></div>
+<div style="padding: 16px 18px; "><div class="tiny mb-6">PRIMARY KEY</div><div class="mono small" style="font-size:11px; line-height:1.4;">(operator_key)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STATS STRIP ════════ -->
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+<div><div class="stat-n">weekly</div><div class="stat-l">Snapshot cadence</div></div>
+<div><div class="stat-n">snapshot</div><div class="stat-l">Output layout</div></div>
+<div><div class="stat-n">~100</div><div class="stat-l">Active TSOs</div></div>
+<div><div class="stat-n">dynamic</div><div class="stat-l">Silver schema (no Pydantic class)</div></div>
+    </div>
+  </div>
+
+  <!-- ════════ BODY: SIDEBAR + MAIN ════════ -->
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+<a href="#overview" class="active">Overview</a>
+<a href="#snapshot">Snapshot chart</a>
+<a href="#schema">Schema</a>
+<a href="#sample">Sample data</a>
+<a href="#api">API &amp; ingestion</a>
+<a href="#caveats">Caveats</a>
+<a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">ENTSO-G Transparency</div>
+          <a href="../entsog.html">← All datasets</a>
+          <a href="operators.html" class="active">operators</a>
+<a href="#" style="color:var(--ink-faint);">operator_point_directions</a>
+<a href="#" style="color:var(--ink-faint);">connection_points</a>
+<a href="#" style="color:var(--ink-faint);">balancing_zones</a>
+<a href="#" style="color:var(--ink-faint);">interconnections</a>
+<a href="#" style="color:var(--ink-faint);">aggregate_interconnections</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <!-- ── Overview ── -->
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">operators</code> is the inventory of every ENTSO-G transmission system operator, carrying each TSO's short and long names, country, type and logo. It is the canonical reference for resolving <code class="mono">operator_key</code> codes — keys like <code class="mono">"UK-TSO-0001"</code> resolve here to National Gas Transmission and its country. Each row is one operator, keyed by <code class="mono">operator_key</code>.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">
+            It is sourced from the ENTSO-G Transparency Platform at <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/api/v1/operators</code> with <code class="mono">limit=-1</code> and <code class="mono">hasData=1</code> for one-call extraction of operators with operational data. The raw JSON lands in bronze and is written to silver via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">GenericEntsogJsonTransformer</code> (subclassed as <code class="mono">OperatorsTransformer</code>) running with <code class="mono">reference_dataset=True</code>, so the output is a single-file snapshot overwritten on each weekly refresh, with no Pydantic class — columns are derived dynamically.
+          </p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">
+            As the TSO dictionary, it attaches country and zone metadata to operational rows and supports cross-vendor joins. Note that an operator's registered country can differ from its operating zone — BBL company is NL-registered yet runs the UK-NL pipeline — so resolve operating zone via <code class="mono">operator_point_directions</code>. Schema and API verified against the gridflow connector source and the 2026-05-08 vault Bronze sample; ENTSO-G is a public, no-authentication API.
+          </p>
+        </section>
+
+        <!-- ── Snapshot chart ── -->
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">TSOs per country · <span class="italic fg-accent">current inventory.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">operators · silver layer · grouped by country</div>
+                <div class="small">Horizontal bars · count · grouped by country</div>
+              </div>
+              <div class="row gap-8">
+<span class="chip ink btn-like">current</span>
+              </div>
+            </div>
+            <div data-chart="barsH" data-opts='{"width":820,"items":[{"label":"Germany (DE)","value":16,"display":"~16","color":"#c45a3a"},{"label":"France (FR)","value":4,"display":"4","color":"#3b6b4b"},{"label":"United Kingdom (UK)","value":4,"display":"4","color":"#7a96a8"},{"label":"Italy (IT)","value":3,"display":"3","color":"#86627d"},{"label":"Netherlands (NL)","value":2,"display":"2","color":"#c9a96e"},{"label":"Ireland (IE)","value":1,"display":"1","color":"#5a8aa6"}]}'></div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <!-- ── Schema ── -->
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">
+            <strong>No Pydantic class</strong> — columns are derived dynamically by <code class="mono">GenericEntsogJsonTransformer</code> running with <code class="mono">reference_dataset=True</code> (<code class="mono">silver/entsog/generic.py L86, L169-191</code>), writing a single <code class="mono">operators.parquet</code> snapshot. Every citation is a <code class="mono">silver/entsog/*.py</code> source path, not a schema class.
+          </p>
+          <table class="schema-table">
+            <thead>
+              <tr>
+                <th style="width: 24%;">Column</th>
+                <th style="width: 14%;">Type</th>
+                <th style="width: 8%; text-align:center;">Nullable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+<tr><td class="col-name">operator_key <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">TSO identifier (e.g. <code class="mono">UK-TSO-0001</code>). Inventory key. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_label / operator_label_long</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Short and long TSO names. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_tooltip</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Pipe-delimited combination of long label and notes. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_country_key / operator_country_label</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">ISO-style country and human name. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_country_flag</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Flag URL/path. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_type_label / _long</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">E.g. <code class="mono">"TSO"</code> / <code class="mono">"Transmission System Operator"</code>. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">operator_logo_url</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Logo URL. <span class="cite">dynamic</span></td></tr>
+<tr><td class="col-name">data_provider</td><td class="col-type">str ("entsog")</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Always <code class="mono">"entsog"</code>. Constant. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+<tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Wall-clock at silver write. <span class="cite">silver/entsog/generic.py L132-136</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div>
+              <div class="tiny mb-6">PARQUET PATH</div>
+              <div class="mono small">data/silver/entsog/operators.parquet</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">PARTITION BY</div>
+              <div class="mono small">none (single-file overwrite)</div>
+            </div>
+            <div>
+              <div class="tiny mb-6">DEDUP KEY</div>
+              <div class="mono small">(operator_key) — inventory key</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Sample data ── -->
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr><th>operator_key</th><th>operator_label</th><th>operator_label_long</th><th>operator_country_key</th><th>operator_country_label</th><th>operator_type_label</th></tr>
+              </thead>
+              <tbody>
+<tr><td class="str">UK-TSO-0001</td><td class="str">National Gas TSO</td><td class="str">National Gas Transmission</td><td class="str">UK</td><td class="str">United Kingdom</td><td class="str">TSO</td></tr>
+<tr><td class="str">UK-TSO-0002</td><td class="str">PTL</td><td class="str">Premier Transmission Ltd</td><td class="str">UK</td><td class="str">United Kingdom</td><td class="str">TSO</td></tr>
+<tr><td class="str">UK-TSO-0003</td><td class="str">Interconnector</td><td class="str">Interconnector (UK) Ltd</td><td class="str">UK</td><td class="str">United Kingdom</td><td class="str">TSO</td></tr>
+<tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="str">UK-TSO-0004</td><td class="str">BBL company</td><td class="str">BBL Company V.O.F.</td><td class="str">NL</td><td class="str">Netherlands</td><td class="str">TSO</td></tr>
+<tr><td class="str">IE-TSO-0001</td><td class="str">GNI (UK) Ltd.</td><td class="str">GNI (UK) Ltd.</td><td class="str">UK</td><td class="str">United Kingdom</td><td class="str">TSO</td></tr>
+<tr><td class="str">IE-TSO-0002</td><td class="str">Gas Networks Ireland</td><td class="str">Gas Networks Ireland</td><td class="str">IE</td><td class="str">Ireland</td><td class="str">TSO</td></tr>
+<tr><td class="str">DE-TSO-0010</td><td class="str">bayernets</td><td class="str">bayernets GmbH</td><td class="str">DE</td><td class="str">Germany</td><td class="str">TSO</td></tr>
+<tr><td class="str">FR-TSO-0001</td><td class="str">GRTgaz</td><td class="str">GRTgaz S.A.</td><td class="str">FR</td><td class="str">France</td><td class="str">TSO</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 720px; line-height: 1.6;">
+            Synthesised — the vault's documented columns applied to canonical GB-and-neighbours operator records. Highlighted row is BBL company — note <code class="mono">operator_country_key="NL"</code> despite the operator appearing in GB-relevant <code class="mono">pointDirection</code> keys (BBL is a Dutch-registered operator running the UK-NL pipeline). Use this dataset to resolve country/zone metadata for cross-vendor joins.
+          </div>
+        </section>
+
+        <!-- ── API & Ingestion ── -->
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">transparency.entsog.eu/api/v1/<br/>operators<br/>?limit=-1<br/>&amp;hasData=1</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public). <code class="mono">hasData=1</code> restricts to operators with operational data (recommended default).</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px;">data/bronze/entsog/operators/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.entsog.generic.<br/>GenericEntsogJsonTransformer<br/>↳ OperatorsTransformer<br/>(reference_dataset=True)</div>
+            </div>
+          </div>
+
+          <div data-tab-group="ops">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('ops','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('ops','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('ops','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="ops-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://transparency.entsog.eu/api/v1/operators<span style="color:#6b6358;">?</span><span style="color:#c9a96e;">limit</span>=-1<span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">hasData</span>=1</pre>
+            </div></div>
+            <div data-tab-panel="ops-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="c">-- Operators per country (current inventory)</span>
+<span class="k">SELECT</span> operator_country_label,
+       COUNT(*) <span class="k">AS</span> tsos
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/entsog/operators.parquet'</span>)
+<span class="k">GROUP BY</span> <span class="num">1</span>
+<span class="k">ORDER BY</span> tsos <span class="k">DESC</span>;</pre>
+            </div></div>
+            <div data-tab-panel="ops-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+ops = pl.read_parquet(<span class="s">"data/silver/entsog/operators.parquet"</span>)
+<span class="c"># Resolve operator keys mentioned in physical_flows</span>
+flows = pl.read_parquet(<span class="s">"data/silver/entsog/physical_flows/**/*.parquet"</span>)
+joined = flows.join(ops, on=<span class="s">"operator_key"</span>, how=<span class="s">"left"</span>)
+print(joined.select([<span class="s">"point_key"</span>, <span class="s">"operator_label_long"</span>, <span class="s">"operator_country_label"</span>]).unique().head())</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ── Caveats ── -->
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">operators</code>. Also read the <a href="../entsog.html#about" class="link">ENTSO-G-wide caveats</a> on the vendor page.</p>
+          <div>
+<div class="caveat-item"><div class="caveat-num">01</div><div><div style="font-weight: 500; margin-bottom: 6px;">Single-file reference dataset (no time partitions)</div><p class="small" style="margin: 0;">Output is <code class="mono">operators.parquet</code> overwritten on each refresh, not partitioned. <span class="src-cite">silver/entsog/generic.py L196-202 · endpoints.py L214-222 reference=True</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">02</div><div><div style="font-weight: 500; margin-bottom: 6px;"><code class="mono">hasData=1</code> recommended</div><p class="small" style="margin: 0;">Default <code class="mono">hasData=1</code> restricts to operators with operational data. Without it the inventory includes inactive/legacy TSOs. <span class="src-cite">vault Query-params · endpoints.py L220</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">03</div><div><div style="font-weight: 500; margin-bottom: 6px;">Pagination via <code class="mono">limit</code>+<code class="mono">offset</code></div><p class="small" style="margin: 0;">No <code class="mono">from</code>/<code class="mono">to</code> accepted; full inventory only. Connector sets <code class="mono">limit=-1</code> for one-call extraction. <span class="src-cite">vault Query-params · endpoints.py L214-222</span></p></div></div>
+<div class="caveat-item"><div class="caveat-num">04</div><div><div style="font-weight: 500; margin-bottom: 6px;">Operator country may differ from operating zone</div><p class="small" style="margin: 0;">E.g. <code class="mono">UK-TSO-0004</code> (BBL company) has <code class="mono">operator_country_key="NL"</code> despite operating a UK-relevant interconnection pipeline. Resolve operating zone via <code class="mono">operator_point_directions</code>. <span class="src-cite">vault Known Issues · cross-reference operator_point_directions</span></p></div></div>
+<div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;"><div class="caveat-num">05</div><div><div style="font-weight: 500; margin-bottom: 6px;">Empty windows return HTTP 404, not 200</div><p class="small" style="margin: 0;">ENTSO-G's empty convention is <code class="mono">HTTP 404 + {"message":"No result found"}</code>. Connector short-circuits as empty-bronze. <span class="src-cite">connectors/entsog/client.py L24-28, L109-115</span></p></div></div>
+          </div>
+        </section>
+
+        <!-- ── Related ── -->
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside operators.</h2>
+          <div class="related-grid">
+<a href="operator_point_directions.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">operator_point_directions</span><span class="chip" style="font-size:10px;">snapshot</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Operator-point-direction combos. Adds the per-point context for each operator.</p><span class="tiny">entsog · reference · snapshot</span></a>
+<a href="balancing_zones.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">balancing_zones</span><span class="chip" style="font-size:10px;">snapshot</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Reference for balancing zones. Resolve operating zone from operator metadata.</p><span class="tiny">entsog · reference · snapshot</span></a>
+<a href="connection_points.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">connection_points</span><span class="chip" style="font-size:10px;">snapshot</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Reference for points — the point side of the operator-point-direction triple.</p><span class="tiny">entsog · reference · snapshot</span></a>
+<a href="physical_flows.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;"><div class="row between mb-8" style="align-items: flex-start;"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong);">physical_flows</span><span class="chip" style="font-size:10px;">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin: 0 0 8px;">Operational data using these operator keys — the primary downstream consumer.</p><span class="tiny">entsog · operational · daily</span></a>
+          </div>
+        </section>
+
+      </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+  </div><!-- /container -->
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    // Sidebar active link on scroll
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => {
+        b.classList.remove('ink');
+      });
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>
