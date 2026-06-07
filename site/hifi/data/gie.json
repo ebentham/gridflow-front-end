@@ -1,0 +1,24 @@
+{
+  "groups": [
+    {
+      "name": "Storage (AGSI+)",
+      "blurb": "Daily underground gas storage levels, facility inventory, outages, and operator reference data.",
+      "datasets": [
+        { "id": "storage", "title": "Gas storage levels · country · daily", "freq": "daily", "lag": "~16:00 CET same day", "rows": "~9 countries / day" },
+        { "id": "storage_reports", "title": "Storage reports · aggregate/country/company/facility", "freq": "daily", "lag": "~16:00 CET same day", "rows": "varies by scope" },
+        { "id": "unavailability", "title": "Storage unavailability · outage reports", "freq": "as published", "lag": "real-time", "rows": "varies" },
+        { "id": "about_listing", "title": "Operator and facility inventory · flat listing", "freq": "snapshot", "lag": "on change", "rows": "1 snapshot" },
+        { "id": "about_summary", "title": "Operator and facility reference · hierarchical", "freq": "snapshot", "lag": "on change", "rows": "1 snapshot" },
+        { "id": "news", "title": "Service announcements · news listing", "freq": "as published", "lag": "real-time", "rows": "rolling ~2-3 yr" },
+        { "id": "news_item", "title": "Announcement detail · by ID", "freq": "as published", "lag": "real-time", "rows": "1 per ID" }
+      ]
+    },
+    {
+      "name": "LNG (ALSI)",
+      "blurb": "Daily LNG terminal inventory, send-out, and injection by country across EU import terminals.",
+      "datasets": [
+        { "id": "lng", "title": "LNG terminal levels · country · daily", "freq": "daily", "lag": "daily", "rows": "~8 countries / day" }
+      ]
+    }
+  ]
+}

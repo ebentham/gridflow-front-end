@@ -1,0 +1,61 @@
+{
+  "groups": [
+    {
+      "name": "Carbon Intensity · National",
+      "blurb": "Half-hourly national grid carbon intensity — actuals, forecasts, and windowed range queries.",
+      "datasets": [
+        { "id": "carbon_intensity", "title": "Carbon intensity · national · date range", "freq": "30 min", "lag": "~0", "rows": "~48 / day" },
+        { "id": "intensity_current", "title": "Carbon intensity · current half-hour", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "intensity_today", "title": "Carbon intensity · today all periods", "freq": "30 min", "lag": "~0", "rows": "~48 / day" },
+        { "id": "intensity_date", "title": "Carbon intensity · single date", "freq": "30 min", "lag": "~0", "rows": "48 / date" },
+        { "id": "intensity_period", "title": "Carbon intensity · single settlement period", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "intensity_at", "title": "Carbon intensity · at datetime", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "intensity_fw24h", "title": "Carbon intensity · forecast 24h ahead", "freq": "30 min", "lag": "forecast", "rows": "~48" },
+        { "id": "intensity_fw48h", "title": "Carbon intensity · forecast 48h ahead", "freq": "30 min", "lag": "forecast", "rows": "~96" },
+        { "id": "intensity_pt24h", "title": "Carbon intensity · prior 24h", "freq": "30 min", "lag": "~0", "rows": "~48" },
+        { "id": "intensity_factors", "title": "Emission factors · per fuel type", "freq": "static", "lag": "on change", "rows": "1 snapshot" }
+      ]
+    },
+    {
+      "name": "Statistics · National",
+      "blurb": "Aggregated carbon intensity statistics over windowed ranges — max, min, mean, and hour-block splits.",
+      "datasets": [
+        { "id": "intensity_stats", "title": "Carbon intensity statistics · windowed range", "freq": "30 min", "lag": "~0", "rows": "1 per window" },
+        { "id": "intensity_stats_block", "title": "Carbon intensity statistics · 24h block splits", "freq": "30 min", "lag": "~0", "rows": "varies by block" }
+      ]
+    },
+    {
+      "name": "Generation Mix · National",
+      "blurb": "Per-fuel generation mix percentage breakdown — current run, prior 24h, and date range.",
+      "datasets": [
+        { "id": "generation", "title": "Generation mix · national · date range", "freq": "30 min", "lag": "~0", "rows": "~48 × N fuels / day" },
+        { "id": "generation_current", "title": "Generation mix · current half-hour", "freq": "30 min", "lag": "~0", "rows": "N fuels snapshot" },
+        { "id": "generation_pt24h", "title": "Generation mix · prior 24h", "freq": "30 min", "lag": "~0", "rows": "~48 × N fuels" }
+      ]
+    },
+    {
+      "name": "Carbon Intensity · Regional",
+      "blurb": "Regional carbon intensity by GB DNO zone, country, and postcode — current, fw24h, fw48h, and pt24h.",
+      "datasets": [
+        { "id": "regional_current", "title": "Regional intensity · all GB regions", "freq": "30 min", "lag": "~0", "rows": "~17 regions" },
+        { "id": "regional_england", "title": "Regional intensity · England", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "regional_scotland", "title": "Regional intensity · Scotland", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "regional_wales", "title": "Regional intensity · Wales", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "regional_postcode", "title": "Regional intensity · by postcode", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "regional_regionid", "title": "Regional intensity · by region ID", "freq": "30 min", "lag": "~0", "rows": "1 snapshot" },
+        { "id": "regional_intensity", "title": "Regional intensity · all regions · date range", "freq": "30 min", "lag": "~0", "rows": "~17 × 48 / day" },
+        { "id": "regional_intensity_fw24h", "title": "Regional intensity · all regions · fw24h", "freq": "30 min", "lag": "forecast", "rows": "~17 × 48" },
+        { "id": "regional_intensity_fw24h_postcode", "title": "Regional intensity fw24h · by postcode", "freq": "30 min", "lag": "forecast", "rows": "~48" },
+        { "id": "regional_intensity_fw24h_regionid", "title": "Regional intensity fw24h · by region ID", "freq": "30 min", "lag": "forecast", "rows": "~48" },
+        { "id": "regional_intensity_fw48h", "title": "Regional intensity · all regions · fw48h", "freq": "30 min", "lag": "forecast", "rows": "~17 × 96" },
+        { "id": "regional_intensity_fw48h_postcode", "title": "Regional intensity fw48h · by postcode", "freq": "30 min", "lag": "forecast", "rows": "~96" },
+        { "id": "regional_intensity_fw48h_regionid", "title": "Regional intensity fw48h · by region ID", "freq": "30 min", "lag": "forecast", "rows": "~96" },
+        { "id": "regional_intensity_pt24h", "title": "Regional intensity · all regions · pt24h", "freq": "30 min", "lag": "~0", "rows": "~17 × 48" },
+        { "id": "regional_intensity_pt24h_postcode", "title": "Regional intensity pt24h · by postcode", "freq": "30 min", "lag": "~0", "rows": "~48" },
+        { "id": "regional_intensity_pt24h_regionid", "title": "Regional intensity pt24h · by region ID", "freq": "30 min", "lag": "~0", "rows": "~48" },
+        { "id": "regional_intensity_postcode", "title": "Regional intensity · by postcode · date range", "freq": "30 min", "lag": "~0", "rows": "~48 per window" },
+        { "id": "regional_intensity_regionid", "title": "Regional intensity · by region ID · date range", "freq": "30 min", "lag": "~0", "rows": "~48 per window" }
+      ]
+    }
+  ]
+}
