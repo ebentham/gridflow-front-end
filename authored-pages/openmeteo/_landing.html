@@ -268,6 +268,56 @@
     </div>
   </section>
 
+  <!-- vendor-wide caveats -->
+  <section class="block" id="about">
+    <div class="container">
+      <div class="row between mb-32" style="align-items: end;">
+        <div>
+          <div class="eyebrow mb-8">Caveats &middot; known quirks</div>
+          <h2 class="display-3">What to watch for.</h2>
+        </div>
+      </div>
+
+      <div class="caveats" style="max-width: 920px;">
+        <div class="caveat">
+          <div class="num">01</div>
+          <div>
+            <h4>Dual base-URL architecture &mdash; not a versioning split</h4>
+            <p>Forecast datasets resolve to <span class="mono">api.open-meteo.com</span>; the historical datasets (ERA5 reanalysis) resolve to <span class="mono">archive-api.open-meteo.com</span>. The connector routes per <span class="mono">dataset.startswith("historical")</span> and both hosts return the same JSON columnar shape, so this is a deliberate API design choice rather than a version difference.</p>
+            <div class="src">Source &middot; connectors/openmeteo/client.py L90&ndash;94 &middot; endpoints.py ARCHIVE_BASE_URL / FORECAST_BASE_URL</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">02</div>
+          <div>
+            <h4>ERA5 archive runs ~5 days behind, with null hub-height wind</h4>
+            <p>The <span class="mono">historical_*</span> datasets draw on ERA5 reanalysis, published roughly five days in arrears &mdash; a request whose <span class="mono">end_date</span> falls inside that window returns HTTP 200 with null trailing values. ERA5 also omits the 80/120/180&thinsp;m hub-height wind the forecast model carries, so historical wind must extrapolate from 10&thinsp;m. For the most recent past, <span class="mono">forecast_demand</span> with <span class="mono">past_days</span> (&le;92) is the bridge.</p>
+            <div class="src">Source &middot; vault historical_demand.md &middot; historical_wind.md &middot; schemas/weather.py WindWeather</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">03</div>
+          <div>
+            <h4>Schemas live in weather.py, and the vendor name shifts by layer</h4>
+            <p>The Pydantic classes &mdash; <span class="mono">DemandWeather</span>, <span class="mono">WindWeather</span>, <span class="mono">SolarWeather</span> &mdash; sit in <span class="mono">schemas/weather.py</span>, named for the domain rather than the vendor; there is no <span class="mono">schemas/openmeteo.py</span>. The name itself is inconsistent across the stack: vault directory <span class="mono">open-meteo</span>, module and slug <span class="mono">openmeteo</span>, registry path <span class="mono">open_meteo</span>, live host <span class="mono">api.open-meteo.com</span>. Transformers split by horizon across <span class="mono">silver/openmeteo/forecast.py</span> and <span class="mono">historical.py</span>.</p>
+            <div class="src">Source &middot; schemas/weather.py &middot; silver/openmeteo/forecast.py &middot; silver/openmeteo/historical.py</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <div class="num">04</div>
+          <div>
+            <h4>Public access, but data is queried per site &mdash; not nationally</h4>
+            <p>Unlike GIE, Open-Meteo needs no key for non-commercial use. Coverage is point-based: 7 demand population centres, 12 capacity-weighted wind sites, and 6 solar sites &mdash; 25 named GB locations in total. The wind points are capacity-weighted approximations (ADR-020), not per-turbine coordinates, and solar irradiance is global tilted (GTI) on a fixed UK panel geometry (<span class="mono">tilt&nbsp;35&deg;</span>, <span class="mono">azimuth&nbsp;180&deg;</span>) &mdash; plane-of-array, not horizontal.</p>
+            <div class="src">Source &middot; connectors/openmeteo/endpoints.py DATASET_SPECS &middot; ADR-020-openmeteo-location-approximation.md</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 <script src="../assets/charts.js"></script>
 <script src="../assets/site.js"></script>

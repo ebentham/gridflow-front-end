@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>forecast_wind · Open-Meteo · Gridflow</title>
+  <meta name="viewport" content="width=1280" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .schema-table { width: 100%; border-collapse: collapse;table-layout:fixed}
+    .schema-table thead th { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px;
+      border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper-deep);overflow-wrap:break-word;word-break:break-word}
+    .schema-table td { padding: 12px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13px;overflow-wrap:break-word;word-break:break-word}
+    .schema-table tr:hover td { background: var(--paper-card); }
+    .schema-table .col-name  {font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500}
+    .schema-table .col-type  { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+    .schema-table .col-note  { color: var(--ink-soft); font-size: 12px; }
+    .schema-table .pk-badge  { display: inline-block; font-size: 9px; font-family: var(--sans); font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-strong); color: var(--paper);
+      padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .schema-table .nullable  { color: var(--ink-faint); font-size: 11px; font-family: var(--mono); }
+    .schema-table .cite { display:block; margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+    .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+    .data-table thead th { text-align: left; padding: 10px 14px; background: var(--ink-strong); color: #d6d0c1;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; }
+    .data-table tbody tr:nth-child(odd) td { background: #26221d; }
+    .data-table tbody tr:nth-child(even) td { background: #221e19; }
+    .data-table td { padding: 8px 14px; color: #d6d0c1; border-bottom: 1px solid #2e2924; white-space: nowrap; }
+    .data-table .num { text-align: right; color: #8fbf9c; }
+    .data-table .date { color: #c9a96e; }
+    .data-table .str  { color: #e8b8a3; }
+    .data-table .nul  { color: #6b6358; font-style: italic; }
+    .code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .code-pill { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; gap: 10px; padding: 8px 12px;
+      border: 1px solid var(--rule); background: var(--paper-card); font-size: 12px; }
+    .code-pill .k { font-family: var(--mono); color: var(--ink-strong); font-size: 12px; }
+    .code-pill .v { color: var(--ink-soft); }
+    .page-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 0; align-items: start; }
+    .sidebar { position: sticky; top: 64px; padding: 32px 0 32px 0; border-right: 1px solid var(--rule); min-height: calc(100vh - 64px); }
+    .sidebar-section { margin-bottom: 6px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); padding: 8px 24px 4px; }
+    .sidebar a { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink-soft); border-left: 2px solid transparent; text-decoration: none; transition: color .12s, border-color .12s; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .main-content { padding: 40px 64px 80px 64px; }
+    .caveat-item { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+    .caveat-num { font-family: var(--mono); font-size: 12px; color: var(--ink-strong); font-weight: 500; }
+    .caveat-item.discrepancy { border-top: 1px solid var(--ink); background: linear-gradient(to right, rgba(196,90,58,0.04), transparent 70%); padding-left: 12px; margin-left: -12px; }
+    .caveat-item.discrepancy + .caveat-item.discrepancy { border-top: 1px solid var(--rule); }
+    .eyebrow-discrepancy { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #c45a3a; margin-bottom: 6px; }
+    .eyebrow-discrepancy::before { content: "●"; margin-right: 6px; font-size: 8px; vertical-align: 1px; }
+    .src-cite { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 6px; display:block; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body data-page="dataset" data-root="../../" data-screen-label="Open-Meteo · forecast_wind">
+
+  <div style="border-bottom: 1px solid var(--rule);">
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="crumbs mb-16">
+        <a href="../../index.html">Gridflow</a>
+        <span class="sep">/</span>
+        <a href="../../data-sources.html">Data sources</a>
+        <span class="sep">/</span>
+        <a href="../openmeteo.html">Open-Meteo</a>
+        <span class="sep">/</span>
+        <span class="here">forecast_wind</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
+        <div>
+          <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
+            <span class="eyebrow">Dataset · Open-Meteo · Weather</span>
+            <span class="chip" style="font-size:11px;">hourly · real-time</span>
+            <span class="chip" style="font-size:11px;">Illustrative snapshot</span>
+          </div>
+          <h1 class="display-2" style="margin-bottom: 14px;">
+            <span class="fg-soft" style="font-size: 28px; font-family: var(--mono); letter-spacing: -0.01em;">forecast_wind</span><br/>
+            GB hub-height wind, <span class="italic fg-accent">forecast hourly.</span>
+          </h1>
+          <p class="lede" style="max-width: 600px;">
+            Hourly wind-weather forecast at 12 GB capacity-weighted sites with full hub-height coverage (10 / 80 / 100 / 120 / 180 m) — the canonical wind-generation forecast input.
+          </p>
+          <p class="tiny mt-16" style="max-width:600px;">
+            Verified against vendor docs: 2026-05-09 ·
+            <a href="https://open-meteo.com/en/docs" class="link" target="_blank" rel="noopener">Open-Meteo · /forecast ↗</a>
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); background: var(--paper-card); min-width: 340px;">
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">SILVER PATH</div>
+            <div class="mono small">silver.forecast_wind</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">BASE URL</div>
+            <div class="mono small" style="font-size:10px; line-height:1.5;">api.open-meteo.com/v1 <span style="color:var(--ink-faint);">(forecast)</span><br/>archive-api.open-meteo.com/v1 <span style="color:var(--ink-faint);">(archive)</span></div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">FREQUENCY</div>
+            <div class="small">hourly</div>
+          </div>
+          <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+            <div class="tiny mb-6">PUBLICATION LAG</div>
+            <div class="small">real-time · ~1h router refresh</div>
+          </div>
+          <div style="padding: 16px 18px; border-right: 1px solid var(--rule); ">
+            <div class="tiny mb-6">VOLUME</div>
+            <div class="small">12 sites × 24h × 16d ≈ 4.6k / horizon</div>
+          </div>
+          <div style="padding: 16px 18px; ">
+            <div class="tiny mb-6">PRIMARY KEY</div>
+            <div class="mono small">(timestamp_utc, location)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-strip" style="grid-template-columns: repeat(4, 1fr);">
+      <div>
+        <div class="stat-n">hourly</div>
+        <div class="stat-l">Forecast cadence</div>
+      </div>
+      <div>
+        <div class="stat-n">16<span style="font-size:18px; color:var(--ink-soft); margin-left:2px;">d</span></div>
+        <div class="stat-l">Max forecast horizon</div>
+      </div>
+      <div>
+        <div class="stat-n">12</div>
+        <div class="stat-l">GB wind sites (8 offshore + 4 onshore)</div>
+      </div>
+      <div>
+        <div class="stat-n">26</div>
+        <div class="stat-l">Schema columns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0; padding-bottom: 0;">
+    <div class="page-layout">
+
+      <nav class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">On this page</div>
+          <a href="#overview" class="active">Overview</a>
+          <a href="#snapshot">Snapshot chart</a>
+          <a href="#schema">Schema</a>
+          <a href="#sample">Sample data</a>
+          <a href="#api">API &amp; ingestion</a>
+          <a href="#caveats">Caveats</a>
+          <a href="#related">Related datasets</a>
+        </div>
+        <div class="sidebar-section" style="margin-top: 24px;">
+          <div class="sidebar-section-title">Open-Meteo</div>
+          <a href="../openmeteo.html">← All datasets</a>
+          <a href="forecast_wind.html" class="active">forecast_wind</a>
+          <a href="historical_wind.html" style="color:var(--ink-faint);">historical_wind</a>
+          <a href="forecast_solar.html" style="color:var(--ink-faint);">forecast_solar</a>
+          <a href="forecast_demand.html" style="color:var(--ink-faint);">forecast_demand</a>
+          <a href="historical_solar.html" style="color:var(--ink-faint);">historical_solar</a>
+          <a href="historical_demand.html" style="color:var(--ink-faint);">historical_demand</a>
+        </div>
+      </nav>
+
+      <div class="main-content">
+
+        <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
+          <div class="eyebrow mb-8">Overview</div>
+          <h2 class="display-3 mb-24">What this dataset is.</h2>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;"><code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">forecast_wind</code> holds the hourly wind weather that drives GB wind generation — wind speed and direction at five heights (10 / 80 / 100 / 120 / 180 m), gusts, temperature, pressure, cloud and dew point — forecast 1&ndash;16 days ahead at twelve capacity-weighted GB sites (8 offshore clusters + 4 onshore). It is the forward-looking half of Gridflow's wind-weather pair, drawn from Open-Meteo's NWP router; unlike the ERA5 archive it carries the deep hub heights. Each row is one hour at one GB site.</p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65; margin-bottom: 16px;">It is sourced from Open-Meteo's forecast endpoint at <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">api.open-meteo.com/v1/forecast</code>, queried once per site, validated against <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WindWeather</code> (<code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">schemas/weather.py</code>), and written to silver via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">ForecastWindWeather</code>. The payload is JSON columnar — parallel hourly arrays (<code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.time[]</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.wind_speed_100m[]</code>, &hellip;) that the transformer zips into one row per timestamp, applying the km/h→m/s conversion and the F15-B unit-suffix rename.</p>
+          <p style="max-width: 680px; font-size: 15px; line-height: 1.65;">Hub-height wind speed is the dominant driver of turbine power-curve output, and this feed is the day-ahead input to the wind-generation model: forecast speed here pairs with realised generation from Elexon <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">fuelhh</code> (the <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WIND</code> field) and the NESO <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">windfor</code> public forecast to benchmark NWP skill, while the ERA5 sibling <code class="mono" style="font-size:13px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">historical_wind</code> supplies the multi-decade backtest. Verified against vendor docs: 2026-05-09 · Open-Meteo&nbsp;/forecast.</p>
+        </section>
+
+        <section id="snapshot" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Static snapshot</div>
+          <h2 class="display-3 mb-24">Hornsea <code class="mono" style="font-size:24px;">wind_speed_100m_mps</code> · next 7-day <span class="italic fg-accent">forecast.</span></h2>
+          <div class="chart" style="padding: 24px 28px;">
+            <div class="row between mb-16" style="align-items: baseline;">
+              <div>
+                <div class="eyebrow mb-4">forecast_wind · silver layer · location=hornsea</div>
+                <div class="small">Sparkline · m/s · hourly · UTC · 2026-05-08 → 2026-05-15</div>
+              </div>
+              <div class="row gap-8">
+                <span class="chip ink btn-like">7d</span>
+                <span class="chip btn-like">16d</span>
+                <span class="chip btn-like">48h</span>
+              </div>
+            </div>
+            <div style="padding: 20px 0 8px;">
+              <div data-chart="sparkline" data-opts='{"width":860,"height":90,"seed":19,"n":96}'></div>
+              <div class="row" style="justify-content: space-between; margin-top: 8px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint);">
+                <span>May 8</span>
+                <span>May 9</span>
+                <span>May 11</span>
+                <span>May 12</span>
+                <span>May 14</span>
+                <span>May 15</span>
+              </div>
+            </div>
+            <div class="snapshot-note mt-16" style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase;">Static snapshot · live wiring planned</div>
+          </div>
+        </section>
+
+        <section id="schema" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Schema</div>
+          <h2 class="display-3 mb-8">Silver layer columns.</h2>
+          <p class="small mb-24" style="max-width: 640px;">Defined in <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/schemas/weather.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WindWeather</code> (subclass of <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">_BaseWeather</code>); the forecast variant uses the wider <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WIND_FORECAST_VARS</code> set (19 vars) materialised by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/silver/openmeteo/forecast.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">ForecastWindWeather</code>. Silver parquet uses <strong>F15-B canonical (unit-suffixed) names</strong>. Partitioned by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">timestamp_utc</code> (year + month). Point-in-time field: <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">available_at</code>; no <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">forecast_run_at</code>. <strong>Includes <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">air_density_kg_m3</code></strong> (turbine power-curve density correction).</p>
+          <table class="schema-table">
+            <thead>
+              <tr><th style="width: 28%;">Column</th><th style="width: 13%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC; hourly cadence. Validator requires tzinfo. Source: <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.time[i]</code>.<span class="cite">schemas/weather.py L26, L34-39</span></td></tr>
+              <tr><td class="col-name">location <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Site key from <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WIND_LOCATIONS</code> — one of 12 (e.g. <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hornsea</code>, <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">dogger_bank</code>, <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">whitelee</code>, <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">pen_y_cymoedd</code>).<span class="cite">schemas/weather.py L29 · connectors/openmeteo/endpoints.py L65-83</span></td></tr>
+              <tr><td class="col-name">latitude / longitude</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">WGS-84 decimal degrees (response value — may snap to grid cell).<span class="cite">schemas/weather.py L29</span></td></tr>
+              <tr><td class="col-name">temperature_2m_c</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Air temperature at 2 m, °C.<span class="cite">schemas/weather.py L76 · rename historical.py L111</span></td></tr>
+              <tr><td class="col-name">surface_pressure_hpa</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Surface pressure, hPa. Feeds the <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">air_density_kg_m3</code> derivation.<span class="cite">schemas/weather.py L77 · rename L113</span></td></tr>
+              <tr><td class="col-name">wind_speed_10m_mps</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Wind speed at 10 m, <strong>m/s</strong> (API km/h ÷3.6).<span class="cite">schemas/weather.py L80 · conversion L102</span></td></tr>
+              <tr><td class="col-name">wind_speed_80m_mps</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">80 m wind speed, m/s. Null when the underlying NWP model omits this height.<span class="cite">schemas/weather.py L81 · conversion L104</span></td></tr>
+              <tr><td class="col-name">wind_speed_100m_mps</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">100 m wind speed, m/s. Headline hub-height feature.<span class="cite">schemas/weather.py L82 · conversion L103</span></td></tr>
+              <tr><td class="col-name">wind_speed_120m_mps</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">120 m wind speed, m/s. Null when the NWP model omits this height.<span class="cite">schemas/weather.py L83 · conversion L105</span></td></tr>
+              <tr><td class="col-name">wind_speed_180m_mps</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">180 m wind speed, m/s. Null when the NWP model omits this height.<span class="cite">schemas/weather.py L84 · conversion L106</span></td></tr>
+              <tr><td class="col-name">wind_direction_10m / _80m / _100m / _120m / _180m_deg</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Wind direction at each height, degrees (0=N, 90=E). The 80 / 120 / 180 m fields go null when the model omits that height.<span class="cite">schemas/weather.py L86-90 · rename L127-131</span></td></tr>
+              <tr><td class="col-name">wind_gusts_10m_mps</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Peak gust at 10 m, m/s (km/h ÷3.6).<span class="cite">schemas/weather.py L92 · conversion L107</span></td></tr>
+              <tr><td class="col-name">cloud_cover_pct</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Total cloud cover, %.<span class="cite">schemas/weather.py L94 · rename L115</span></td></tr>
+              <tr><td class="col-name">cloud_cover_low / _mid / _high_pct</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Low / mid / high-altitude cloud cover, %.<span class="cite">schemas/weather.py L95-97 · rename L116-118</span></td></tr>
+              <tr><td class="col-name">dew_point_2m_c</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Dew point at 2 m, °C — proxy for icing risk on offshore blades.<span class="cite">schemas/weather.py L99 · rename L112</span></td></tr>
+              <tr><td class="col-name">precipitation_mm</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Hourly precipitation, mm.<span class="cite">schemas/weather.py L78 · rename L124</span></td></tr>
+              <tr><td class="col-name">air_density_kg_m3</td><td class="col-type">float</td><td style="text-align:center;" class="nullable">null</td><td class="col-note"><code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">surface_pressure_Pa / (287.05 × T_K)</code>. Power-curve density correction (standard 1.225 kg/m³). No unit-suffix rename.<span class="cite">schemas/weather.py L101 · derivation historical.py L241-252</span></td></tr>
+              <tr><td class="col-name">data_provider</td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Constant <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">"open_meteo"</code> (underscore form).<span class="cite">schemas/weather.py L31 · stamp historical.py L221</span></td></tr>
+              <tr><td class="col-name">ingested_at</td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">null</td><td class="col-note">Wall-clock UTC at silver-build time.<span class="cite">schemas/weather.py L32</span></td></tr>
+              <tr><td class="col-name">event_time, available_at, source_run_id, dataset_version</td><td class="col-type">bitemporal</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">From <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BaseSilverTransformer</code> (F0). <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">dataset_version="2.0.0"</code>.<span class="cite">BaseSilverTransformer</span></td></tr>
+            </tbody>
+          </table>
+
+          <div class="card mt-24" style="padding: 16px 20px; display: flex; gap: 32px; align-items: start;">
+            <div><div class="tiny mb-6">PARQUET PATH</div><div class="mono small">data/silver/open_meteo/forecast_wind/year=YYYY/month=MM/</div></div>
+            <div><div class="tiny mb-6">PARTITION BY</div><div class="mono small">timestamp_utc (year + month)</div></div>
+            <div><div class="tiny mb-6">DEDUP KEY</div><div class="mono small">(timestamp_utc, location) — keep="last"</div></div>
+          </div>
+        </section>
+
+        <section id="sample" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Sample data</div>
+          <h2 class="display-3 mb-24">What a row looks like.</h2>
+          <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
+            <table class="data-table">
+              <thead>
+                <tr><th>timestamp_utc</th><th>location</th><th>wind_speed_10m_mps</th><th>wind_speed_100m_mps</th><th>wind_speed_180m_mps</th><th>wind_gusts_10m_mps</th><th>cloud_cover_pct</th><th>dew_point_2m_c</th><th>air_density_kg_m3</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="date">2026-05-08T00:00:00+00:00</td><td class="str">hornsea</td><td class="num">5.06</td><td class="num">7.72</td><td class="num">9.33</td><td class="num">8.89</td><td class="num">60.0</td><td class="num">8.5</td><td class="num">1.249</td></tr>
+                <tr><td class="date">2026-05-08T01:00:00+00:00</td><td class="str">hornsea</td><td class="num">5.42</td><td class="num">8.06</td><td class="num">9.67</td><td class="num">9.44</td><td class="num">65.0</td><td class="num">8.2</td><td class="num">1.248</td></tr>
+                <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-08T12:00:00+00:00</td><td class="str">hornsea</td><td class="num">8.33</td><td class="num">11.94</td><td class="num">13.89</td><td class="num">13.33</td><td class="num">45.0</td><td class="num">7.5</td><td class="num">1.241</td></tr>
+                <tr><td class="date">2026-05-08T12:00:00+00:00</td><td class="str">dogger_bank</td><td class="num">7.78</td><td class="num">11.39</td><td class="num">13.33</td><td class="num">12.78</td><td class="num">50.0</td><td class="num">7.8</td><td class="num">1.243</td></tr>
+                <tr><td class="date">2026-05-08T12:00:00+00:00</td><td class="str">whitelee</td><td class="num">4.08</td><td class="num">6.69</td><td class="nul">null</td><td class="num">7.22</td><td class="num">75.0</td><td class="num">9.0</td><td class="num">1.235</td></tr>
+                <tr><td class="date">2026-05-08T12:00:00+00:00</td><td class="str">beatrice</td><td class="num">6.94</td><td class="num">10.28</td><td class="num">12.22</td><td class="num">11.11</td><td class="num">55.0</td><td class="num">6.5</td><td class="num">1.246</td></tr>
+                <tr><td class="date">2026-05-08T12:00:00+00:00</td><td class="str">pen_y_cymoedd</td><td class="num">3.61</td><td class="num">6.11</td><td class="nul">null</td><td class="num">6.39</td><td class="num">80.0</td><td class="num">9.5</td><td class="num">1.230</td></tr>
+                <tr><td class="date">2026-05-08T12:00:00+00:00</td><td class="str">east_anglia</td><td class="num">7.50</td><td class="num">11.11</td><td class="num">13.06</td><td class="num">12.50</td><td class="num">55.0</td><td class="num">7.2</td><td class="num">1.242</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tiny mt-12" style="max-width: 760px; line-height: 1.6;">Hornsea rows derived from vault Bronze sample (captured 2026-05-08) — wind speeds converted from vault km/h to silver m/s (e.g. <code class="mono">18.2 km/h → 5.06 m/s</code>). The highlighted <strong>Hornsea solar-noon row</strong> is offshore peak: <code class="mono">wind_speed_100m_mps ≈ 11.94 m/s</code> sits comfortably above turbine cut-in (~3 m/s) and below rated (~12&ndash;14 m/s). The <code class="mono">whitelee</code> and <code class="mono">pen_y_cymoedd</code> rows show the <strong>180 m null</strong> — the underlying NWP model (ECMWF / GFS for inland Scotland and Wales) does not carry that hub height; <code class="mono">WindWeather</code> accepts the null cleanly.</div>
+        </section>
+
+        <section id="api" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">API &amp; ingestion</div>
+          <h2 class="display-3 mb-24">How Gridflow fetches it.</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">ENDPOINT</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 12px; line-height: 1.5;">api.open-meteo.com/v1/forecast<br/>?latitude={lat}<br/>&amp;longitude={lon}<br/>&amp;hourly={vars}<br/>&amp;forecast_days={1..16}<br/>&amp;timezone=UTC</div>
+              <div class="tiny mb-8">AUTH</div>
+              <div class="small">None (public; free non-commercial) — no key, no header. Soft limit ~10,000 requests/day per IP.</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+              <div class="tiny mb-8">BRONZE PATH</div>
+              <div class="mono small" style="word-break: break-all; margin-bottom: 4px;">data/bronze/open_meteo/<br/>forecast_wind__&lt;site&gt;/<br/>&lt;year&gt;/&lt;month&gt;/&lt;day&gt;/raw_&lt;uuid&gt;.json</div>
+              <div class="tiny" style="color: #c45a3a; letter-spacing: 0.04em; margin-bottom: 12px;">↑ double underscore</div>
+              <div class="tiny mb-8">TRANSFORMER</div>
+              <div class="mono small">gridflow.silver.openmeteo.forecast.<br/>ForecastWindWeather<br/>(registered · L76)</div>
+            </div>
+          </div>
+          <div data-tab-group="fw">
+            <div class="row gap-8 mb-16" style="align-items:center; border-bottom:1px solid var(--rule); padding-bottom:12px;">
+              <button class="chip btn-like ink" onclick="setTab('fw','url',this)" style="cursor:pointer;">Example URL</button>
+              <button class="chip btn-like" onclick="setTab('fw','sql',this)" style="cursor:pointer;">DuckDB · SQL</button>
+              <button class="chip btn-like" onclick="setTab('fw','py',this)" style="cursor:pointer;">Python · polars</button>
+            </div>
+            <div data-tab-panel="fw-url" style="display:block;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x: auto;">https://api.open-meteo.com/v1/forecast
+  <span style="color:#6b6358;">?</span><span style="color:#c9a96e;">latitude</span>=53.88
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">longitude</span>=1.79
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">hourly</span>=temperature_2m,surface_pressure,precipitation,wind_speed_10m,wind_speed_80m,wind_speed_100m,wind_speed_120m,wind_speed_180m,wind_direction_10m,wind_direction_80m,wind_direction_100m,wind_direction_120m,wind_direction_180m,wind_gusts_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,dew_point_2m
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">forecast_days</span>=7
+  <span style="color:#6b6358;">&amp;</span><span style="color:#c9a96e;">timezone</span>=UTC</pre>
+            </div></div>
+            <div data-tab-panel="fw-sql" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x:auto;"><span class="c">-- Day-ahead GB offshore mean 100m wind speed (capacity-weighted illustration)</span>
+<span class="k">SELECT</span> date_trunc(<span class="s">'hour'</span>, timestamp_utc) <span class="k">AS</span> hour,
+       avg(wind_speed_100m_mps) <span class="k">FILTER</span> (<span class="k">WHERE</span> location <span class="k">IN</span>
+         (<span class="s">'dogger_bank'</span>,<span class="s">'hornsea'</span>,<span class="s">'east_anglia'</span>,<span class="s">'triton_knoll'</span>,
+          <span class="s">'walney'</span>,<span class="s">'gwynt_y_mor'</span>,<span class="s">'beatrice'</span>,<span class="s">'seagreen'</span>))
+         <span class="k">AS</span> offshore_avg_100m_mps,
+       avg(wind_speed_100m_mps) <span class="k">FILTER</span> (<span class="k">WHERE</span> location <span class="k">IN</span>
+         (<span class="s">'highland_central'</span>,<span class="s">'borders_crystalrig'</span>,<span class="s">'whitelee'</span>,<span class="s">'pen_y_cymoedd'</span>))
+         <span class="k">AS</span> onshore_avg_100m_mps
+<span class="k">FROM</span> read_parquet(<span class="s">'data/silver/open_meteo/forecast_wind/**/*.parquet'</span>)
+<span class="k">WHERE</span> timestamp_utc &gt;= current_date
+<span class="k">GROUP BY</span> 1 <span class="k">ORDER BY</span> 1;</pre>
+            </div></div>
+            <div data-tab-panel="fw-py" style="display:none;"><div class="code-wrap">
+<pre class="code dark" style="padding: 18px 22px; overflow-x:auto;"><span class="k">import</span> polars <span class="k">as</span> pl
+
+df = pl.read_parquet(<span class="s">"data/silver/open_meteo/forecast_wind/**/*.parquet"</span>)
+<span class="c"># Power-curve-ready hub-height feature: prefer 100m, fall back to 10m x shear</span>
+power_input = (
+    df.with_columns(
+        pl.coalesce([
+            pl.col(<span class="s">"wind_speed_100m_mps"</span>),
+            pl.col(<span class="s">"wind_speed_10m_mps"</span>) * 1.4,  # rough shear bump
+        ]).alias(<span class="s">"hub_height_mps"</span>),
+        <span class="c"># Density-corrected effective wind speed (power-curve work)</span>
+        (pl.col(<span class="s">"hub_height_mps"</span>) * (pl.col(<span class="s">"air_density_kg_m3"</span>) / 1.225) ** (1/3))
+        .alias(<span class="s">"rho_corrected_mps"</span>),
+    )
+    .select([<span class="s">"timestamp_utc"</span>,<span class="s">"location"</span>,<span class="s">"hub_height_mps"</span>,<span class="s">"rho_corrected_mps"</span>])
+)
+print(power_input.tail(24))</pre>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="caveats" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Caveats</div>
+          <h2 class="display-3 mb-8">Things to know before using this.</h2>
+          <p class="small mb-24" style="max-width: 560px;">These are specific to <code class="mono">forecast_wind</code>. Also read the <a href="../openmeteo.html#about" class="link">Open-Meteo-wide caveats</a> on the vendor page.</p>
+          <div>
+            <div class="caveat-item">
+              <div class="caveat-num">01</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">No forecast_run_at — vintages overwrite silently</div>
+                <p class="small" style="margin: 0;">Dedup keeps the last silver row per <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">(timestamp_utc, location)</code>, overwriting prior forecast vintages on re-ingest. Lead-time backtests must pair against <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">historical_wind</code> at matching lead times. <span class="src-cite">vault Known Issues · silver/openmeteo/historical.py L217</span></p>
+              </div>
+            </div>
+            <div class="caveat-item discrepancy">
+              <div class="caveat-num">02</div>
+              <div>
+                <div class="eyebrow-discrepancy">DISCREPANCY · vault schema vs silver</div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Silver column names are unit-suffixed (F15-B)</div>
+                <p class="small" style="margin: 0;">Silver emits <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">wind_speed_10m_mps</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">wind_speed_100m_mps</code>…<code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">180m_mps</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">wind_direction_*_deg</code>, <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">wind_gusts_10m_mps</code> with km/h→m/s ÷3.6 — the vault Silver Schema tables list the pre-rename names and are stale. Query the parquet with the suffixed forms. <span class="src-cite">silver/openmeteo/historical.py L101-134 · _output_columns L255-271</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">03</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Hub-height nulls are model-driven, not silver bugs</div>
+                <p class="small" style="margin: 0;"><code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">wind_speed_80/120/180m_mps</code> and matching directions go null when the NWP router selects a model that doesn't carry those heights (e.g. some GFS configs). Silver fabricates no values; <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WindWeather</code> is permissive. Pin <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">models=ukmo_global</code> for stable hub-height coverage. <span class="src-cite">vault forecast_wind.md Known Issues "Hub-height nulls"</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">04</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">No NWP-model pinning by default</div>
+                <p class="small" style="margin: 0;">Open-Meteo's <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">/forecast</code> router selects an NWP model per request (UKMO / ECMWF / GFS / ICON). Hub-height availability shifts with model selection; pin via <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">&models=&lt;id&gt;</code> if reproducibility matters. <span class="src-cite">vault forecast_wind.md Known Issues "Unpinned NWP model"</span></p>
+              </div>
+            </div>
+            <div class="caveat-item">
+              <div class="caveat-num">05</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Approximate site centroids (capacity-weighted, not NRO)</div>
+                <p class="small" style="margin: 0;">The 12 wind locations are capacity-weighted approximations per ADR-020, not per-turbine NRO coordinates. Sub-cluster resolution requires reading the ADR-020 trade-offs (vendor licensing + ergonomics). <span class="src-cite">docs/DECISION_LOG/ADR-020-openmeteo-location-approximation.md</span></p>
+              </div>
+            </div>
+            <div class="caveat-item" style="border-bottom: 1px solid var(--rule); padding-bottom: 16px;">
+              <div class="caveat-num">06</div>
+              <div>
+                <div style="font-weight: 500; margin-bottom: 6px;">Bronze path uses DOUBLE underscore separator</div>
+                <p class="small" style="margin: 0;">Bronze partitions are <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">bronze/open_meteo/forecast_wind__&lt;site&gt;/&lt;year&gt;/…</code> — a double underscore between dataset key and site. Silver <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BRONZE_DATASET_PREFIX = "forecast_wind"</code> strips it on read; custom bronze-readers must match the <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">__</code> form or list zero files. <span class="src-cite">connectors/openmeteo/client.py L112 · silver/openmeteo/historical.py L142</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="related" style="margin-bottom: 56px;">
+          <div class="eyebrow mb-8">Related datasets</div>
+          <h2 class="display-3 mb-24">What to use alongside forecast_wind.</h2>
+          <div class="related-grid">
+            <a href="historical_wind.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">historical_wind</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Archive companion at the same host for the 12 sites, ERA5 from 1940. <strong>Archive omits 80/120/180 m heights</strong> (verified all-null vs ERA5); forecast carries them. Pair for forecast-skill backtests.</p>
+              <span class="tiny">open-meteo · weather · hourly</span>
+            </a>
+            <a href="forecast_solar.html" class="row-link card flush" style="border:1px solid var(--rule); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">forecast_solar</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">Hourly solar-forecast feed at 6 GB solar sites — companion renewable forecast on the same <code class="mono">/forecast</code> host; <strong>no <code class="mono">air_density_kg_m3</code></strong> (solar request omits <code class="mono">surface_pressure</code>).</p>
+              <span class="tiny">open-meteo · weather · hourly</span>
+            </a>
+            <a href="../elexon/windfor.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">windfor</span>
+                  <span class="chip" style="font-size:10px;">hourly</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">NESO-published GB wind-generation forecast — compare against this dataset for public-vs-NWP wind-forecast skill benchmarks over multi-year backtests.</p>
+              <span class="tiny">elexon · generation · hourly</span>
+            </a>
+            <a href="../elexon/fuelhh.html" class="row-link card flush" style="border:1px solid var(--ink); padding: 20px 22px; background: var(--paper-card); display:block;">
+              <div class="row between mb-8" style="align-items: flex-start;">
+                <div class="row gap-8">
+                  <span class="mono small" style="color:var(--ink-strong);">fuelhh</span>
+                  <span class="chip" style="font-size:10px;">30 min</span>
+                  <span class="tiny" style="color: var(--accent);">cross-vendor</span>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <p class="small" style="margin: 0 0 8px;">GB generation by fuel type (<code class="mono">WIND</code> field — onshore + offshore combined) — downstream actuals to validate wind-power-curve mappings from this dataset.</p>
+              <span class="tiny">elexon · generation · 30 min</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/charts.js"></script>
+  <script src="../../assets/site.js"></script>
+  <script>
+    (function () {
+      const sections = document.querySelectorAll("section[id]");
+      const links = document.querySelectorAll(".sidebar a[href^='#']");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            const match = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+            if (match) match.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+  <script>
+    function setTab(group, tab, btn) {
+      document.querySelectorAll('[data-tab-panel^="' + group + '-"]').forEach(p => p.style.display = 'none');
+      const panel = document.querySelector('[data-tab-panel="' + group + '-' + tab + '"]');
+      if (panel) panel.style.display = 'block';
+      document.querySelectorAll('[data-tab-group="' + group + '"] button').forEach(b => b.classList.remove('ink'));
+      if (btn) btn.classList.add('ink');
+    }
+  </script>
+</body>
+</html>
