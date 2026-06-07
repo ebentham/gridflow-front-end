@@ -1,12 +1,11 @@
-# v2 Full-Vendor-Coverage Milestone — Work Complete
+# v2 Full-Vendor-Coverage Milestone — Complete + Deployed
 
-**Work completed:** 2026-06-07
-**Final state:** All phases done; **PRs #24 + #25 open, awaiting merge → GitHub Pages deploy.**
-**Deploy URL (on merge):** https://ebentham.github.io/gridflow-front-end/
+**Completed + deployed:** 2026-06-07
+**Final state:** All phases done; **PRs #24 (`e323242`) + #25 (`9fac779`) merged to `main` and deployed to GitHub Pages** (deploy workflow run succeeded, all 3 CI gates green in CI).
+**Live:** https://ebentham.github.io/gridflow-front-end/
 
-> This records the v2 *work* close. The formal deploy/tag step (merge #24 then #25 → Pages
-> publish, optional `v2` release tag) is the only thing outstanding and is a user action.
-> The v1 record lives in `MILESTONE-COMPLETE.md`.
+> v2 milestone closed. Only an optional `v2` release tag remains (cosmetic). The v1 record lives
+> in `MILESTONE-COMPLETE.md`.
 
 ## Status
 
@@ -48,8 +47,8 @@ across all new pages. Phase 11 added a WCAG/consistency cleanup pass on top.
 
 ## Outstanding
 
-- **Merge #24 then #25 → GitHub Pages deploy** (user action; production publish).
-- Optional: `v2` release tag / `/gsd-complete-milestone` ceremony after merge.
+- **Done:** #24 + #25 merged to `main` → GitHub Pages deploy succeeded (2026-06-07).
+- Optional only: a `v2` release tag / `/gsd-complete-milestone` ceremony (cosmetic).
 
 ## Deferred to v3 (carried forward)
 

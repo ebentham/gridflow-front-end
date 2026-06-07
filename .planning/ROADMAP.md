@@ -1,6 +1,6 @@
 # Roadmap
 
-**Milestone:** v2 full-vendor-coverage (**Work complete 2026-06-07** — Phases 7–11 done; PRs #24 + #25 open, awaiting merge → deploy) · v1 cleanup (Complete, historical record below)
+**Milestone:** v2 full-vendor-coverage (**COMPLETE + DEPLOYED 2026-06-07** — Phases 7–11; PRs #24 + #25 merged → GitHub Pages live) · v1 cleanup (Complete, historical record below)
 **Created:** 2026-05-17 (v1) · Extended 2026-05-18 (v2) · Rescoped 2026-05-19 (Phase 7 Reconciliation inserted; existing 7→8, 8→9, 9→10 per ADR-0001)
 **Granularity:** standard
 **Parallelization:** enabled (sequential 7 → 8 → 9 → 10 recommended; Phase 8 — bug fix — is independent of Phase 7 per ADR-0001 D-03; see Phase Dependencies)
