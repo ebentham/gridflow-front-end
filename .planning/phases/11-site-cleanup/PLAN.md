@@ -2,7 +2,7 @@
 plan_id: 11-01
 phase: 11
 title: Site cleanup — fix audit findings before closing the v2 milestone
-status: ready_to_execute
+status: complete_shipped  # executed + adversarially reviewed + shipped as PR #25 (2026-06-07)
 autonomous: false
 executor_model: opus
 expected_commits: 8-12
