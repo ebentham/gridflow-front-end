@@ -40,7 +40,7 @@
         <a href="boal.html" style="color:var(--ink-faint)">boal</a>
         <a href="imbalngc.html" style="color:var(--ink-faint)">imbalngc</a></div>
     </nav>
-    <div class="main-content">
+    <main class="main-content">
       <!-- ── Overview ── -->
       <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
         <div class="eyebrow mb-8">Overview</div>
@@ -111,7 +111,7 @@ print(liquidity)</pre></div></div>
         <div class="eyebrow mb-8">Related datasets</div><h2 class="display-3 mb-24">What to use alongside <span class="mono">market_depth</span>.</h2>
         <div class="related-grid"><a href="system_prices.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">system_prices</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">System buy / sell prices. Pair with market_depth accepted volumes to compute the implied £/MWh of balancing activity.</p><span class="tiny">elexon · prices &amp; balancing · 30 min</span></a><a href="netbsad.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">netbsad</span><span class="chip" style="font-size:10px">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Net balancing services adjustment data. market_depth covers BM-side liquidity, NETBSAD covers non-BM.</p><span class="tiny">elexon · prices &amp; balancing · daily</span></a><a href="disbsad.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">disbsad</span><span class="chip" style="font-size:10px">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Disaggregated balancing services adjustment. The disaggregated source feeding into the non-BM totals.</p><span class="tiny">elexon · prices &amp; balancing · daily</span></a><a href="boal.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">boal</span><span class="chip" style="font-size:10px">hourly</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Bid-offer acceptance (BOALF). The per-acceptance ground truth that market_depth aggregates; use for unit-level attribution.</p><span class="tiny">elexon · prices &amp; balancing · hourly</span></a></div>
       </section>
-    </div>
+    </main>
   </div>
 </div>
 <script src="../../assets/charts.js"></script>

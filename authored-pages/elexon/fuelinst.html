@@ -41,7 +41,7 @@
         <a href="windfor.html" style="color:var(--ink-faint)">windfor</a>
         <a href="freq.html" style="color:var(--ink-faint)">freq</a></div>
     </nav>
-    <div class="main-content">
+    <main class="main-content">
       <!-- ── Overview ── -->
       <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
         <div class="eyebrow mb-8">Overview</div>
@@ -113,7 +113,7 @@ print(hh.head(20))</pre></div></div>
         <div class="eyebrow mb-8">Related datasets</div><h2 class="display-3 mb-24">What to use alongside <span class="mono">fuelinst</span>.</h2>
         <div class="related-grid"><a href="fuelhh.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">fuelhh</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Generation by fuel type, half-hourly. The settlement-aligned aggregate; use for daily/monthly analytics where period semantics matter.</p><span class="tiny">elexon · generation · 30 min</span></a><a href="agpt.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">agpt</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Aggregated generation per PSR type. Provides the onshore/offshore wind split fuelinst collapses into a single WIND bucket.</p><span class="tiny">elexon · generation · 30 min</span></a><a href="freq.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">freq</span><span class="chip" style="font-size:10px">~2 s</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">System frequency. Correlate frequency dips with fuelinst dispatch changes to attribute response actions.</p><span class="tiny">elexon · system &amp; reference · ~2 s</span></a><a href="windfor.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">windfor</span><span class="chip" style="font-size:10px">hourly</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Wind generation forecast. Compare fuelinst WIND actuals against forecast for live nowcast error.</p><span class="tiny">elexon · generation · hourly</span></a></div>
       </section>
-    </div>
+    </main>
   </div>
 </div>
 <script src="../../assets/charts.js"></script>

@@ -40,7 +40,7 @@
         <a href="market_depth.html" style="color:var(--ink-faint)">market_depth</a>
         <a href="mid.html" style="color:var(--ink-faint)">mid</a></div>
     </nav>
-    <div class="main-content">
+    <main class="main-content">
       <!-- ── Overview ── -->
       <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
         <div class="eyebrow mb-8">Overview</div>
@@ -108,7 +108,7 @@ print(combo.tail(10))</pre></div></div>
         <div class="eyebrow mb-8">Related datasets</div><h2 class="display-3 mb-24">What to use alongside <span class="mono">netbsad</span>.</h2>
         <div class="related-grid"><a href="disbsad.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">disbsad</span><span class="chip" style="font-size:10px">daily</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Disaggregated balancing services adjustment. The component source; sum DISBSAD by (date, period) to recover NETBSAD totals.</p><span class="tiny">elexon · prices &amp; balancing · daily</span></a><a href="system_prices.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">system_prices</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">System buy / sell prices. The downstream consumer; NETBSAD adjustments are an input to SBP/SSP derivation.</p><span class="tiny">elexon · prices &amp; balancing · 30 min</span></a><a href="boal.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">boal</span><span class="chip" style="font-size:10px">hourly</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Bid-offer acceptance (BOALF). The BM-side action record; combine with NETBSAD non-BM totals for full balancing-cost analysis.</p><span class="tiny">elexon · prices &amp; balancing · hourly</span></a><a href="market_depth.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">market_depth</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Settlement market depth. Per-period market summary that aggregates BOAL + DISBSAD + IMBALNGC; overlaps with NETBSAD on the non-BM side.</p><span class="tiny">elexon · prices &amp; balancing · 30 min</span></a></div>
       </section>
-    </div>
+    </main>
   </div>
 </div>
 <script src="../../assets/charts.js"></script>

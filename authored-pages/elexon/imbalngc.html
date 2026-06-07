@@ -40,7 +40,7 @@
         <a href="ndf.html" style="color:var(--ink-faint)">ndf</a>
         <a href="system_prices.html" style="color:var(--ink-faint)">system_prices</a></div>
     </nav>
-    <div class="main-content">
+    <main class="main-content">
       <!-- ── Overview ── -->
       <section id="overview" style="padding-top:8px;margin-bottom:48px" data-screen-label="Overview">
         <div class="eyebrow mb-8">Overview</div>
@@ -107,7 +107,7 @@ print(short)</pre></div></div>
         <div class="eyebrow mb-8">Related datasets</div><h2 class="display-3 mb-24">What to use alongside <span class="mono">imbalngc</span>.</h2>
         <div class="related-grid"><a href="melngc.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">melngc</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Indicated margin. Complementary headroom-above-demand signal; MELNGC says how much headroom remains, IMBALNGC says how it's consumed.</p><span class="tiny">elexon · demand &amp; forecasts · 30 min</span></a><a href="inddem.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">inddem</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Indicated demand. The demand input to IMBALNGC; subtract indgen from inddem to reproduce IMBALNGC.</p><span class="tiny">elexon · demand &amp; forecasts · 30 min</span></a><a href="indgen.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">indgen</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">Indicated generation. IMBALNGC = indgen − inddem. Useful for understanding which side drives the imbalance.</p><span class="tiny">elexon · demand &amp; forecasts · 30 min</span></a><a href="system_prices.html" class="row-link card flush" style="border:1px solid var(--rule);padding:20px 22px;background:var(--paper-card);display:block;text-decoration:none"><div class="row between mb-8" style="align-items:flex-start"><div class="row gap-8"><span class="mono small" style="color:var(--ink-strong)">system_prices</span><span class="chip" style="font-size:10px">30 min</span></div><span class="arrow">→</span></div><p class="small" style="margin:0 0 8px">System buy / sell prices. Post-settlement outturn; compute forecast error by joining IMBALNGC to system_prices net_imbalance_volume.</p><span class="tiny">elexon · prices &amp; balancing · 30 min</span></a></div>
       </section>
-    </div>
+    </main>
   </div>
 </div>
 <script src="../../assets/charts.js"></script>
