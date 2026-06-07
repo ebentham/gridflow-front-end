@@ -22,9 +22,9 @@ You do **not** implement code directly. When implementation is needed, you dispa
 
 ## Current State (as of 2026-06-07)
 
-**Milestone:** v2 full-vendor-coverage — **WORK COMPLETE 2026-06-07** (Phases 7–11 done; PRs #24 + #25 open, awaiting merge → GitHub Pages deploy)  
+**Milestone:** v2 full-vendor-coverage — **COMPLETE + DEPLOYED 2026-06-07** (Phases 7–11; PRs #24 + #25 merged → GitHub Pages live)  
 **Phase:** 11 — Site cleanup — **COMPLETE / SHIPPED 2026-06-07 (PR #25)**  
-**Status:** All v2 work done. Phase 10 closed four-vendor coverage (162 datasets · 6 real hubs · PR #24). Phase 11 (user-requested cleanup before close) resolved **19 audit findings** (a11y/WCAG, internal-count consistency, anti-fake-freshness, dead-code/affordance removal, SEO meta + breadcrumb landmarks) plus an adversarial code-review pass (6 confirmed → 2 remediated, 2 resolved via D-1 sign-off, 1 deferred follow-up), shipped as **PR #25** (stacked on #24). Next action: **merge #24 then #25 → deploy**; then optional v2 release tag / `/gsd-complete-milestone` ceremony.
+**Status:** All v2 work done. Phase 10 closed four-vendor coverage (162 datasets · 6 real hubs · PR #24). Phase 11 (user-requested cleanup before close) resolved **19 audit findings** (a11y/WCAG, internal-count consistency, anti-fake-freshness, dead-code/affordance removal, SEO meta + breadcrumb landmarks) plus an adversarial code-review pass (6 confirmed → 2 remediated, 2 resolved via D-1 sign-off, 1 deferred follow-up), shipped as **PR #25** (stacked on #24). **Merged + deployed 2026-06-07** (#24 `e323242`, #25 `9fac779`; deploy run succeeded). v2 milestone closed. Optional remaining: a `v2` release tag / `/gsd-complete-milestone` ceremony.
 
 **Phase history (quick):**
 - Phases 0–6 (v1 cleanup): Complete 2026-05-18 · 50/50 REQ-IDs delivered
@@ -42,7 +42,7 @@ You do **not** implement code directly. When implementation is needed, you dispa
 Phase 7 (done) ──┐
 Phase 8 (closed) ┤
                  └── Phase 8B/8C/8D (done) ── Phase 9 (done) ── Phase 10 (done) ── Phase 11 (cleanup, shipped ✓)
-                                                                                   → v2 work complete; merge #24 then #25 → deploy
+                                                                                   → v2 COMPLETE + DEPLOYED (#24 + #25 merged 2026-06-07)
 ```
 
 ---
@@ -204,4 +204,4 @@ Trust chain: **Live API → Canonical → Vault → Site**. Vendor docs are auth
 
 ---
 
-*Last updated: 2026-06-07 — **v2 milestone work complete.** Phase 10 (four-vendor batch) closed coverage at 162 datasets · 6 real hubs (PR #24); Phase 11 (user-requested site cleanup) resolved 19 audit findings + an adversarial code-review pass and shipped as PR #25 (stacked on #24). Both PRs open, awaiting merge → GitHub Pages deploy. Next: merge #24 then #25, then optional v2 release tag / `/gsd-complete-milestone`. Open follow-up: ~679 inline `color:var(--ink-faint)` text spans still <4.5:1 (per-context; candidate Phase 12). See `phases/11-site-cleanup/11-01-SUMMARY.md`.*
+*Last updated: 2026-06-07 — **v2 milestone work complete.** Phase 10 (four-vendor batch) closed coverage at 162 datasets · 6 real hubs (PR #24); Phase 11 (user-requested site cleanup) resolved 19 audit findings + an adversarial code-review pass and shipped as PR #25 (stacked on #24). **Both PRs merged → deployed to GitHub Pages 2026-06-07** (#24 `e323242`, #25 `9fac779`; deploy run succeeded). v2 milestone closed; optional remaining: a `v2` release tag. Open follow-up: ~679 inline `color:var(--ink-faint)` text spans still <4.5:1 (per-context; candidate Phase 12). See `phases/11-site-cleanup/11-01-SUMMARY.md`.*
