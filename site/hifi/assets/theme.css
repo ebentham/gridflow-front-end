@@ -181,29 +181,6 @@ hr.rule-strong { border: 0; border-top: 1px solid var(--ink); margin: 0; }
   height: 1.5px;
   background: var(--accent);
 }
-.nav-search {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px 6px 12px;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  font-size: 12px;
-  color: var(--ink-soft);
-  background: var(--paper-card);
-  cursor: text;
-  min-width: 200px;
-}
-.nav-search:hover { border-color: var(--ink-faint); }
-.nav-search kbd {
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 1px 5px;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  margin-left: auto;
-  background: var(--paper);
-}
 
 /* ── buttons & chips ────────────────────────────────────────── */
 .btn {
@@ -254,8 +231,8 @@ hr.rule-strong { border: 0; border-top: 1px solid var(--ink); margin: 0; }
   box-shadow: 0 0 0 3px var(--accent-tint);
   margin-right: 2px;
 }
-.chip.btn-like { cursor: pointer; transition: background .12s, border-color .12s; }
-.chip.btn-like:hover { border-color: var(--ink-faint); }
+.chip.btn-like { transition: background .12s, border-color .12s; }
+button.chip.btn-like:hover { border-color: var(--ink-faint); }
 .chip.btn-like.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 /* ── card ───────────────────────────────────────────────────── */
@@ -896,7 +873,6 @@ body[data-page="dataset"] .related-grid {
   section.block.tight { padding: 28px 0; }
 
   /* hide secondary chrome that doesn't fit */
-  .nav-search { display: none; }
   .nav-links { display: none; }
   .nav-toggle { display: inline-flex; }
   .nav-inner { padding: 14px var(--site-pad); }
