@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>outages_offshore_grid · ENTSO-E Transparency · Gridflow</title>
+  <meta name="description" content="Unavailability of offshore grid infrastructure per zone — offshore wind cable and substation outages with asset identification, the dedicated surface for…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,12 +50,12 @@
 
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
-        <a href="../../index.html">Gridflow</a><span class="sep">/</span>
-        <a href="../../data-sources.html">Data sources</a><span class="sep">/</span>
-        <a href="../entsoe.html">ENTSO-E Transparency</a><span class="sep">/</span>
-        <span class="here">outages_offshore_grid</span>
-      </div>
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
+        <a href="../../index.html">Gridflow</a><span class="sep" aria-hidden="true">/</span>
+        <a href="../../data-sources.html">Data sources</a><span class="sep" aria-hidden="true">/</span>
+        <a href="../entsoe.html">ENTSO-E Transparency</a><span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">outages_offshore_grid</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -103,7 +104,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -126,7 +127,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
           <div class="eyebrow mb-8">Overview</div>
@@ -207,7 +208,7 @@
             (some A79 publications omit <code class="mono">businessType</code>).
           </p>
           <table class="schema-table">
-            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <thead><tr><th scope="col" style="width: 22%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr></thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC.<span class="cite">schemas/entsoe.py L509, L523-528</span></td></tr>
               <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Host zone EIC. Source: <code class="mono">&lt;BiddingZone_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L510</span></td></tr>
@@ -236,7 +237,7 @@
           <h2 class="display-3 mb-24">What a row looks like.</h2>
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
-              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>asset_mrid</th><th>asset_name</th><th>outage_type</th><th>unavailable_mw</th><th>business_type</th><th>document_mrid</th><th>document_status</th><th>timeseries_mrid</th><th>resolution</th><th>data_provider</th></tr></thead>
+              <thead><tr><th scope="col">timestamp_utc</th><th scope="col">area_code</th><th scope="col">asset_mrid</th><th scope="col">asset_name</th><th scope="col">outage_type</th><th scope="col">unavailable_mw</th><th scope="col">business_type</th><th scope="col">document_mrid</th><th scope="col">document_status</th><th scope="col">timeseries_mrid</th><th scope="col">resolution</th><th scope="col">data_provider</th></tr></thead>
               <tbody>
                 <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="str">DOGGER-BANK-A-CBL</td><td class="str">Dogger Bank A export cable</td><td class="str">planned</td><td class="num">1,200.0</td><td class="str">A53</td><td class="str">doc-301</td><td class="str">A05</td><td class="str">ts-001</td><td class="str">PT60M</td><td>entsoe</td></tr>
                 <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T08:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="str">HORNSEA-2-SUB</td><td class="str">Hornsea 2 substation</td><td class="str">unplanned</td><td class="num">1,320.0</td><td class="str">A54</td><td class="str">doc-302</td><td class="str">A05</td><td class="str">ts-001</td><td class="str">PT60M</td><td>entsoe</td></tr>
@@ -340,7 +341,7 @@ fc = pl.read_parquet(<span class="s">"data/silver/entsoe/wind_solar_forecast/**/
           </div>
         </section>
 
-      </div>
+      </main>
     </div>
   </div>
 

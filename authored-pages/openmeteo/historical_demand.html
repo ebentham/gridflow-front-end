@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>historical_demand · Open-Meteo · Gridflow</title>
+  <meta name="description" content="Hourly ERA5-reanalysis weather at 7 GB population centres — the canonical multi-decade input for demand-model backtests, HDD/CDD calibration, and…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,15 +61,15 @@
 
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../openmeteo.html">Open-Meteo</a>
-        <span class="sep">/</span>
-        <span class="here">historical_demand</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">historical_demand</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -142,7 +143,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -165,7 +166,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
           <div class="eyebrow mb-8">Overview</div>
@@ -211,7 +212,7 @@
           <p class="small mb-24" style="max-width: 640px;">Defined in <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/schemas/weather.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">DemandWeather</code> (subclass of <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">_BaseWeather</code>) and materialised by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/silver/openmeteo/historical.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">HistoricalDemandWeather</code>. Silver parquet uses <strong>F15-B canonical (unit-suffixed) names</strong> — vault tables predate the rename. Partitioned by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">timestamp_utc</code> (year + month). Point-in-time field: <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">available_at</code> (from <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">BaseSilverTransformer</code>); ERA5 archive values are stable once published.</p>
           <table class="schema-table">
             <thead>
-              <tr><th style="width: 28%;">Column</th><th style="width: 13%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+              <tr><th scope="col" style="width: 28%;">Column</th><th scope="col" style="width: 13%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr>
             </thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC; hourly cadence. Validator requires tzinfo. Source: <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.time[i]</code>.<span class="cite">schemas/weather.py L26, L34-39</span></td></tr>
@@ -248,7 +249,7 @@
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
               <thead>
-                <tr><th>timestamp_utc</th><th>location</th><th>temperature_2m_c</th><th>wind_speed_10m_mps</th><th>relative_humidity_2m_pct</th><th>surface_pressure_hpa</th><th>snowfall_cm</th><th>hdd_k</th><th>cdd_k</th><th>air_density_kg_m3</th></tr>
+                <tr><th scope="col">timestamp_utc</th><th scope="col">location</th><th scope="col">temperature_2m_c</th><th scope="col">wind_speed_10m_mps</th><th scope="col">relative_humidity_2m_pct</th><th scope="col">surface_pressure_hpa</th><th scope="col">snowfall_cm</th><th scope="col">hdd_k</th><th scope="col">cdd_k</th><th scope="col">air_density_kg_m3</th></tr>
               </thead>
               <tbody>
                 <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2025-01-15T00:00:00+00:00</td><td class="str">london</td><td class="num">-1.2</td><td class="num">3.47</td><td class="num">82.0</td><td class="num">1015.2</td><td class="num">0.5</td><td class="num">16.7</td><td class="num">0.0</td><td class="num">1.30</td></tr>
@@ -436,7 +437,7 @@ print(gb_temp.tail(7))</pre>
           </div>
         </section>
 
-      </div>
+      </main>
     </div>
   </div>
 

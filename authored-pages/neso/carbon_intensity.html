@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>carbon_intensity · NESO · Gridflow</title>
+  <title>carbon_intensity · NESO Carbon Intensity · Gridflow</title>
+  <meta name="description" content="The canonical National Grid carbon-intensity series — gCO2 per kWh of GB electricity consumed, published per settlement period as both forecast and post-period…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,15 +65,15 @@
   <!-- ════════ BREADCRUMB + HERO ════════ -->
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../neso.html">NESO Carbon Intensity</a>
-        <span class="sep">/</span>
-        <span class="here">carbon_intensity</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">carbon_intensity</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -153,7 +154,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -177,7 +178,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <!-- ── Overview ── -->
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
@@ -285,7 +286,7 @@
           </p>
           <table class="schema-table">
             <thead>
-              <tr><th style="width: 24%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+              <tr><th scope="col" style="width: 24%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr>
             </thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Half-hour period START. Period END is <code class="mono">period_end_utc</code>. UTC always (vendor sends <code class="mono">Z</code> suffix). Source: <code class="mono">from</code>.<span class="cite">schemas/neso.py L31 · inherits _TimestampedNesoBase</span></td></tr>
@@ -313,11 +314,11 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>timestamp_utc</th>
-                  <th>period_end_utc</th>
-                  <th>forecast_gco2_kwh</th>
-                  <th>actual_gco2_kwh</th>
-                  <th>intensity_index</th>
+                  <th scope="col">timestamp_utc</th>
+                  <th scope="col">period_end_utc</th>
+                  <th scope="col">forecast_gco2_kwh</th>
+                  <th scope="col">actual_gco2_kwh</th>
+                  <th scope="col">intensity_index</th>
                 </tr>
               </thead>
               <tbody>
@@ -561,7 +562,7 @@ print(skill.tail(<span class="num">7</span>))</pre>
 
         </section>
 
-      </div><!-- /main-content -->
+      </main><!-- /main-content -->
     </div><!-- /page-layout -->
   </div><!-- /container -->
 

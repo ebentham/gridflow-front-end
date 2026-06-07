@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>interruptible_available · ENTSO-G Transparency · Gridflow</title>
+  <meta name="description" content="Interruptible-product capacity offered per operator-point-direction — the canonical signal for capacity available only when firm capacity is not curtailed."/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,15 +126,15 @@
   <!-- ════════ BREADCRUMB + HERO ════════ -->
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../entsog.html">ENTSO-G Transparency</a>
-        <span class="sep">/</span>
-        <span class="here">interruptible_available</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">interruptible_available</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -179,7 +180,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
 <a href="#overview" class="active">Overview</a>
@@ -202,7 +203,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <!-- ── Overview ── -->
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
@@ -249,10 +250,10 @@
           <table class="schema-table">
             <thead>
               <tr>
-                <th style="width: 24%;">Column</th>
-                <th style="width: 14%;">Type</th>
-                <th style="width: 8%; text-align:center;">Nullable</th>
-                <th>Description</th>
+                <th scope="col" style="width: 24%;">Column</th>
+                <th scope="col" style="width: 14%;">Type</th>
+                <th scope="col" style="width: 8%; text-align:center;">Nullable</th>
+                <th scope="col">Description</th>
               </tr>
             </thead>
             <tbody>
@@ -292,7 +293,7 @@
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
               <thead>
-                <tr><th>period_from</th><th>period_to</th><th>point_key</th><th>direction_key</th><th>capacity_type</th><th>unit</th><th>value</th></tr>
+                <tr><th scope="col">period_from</th><th scope="col">period_to</th><th scope="col">point_key</th><th scope="col">direction_key</th><th scope="col">capacity_type</th><th scope="col">unit</th><th scope="col">value</th></tr>
               </thead>
               <tbody>
 <tr><td class="date">2025-10-01T04:00:00+00:00</td><td class="date">2026-10-01T04:00:00+00:00</td><td class="str">ITP-00005</td><td class="str">exit</td><td class="str">Interruptible</td><td>kWh/d</td><td class="num">95,000,000</td></tr>
@@ -393,7 +394,7 @@ print(latest)</pre>
           </div>
         </section>
 
-      </div><!-- /main-content -->
+      </main><!-- /main-content -->
     </div><!-- /page-layout -->
   </div><!-- /container -->
 

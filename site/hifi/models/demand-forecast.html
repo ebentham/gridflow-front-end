@@ -235,13 +235,13 @@
   <!-- ════════════════ HEADER ════════════════ -->
   <section class="pagehead">
     <div class="container">
-      <div class="crumbs">
+      <nav class="crumbs" aria-label="Breadcrumb">
         <a href="../index.html">Gridflow</a>
         <span class="sep" aria-hidden="true">/</span>
         <a href="../index.html#models">Models</a>
         <span class="sep" aria-hidden="true">/</span>
-        <span class="here">Day-ahead demand</span>
-      </div>
+        <span class="here" aria-current="page">Day-ahead demand</span>
+      </nav>
 
       <div class="stack-md" style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: end;">
         <div>
@@ -695,10 +695,10 @@ forecast = orchestrator.predict_quantiles(as_of=<span class="s">"2026-04-29T23:0
           <table class="cov-table">
             <thead>
               <tr>
-                <th>Nominal</th>
-                <th>Empirical</th>
-                <th>Δ</th>
-                <th>Gate</th>
+                <th scope="col">Nominal</th>
+                <th scope="col">Empirical</th>
+                <th scope="col">Δ</th>
+                <th scope="col">Gate</th>
               </tr>
             </thead>
             <tbody>

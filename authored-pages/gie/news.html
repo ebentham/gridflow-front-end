@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>news · GIE Storage · Gridflow</title>
+  <meta name="description" content="AGSI service-announcement listing flagging operator reporting issues, planned data outages, and corrections — the data-quality feed for masking suspect periods…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,15 +126,15 @@
   <!-- ════════ BREADCRUMB + HERO ════════ -->
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../gie.html">GIE Storage</a>
-        <span class="sep">/</span>
-        <span class="here">news</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">news</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -213,7 +214,7 @@
     <div class="page-layout">
 
       <!-- Sidebar -->
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -237,7 +238,7 @@
       </nav>
 
       <!-- Main content -->
-      <div class="main-content">
+      <main class="main-content">
 
         <!-- ── Overview ── -->
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
@@ -318,10 +319,10 @@
           <table class="schema-table">
             <thead>
               <tr>
-                <th style="width: 18%;">Column</th>
-                <th style="width: 16%;">Type</th>
-                <th style="width: 8%; text-align:center;">Nullable</th>
-                <th>Description</th>
+                <th scope="col" style="width: 18%;">Column</th>
+                <th scope="col" style="width: 16%;">Type</th>
+                <th scope="col" style="width: 8%; text-align:center;">Nullable</th>
+                <th scope="col">Description</th>
               </tr>
             </thead>
             <tbody>
@@ -362,12 +363,12 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>url</th>
-                  <th>start_at</th>
-                  <th>end_at</th>
-                  <th>title</th>
-                  <th>summary (HTML)</th>
-                  <th>entities (json)</th>
+                  <th scope="col">url</th>
+                  <th scope="col">start_at</th>
+                  <th scope="col">end_at</th>
+                  <th scope="col">title</th>
+                  <th scope="col">summary (HTML)</th>
+                  <th scope="col">entities (json)</th>
                 </tr>
               </thead>
               <tbody>
@@ -559,7 +560,7 @@ print(exploded.head(<span class="num">20</span>))</pre>
 
         </section>
 
-      </div><!-- /main-content -->
+      </main><!-- /main-content -->
     </div><!-- /page-layout -->
   </div><!-- /container -->
 

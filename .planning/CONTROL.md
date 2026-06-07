@@ -20,11 +20,11 @@ You do **not** implement code directly. When implementation is needed, you dispa
 
 ---
 
-## Current State (as of 2026-06-03)
+## Current State (as of 2026-06-07)
 
-**Milestone:** v2 full-vendor-coverage  
-**Phase:** 9 — ENTSO-E full coverage — **COMPLETE 2026-06-03**  
-**Status:** Phase 9 closed — 49/49 ENTSO-E pages authored + 49-entry manifest (9 groups) + `gridflow-build --check` idempotent. PR open to main on `feat/phase-9-entsoe-pages`. Next action is `/gsd-plan-phase 10`.
+**Milestone:** v2 full-vendor-coverage — **WORK COMPLETE 2026-06-07** (Phases 7–11 done; PRs #24 + #25 open, awaiting merge → GitHub Pages deploy)  
+**Phase:** 11 — Site cleanup — **COMPLETE / SHIPPED 2026-06-07 (PR #25)**  
+**Status:** All v2 work done. Phase 10 closed four-vendor coverage (162 datasets · 6 real hubs · PR #24). Phase 11 (user-requested cleanup before close) resolved **19 audit findings** (a11y/WCAG, internal-count consistency, anti-fake-freshness, dead-code/affordance removal, SEO meta + breadcrumb landmarks) plus an adversarial code-review pass (6 confirmed → 2 remediated, 2 resolved via D-1 sign-off, 1 deferred follow-up), shipped as **PR #25** (stacked on #24). Next action: **merge #24 then #25 → deploy**; then optional v2 release tag / `/gsd-complete-milestone` ceremony.
 
 **Phase history (quick):**
 - Phases 0–6 (v1 cleanup): Complete 2026-05-18 · 50/50 REQ-IDs delivered
@@ -33,16 +33,16 @@ You do **not** implement code directly. When implementation is needed, you dispa
 - Phase 8B (Claude-Design hybrid): build-override path kept; AI-ports archived; superseded by the brief → Claude Design pattern
 - Phase 8C (Elexon content briefs): Complete 2026-05-20 · 33 briefs · BUG-01..03
 - Phase 8D (Vendor landing-page briefs): Complete 2026-05-20 · 5 vendor-hub briefs + build override for hubs
-- Phase 9 (ENTSO-E full): **Complete 2026-06-03** · 49 briefs + 49 authored pages + 49-entry manifest · ENTSOE-01..05 ← you are here
-- Phase 10 (four-vendor batch): Not started · the last v2 phase
+- Phase 9 (ENTSO-E full): **Complete 2026-06-03** · 49 briefs + 49 authored pages + 49-entry manifest · ENTSOE-01..05
+- Phase 10 (four-vendor batch): **Complete 2026-06-07** · 80 pages (entsog/gie/neso/openmeteo) + 4 manifests + REAL_VENDORS migration · 162 datasets · 6 real hubs · PR #24
+- Phase 11 (site cleanup): **Complete / shipped 2026-06-07** · 19 audit findings resolved + adversarial code review · 15 commits · PR #25 ← you are here (v2 work complete)
 
 **Dependency graph:**
 ```
 Phase 7 (done) ──┐
 Phase 8 (closed) ┤
-                 └── Phase 8B/8C/8D (done) ── Phase 9 (ENTSO-E, done 2026-06-03)
-                                                      │
-                                                      └── Phase 10 (four-vendor batch) ← next
+                 └── Phase 8B/8C/8D (done) ── Phase 9 (done) ── Phase 10 (done) ── Phase 11 (cleanup, shipped ✓)
+                                                                                   → v2 work complete; merge #24 then #25 → deploy
 ```
 
 ---
@@ -204,4 +204,4 @@ Trust chain: **Live API → Canonical → Vault → Site**. Vendor docs are auth
 
 ---
 
-*Last updated: 2026-06-03 — Phase 9 (ENTSO-E full coverage) closed: 49/49 datasets authored + 49-entry manifest + `gridflow-build --check` idempotent; PR open to main. Phases 8C/8D (content-brief + vendor-hub infrastructure) and Phase 9 all landed since the prior 2026-05-19 update. Next: `/gsd-plan-phase 10` (four-vendor batch — the last v2 phase). Carry-over: authored vendor-hub `data-root="../../"`→`"../"` bug flagged for a site-wide fix (see `phases/09-entsoe-content-briefs/09-01-SUMMARY.md`).*
+*Last updated: 2026-06-07 — **v2 milestone work complete.** Phase 10 (four-vendor batch) closed coverage at 162 datasets · 6 real hubs (PR #24); Phase 11 (user-requested site cleanup) resolved 19 audit findings + an adversarial code-review pass and shipped as PR #25 (stacked on #24). Both PRs open, awaiting merge → GitHub Pages deploy. Next: merge #24 then #25, then optional v2 release tag / `/gsd-complete-milestone`. Open follow-up: ~679 inline `color:var(--ink-faint)` text spans still <4.5:1 (per-context; candidate Phase 12). See `phases/11-site-cleanup/11-01-SUMMARY.md`.*

@@ -1,0 +1,131 @@
+TOTALS: {'raw': 35, 'confirmed': 12, 'disputed': 6, 'rejected': 17}
+
+===== KEPT (actionable) — 18 =====
+
+[1] HIGH    (status=confirmed; orig=high; fix=trivial) <accessibility>
+    TITLE: `--ink-faint` (#a8a194) text fails WCAG 1.4.3 contrast site-wide (~2.1:1 vs required 4.5:1)
+    FILES: site/hifi/assets/theme.css, site/hifi/data-sources/elexon/system_prices.html, site/hifi/data-sources/elexon.html, site/hifi/index.html
+    IMPACT: Low-vision users cannot reliably read metadata labels, sidebar section headers, footer provenance, and 'muted' related-dataset links across all 168 pages.
+    FIX:   Darken `--ink-faint` to at least ~#857d6f (≈3:1) and preferably ~#736b5f (≈4.5:1) so the pervasive `.tiny` / `.kpi-sub` / sidebar-title / muted-link text meets AA. `--ink-soft` (#6b6358) already passes at 5.26:1, so collapsing most `.tiny` usages onto a darker faint value fixes the bulk of the site at once without touching the cream+forest identity.
+
+[2] HIGH    (status=confirmed; orig=medium; fix=small) <accessibility>
+    TITLE: Dataset-page sidebar `<nav>` has no distinguishing aria-label — dual nav landmarks are ambiguous (WCAG 1.3.1)
+    FILES: site/hifi/data-sources/elexon/system_prices.html, authored-pages/elexon/fuelhh.html, authored-pages/openmeteo/historical_wind.html
+    IMPACT: Screen-reader users navigating by landmark hear two 'navigation' regions with no way to tell the global menu from the page TOC.
+    FIX:   Add a distinguishing label to the sidebar nav, e.g. `<nav class="sidebar" aria-label="On this page">`. Apply across authored-pages/<vendor>/<slug>.html (sacred fuelhh.html and system_prices.html excluded) and rebuild. Newer hubs already model the right pattern (`<nav class="crumbs" aria-label="Breadcrumb">`).
+
+[3] HIGH    (status=confirmed; orig=high; fix=trivial) <content-consistency>
+    TITLE: Home page 'Seven feeds' grid ships stale pre-expansion per-vendor dataset counts (contradicts 162 total and every other page)
+    FILES: site/hifi/index.html
+    IMPACT: The home page is the primary landing surface for recruiters; it advertises wildly wrong per-vendor scale (e.g. ENTSO-E as 14 not 49, NESO as 1 not 33) while simultaneously claiming 162 total, making the headline portfolio metric self-contra
+    FIX:   Update the five stale chips in index.html to 49 / 33 / 8 / 6 / 33 respectively so the home grid matches the catalog and the page's own 162 total. These are the pre-reconciliation counts (14+1+2+2+1+33 sums to the old small catalog); they were missed when the catalog expanded to 162.
+
+[4] HIGH    (status=confirmed; orig=high; fix=trivial) <links>
+    TITLE: architecture.html 'Read the full source on GitHub' CTA points to bare github.com homepage, not the gridflow repo
+    FILES: site/hifi/architecture.html
+    IMPACT: 
+    FIX:   Change href to https://github.com/EBentham/gridflow (the canonical ETL repo this architecture page documents). Fix in site/hifi/architecture.html (hand-authored top-level page).
+
+[5] HIGH    (status=disputed; orig=high; fix=small) <structure>
+    TITLE: No <main> landmark on any of the 162 dataset pages (a11y), while hubs and top-level pages have one
+    FILES: site/hifi/data-sources/elexon/agpt.html, site/hifi/data-sources/entsoe/, site/hifi/assets/site.js, site/hifi/data-sources/elexon/fuelhh.html
+    IMPACT: Screen-reader and keyboard users get no main landmark to jump to on the single largest class of pages on the site (162 of 171). Violates the project's own stated a11y minimum and is inconsistent with the hubs/top-level pages that do provide
+    FIX:   Change the dataset-page content container from `<div class="main-content">` to `<main class="main-content">` (or add role="main") in the authored-pages/<vendor>/<slug>.html template/source and rebuild. Note the two sacred refs (fuelhh.html, system_prices.html) share this flaw but are byte-frozen, so any template fix must exclude them; flag the convention div
+
+[6] MEDIUM  (status=disputed; orig=medium; fix=trivial) <accessibility>
+    TITLE: No visible focus indicator defined anywhere — keyboard focus relies entirely on browser defaults (WCAG 2.4.7 at risk)
+    FILES: site/hifi/assets/theme.css
+    IMPACT: Keyboard-only and switch users can lose track of focus position, particularly on the custom-styled interactive controls where the faint default ring is hard to perceive on cream.
+    FIX:   Add a single global rule, e.g. `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }` plus an equivalent for dark-surface controls (gold/ink cards). This is one stylesheet edit that covers every page since theme.css is shared.
+
+[7] MEDIUM  (status=confirmed; orig=medium; fix=small,trivial) <accessibility>
+    TITLE: Interactive-looking time-range and API chips are non-focusable `<span>`s (WCAG 2.1.1 / 4.1.2)
+    FILES: site/hifi/data-sources/elexon/system_prices.html, site/hifi/data-sources.html, site/hifi/assets/theme.css
+    IMPACT: Keyboard and screen-reader users perceive actionable toggles they cannot reach or operate, a false affordance.
+    FIX:   Either make these real controls (`<button type="button">` with `aria-pressed`) if they will ever function, or — given they are decorative-only per project scope — remove the `cursor:pointer`/hover/active affordances and add `aria-hidden="true"` so they don't present as actionable to keyboard and AT users.
+
+[8] MEDIUM  (status=disputed; orig=high; fix=trivial) <anti-goals>
+    TITLE: site.js injects a hardcoded "last updated 2026-05-18" line into the footer of every page
+    FILES: site/hifi/assets/site.js
+    IMPACT: A site-wide 'last updated <date>' stamp is precisely the fake-freshness framing the project disavows; because it is injected by the shared chrome it appears on every single page, and it silently rots (it claims currency it can't maintain). 
+    FIX:   Drop the 'last updated 2026-05-18' clause entirely. Keep the neutral 'Documentation site · cream paper' descriptor if a footer line is wanted. Do NOT replace it with `new Date()` (that would be worse — true fake-live). The fix lands in site/hifi/assets/site.js (asset, not authored-pages).
+
+[9] MEDIUM  (status=disputed; orig=high; fix=trivial) <anti-goals>
+    TITLE: Homepage hero card claims "refreshed nightly" on a chart it also labels "shape only · seeded SVG"
+    FILES: site/hifi/index.html
+    IMPACT: 'refreshed nightly' is fake-live framing on an explicitly illustrative chart — it implies a real nightly data pipeline feeds the homepage hero, which is false and self-contradicted on the same card. Maps to the anti-goal 'fake live indicato
+    FIX:   Replace 'Static snapshot · refreshed nightly' with honest snapshot wording consistent with the rest of the site, e.g. 'Static snapshot · live wiring planned' or simply 'Illustrative snapshot · seeded'. Edit lands in site/hifi/index.html:366 (hand-authored top-level page).
+
+[10] MEDIUM  (status=confirmed; orig=high; fix=trivial) <content-consistency>
+    TITLE: architecture.html repo-tree annotates ENTSO-E as '14 datasets' (stale; should be 49)
+    FILES: site/hifi/architecture.html
+    IMPACT: A second high-traffic top-level page repeats the stale ENTSO-E figure, reinforcing the contradiction with the catalog's 49.
+    FIX:   Change the line 1091 annotation to 'ENTSO-E Transparency (49 datasets)'. Leave line 1104 transformer count unless separately verified against gridflow silver/entsoe.
+
+[11] MEDIUM  (status=confirmed; orig=medium; fix=trivial) <content-consistency>
+    TITLE: 'Seven feeds, one warehouse' heading describes a 6-vendor grid
+    FILES: site/hifi/index.html
+    IMPACT: Self-contradictory vendor count within the home page; an attentive recruiter notices 'seven' over six logos and a 'six vendors' line in the same scroll.
+    FIX:   Change 'Seven feeds' to 'Six feeds' (or 'Six sources') to match the six-vendor grid and the rest of the site. This is a leftover from a prior vendor count.
+
+[12] LOW     (status=confirmed; orig=low; fix=small) <accessibility>
+    TITLE: Table headers lack `scope` on schema, sample, and at-a-glance tables (WCAG 1.3.1)
+    FILES: site/hifi/data-sources.html, authored-pages/elexon/fuelhh.html, site/hifi/data-sources/elexon/system_prices.html
+    IMPACT: Minor; screen readers may not announce column context reliably for data cells on complex viewports.
+    FIX:   Add `scope="col"` to every `<th>` in `thead` (and `scope="row"` if any row headers exist). Mechanical edit in the build template / authored pages.
+
+[13] LOW     (status=confirmed; orig=low; fix=medium,small) <accessibility>
+    TITLE: Breadcrumb markup and `aria-current` are inconsistent between older and newer pages (WCAG 1.3.1, minor)
+    FILES: site/hifi/data-sources.html, site/hifi/architecture.html, authored-pages/openmeteo/_landing.html, site/hifi/data-sources/elexon/system_prices.html
+    IMPACT: Inconsistent screen-reader experience; the current location in the breadcrumb trail is not programmatically conveyed on the older/top-level pages.
+    FIX:   Standardise on the newer pattern: wrap breadcrumbs in `<nav aria-label="Breadcrumb">`, mark the trailing crumb `aria-current="page"`, and `aria-hidden="true"` the `.sep`. Roll into the build template so all generated pages match.
+
+[14] LOW     (status=confirmed; orig=low; fix=trivial) <accessibility>
+    TITLE: Decorative seeded charts (sparklines/donut/priceLadder) have no text alternative or aria-hidden
+    FILES: site/hifi/index.html, site/hifi/data-sources.html, site/hifi/data-sources/elexon/system_prices.html
+    IMPACT: Minor; AT users may encounter an unlabelled decorative graphic, but surrounding captions provide context.
+    FIX:   Add `aria-hidden="true"` to the chart host element (or have charts.js set it on the generated `<svg>`), since the adjacent visible caption already conveys that the chart is an illustrative snapshot. Keep the informative architecture diagram's labelled pattern as the model for any chart that ever carries real data.
+
+[15] LOW     (status=disputed; orig=medium; fix=small) <content-consistency>
+    TITLE: No meta description on any of the 162 dataset pages, nor on data-sources.html / architecture.html
+    FILES: site/hifi/data-sources.html, site/hifi/architecture.html, site/hifi/data-sources/elexon/fuelhh.html, authored-pages/
+    IMPACT: Search engines and link-unfurl previews fall back to scraped body text for 162+ pages; weak discoverability and inconsistent social cards for the catalog the portfolio is built around.
+    FIX:   Add a one-line meta description to the dataset-page template in authored-pages (and the two top-level pages), e.g. derived from each dataset's overview lede, then rebuild. Even a vendor-generic description improves SEO/share previews over none.
+
+[16] LOW     (status=confirmed; orig=low; fix=trivial) <content-consistency>
+    TITLE: NESO carbon_intensity title uses '· NESO ·' while the other 32 NESO pages use '· NESO Carbon Intensity ·'
+    FILES: site/hifi/data-sources/neso/carbon_intensity.html
+    IMPACT: Minor title inconsistency; cosmetic, affects one tab/search-result label.
+    FIX:   Change the carbon_intensity.html title segment to '· NESO Carbon Intensity · Gridflow' to match its 32 siblings and the hub title.
+
+[17] LOW     (status=disputed; orig=medium; fix=trivial) <links>
+    TITLE: NESO vendor-doc URL inconsistent: hub links carbonintensity.org.uk, all 33 dataset pages link carbon-intensity.github.io
+    FILES: authored-pages/neso/_landing.html, authored-pages/neso/regional_wales.html, authored-pages/neso/carbon_intensity.html
+    IMPACT: 
+    FIX:   Point the NESO hub 'Vendor docs' button at https://carbon-intensity.github.io/api-definitions/ to match the 33 dataset pages (that is the actual API documentation; carbonintensity.org.uk apex is a redirecting marketing root, not the docs). Fix in authored-pages/neso/_landing.html then rebuild.
+
+[18] INFO    (status=confirmed; orig=info; fix=small,trivial) <content-consistency>
+    TITLE: data-screen-label format is inconsistent across page types but unused by site.js (inert)
+    FILES: site/hifi/data-sources/elexon/fuelhh.html, site/hifi/architecture.html, site/hifi/assets/site.js
+    IMPACT: No functional impact; purely an internal-metadata tidiness nit. Noted to pre-empt future confusion about whether the labels drive UI.
+    FIX:   Either normalise the label convention in the authored-pages template (pick 'Vendor · slug' uniformly) or drop the attribute, since it is dead metadata. Lowest priority — no user-visible effect today.
+
+
+===== REJECTED — 17 (titles) =====
+   - <structure> 161/162 dataset pages use fixed-width viewport (width=1280) conflicting with the documented dev
+   - <structure> 31 of 33 Elexon dataset pages omit the caveats section present on all other 131 dataset pages a
+   - <links> De-duplicated external-URL inventory (for separate liveness checking)
+   - <links> Elexon system-prices API-doc link contains an unresolved -settlementDate- path placeholder
+   - <links> Contact mailto is syntactically valid but unverifiable against persona
+   - <vault-consistency> Open-Meteo solar pages assert azimuth=180 as 'south-facing' — vault says 180 is the known-WRONG
+   - <vault-consistency> forecast_solar sample table mislabels its provenance ('verbatim from vault Bronze sample') and 
+   - <code-quality> All 162 dataset pages ship without a <main> landmark (a11y minimum violation)
+   - <code-quality> Dual <nav> on every dataset page but sidebar nav has no distinguishing aria-label
+   - <code-quality> 161 of 162 dataset pages use non-responsive viewport width=1280 (no initial-scale); inconsisten
+   - <code-quality> Chart rendering and data-opts JSON are valid across the whole site (no empty-render defects)
+   - <code-quality> Hardcoded 'last updated 2026-05-18' string in footer will silently go stale
+   - <anti-goals> Repeated display-size "…mix · live." heading + "now" chip across 8 NESO snapshot pages overstat
+   - <anti-goals> Dead "Export CSV" / "Sort: alphabetical" controls imply a product feature that doesn't exist
+   - <anti-goals> "Open to roles…" portfolio footer assessed — acceptable, not a hire-me CTA (cleared)
+   - <anti-goals> "Shipped"/"shipping" model badges assessed — honest, not status-badges-on-unfinished-work (clea
+   - <content-consistency> data-sources.html category facets double-count GIE and NESO — numerically coherent, by design (

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>activated_balancing_qty · ENTSO-E Transparency · Gridflow</title>
+  <meta name="description" content="Activated balancing energy quantity in MWh per control area, reserve_type and direction — the MWh delivered for each frequency-restoration reserve activation…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,15 +55,15 @@
 
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../entsoe.html">ENTSO-E Transparency</a>
-        <span class="sep">/</span>
-        <span class="here">activated_balancing_qty</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">activated_balancing_qty</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -140,7 +141,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -163,7 +164,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
           <div class="eyebrow mb-8">Overview</div>
@@ -243,10 +244,10 @@
           <table class="schema-table">
             <thead>
               <tr>
-                <th style="width: 22%;">Column</th>
-                <th style="width: 14%;">Type</th>
-                <th style="width: 8%; text-align:center;">Nullable</th>
-                <th>Description</th>
+                <th scope="col" style="width: 22%;">Column</th>
+                <th scope="col" style="width: 14%;">Type</th>
+                <th scope="col" style="width: 8%; text-align:center;">Nullable</th>
+                <th scope="col">Description</th>
               </tr>
             </thead>
             <tbody>
@@ -348,13 +349,13 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>timestamp_utc</th>
-                  <th>area_code</th>
-                  <th>reserve_type</th>
-                  <th>direction</th>
-                  <th>quantity_mwh</th>
-                  <th>resolution</th>
-                  <th>data_provider</th>
+                  <th scope="col">timestamp_utc</th>
+                  <th scope="col">area_code</th>
+                  <th scope="col">reserve_type</th>
+                  <th scope="col">direction</th>
+                  <th scope="col">quantity_mwh</th>
+                  <th scope="col">resolution</th>
+                  <th scope="col">data_provider</th>
                 </tr>
               </thead>
               <tbody>
@@ -530,7 +531,7 @@ daily = qty.with_columns(pl.col(<span class="s">"timestamp_utc"</span>).dt.date(
 
         </section>
 
-      </div>
+      </main>
     </div>
   </div>
 

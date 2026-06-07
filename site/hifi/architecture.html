@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Architecture · Gridflow</title>
+  <meta name="description" content="Inside the gridflow ETL architecture — a bronze–silver–gold data warehouse with API connectors, Pydantic schema contracts, and cross-source feature builders."/>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -315,7 +316,7 @@
         <div class="stat-l">Async connectors</div>
       </div>
       <div>
-        <div class="stat-n">34</div>
+        <div class="stat-n">67</div>
         <div class="stat-l">Silver transformers</div>
       </div>
       <div>
@@ -1088,11 +1089,11 @@ con.execute(<span class="s">f"""
 │   ├── base.py              <span class="ann">BaseConnector ABC + RawResponse</span>
 │   ├── registry.py          <span class="ann">source name → connector class</span>
 │   ├── <span class="dir">elexon/</span>            <span class="ann">Elexon BMRS (33 datasets)</span>
-│   ├── <span class="dir">entsoe/</span>            <span class="ann">ENTSO-E Transparency (14 datasets)</span>
-│   ├── <span class="dir">entsog/</span>            <span class="ann">ENTSO-G gas flows</span>
-│   ├── <span class="dir">gie/</span>               <span class="ann">GIE AGSI + ALSI storage</span>
-│   ├── <span class="dir">openmeteo/</span>         <span class="ann">Open-Meteo weather</span>
-│   └── <span class="dir">neso/</span>              <span class="ann">NESO carbon intensity</span>
+│   ├── <span class="dir">entsoe/</span>            <span class="ann">ENTSO-E Transparency (49 datasets)</span>
+│   ├── <span class="dir">entsog/</span>            <span class="ann">ENTSO-G gas flows (33 datasets)</span>
+│   ├── <span class="dir">gie/</span>               <span class="ann">GIE AGSI + ALSI storage (8 datasets)</span>
+│   ├── <span class="dir">openmeteo/</span>         <span class="ann">Open-Meteo weather (6 datasets)</span>
+│   └── <span class="dir">neso/</span>              <span class="ann">NESO carbon intensity (33 datasets)</span>
 │
 ├── <span class="dir">bronze/</span>
 │   └── writer.py            <span class="ann">SHA-256 hashed writes + .meta.json sidecars</span>
@@ -1100,9 +1101,9 @@ con.execute(<span class="s">f"""
 ├── <span class="dir">silver/</span>              <span class="ann">← Transform layer</span>
 │   ├── base.py              <span class="ann">BaseSilverTransformer: read → transform → write</span>
 │   ├── registry.py          <span class="ann">(source, dataset) → transformer class</span>
-│   ├── <span class="dir">elexon/</span>            <span class="ann">28 transformers</span>
-│   ├── <span class="dir">entsoe/</span>            <span class="ann">14 transformers</span>
-│   └── <span class="dim">…/</span>                 <span class="ann">one transformer per dataset per source</span>
+│   ├── <span class="dir">elexon/</span>            <span class="ann">33 transformers</span>
+│   ├── <span class="dir">entsoe/</span>            <span class="ann">26 transformers</span>
+│   └── <span class="dim">…/</span>                 <span class="ann">per-dataset &amp; shared-family transformers</span>
 │
 ├── <span class="dir">gold/</span>                <span class="ann">← Feature builders + cross-source joins</span>
 │   ├── base.py              <span class="ann">BaseGoldBuilder ABC</span>
@@ -1154,7 +1155,7 @@ con.execute(<span class="s">f"""
             </div>
           </div>
 
-          <a href="https://github.com" target="_blank" rel="noopener" class="btn ghost" style="justify-content:center;">
+          <a href="https://github.com/EBentham/gridflow" target="_blank" rel="noopener" class="btn ghost" style="justify-content:center;">
             Read the full source on GitHub →
           </a>
 

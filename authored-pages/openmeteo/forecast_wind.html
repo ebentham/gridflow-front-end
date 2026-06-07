@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>forecast_wind · Open-Meteo · Gridflow</title>
+  <meta name="description" content="Hourly wind-weather forecast at 12 GB capacity-weighted sites with full hub-height coverage (10 / 80 / 100 / 120 / 180 m) — the canonical wind-generation…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,15 +61,15 @@
 
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../openmeteo.html">Open-Meteo</a>
-        <span class="sep">/</span>
-        <span class="here">forecast_wind</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">forecast_wind</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -142,7 +143,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -165,7 +166,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
           <div class="eyebrow mb-8">Overview</div>
@@ -211,7 +212,7 @@
           <p class="small mb-24" style="max-width: 640px;">Defined in <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/schemas/weather.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WindWeather</code> (subclass of <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">_BaseWeather</code>); the forecast variant uses the wider <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">WIND_FORECAST_VARS</code> set (19 vars) materialised by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/silver/openmeteo/forecast.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">ForecastWindWeather</code>. Silver parquet uses <strong>F15-B canonical (unit-suffixed) names</strong>. Partitioned by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">timestamp_utc</code> (year + month). Point-in-time field: <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">available_at</code>; no <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">forecast_run_at</code>. <strong>Includes <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">air_density_kg_m3</code></strong> (turbine power-curve density correction).</p>
           <table class="schema-table">
             <thead>
-              <tr><th style="width: 28%;">Column</th><th style="width: 13%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+              <tr><th scope="col" style="width: 28%;">Column</th><th scope="col" style="width: 13%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr>
             </thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC; hourly cadence. Validator requires tzinfo. Source: <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.time[i]</code>.<span class="cite">schemas/weather.py L26, L34-39</span></td></tr>
@@ -250,7 +251,7 @@
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
               <thead>
-                <tr><th>timestamp_utc</th><th>location</th><th>wind_speed_10m_mps</th><th>wind_speed_100m_mps</th><th>wind_speed_180m_mps</th><th>wind_gusts_10m_mps</th><th>cloud_cover_pct</th><th>dew_point_2m_c</th><th>air_density_kg_m3</th></tr>
+                <tr><th scope="col">timestamp_utc</th><th scope="col">location</th><th scope="col">wind_speed_10m_mps</th><th scope="col">wind_speed_100m_mps</th><th scope="col">wind_speed_180m_mps</th><th scope="col">wind_gusts_10m_mps</th><th scope="col">cloud_cover_pct</th><th scope="col">dew_point_2m_c</th><th scope="col">air_density_kg_m3</th></tr>
               </thead>
               <tbody>
                 <tr><td class="date">2026-05-08T00:00:00+00:00</td><td class="str">hornsea</td><td class="num">5.06</td><td class="num">7.72</td><td class="num">9.33</td><td class="num">8.89</td><td class="num">60.0</td><td class="num">8.5</td><td class="num">1.249</td></tr>
@@ -439,7 +440,7 @@ print(power_input.tail(24))</pre>
           </div>
         </section>
 
-      </div>
+      </main>
     </div>
   </div>
 

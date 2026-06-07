@@ -45,7 +45,7 @@
               Built around a bronze–silver–gold data warehouse and a
               probabilistic modelling stack.
             </p>
-            <p class="tiny mt-16">Documentation site · cream paper · last updated 2026-05-18</p>
+            <p class="tiny mt-16">Documentation site · cream paper</p>
           </div>
           <div>
             <h4>Project</h4>

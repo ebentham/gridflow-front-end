@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>historical_solar · Open-Meteo · Gridflow</title>
+  <meta name="description" content="Hourly ERA5-reanalysis irradiance (GHI/DNI/DHI/GTI) at 6 GB capacity-weighted solar sites — the canonical multi-decade backtest input for PV-generation…"/>
   <meta name="viewport" content="width=1280" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,15 +61,15 @@
 
   <div style="border-bottom: 1px solid var(--rule);">
     <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
-      <div class="crumbs mb-16">
+      <nav class="crumbs mb-16" aria-label="Breadcrumb">
         <a href="../../index.html">Gridflow</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../../data-sources.html">Data sources</a>
-        <span class="sep">/</span>
+        <span class="sep" aria-hidden="true">/</span>
         <a href="../openmeteo.html">Open-Meteo</a>
-        <span class="sep">/</span>
-        <span class="here">historical_solar</span>
-      </div>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">historical_solar</span>
+      </nav>
       <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: end;">
         <div>
           <div class="row gap-8 mb-12" style="align-items:center; flex-wrap:wrap;">
@@ -142,7 +143,7 @@
   <div class="container" style="padding-top: 0; padding-bottom: 0;">
     <div class="page-layout">
 
-      <nav class="sidebar">
+      <nav class="sidebar" aria-label="On this page">
         <div class="sidebar-section">
           <div class="sidebar-section-title">On this page</div>
           <a href="#overview" class="active">Overview</a>
@@ -165,7 +166,7 @@
         </div>
       </nav>
 
-      <div class="main-content">
+      <main class="main-content">
 
         <section id="overview" style="padding-top: 48px; margin-bottom: 48px;">
           <div class="eyebrow mb-8">Overview</div>
@@ -211,7 +212,7 @@
           <p class="small mb-24" style="max-width: 640px;">Defined in <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/schemas/weather.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">SolarWeather</code> (subclass of <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">_BaseWeather</code>) and materialised by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">gridflow/silver/openmeteo/historical.py</code> · <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">HistoricalSolarWeather</code>. Silver parquet uses <strong>F15-B canonical (unit-suffixed) names</strong> — vault tables predate the rename. Partitioned by <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">timestamp_utc</code> (year + month). Point-in-time field: <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">available_at</code>; ERA5 values are stable. <strong>No <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">air_density_kg_m3</code></strong> — the solar request omits <code class="mono" style="font-size:12px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">surface_pressure</code>.</p>
           <table class="schema-table">
             <thead>
-              <tr><th style="width: 28%;">Column</th><th style="width: 13%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+              <tr><th scope="col" style="width: 28%;">Column</th><th scope="col" style="width: 13%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr>
             </thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC; hourly cadence. Validator requires tzinfo. Source: <code class="mono" style="font-size:11px; background: var(--paper-deep); padding: 2px 6px; border: 1px solid var(--rule);">hourly.time[i]</code>.<span class="cite">schemas/weather.py L26, L34-39</span></td></tr>
@@ -249,7 +250,7 @@
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
               <thead>
-                <tr><th>timestamp_utc</th><th>location</th><th>shortwave_radiation_wm2</th><th>direct_normal_irradiance_wm2</th><th>diffuse_radiation_wm2</th><th>global_tilted_irradiance_wm2</th><th>cloud_cover_pct</th><th>temperature_2m_c</th><th>snow_depth_m</th></tr>
+                <tr><th scope="col">timestamp_utc</th><th scope="col">location</th><th scope="col">shortwave_radiation_wm2</th><th scope="col">direct_normal_irradiance_wm2</th><th scope="col">diffuse_radiation_wm2</th><th scope="col">global_tilted_irradiance_wm2</th><th scope="col">cloud_cover_pct</th><th scope="col">temperature_2m_c</th><th scope="col">snow_depth_m</th></tr>
               </thead>
               <tbody>
                 <tr><td class="date">2025-06-01T11:00:00+00:00</td><td class="str">cornwall</td><td class="num">620.0</td><td class="num">780.0</td><td class="num">190.0</td><td class="num">710.0</td><td class="num">25.0</td><td class="num">16.3</td><td class="num">0.0</td></tr>
@@ -437,7 +438,7 @@ print(joined.select([<span class="s">"timestamp_utc"</span>,<span class="s">"loc
           </div>
         </section>
 
-      </div>
+      </main>
     </div>
   </div>
 
