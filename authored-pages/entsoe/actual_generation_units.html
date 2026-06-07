@@ -202,7 +202,7 @@
             empty <code class="mono">unit_mrid</code>.
           </p>
           <table class="schema-table">
-            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <thead><tr><th scope="col" style="width: 22%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr></thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC; validator requires tzinfo. Source: <code class="mono">&lt;Period&gt;</code> start + position × resolution.<span class="cite">schemas/entsoe.py L222, L232-237</span></td></tr>
               <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">EIC bidding zone. Source: <code class="mono">&lt;inBiddingZone_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L223</span></td></tr>
@@ -227,7 +227,7 @@
           <h2 class="display-3 mb-24">What a row looks like.</h2>
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
-              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>production_type</th><th>unit_mrid</th><th>unit_name</th><th>generation_mw</th><th>resolution</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+              <thead><tr><th scope="col">timestamp_utc</th><th scope="col">area_code</th><th scope="col">production_type</th><th scope="col">unit_mrid</th><th scope="col">unit_name</th><th scope="col">generation_mw</th><th scope="col">resolution</th><th scope="col">data_provider</th><th scope="col">ingested_at</th></tr></thead>
               <tbody>
                 <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10YGB----------A</td><td class="str">B14</td><td class="str">48WSTN0000ABRBON</td><td class="str">ABRBO</td><td class="num">100.5</td><td class="str">PT60M</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
               </tbody>

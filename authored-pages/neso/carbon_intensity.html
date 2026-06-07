@@ -285,7 +285,7 @@
           </p>
           <table class="schema-table">
             <thead>
-              <tr><th style="width: 24%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr>
+              <tr><th scope="col" style="width: 24%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr>
             </thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Half-hour period START. Period END is <code class="mono">period_end_utc</code>. UTC always (vendor sends <code class="mono">Z</code> suffix). Source: <code class="mono">from</code>.<span class="cite">schemas/neso.py L31 · inherits _TimestampedNesoBase</span></td></tr>
@@ -313,11 +313,11 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>timestamp_utc</th>
-                  <th>period_end_utc</th>
-                  <th>forecast_gco2_kwh</th>
-                  <th>actual_gco2_kwh</th>
-                  <th>intensity_index</th>
+                  <th scope="col">timestamp_utc</th>
+                  <th scope="col">period_end_utc</th>
+                  <th scope="col">forecast_gco2_kwh</th>
+                  <th scope="col">actual_gco2_kwh</th>
+                  <th scope="col">intensity_index</th>
                 </tr>
               </thead>
               <tbody>

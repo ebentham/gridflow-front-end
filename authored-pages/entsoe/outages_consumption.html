@@ -200,7 +200,7 @@
             <code class="mono">timestamp_utc</code> (year + month).
           </p>
           <table class="schema-table">
-            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <thead><tr><th scope="col" style="width: 22%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr></thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start + <code class="mono">position × resolution</code>.<span class="cite">schemas/entsoe.py L460, L472-477</span></td></tr>
               <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Bidding zone EIC. Source: <code class="mono">&lt;BiddingZone_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L461</span></td></tr>
@@ -227,7 +227,7 @@
           <h2 class="display-3 mb-24">What a row looks like.</h2>
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
-              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>outage_type</th><th>unavailable_mw</th><th>business_type</th><th>document_mrid</th><th>document_status</th><th>timeseries_mrid</th><th>resolution</th><th>data_provider</th></tr></thead>
+              <thead><tr><th scope="col">timestamp_utc</th><th scope="col">area_code</th><th scope="col">outage_type</th><th scope="col">unavailable_mw</th><th scope="col">business_type</th><th scope="col">document_mrid</th><th scope="col">document_status</th><th scope="col">timeseries_mrid</th><th scope="col">resolution</th><th scope="col">data_provider</th></tr></thead>
               <tbody>
                 <tr><td class="date">2026-05-06T08:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="str">planned</td><td class="num">120.0</td><td class="str">A53</td><td class="str">doc-101</td><td class="str">A05</td><td class="str">ts-001</td><td class="str">PT60M</td><td>entsoe</td></tr>
                 <tr style="outline: 1px solid #3b6b4b; outline-offset: -1px;"><td class="date">2026-05-06T14:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="str">unplanned</td><td class="num">480.0</td><td class="str">A54</td><td class="str">doc-102</td><td class="str">A05</td><td class="str">ts-001</td><td class="str">PT60M</td><td>entsoe</td></tr>

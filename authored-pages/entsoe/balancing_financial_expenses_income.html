@@ -200,7 +200,7 @@
             <code class="mono">quantity_mw</code>.
           </p>
           <table class="schema-table">
-            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <thead><tr><th scope="col" style="width: 22%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr></thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start + position × resolution.<span class="cite">schemas/entsoe.py L683, L691-696</span></td></tr>
               <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Control area EIC (renamed from control_area_domain). Source: <code class="mono">&lt;controlArea_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L684 · h8_balancing.py L200</span></td></tr>
@@ -223,7 +223,7 @@
           <h2 class="display-3 mb-24">What a row looks like.</h2>
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
-              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>amount_eur</th><th>business_type</th><th>resolution</th><th>data_provider</th></tr></thead>
+              <thead><tr><th scope="col">timestamp_utc</th><th scope="col">area_code</th><th scope="col">amount_eur</th><th scope="col">business_type</th><th scope="col">resolution</th><th scope="col">data_provider</th></tr></thead>
               <tbody>
                 <tr><td class="date">2026-05-06T00:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">42,180.0</td><td class="str">B45</td><td class="str">PT60M</td><td>entsoe</td></tr>
                 <tr><td class="date">2026-05-06T08:00:00+00:00</td><td class="str">10YGB----------A</td><td class="num">81,420.0</td><td class="str">B45</td><td class="str">PT60M</td><td>entsoe</td></tr>

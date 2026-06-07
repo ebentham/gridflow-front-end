@@ -202,7 +202,7 @@
             (lines 176-194). The transformer filters empty <code class="mono">unit_mrid</code> rows.
           </p>
           <table class="schema-table">
-            <thead><tr><th style="width: 22%;">Column</th><th style="width: 14%;">Type</th><th style="width: 8%; text-align:center;">Nullable</th><th>Description</th></tr></thead>
+            <thead><tr><th scope="col" style="width: 22%;">Column</th><th scope="col" style="width: 14%;">Type</th><th scope="col" style="width: 8%; text-align:center;">Nullable</th><th scope="col">Description</th></tr></thead>
             <tbody>
               <tr><td class="col-name">timestamp_utc <span class="pk-badge">PK</span></td><td class="col-type">datetime[UTC]</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">Year boundary, tz-aware UTC. Source: <code class="mono">&lt;Period&gt;</code> start.<span class="cite">schemas/entsoe.py L179, L189-194</span></td></tr>
               <tr><td class="col-name">area_code <span class="pk-badge">PK</span></td><td class="col-type">str</td><td style="text-align:center;" class="nullable">—</td><td class="col-note">EIC bidding zone. Source: <code class="mono">&lt;inBiddingZone_Domain.mRID&gt;</code>.<span class="cite">schemas/entsoe.py L180</span></td></tr>
@@ -227,7 +227,7 @@
           <h2 class="display-3 mb-24">What a row looks like.</h2>
           <div style="overflow-x: auto; border: 1px solid var(--ink-strong);">
             <table class="data-table">
-              <thead><tr><th>timestamp_utc</th><th>area_code</th><th>production_type</th><th>unit_mrid</th><th>unit_name</th><th>capacity_mw</th><th>resolution</th><th>data_provider</th><th>ingested_at</th></tr></thead>
+              <thead><tr><th scope="col">timestamp_utc</th><th scope="col">area_code</th><th scope="col">production_type</th><th scope="col">unit_mrid</th><th scope="col">unit_name</th><th scope="col">capacity_mw</th><th scope="col">resolution</th><th scope="col">data_provider</th><th scope="col">ingested_at</th></tr></thead>
               <tbody>
                 <tr><td class="date">2026-01-01T00:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="str">B05</td><td class="str">11W-NIEDERAUSSEM-K</td><td class="str">Niederaussem K</td><td class="num">944.0</td><td class="str">P1Y</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
                 <tr><td class="date">2026-01-01T00:00:00+00:00</td><td class="str">10Y1001A1001A82H</td><td class="str">B04</td><td class="str">11W-IRSCHING-5</td><td class="str">Irsching 5</td><td class="num">845.0</td><td class="str">P1Y</td><td>entsoe</td><td class="date">2026-05-08T18:00:00Z</td></tr>
